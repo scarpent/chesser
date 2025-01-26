@@ -1,12 +1,13 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chessboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/chessground@9.1.1/assets/chessground.base.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/chessground@9.1.1/assets/chessground.brown.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/chessground@9.1.1/assets/chessground.cburnett.css" rel="stylesheet">
+    <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet">
+    <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet">
+    <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet">
     <style>
         #board {
             width: 100%; /* Responsive board */
@@ -22,7 +23,6 @@
 
     <script type="module">
         import { Chessground } from 'https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.js';
-
         document.addEventListener('DOMContentLoaded', function () {
             const boardElement = document.getElementById('board');
             if (boardElement) {
