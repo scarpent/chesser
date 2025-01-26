@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chessboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/chessground@9.1.1/assets/chessground.base.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chessground@9.1.1/assets/chessground.brown.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chessground@9.1.1/assets/chessground.cburnett.css" rel="stylesheet">
+    <style>
+        #board {
+            width: 100%; /* Responsive board */
+            max-width: 600px;
+            height: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="board"></div>
+
+    <script type="module">
+        import { Chessground } from 'https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.js';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const boardElement = document.getElementById('board');
+            if (boardElement) {
+                const board = Chessground(boardElement, {
+                    viewOnly: false, // Allow interaction
+                    draggable: true, // Enable drag-and-drop
+                    highlight: {
+                        lastMove: true,
+                        check: true
+                    },
+                    orientation: 'white', // White at the bottom
+                    fen: 'start', // Initial position
+                });
+            } else {
+                console.error('Board element not found');
+            }
+        });
+    </script>
+</body>
+</html>

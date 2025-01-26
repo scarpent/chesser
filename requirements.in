@@ -3,7 +3,6 @@
 
 # python-dateutil
 # requests
-# peewee  # ORM
 django
 
 # https://github.com/niklasf/python-chess/
