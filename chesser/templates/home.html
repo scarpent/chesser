@@ -22,7 +22,7 @@
     <div id="board"></div>
 
     <script type="module">
-        import { Chessground } from 'https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.js';
+        import { Chessground } from '{% static "chessground/chessground.min.js" %}';
         document.addEventListener('DOMContentLoaded', function () {
             const boardElement = document.getElementById('board');
             if (boardElement) {
