@@ -10,36 +10,49 @@
     <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet">
     <style>
         #board {
-            width: 100%; /* Responsive board */
+            width: 100%;
             max-width: 600px;
             height: 600px;
             margin: 0 auto;
         }
     </style>
 </head>
-<body>
+<body x-data="chessApp()" x-init="initChessground()">
 
     <div id="board"></div>
+    <div x-text="status" style="margin-top: 20px;"></div>
 
+    <!-- Load Chessground as an ES module -->
     <script type="module">
-        import { Chessground } from '{% static "chessground/chessground.min.js" %}';
-        document.addEventListener('DOMContentLoaded', function () {
-            const boardElement = document.getElementById('board');
-            if (boardElement) {
-                const board = Chessground(boardElement, {
-                    viewOnly: false, // Allow interaction
-                    draggable: true, // Enable drag-and-drop
-                    highlight: {
-                        lastMove: true,
-                        check: true
-                    },
-                    orientation: 'white', // White at the bottom
-                    fen: 'start', // Initial position
-                });
-            } else {
-                console.error('Board element not found');
-            }
-        });
+        import { Chessground } from 'https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.min.js';
+        window.Chessground = Chessground;
     </script>
+
+    <!-- Define chessApp BEFORE Alpine.js initializes -->
+    <script>
+        function chessApp() {
+            return {
+                board: null,
+                status: 'Ready',
+                initChessground() {
+                    const boardElement = document.getElementById('board');
+                    if (boardElement && window.Chessground) {
+                        this.board = window.Chessground(boardElement, {
+                            viewOnly: false,
+                            draggable: true,
+                            orientation: 'white'
+                        });
+                        this.status = 'Chessboard Loaded!';
+                    } else {
+                        console.error('Chessground failed to load');
+                    }
+                }
+            };
+        }
+    </script>
+
+    <!-- Load Alpine.js LAST -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
 </body>
 </html>
