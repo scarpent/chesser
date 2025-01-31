@@ -23,4 +23,5 @@ from chesser import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
+    path("nav/", views.nav, name="nav"),
 ]

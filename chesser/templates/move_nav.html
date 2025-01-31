@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chessboard</title>
+    <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet">
+    <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet">
+    <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet">
+    <style>
+        #board {
+            width: 100%; /* Responsive board */
+            max-width: 450px;
+            height: 450px;
+            margin: 0 auto;
+        }
+        .move-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .move-nav button {
+            margin: 0 10px;
+        }
+        .move-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .move-list a {
+            margin: 0 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body x-data="chessApp()" x-init="initChessground()" @keydown.left="prevMove()" @keydown.right="nextMove()">
+
+    <div id="board"></div>
+    <div x-text="status" style="margin-top: 20px;"></div>
+
+    <div class="move-nav">
+        <button @click="prevMove()">⬅️</button>
+        <button @click="nextMove()">➡️</button>
+    </div>
+
+    <div class="move-list">
+        <template x-for="(move, index) in moves" :key="index">
+            <a @click="goToMove(index)" x-text="move"></a>
+        </template>
+    </div>
+
+    <!-- Load Chessground and Chess.js as ES modules -->
+    <script type="module">
+        import { Chessground } from 'https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.min.js';
+        import { Chess } from 'https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/chess.js';
+        window.Chessground = Chessground;
+        window.Chess = Chess;
+    </script>
+
+    <!-- Define chessApp BEFORE Alpine.js initializes -->
+    <script>
+        function chessApp() {
+            return {
+                board: null,
+                chess: null,
+                status: 'Ready',
+                moves: ['e4', 'c5', 'c3', 'd5', 'exd5', 'Qxd5', 'd4'],
+                currentMoveIndex: 0,
+                initChessground() {
+                    const boardElement = document.getElementById('board');
+                    if (boardElement && window.Chessground && window.Chess) {
+                        this.chess = new window.Chess();
+                        this.board = window.Chessground(boardElement, {
+                            viewOnly: false,
+                            draggable: true,
+                            highlight: {
+                                lastMove: true,
+                                check: true
+                            },
+                            orientation: 'white',
+                            fen: 'start', // Initial position
+                            movable: {
+                                color: 'both', // Allow both white and black to move
+                                free: false, // Only legal moves
+                                dests: this.toDests(),
+                                events: {
+                                    after: this.handleMove.bind(this)
+                                }
+                            }
+                        });
+                        this.status = 'Chessboard Loaded!';
+                    } else {
+                        console.error('Chessground or Chess.js failed to load');
+                    }
+                },
+                toDests() {
+                    const dests = new Map();
+                    const squares = this.chess.SQUARES || this.chess.board().flatMap(row => row.map(square => square ? square.square : null)).filter(Boolean);
+                    squares.forEach(s => {
+                        const ms = this.chess.moves({ square: s, verbose: true });
+                        if (ms.length) dests.set(s, ms.map(m => m.to));
+                    });
+                    return dests;
+                },
+                handleMove(orig, dest) {
+                    const move = this.chess.move({ from: orig, to: dest });
+                    if (move) {
+                        this.status = `Moved from ${orig} to ${dest}`;
+                        this.board.set({
+                            fen: this.chess.fen(),
+                            movable: {
+                                dests: this.toDests()
+                            }
+                        });
+                    } else {
+                        this.status = `Illegal move from ${orig} to ${dest}`;
+                    }
+                },
+                goToMove(index) {
+                    this.chess.reset();
+                    for (let i = 0; i <= index; i++) {
+                        this.chess.move(this.moves[i]);
+                    }
+                    this.board.set({
+                        fen: this.chess.fen()
+                    });
+                    this.currentMoveIndex = index;
+                    this.status = `Move ${index + 1}: ${this.moves[index]}`;
+                },
+                prevMove() {
+                    if (this.currentMoveIndex > 0) {
+                        this.goToMove(this.currentMoveIndex - 1);
+                    }
+                },
+                nextMove() {
+                    if (this.currentMoveIndex < this.moves.length - 1) {
+                        this.goToMove(this.currentMoveIndex + 1);
+                    }
+                }
+            };
+        }
+    </script>
+
+    <!-- Load Alpine.js LAST -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+</body>
+</html>
