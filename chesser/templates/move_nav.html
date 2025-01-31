@@ -39,6 +39,7 @@
 
     <div id="board"></div>
     <div x-text="status" style="margin-top: 20px;"></div>
+    <div x-text="fen" style="font-family: monaco"></div>
 
     <div class="move-nav">
         <button @click="prevMove()">⬅️</button>
@@ -47,7 +48,7 @@
 
     <div class="move-list">
         <template x-for="(move, index) in moves" :key="index">
-            <a @click="goToMove(index)" x-text="move"></a>
+            <a @click="goToMove(index)" x-text="formatMove(index, move)"></a>
         </template>
     </div>
 
@@ -91,6 +92,7 @@
                             }
                         });
                         this.status = 'Chessboard Loaded!';
+                        this.fen = this.chess.fen();
                     } else {
                         console.error('Chessground or Chess.js failed to load');
                     }
@@ -108,6 +110,7 @@
                     const move = this.chess.move({ from: orig, to: dest });
                     if (move) {
                         this.status = `Moved from ${orig} to ${dest}`;
+                        this.fen = this.chess.fen();
                         this.board.set({
                             fen: this.chess.fen(),
                             movable: {
@@ -128,6 +131,7 @@
                     });
                     this.currentMoveIndex = index;
                     this.status = `Move ${index + 1}: ${this.moves[index]}`;
+                    this.fen = this.chess.fen();
                 },
                 prevMove() {
                     if (this.currentMoveIndex > 0) {
@@ -138,6 +142,9 @@
                     if (this.currentMoveIndex < this.moves.length - 1) {
                         this.goToMove(this.currentMoveIndex + 1);
                     }
+                },
+                formatMove(index, move) {
+                    return `${Math.floor(index / 2) + 1}.${index % 2 === 0 ? '' : '...'} ${move}`;
                 }
             };
         }
