@@ -33,13 +33,15 @@
             margin: 0 5px;
             cursor: pointer;
         }
+        .variation {
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body x-data="chessApp()" x-init="initChessground()" @keydown.left="prevMove()" @keydown.right="nextMove()">
 
     <div id="board"></div>
     <div x-text="status" style="margin-top: 20px;"></div>
-    <div x-text="fen" style="font-family: monaco"></div>
 
     <div class="move-nav">
         <button @click="prevMove()">⬅️</button>
@@ -47,8 +49,27 @@
     </div>
 
     <div class="move-list">
-        <template x-for="(move, index) in moves" :key="index">
+        <template x-for="(move, index) in currentMoves" :key="index">
             <a @click="goToMove(index)" x-text="formatMove(index, move)"></a>
+        </template>
+    </div>
+
+    <div class="move-tree">
+        <template x-for="(move, index) in moveTree.mainline" :key="index">
+            <div>
+                <a @click="goToMove(index)" x-text="formatMove(index, move.move)"></a>
+                <div class="variation" x-show="move.variations.length > 0">
+                    <template x-for="(variation, vIndex) in move.variations" :key="vIndex">
+                        <div>
+                            <span>(</span>
+                            <template x-for="(vMove, vMoveIndex) in variation.mainline" :key="vMoveIndex">
+                                <a @click="goToVariationMove(index, vMoveIndex, vIndex)" x-text="formatMove(vMoveIndex, vMove.move)"></a>
+                            </template>
+                            <span>)</span>
+                        </div>
+                    </template>
+                </div>
+            </div>
         </template>
     </div>
 
@@ -67,8 +88,10 @@
                 board: null,
                 chess: null,
                 status: 'Ready',
-                moves: ['e4', 'c5', 'c3', 'd5', 'exd5', 'Qxd5', 'd4'],
+                moves: [],
                 currentMoveIndex: 0,
+                currentMoves: [],
+                moveTree: null,
                 initChessground() {
                     const boardElement = document.getElementById('board');
                     if (boardElement && window.Chessground && window.Chess) {
@@ -86,14 +109,14 @@
                                 color: 'both', // Allow both white and black to move
                                 free: false, // Only legal moves
                                 dests: this.toDests(),
-                                showDests: false,
                                 events: {
                                     after: this.handleMove.bind(this)
                                 }
                             }
                         });
                         this.status = 'Chessboard Loaded!';
-                        this.fen = this.chess.fen();
+                        this.parsePGN("1. e4 e5 (1... c5 2. c3) 2. Nf3 Nc6 3. d4 (3. Nc3) 3... exd4");
+                        this.currentMoves = this.moveTree.mainline.map(move => move.move);
                     } else {
                         console.error('Chessground or Chess.js failed to load');
                     }
@@ -111,7 +134,6 @@
                     const move = this.chess.move({ from: orig, to: dest });
                     if (move) {
                         this.status = `Moved from ${orig} to ${dest}`;
-                        this.fen = this.chess.fen();
                         this.board.set({
                             fen: this.chess.fen(),
                             movable: {
@@ -122,17 +144,52 @@
                         this.status = `Illegal move from ${orig} to ${dest}`;
                     }
                 },
+                parsePGN(pgn) {
+                    const moveTree = { mainline: [], variations: [] };
+                    const stack = [moveTree];
+                    const tokens = pgn.split(/\s+/);
+                    let current = moveTree;
+
+                    tokens.forEach(token => {
+                        if (token === '(') {
+                            const newVariation = { mainline: [], variations: [] };
+                            current.variations.push(newVariation);
+                            stack.push(newVariation);
+                            current = newVariation;
+                        } else if (token === ')') {
+                            stack.pop();
+                            current = stack[stack.length - 1];
+                        } else if (!token.includes('.')) {
+                            current.mainline.push({ move: token, variations: [] });
+                        }
+                    });
+
+                    this.moveTree = moveTree;
+                },
                 goToMove(index) {
                     this.chess.reset();
                     for (let i = 0; i <= index; i++) {
-                        this.chess.move(this.moves[i]);
+                        this.chess.move(this.currentMoves[i]);
                     }
                     this.board.set({
                         fen: this.chess.fen()
                     });
                     this.currentMoveIndex = index;
-                    this.status = `Move ${index + 1}: ${this.moves[index]}`;
-                    this.fen = this.chess.fen();
+                    this.status = `Move ${index + 1}: ${this.currentMoves[index]}`;
+                },
+                goToVariationMove(mainIndex, varIndex, varTreeIndex) {
+                    this.chess.reset();
+                    for (let i = 0; i <= mainIndex; i++) {
+                        this.chess.move(this.moveTree.mainline[i].move);
+                    }
+                    for (let j = 0; j <= varIndex; j++) {
+                        this.chess.move(this.moveTree.mainline[mainIndex].variations[varTreeIndex].mainline[j].move);
+                    }
+                    this.board.set({
+                        fen: this.chess.fen()
+                    });
+                    this.currentMoveIndex = mainIndex + varIndex + 1;
+                    this.status = `Variation Move ${varIndex + 1}: ${this.moveTree.mainline[mainIndex].variations[varTreeIndex].mainline[varIndex].move}`;
                 },
                 prevMove() {
                     if (this.currentMoveIndex > 0) {
@@ -140,7 +197,7 @@
                     }
                 },
                 nextMove() {
-                    if (this.currentMoveIndex < this.moves.length - 1) {
+                    if (this.currentMoveIndex < this.currentMoves.length - 1) {
                         this.goToMove(this.currentMoveIndex + 1);
                     }
                 },
