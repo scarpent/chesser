@@ -38,7 +38,7 @@
                 board: null,
                 chess: null,
                 status: 'Ready',
-                quizData: {{ quiz_data|safe }},
+                quizData: JSON.parse('{{ quiz_data|escapejs }}'),
                 currentQuizIndex: 0,
                 initChessground() {
                     const boardElement = document.getElementById('board');
