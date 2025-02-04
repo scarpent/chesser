@@ -80,44 +80,43 @@
               this.fennel =
                 "fennel: " + this.quizData.moves[this.currentQuizIndex].fen;
 
-              console.log({
-                message: "initChessground() // 10",
-                board_fen: this.board.getFen(),
-                chess_fen: this.chess.fen(),
-                quiz_index: this.currentQuizIndex,
-                quiz_data: this.quizData.moves[this.currentQuizIndex],
-              });
+              //   console.log({
+              //     message: "initChessground() // 10",
+              //     board_fen: this.board.getFen(),
+              //     chess_fen: this.chess.fen(),
+              //     quiz_index: this.currentQuizIndex,
+              //     quiz_data: this.quizData.moves[this.currentQuizIndex],
+              //   });
 
               setTimeout(() => {
-                console.log({
-                  message: "initChessground() // 20",
-                  board_fen: this.board.getFen(),
-                  chess_fen: this.chess.fen(),
-                  quiz_index: this.currentQuizIndex,
-                  quiz_data: this.quizData.moves[this.currentQuizIndex],
-                });
-
-                console.log("incrementing quix index and setting board...");
-
                 this.currentQuizIndex++;
 
-                this.chess.load(this.quizData.moves[this.currentQuizIndex].fen);
-                this.board.set({
-                  fen: this.quizData.moves[this.currentQuizIndex].fen,
-                  movable: {
-                    dests: this.toDests(),
-                  },
-                });
-                this.fennel = this.quizData.moves[this.currentQuizIndex].fen;
-                this.currentQuizIndex++;
+                const sanMove = this.quizData.moves[this.currentQuizIndex].move;
+                const move = this.chess.move(sanMove);
+                if (move) {
+                  this.board.set({
+                    fen: this.chess.fen(),
+                    movable: {
+                      dests: this.toDests(),
+                    },
+                    lastMove: [move.from, move.to],
+                  });
+                } else {
+                  console.error("Invalid move: " + sanMove);
+                }
 
-                console.log({
-                  message: "initChessground() // 30",
-                  board_fen: this.board.getFen(),
-                  chess_fen: this.chess.fen(),
-                  quiz_index: this.currentQuizIndex,
-                  quiz_data: this.quizData.moves[this.currentQuizIndex],
-                });
+                // this.chess.load(this.quizData.moves[this.currentQuizIndex].fen);
+                // this.board.set({
+                //   fen: this.quizData.moves[this.currentQuizIndex].fen,
+                //   movable: {
+                //     dests: this.toDests(),
+                //   },
+                // });
+                this.fennel =
+                  sanMove +
+                  " ➤ " +
+                  this.quizData.moves[this.currentQuizIndex].fen;
+                this.currentQuizIndex++;
               }, 1000); // 1-second delay
 
               this.status = "Chessboard Loaded!";
@@ -167,33 +166,40 @@
             const correctFen = this.quizData.moves[this.currentQuizIndex].fen;
             console.log("selectedFen: " + fen);
             console.log("correctFen: " + correctFen);
-            console.log("correctMove: " + correctMove);
 
             if (fen === correctFen) {
-              this.status = "Correct move!";
+              this.status = "Correct move! " + correctMove;
               this.fennel = this.quizData.moves[this.currentQuizIndex].fen;
-              // this.currentQuizIndex++;
-              // if (this.currentQuizIndex < this.quizData.moves.length) {
-              //     this.board.set({
-              //         fen: this.quizData.moves[this.currentQuizIndex].fen,
-              //         movable: {
-              //             dests: this.toDests()
-              //         }
-              //     });
-              // } else {
-              //     this.status = 'Quiz completed!';
-              // }
             } else {
               this.status = "Incorrect move. Try again.";
-              previous_index = this.currentQuizIndex - 1;
-              this.chess.load(this.quizData.moves[previous_index].fen);
+              go_back_two = this.currentQuizIndex - 2; // reset to before last opposing move
+              this.chess.load(this.quizData.moves[go_back_two].fen);
               this.board.set({
-                fen: this.quizData.moves[previous_index].fen,
+                fen: this.quizData.moves[go_back_two].fen,
                 movable: {
                   dests: this.toDests(),
                 },
               });
-              this.fennel = this.quizData.moves[previous_index].fen;
+              setTimeout(() => {
+                go_back_one = this.currentQuizIndex - 1;
+                this.chess.load(this.quizData.moves[go_back_one].fen);
+                this.board.set({
+                  fen: this.quizData.moves[go_back_one].fen,
+                  movable: {
+                    dests: this.toDests(),
+                  },
+                });
+                this.fennel = this.quizData.moves[this.currentQuizIndex].fen;
+                // this.currentQuizIndex++;
+              }, 250); // brief display to replay last opposing move
+
+              //   this.board.set({
+              //     fen: this.quizData.moves[previous_index].fen,
+              //     movable: {
+              //       dests: this.toDests(),
+              //     },
+              //   });
+              //   this.fennel = this.quizData.moves[previous_index].fen;
             }
           },
         };
