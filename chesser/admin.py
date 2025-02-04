@@ -10,11 +10,28 @@ class ChapterInline(admin.TabularInline):
     extra = 1  # Number of empty forms to display
     readonly_fields = ("chapter_link",)
 
+    @admin.display(description="Chapter")
     def chapter_link(self, obj):
         link = reverse("admin:chesser_chapter_change", args=[obj.id])
         return format_html('<a href="{}">{}</a>', link, obj.title)
 
-    chapter_link.short_description = "Chapter"
+
+class MoveInline(admin.TabularInline):
+    model = Move
+    extra = 1  # Number of empty forms to display
+    ordering = ("move_id",)  # Order by move_id
+
+
+class VariationInline(admin.TabularInline):
+    model = Variation
+    extra = 1  # Number of empty forms to display
+    readonly_fields = ("mainline_moves_display",)
+    ordering = ("title",)
+
+    @admin.display(description="Mainline Moves")
+    def mainline_moves_display(self, obj):
+        link = reverse("admin:chesser_variation_change", args=[obj.id])
+        return format_html('<a href="{}">{}</a>', link, obj.mainline_moves)
 
 
 @admin.register(Course)
@@ -29,6 +46,7 @@ class ChapterAdmin(admin.ModelAdmin):
     list_display = ("chapter_id", "title", "course")
     search_fields = ("title",)
     list_filter = ("course",)
+    inlines = [VariationInline]  # Add VariationInline to ChapterAdmin
 
 
 @admin.register(Variation)
@@ -44,6 +62,7 @@ class VariationAdmin(admin.ModelAdmin):
     )
     search_fields = ("title",)
     list_filter = ("chapter", "alternative", "informational")
+    inlines = [MoveInline]  # Add MoveInline to VariationAdmin
 
 
 @admin.register(Move)

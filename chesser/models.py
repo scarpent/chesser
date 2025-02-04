@@ -33,11 +33,29 @@ class Variation(models.Model):
     def __str__(self):
         return f"{self.chapter.course.title}: {self.chapter.title}: {self.title}"
 
+    @property
+    def mainline_moves(self):
+        moves = self.moves.order_by("move_id")
+        white_to_move = True
+        move_string = ""
+        for move in moves:
+            if white_to_move:
+                prefix = f"{move.move_num}."
+                white_to_move = False
+            else:
+                prefix = ""
+                white_to_move = True
+            move_string += f"{prefix}{move.san} "
+
+        return move_string
+
 
 class Move(models.Model):
     move_id = models.IntegerField(unique=True)
     move_num = models.IntegerField()
-    variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
+    variation = models.ForeignKey(
+        Variation, on_delete=models.CASCADE, related_name="moves"
+    )
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, null=True, blank=True)
     text = models.TextField(null=True, blank=True)

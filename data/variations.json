@@ -1,23 +1,4 @@
 {
-    "My White": {
-        "id": 1,
-        "color": "white",
-        "chapters": {
-            "1": "1.e4 Sundry",
-            "2": "1.e4 e5 Misc"
-        }
-    },
-    "My Black": {
-        "id": 2,
-        "color": "black",
-        "chapters": {
-            "3": "1.e4 e5 Misc",
-            "4": "Bishop's Game"
-        }
-    }
-}
-
-{
     "id": 1,
     "name": "Nimzowitsch 1...Nc6",
     "course": 1,
@@ -25,7 +6,8 @@
     "alt": false,
     "info": false,
     "moves": "1.e4 Nc6 2.Nf3 d5 3.exd5 Qxd5 4.Nc3 Qh5 5.Nb5",
-    "key_moves": [2],
+    "start_move": 2,
+    "end_move": 99,
     "data": [
         {
             "move": 1,
