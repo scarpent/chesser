@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chessboard</title>
+    <title>Practice</title>
     <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet">
     <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet">
     <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet">
@@ -21,6 +21,7 @@
 
     <div id="board"></div>
     <div x-text="status" style="margin-top: 20px;"></div>
+    <div x-text="fennel" style="margin-top: 20px;"></div>
 
     <!-- Load Chessground and Chess.js as ES modules -->
     <script type="module">
@@ -37,10 +38,15 @@
                 board: null,
                 chess: null,
                 status: 'Ready',
+                quizData: {{ quiz_data|safe }},
+                currentQuizIndex: 0,
                 initChessground() {
                     const boardElement = document.getElementById('board');
                     if (boardElement && window.Chessground && window.Chess) {
                         this.chess = new window.Chess();
+
+                        // chess.js first so toDests() works
+                        this.chess.load(this.quizData.moves[this.currentQuizIndex].fen);
                         this.board = window.Chessground(boardElement, {
                             viewOnly: false,
                             draggable: true,
@@ -49,7 +55,7 @@
                                 check: true
                             },
                             orientation: 'white',
-                            fen: 'start', // Initial position
+                            fen: this.quizData.moves[this.currentQuizIndex].fen, // Initial position from quiz data
                             movable: {
                                 color: 'both', // Allow both white and black to move
                                 free: false, // Only legal moves
@@ -60,6 +66,49 @@
                                 }
                             }
                         });
+
+                        this.fennel = "fennel: " + this.quizData.moves[this.currentQuizIndex].fen;
+
+                        console.log({
+                            message: "initChessground() // 10",
+                            board_fen: this.board.getFen(),
+                            chess_fen: this.chess.fen(),
+                            quiz_index: this.currentQuizIndex,
+                            quiz_data: this.quizData.moves[this.currentQuizIndex]
+                        });
+
+                        setTimeout(() => {
+                            console.log({
+                                message: "initChessground() // 20",
+                                board_fen: this.board.getFen(),
+                                chess_fen: this.chess.fen(),
+                                quiz_index: this.currentQuizIndex,
+                                quiz_data: this.quizData.moves[this.currentQuizIndex]
+                            });
+
+                            console.log("incrementing quix index and setting board...");
+
+                            this.currentQuizIndex++;
+
+                            this.chess.load(this.quizData.moves[this.currentQuizIndex].fen);
+                            this.board.set({
+                                fen: this.quizData.moves[this.currentQuizIndex].fen,
+                                movable: {
+                                    dests: this.toDests()
+                                },
+                            });
+                            this.fennel = "fennel: " + this.quizData.moves[this.currentQuizIndex].fen;
+                            this.currentQuizIndex++;
+
+                            console.log({
+                                message: "initChessground() // 30",
+                                board_fen: this.board.getFen(),
+                                chess_fen: this.chess.fen(),
+                                quiz_index: this.currentQuizIndex,
+                                quiz_data: this.quizData.moves[this.currentQuizIndex]
+                            });
+                        }, 1000); // 1-second delay
+
                         this.status = 'Chessboard Loaded!';
                     } else {
                         console.error('Chessground or Chess.js failed to load');
@@ -84,8 +133,44 @@
                                 dests: this.toDests()
                             }
                         });
+
+                        console.log("this.chess.fen(): " + this.chess.fen());
+                        this.checkQuizMove(this.chess.fen());
                     } else {
                         this.status = `Illegal move from ${orig} to ${dest}`;
+                    }
+                },
+                checkQuizMove(fen) {
+                    const correctMove = this.quizData.moves[this.currentQuizIndex].move;
+                    const correctFen = this.quizData.moves[this.currentQuizIndex].fen;
+                    console.log("selectedFen: " + fen);
+                    console.log("correctFen: " + correctFen);
+                    console.log("correctMove: " + correctMove);
+
+                    if (fen === correctFen) {
+                        this.status = 'Correct move!';
+                        // this.currentQuizIndex++;
+                        // if (this.currentQuizIndex < this.quizData.moves.length) {
+                        //     this.board.set({
+                        //         fen: this.quizData.moves[this.currentQuizIndex].fen,
+                        //         movable: {
+                        //             dests: this.toDests()
+                        //         }
+                        //     });
+                        // } else {
+                        //     this.status = 'Quiz completed!';
+                        // }
+                    } else {
+                        this.status = 'Incorrect move. Try again.';
+                        previous_index = this.currentQuizIndex - 1;
+                        this.chess.load(this.quizData.moves[previous_index].fen);
+                        this.board.set({
+                            fen: this.quizData.moves[previous_index].fen,
+                            movable: {
+                                dests: this.toDests()
+                            },
+                        });
+                        this.fennel = "fennel: " + this.quizData.moves[previous_index].fen;
                     }
                 }
             };
