@@ -9,5 +9,5 @@ def nav(request):
     return render(request, "move_nav.html")
 
 
-def subvar(request):
-    return render(request, "subvar.html")
+def practice(request):
+    return render(request, "practice.html")

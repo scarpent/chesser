@@ -7,7 +7,7 @@ from .models import Chapter, Course, Move, Variation
 
 class ChapterInline(admin.TabularInline):
     model = Chapter
-    extra = 1  # Number of empty forms to display
+    extra = 0  # Number of empty forms to display
     readonly_fields = ("chapter_link",)
 
     @admin.display(description="Chapter")
@@ -18,13 +18,13 @@ class ChapterInline(admin.TabularInline):
 
 class MoveInline(admin.TabularInline):
     model = Move
-    extra = 1  # Number of empty forms to display
+    extra = 0  # Number of empty forms to display
     ordering = ("move_id",)  # Order by move_id
 
 
 class VariationInline(admin.TabularInline):
     model = Variation
-    extra = 1  # Number of empty forms to display
+    extra = 0  # Number of empty forms to display
     readonly_fields = ("mainline_moves_display",)
     ordering = ("title",)
 
