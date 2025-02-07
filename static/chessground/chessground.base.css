@@ -157,7 +157,7 @@ piece.fading {
   flex-flow: row;
   width: 100%;
   height: 16px;
-  text-transform: uppercase;
+  text-transform: lowercase;
   text-align: center;
 }
 
@@ -176,7 +176,7 @@ piece.fading {
 .cg-wrap coords.squares {
   bottom: 0;
   left: 0;
-  text-transform: uppercase;
+  text-transform: lowercase;
   text-align: right;
   flex-flow: column-reverse;
   height: 100%;
