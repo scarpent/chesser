@@ -55,3 +55,7 @@ def quiz_poc(request):
 
     context = {"quiz_data": json.dumps(quiz_data)}
     return render(request, "quiz_poc.html", context)
+
+
+def simple(request):
+    return render(request, "simple.html")

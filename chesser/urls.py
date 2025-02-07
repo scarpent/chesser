@@ -26,4 +26,5 @@ urlpatterns = [
     path("nav/", views.nav, name="nav"),
     path("practice/", views.practice, name="practice"),
     path("quiz/", views.quiz_poc, name="quiz_poc"),
+    path("simple/", views.simple, name="simple"),
 ]
