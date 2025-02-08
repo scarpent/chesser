@@ -27,14 +27,15 @@
     </style>
   </head>
   <body x-data="chessApp()" x-init="initChessground()">
+
     <div id="board"></div>
     <div x-text="status" style="margin-top: 20px"></div>
 
     <!-- Pass quizData safely to JavaScript -->
-    <!-- <script>
+    <script>
         window.quizData = JSON.parse('{{ quiz_data|escapejs }}');
         console.log("Quiz data loaded:", window.quizData);
-    </script> -->
+    </script>
 
     <!-- Import and Initialize chessApp -->
     <script type="module">
@@ -43,12 +44,12 @@
       console.log("chessApp loaded");
 
       document.addEventListener("alpine:init", () => {
-        console.log("Alpine.js initializing");
+        console.log("alpine.js initializing");
         Alpine.data("chessApp", chessApp);
       });
     </script>
 
-    <!-- Load Alpine.js LAST -->
+    <!-- Load alpine.js LAST -->
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"
