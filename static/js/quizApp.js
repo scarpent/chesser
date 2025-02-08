@@ -109,7 +109,7 @@ export function quizApp() {
             },
             lastMove: [move.from, move.to],
           });
-          console.log(`Opposing move (qi: ${this.quizMoveIndex}): ${sanMove} ➤ ${this.chess.fen()}`);
+          console.log(`Opposing move (qi: ${this.quizMoveIndex}): ${sanMove}`);
           this.quizMoveIndex++;
         } else {  // this would be an error with the variation setup
           console.log(`Invalid opposing move: ${sanMove}`);
@@ -135,7 +135,7 @@ export function quizApp() {
           console.log(`${sanMove} is an alternative move`);
 
           // TODO: decide what to do with handling alt/wrong moves:
-          // annotations, delays, buttons, etc.
+          // annotations, delays, buttons, etc
 
           // TODO: see about nesting things less terribly
           if (answer.alt_fail.includes(sanMove)) {
@@ -157,7 +157,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     gotoPreviousMove() {
-      // TODO: maybe should havae a boundary check here? 🤷
+      // TODO: maybe should have a boundary check here? 🤷
       this.quizMoveIndex = this.quizMoveIndex - 2;
       this.chess.undo();
       this.chess.undo();
@@ -173,7 +173,14 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     completeQuiz() {
       console.log("Quiz completed!");
-    }
+    },
+
+    //--------------------------------------------------------------------------------
+    openAnalysisBoard() {
+      const fen = this.chess.fen().replace(/ /g, '_');
+      const url = `https://lichess.org/analysis/standard/${fen}`;
+      window.open(url, "_blank");
+    },
 
   }  // return { ... }
 };
