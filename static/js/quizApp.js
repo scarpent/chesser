@@ -25,7 +25,7 @@ export function quizApp() {
         this.chess.load(first.fen);
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
-          draggable: false,
+          draggable: false,  // true is no different? (only want to click anyway)
           highlight: {
             lastMove: true,
             check: true,
@@ -33,8 +33,8 @@ export function quizApp() {
           orientation: this.quizData.color,
           fen: first.fen,
           movable: {
-            color: "both", // Allow both white and black to move
-            free: false, // Only legal moves
+            color: "both", // allow both white and black to move
+            free: false, // only legal moves
             dests: this.toDests(),
             showDests: false,
             events: {
@@ -42,11 +42,9 @@ export function quizApp() {
             },
           },
         });
-
         console.log("Chess board loaded in initChessground()");
 
-        this.startQuiz();
-
+        this.playOpposingMove();
 
       } else {
         console.error("Chessground or chess.js failed to load");
@@ -54,7 +52,6 @@ export function quizApp() {
     }, // initChessground()
 
     //--------------------------------------------------------------------------------
-
     toDests() {
       const dests = new Map();
       const squares =
@@ -77,7 +74,6 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
-
     handleMove(orig, dest) {
       const move = this.chess.move({ from: orig, to: dest });
       if (move) {
@@ -88,25 +84,22 @@ export function quizApp() {
           },
         });
         console.log(`Moved from ${orig} to ${dest}`);
-        // this.checkQuizMove(this.chess.fen());
+        this.checkQuizMove();
       } else {  // this won't happen because of "free: false"
         this.status = `Illegal move from ${orig} to ${dest}`;
       }
     },
 
     //--------------------------------------------------------------------------------
-
-    startQuiz() {
-      console.log("starting the quiz...");
-      this.quizMoveIndex = this.quizData.start + 1;
-      this.playOpposingMove(this.quizMoveIndex);
-    },
-
-    //--------------------------------------------------------------------------------
-
-    playOpposingMove(index) {
+    playOpposingMove() {
       setTimeout(() => {
-        const sanMove = this.quizData.moves[index].move;
+        this.quizMoveIndex++;
+        if (this.quizMoveIndex >= this.quizData.moves.length
+          || this.quizMoveIndex >= this.quizData.end) {
+          this.completeQuiz();
+          return;
+        }
+        const sanMove = this.quizData.moves[this.quizMoveIndex].move;
         const move = this.chess.move(sanMove);
         if (move) {
           this.board.set({
@@ -116,15 +109,38 @@ export function quizApp() {
             },
             lastMove: [move.from, move.to],
           });
-          console.log(`Opposing move: ${sanMove} ➤ ${this.chess.fen()}`);
+          console.log(`Opposing move (qi: ${this.quizMoveIndex}): ${sanMove} ➤ ${this.chess.fen()}`);
+          this.quizMoveIndex++;
         } else {  // this would be an error with the variation setup
           console.error("Invalid opposing move: " + sanMove);
         }
-      }, 1000) // 1-second delay
+      }, 250) // 0.25 second delay
+      // (later: maybe 1 second for first move? shorter for subsequent?)
     },
 
     //--------------------------------------------------------------------------------
+    checkQuizMove() {
+      if (this.quizMoveIndex < this.quizData.moves.length) {
+        const correct = this.quizData.moves[this.quizMoveIndex];
+        const altMoves = Object.keys(correct.alt).length > 0
+          ? ` (alt: ${Object.keys(correct.alt).join(", ")}`
+          : "";
 
+        if (this.chess.fen() === correct.fen) {
+          console.log(`Correct move: ${correct.move}${altMoves})`);
+          this.playOpposingMove();
+        } else {
+          console.error("Incorrect move");
+        }
+      } else {
+        this.completeQuiz();
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    completeQuiz() {
+      console.log("Quiz completed!");
+    }
 
   }  // return { ... }
 };

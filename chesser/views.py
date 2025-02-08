@@ -17,7 +17,7 @@ def practice(request):
         "color": "white",
         "start": 0,  # opening state before opposing move
         "end": 4,  # or 99?
-        "moves": [
+        "moves": [  # always starts at the beginning...
             {
                 "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
                 "move": "e4",
@@ -31,22 +31,29 @@ def practice(request):
             {
                 "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
                 "move": "e5",
+                "alt": {},
             },
             {
                 "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
                 "move": "Nf3",
-                "alt": ["d5", "Nc3"],  # accepted good moves that don't fail the quiz
-                "alt_fail": ["d5"],  # accepted good moves that fail the quiz
+                "alt": {"d5": 2, "Nc3": 1},  # accepted good moves that don't fail
+                "alt_fail": ["d5"],  # accepted good moves that fail
             },
             {
                 "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  # noqa: E501
                 "move": "Nc6",
+                "alt": {},
             },
             {
                 "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3",  # noqa: E501
                 "move": "d4",
-                "alt": ["Nc3", "Bc4", "Bb5"],
+                "alt": {"Nc3": 2, "Bc4": 1, "Bb5": 1},
                 "alt_fail": [],
+            },
+            {  # normally we would end on "our" move, but make sure is handled
+                "fen": "r1bqkbnr/pppp1ppp/2n5/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4",  # noqa: E501
+                "move": "exd4",
+                "alt": {},
             },
         ],
     }
