@@ -26,7 +26,7 @@
       }
     </style>
   </head>
-  <body x-data="chessApp()" x-init="initChessground()">
+  <body x-data="quizApp()" x-init="initChessground()">
 
     <div id="board"></div>
     <div x-text="status" style="margin-top: 20px"></div>
@@ -37,15 +37,15 @@
         console.log("Quiz data loaded:", window.quizData);
     </script>
 
-    <!-- Import and Initialize chessApp -->
+    <!-- Import and Initialize quizApp -->
     <script type="module">
-      import { chessApp } from "{% static 'js/chessApp.js' %}";
-      window.chessApp = chessApp;
-      console.log("chessApp loaded");
+      import { quizApp } from "{% static 'js/quizApp.js' %}";
+      window.quizApp = quizApp;
+      console.log("quizApp loaded");
 
       document.addEventListener("alpine:init", () => {
         console.log("alpine.js initializing");
-        Alpine.data("chessApp", chessApp);
+        Alpine.data("quizApp", quizApp);
       });
     </script>
 

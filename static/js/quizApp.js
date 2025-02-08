@@ -4,7 +4,7 @@ import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/ches
 window.Chessground = Chessground;
 window.Chess = Chess;
 
-export function chessApp() {
+export function quizApp() {
   return {
     board: null,
     chess: null,
