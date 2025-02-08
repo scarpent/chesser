@@ -112,7 +112,7 @@ export function quizApp() {
           console.log(`Opposing move (qi: ${this.quizMoveIndex}): ${sanMove} ➤ ${this.chess.fen()}`);
           this.quizMoveIndex++;
         } else {  // this would be an error with the variation setup
-          console.error("Invalid opposing move: " + sanMove);
+          console.log("Invalid opposing move: " + sanMove);
         }
       }, 250) // 0.25 second delay
       // (later: maybe 1 second for first move? shorter for subsequent?)
@@ -131,6 +131,16 @@ export function quizApp() {
           this.playOpposingMove();
         } else {
           console.error("Incorrect move");
+          this.quizMoveIndex = this.quizMoveIndex - 2;
+          const previousFen = this.quizData.moves[this.quizMoveIndex].fen;
+          this.chess.load(previousFen);
+          this.board.set({
+            fen: previousFen,
+            movable: {
+              dests: this.toDests(),
+            },
+          });
+          this.playOpposingMove();
         }
       } else {
         this.completeQuiz();
