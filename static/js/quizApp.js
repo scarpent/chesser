@@ -12,6 +12,7 @@ export function quizApp() {
     chess: null,
     status: "Ready",
     quizData: quizData,
+    quizMoveIndex: 0,
 
     initChessground() {
       const boardElement = document.getElementById("board");
@@ -24,7 +25,7 @@ export function quizApp() {
         this.chess.load(first.fen);
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
-          draggable: true,
+          draggable: false,
           highlight: {
             lastMove: true,
             check: true,
@@ -42,11 +43,17 @@ export function quizApp() {
           },
         });
 
-        this.status = "Chessboard loaded!";
+        console.log("Chess board loaded in initChessground()");
+
+        this.startQuiz();
+
+
       } else {
         console.error("Chessground or chess.js failed to load");
       }
-    },
+    }, // initChessground()
+
+    //--------------------------------------------------------------------------------
 
     toDests() {
       const dests = new Map();
@@ -69,23 +76,55 @@ export function quizApp() {
       return dests;
     },
 
+    //--------------------------------------------------------------------------------
+
     handleMove(orig, dest) {
       const move = this.chess.move({ from: orig, to: dest });
       if (move) {
-        this.status = `Moved from ${orig} to ${dest}`;
         this.board.set({
           fen: this.chess.fen(),
           movable: {
             dests: this.toDests(),
           },
         });
-
+        console.log(`Moved from ${orig} to ${dest}`);
         // this.checkQuizMove(this.chess.fen());
       } else {  // this won't happen because of "free: false"
         this.status = `Illegal move from ${orig} to ${dest}`;
       }
     },
 
+    //--------------------------------------------------------------------------------
 
-  };
-}
+    startQuiz() {
+      console.log("starting the quiz...");
+      this.quizMoveIndex = this.quizData.start + 1;
+      this.playOpposingMove(this.quizMoveIndex);
+    },
+
+    //--------------------------------------------------------------------------------
+
+    playOpposingMove(index) {
+      setTimeout(() => {
+        const sanMove = this.quizData.moves[index].move;
+        const move = this.chess.move(sanMove);
+        if (move) {
+          this.board.set({
+            fen: this.chess.fen(),
+            movable: {
+              dests: this.toDests(),
+            },
+            lastMove: [move.from, move.to],
+          });
+          console.log(`Opposing move: ${sanMove} ➤ ${this.chess.fen()}`);
+        } else {  // this would be an error with the variation setup
+          console.error("Invalid opposing move: " + sanMove);
+        }
+      }, 1000) // 1-second delay
+    },
+
+    //--------------------------------------------------------------------------------
+
+
+  }  // return { ... }
+};

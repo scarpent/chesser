@@ -84,6 +84,7 @@ class Move(models.Model):
 #     level = models.IntegerField()  # 0 start, 1 first rep (4 hours)
 #     passed = models.BooleanField(default=False)
 # TODO: a field to "mark" this variation from the UI after doing it, to easily find it to review something -- e.g. reviewing on the phone and you want to go back and review more and compare to similar lines... maybe it's even a text field so can add comments...  # noqa: E501
+# TODO: should also show missed moves
 
 
 # class MoveHistory(models.Model):
