@@ -13,14 +13,15 @@ def nav(request):
 
 def practice(request):
     # Example JSON data structure
+    # maybe we don't need/want fens here! (they may be useful for variation
+    # view and clicking through subvars, but the quiz itself can be leaner...)
     quiz_data = {
         "color": "white",
         "start": 0,  # opening state before opposing move
         "end": 4,  # or 99?
         "moves": [  # always starts at the beginning...
             {
-                "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-                "move": "e4",
+                "san": "e4",
                 "alt": {"d4": 1, "Nf3": 1, "c4": 1},
                 # maybe rank alt moves and show with annotations (A, B, C)
                 # (could have multiple "A" moves, etc...) probably a checkbox
@@ -29,30 +30,25 @@ def practice(request):
                 # but would want to toggle them separately?
             },
             {
-                "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-                "move": "e5",
+                "san": "e5",
                 "alt": {},
             },
             {
-                "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
-                "move": "Nf3",
+                "san": "Nf3",
                 "alt": {"d5": 2, "Nc3": 1},  # accepted good moves that don't fail
                 "alt_fail": ["d5"],  # accepted good moves that fail
             },
             {
-                "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",  # noqa: E501
-                "move": "Nc6",
+                "san": "Nc6",
                 "alt": {},
             },
             {
-                "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3",  # noqa: E501
-                "move": "d4",
+                "san": "d4",
                 "alt": {"Nc3": 2, "Bc4": 1, "Bb5": 1},
                 "alt_fail": [],
             },
             {  # normally we would end on "our" move, but make sure is handled
-                "fen": "r1bqkbnr/pppp1ppp/2n5/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4",  # noqa: E501
-                "move": "exd4",
+                "san": "exd4",
                 "alt": {},
             },
         ],
