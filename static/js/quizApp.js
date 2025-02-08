@@ -5,7 +5,9 @@ window.Chessground = Chessground;
 window.Chess = Chess;
 
 export function quizApp() {
+
   return {
+
     board: null,
     chess: null,
     status: "Ready",
@@ -45,6 +47,7 @@ export function quizApp() {
         console.error("Chessground or chess.js failed to load");
       }
     },
+
     toDests() {
       const dests = new Map();
       const squares =
@@ -65,6 +68,7 @@ export function quizApp() {
       });
       return dests;
     },
+
     handleMove(orig, dest) {
       const move = this.chess.move({ from: orig, to: dest });
       if (move) {
@@ -81,5 +85,7 @@ export function quizApp() {
         this.status = `Illegal move from ${orig} to ${dest}`;
       }
     },
+
+
   };
 }
