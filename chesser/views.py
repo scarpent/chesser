@@ -35,8 +35,8 @@ def practice(request):
             },
             {
                 "san": "Nf3",
-                "alt": {"d5": 2, "Nc3": 1},  # accepted good moves that don't fail
-                "alt_fail": ["d5"],  # accepted good moves that fail
+                "alt": {"d4": 2, "Nc3": 1},  # accepted good moves that don't fail
+                "alt_fail": ["d4"],  # accepted good moves that fail
             },
             {
                 "san": "Nc6",
