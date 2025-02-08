@@ -21,7 +21,12 @@ def practice(request):
             {
                 "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
                 "move": "e4",
-                "alt": ["d4", "Nf3", "c4"],
+                "alt": {"d4": 1, "Nf3": 1, "c4": 1},
+                # maybe rank alt moves and show with annotations (A, B, C)
+                # (could have multiple "A" moves, etc...) probably a checkbox
+                # to show/hide these after the quiz is completed? OR, perhaps
+                # the annotations should be defined with lines, circles, etc?
+                # but would want to toggle them separately?
             },
             {
                 "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
