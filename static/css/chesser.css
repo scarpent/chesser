@@ -47,8 +47,8 @@ button:hover {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
   background: rgba(255, 255, 255, 0.5);
   cursor: nwse-resize;
   border-radius: 3px;

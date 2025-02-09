@@ -10,7 +10,7 @@ export function quizApp() {
 
     board: null,
     chess: null,
-    status: "🚀",
+    status: "⚪️⚪️",
     quizData: quizData,
     quizMoveIndex: 0,
 
@@ -131,6 +131,7 @@ export function quizApp() {
       // delays, buttons, etc (annotations probably in variation view)
 
       if (move.san === answer.san) {
+        this.status = "🟢🟢";
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
         this.status = "🟢🟡";
@@ -156,7 +157,7 @@ export function quizApp() {
       });
 
       setTimeout(() => {
-        this.status = "🚀";
+        // this.status = "⚪️⚪️";
         this.gotoPreviousMove();
       }, 1500);
     },
@@ -178,7 +179,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     completeQuiz() {
-      this.status = "✅";
+      this.status = "✅✅";
     },
 
     //--------------------------------------------------------------------------------
