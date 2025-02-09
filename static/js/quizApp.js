@@ -156,13 +156,8 @@ export function quizApp() {
       });
 
       setTimeout(() => {
-        this.board.set({
-          brush: {
-            [square]: null,
-          },
-        });
         this.gotoPreviousMove();
-      }, 2000);
+      }, 1500);
     },
 
     //--------------------------------------------------------------------------------
