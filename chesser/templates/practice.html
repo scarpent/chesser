@@ -21,7 +21,10 @@
   </head>
   <body x-data="quizApp()" x-init="initChessground()">
     <div id="container">
-      <div id="board"></div>
+      <div id="resizable-board">
+        <div id="board"></div>
+        <div id="resize-handle"></div>
+      </div>
       <div x-text="status" style="margin: 20px 0 20px"></div>
       <button @click="analysisBoard()">🔍️</button>
     </div>
@@ -43,6 +46,7 @@
         Alpine.data("quizApp", quizApp);
       });
     </script>
+    <script src="{% static 'js/resize.js' %}"></script>
 
     <!-- Load alpine.js LAST -->
     <script
