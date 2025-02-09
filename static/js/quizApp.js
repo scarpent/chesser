@@ -123,10 +123,10 @@ export function quizApp() {
       if (this.quizMoveIndex < this.quizData.moves.length) {
         const answer = this.quizData.moves[this.quizMoveIndex];
         const altMoves = Object.keys(answer.alt).length > 0
-          ? ` (alt: ${Object.keys(answer.alt).join(", ")}`
+          ? ` (alt: ${Object.keys(answer.alt).join(", ")})`
           : "";
 
-        console.log(`Checking move ${this.quizMoveIndex}: ${sanMove} against ${answer.san}${altMoves})`);
+        console.log(`Checking move ${this.quizMoveIndex}: ${sanMove} against ${answer.san}${altMoves}`);
 
         if (sanMove === answer.san) {
           console.log(`Correct move: ${answer.san}${altMoves})`);
