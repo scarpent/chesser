@@ -5,9 +5,7 @@ window.Chessground = Chessground;
 window.Chess = Chess;
 
 export function quizApp() {
-
   return {
-
     board: null,
     chess: null,
     status: "⚪️⚪️",
@@ -19,11 +17,11 @@ export function quizApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        const quizMove = this.quizData.moves[this.quizData.start]
+        const quizMove = this.quizData.moves[this.quizData.start];
         this.chess.move(quizMove.san);
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
-          draggable: false,  // true is no different? (only want to click anyway)
+          draggable: false, // true is no different? (only want to click anyway)
           highlight: {
             lastMove: true,
             check: true,
@@ -43,7 +41,6 @@ export function quizApp() {
         console.log("chess board loaded in initChessground()");
 
         this.playOpposingMove();
-
       } else {
         console.error("chessground or chess.js failed to load");
       }
@@ -83,7 +80,8 @@ export function quizApp() {
         });
         // console.log(`moved from ${orig} to ${dest} (${move.san})`);
         this.checkQuizMove(move);
-      } else {  // this won't happen because of "free: false"
+      } else {
+        // this won't happen because of "free: false"
         this.status = `illegal move from ${orig} to ${dest}`;
       }
     },
@@ -92,8 +90,10 @@ export function quizApp() {
     playOpposingMove() {
       setTimeout(() => {
         this.quizMoveIndex++;
-        if (this.quizMoveIndex >= this.quizData.moves.length
-          || this.quizMoveIndex >= this.quizData.end) {
+        if (
+          this.quizMoveIndex >= this.quizData.moves.length ||
+          this.quizMoveIndex >= this.quizData.end
+        ) {
           this.completeQuiz();
           return;
         }
@@ -109,10 +109,11 @@ export function quizApp() {
           });
           // console.log(`opposing move (qi: ${this.quizMoveIndex}): ${sanMove}`);
           this.quizMoveIndex++;
-        } else {  // this would be an error with the variation setup
+        } else {
+          // this would be an error with the variation setup
           console.log(`invalid opposing move: ${sanMove}`);
         }
-      }, 250) // 0.25 second delay
+      }, 250); // 0.25 second delay
       // (later: maybe 1 second for first move? shorter for subsequent?)
     },
 
@@ -151,7 +152,7 @@ export function quizApp() {
         drawable: {
           shapes: [
             { orig: to, brush: circleColor, piece: "circle" },
-            { orig: from, dest: to, brush: arrowColor, piece: "arrow" }
+            { orig: from, dest: to, brush: arrowColor, piece: "arrow" },
           ],
         },
       });
@@ -184,10 +185,9 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     analysisBoard() {
-      const fen = this.chess.fen().replace(/ /g, '_');
+      const fen = this.chess.fen().replace(/ /g, "_");
       const url = `https://lichess.org/analysis/standard/${fen}`;
       window.open(url, "_blank");
     },
-
-  }  // return { ... }
-};
+  }; // return { ... }
+}
