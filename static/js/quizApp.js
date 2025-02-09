@@ -133,16 +133,15 @@ export function quizApp() {
       // delays, buttons, etc (annotations probably in variation view)
 
       if (move.san === answer.san) {
-        console.log(`Correct move: ${answer.san}`);
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
-        console.log(`${move.san} is an alternative "soft fail" move`);
+        this.status = "🟢 alt (reasonable, non-failing)";
         this.annotateMissedMove(move.to, "green");
       } else if (answer.alt_fail.includes(move.san)) {
-        console.log(`${move.san} is an alternative "hard fail" move`);
+        this.status = "🟡 alt (reasonable, but failing)";
         this.annotateMissedMove(move.to, "yellow");
       } else {
-        console.log("Incorrect move");
+        this.status = "❌ failing (may or may not be a reasonable move)";
         this.annotateMissedMove(move.to, "red");
       }
     },
@@ -156,6 +155,7 @@ export function quizApp() {
       });
 
       setTimeout(() => {
+        this.status = "Ready";
         this.gotoPreviousMove();
       }, 1500);
     },
@@ -177,11 +177,11 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     completeQuiz() {
-      console.log("Quiz completed!");
+      this.status = "Quiz completed!";
     },
 
     //--------------------------------------------------------------------------------
-    openAnalysisBoard() {
+    analysisBoard() {
       const fen = this.chess.fen().replace(/ /g, '_');
       const url = `https://lichess.org/analysis/standard/${fen}`;
       window.open(url, "_blank");
