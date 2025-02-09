@@ -2,6 +2,9 @@ import json
 
 from django.shortcuts import render
 
+from chesser.models import Variation
+from chesser.serializers import serialize_quiz
+
 
 def home(request):
     return render(request, "home.html")
@@ -12,47 +15,12 @@ def nav(request):
 
 
 def practice(request):
-    # Example JSON data structure
-    # maybe we don't need/want fens here! (they may be useful for variation
-    # view and clicking through subvars, but the quiz itself can be leaner...)
-    quiz_data = {
-        "color": "white",
-        "start": 0,  # opening state before opposing move
-        "end": 4,  # or 99?
-        "moves": [  # always starts at the beginning...
-            {
-                "san": "e4",
-                "alt": ["d4", "Nf3", "c4"],
-                "alt_fail": [],
-            },
-            {
-                "san": "e5",
-                "alt": [],
-                "alt_fail": [],
-            },
-            {
-                "san": "Nf3",
-                "alt": ["Nc3"],  # alternative "good" moves that pass
-                "alt_fail": ["d4"],  # alternative good moves that fail
-            },
-            {
-                "san": "Nc6",
-                "alt": [],
-                "alt_fail": [],
-            },
-            {
-                "san": "d4",
-                "alt": ["Nc3", "Bc4", "Bb5"],
-                "alt_fail": [],
-            },
-            {  # normally we would end on "our" move, but make sure is handled
-                "san": "exd4",
-                "alt": [],
-                "alt_fail": [],
-            },
-        ],
-    }
-
+    variation = (
+        Variation.objects.select_related("chapter__course")
+        .prefetch_related("moves")
+        .first()
+    )
+    quiz_data = serialize_quiz(variation)
     context = {"quiz_data": json.dumps(quiz_data)}
     return render(request, "practice.html", context)
 

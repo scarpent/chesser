@@ -40,13 +40,19 @@ class Command(BaseCommand):
             chapter=Chapter.objects.get(chapter_id=1),
             variation_id=10000,
             title="Nimzowitsch 1...Nc6",
-            start_move=2,
+            start=2,
         )
 
         moves = [
             {"move_id": 40000, "move_num": 1, "san": "e4"},
             {"move_id": 40001, "move_num": 1, "san": "Nc6"},
-            {"move_id": 40002, "move_num": 2, "san": "Nf3"},
+            {
+                "move_id": 40002,
+                "move_num": 2,
+                "san": "Nf3",
+                "alt": {"Nc3": 1},
+                "alt_fail": {"d4": 1, "Bb5": 2},
+            },
             {"move_id": 40003, "move_num": 2, "san": "d5"},
             {"move_id": 40004, "move_num": 3, "san": "exd5"},
             {"move_id": 40005, "move_num": 3, "san": "Qxd5"},

@@ -25,9 +25,8 @@ class Variation(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     alternative = models.BooleanField(default=False)
     informational = models.BooleanField(default=False)
-    start = models.IntegerField(default=1)
+    start = models.IntegerField(default=2)
     end = models.IntegerField(default=99)
-    source = models.TextField(null=True, blank=True)  # chessable course, etc
     # TODO:
     #
     # ➤ annotation for evaluation at the end position (could do this for
@@ -40,6 +39,8 @@ class Variation(models.Model):
     # good or really bad, etc. UI will have a way to toggle and show more
     # (also! consider a way to track soft fails and have some stats and/or
     # some kind of practice mode for these...)
+    #
+    # ➤ "source" chessable course, etc, maybe a link, too?
 
     def __str__(self):
         return f"{self.chapter.course.title}: {self.chapter.title}: {self.title}"

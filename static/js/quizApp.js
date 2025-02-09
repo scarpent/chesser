@@ -38,7 +38,7 @@ export function quizApp() {
             },
           },
         });
-        console.log("chess board loaded in initChessground()");
+        console.log("chess board loaded");
 
         this.playOpposingMove();
       } else {
@@ -81,7 +81,7 @@ export function quizApp() {
         // console.log(`moved from ${orig} to ${dest} (${move.san})`);
         this.checkQuizMove(move);
       } else {
-        // this won't happen because of "free: false"
+        // this shouldn't happen, because of "free: false"
         this.status = `illegal move from ${orig} to ${dest}`;
       }
     },
@@ -148,6 +148,9 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     annotateMissedMove(from, to, arrowColor, circleColor) {
+      // TODO: this could just be annotateMove, and add
+      // arrow and/or circle based on if color is set or not
+      // (although maybe would like to have default colors...)
       this.board.set({
         drawable: {
           shapes: [
