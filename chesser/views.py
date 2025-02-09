@@ -22,34 +22,33 @@ def practice(request):
         "moves": [  # always starts at the beginning...
             {
                 "san": "e4",
-                "alt": {"d4": 1, "Nf3": 1, "c4": 1},
-                # maybe rank alt moves and show with annotations (A, B, C)
-                # (could have multiple "A" moves, etc...) probably a checkbox
-                # to show/hide these after the quiz is completed? OR, perhaps
-                # the annotations should be defined with lines, circles, etc?
-                # but would want to toggle them separately?
+                "alt": ["d4", "Nf3", "c4"],
+                "alt_fail": [],
             },
             {
                 "san": "e5",
-                "alt": {},
+                "alt": [],
+                "alt_fail": [],
             },
             {
                 "san": "Nf3",
-                "alt": {"d4": 2, "Nc3": 1},  # accepted good moves that don't fail
-                "alt_fail": ["d4"],  # accepted good moves that fail
+                "alt": ["Nc3"],  # alternative "good" moves that pass
+                "alt_fail": ["d4"],  # alternative good moves that fail
             },
             {
                 "san": "Nc6",
-                "alt": {},
+                "alt": [],
+                "alt_fail": [],
             },
             {
                 "san": "d4",
-                "alt": {"Nc3": 2, "Bc4": 1, "Bb5": 1},
+                "alt": ["Nc3", "Bc4", "Bb5"],
                 "alt_fail": [],
             },
             {  # normally we would end on "our" move, but make sure is handled
                 "san": "exd4",
-                "alt": {},
+                "alt": [],
+                "alt_fail": [],
             },
         ],
     }

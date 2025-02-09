@@ -120,38 +120,30 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     checkQuizMove(sanMove) {
-      if (this.quizMoveIndex < this.quizData.moves.length) {
-        const answer = this.quizData.moves[this.quizMoveIndex];
-        const altMoves = Object.keys(answer.alt).length > 0
-          ? ` (alt: ${Object.keys(answer.alt).join(", ")})`
-          : "";
-
-        console.log(`Checking move ${this.quizMoveIndex}: ${sanMove} against ${answer.san}${altMoves}`);
-
-        if (sanMove === answer.san) {
-          console.log(`Correct move: ${answer.san}${altMoves})`);
-          this.playOpposingMove();
-        } else if (Object.keys(answer.alt).includes(sanMove)) {
-          console.log(`${sanMove} is an alternative move`);
-
-          // TODO: decide what to do with handling alt/wrong moves:
-          // annotations, delays, buttons, etc
-
-          // TODO: see about nesting things less terribly
-          if (answer.alt_fail.includes(sanMove)) {
-            console.log(`Disallowed alternative move: ${sanMove}`);
-            this.gotoPreviousMove();
-          } else {
-            console.log(`Accepted alternative move: ${sanMove}${altMoves})`);
-            this.gotoPreviousMove();
-          }
-
-        } else {
-          console.log("Incorrect move");
-          this.gotoPreviousMove();
-        }
-      } else {
+      if (this.quizMoveIndex >= this.quizData.moves.length) {
         this.completeQuiz();
+        return;
+      }
+
+      const answer = this.quizData.moves[this.quizMoveIndex];
+
+      console.log(`Checking move ${this.quizMoveIndex}: ${sanMove} against ${answer.san} (alt: ${answer.alt}, alt_fail: ${answer.alt_fail})`);
+
+      // TODO: decide what to do with handling alt/wrong moves:
+      // delays, buttons, etc (annotations probably in variation view)
+
+      if (sanMove === answer.san) {
+        console.log(`Correct move: ${answer.san}`);
+        this.playOpposingMove();
+      } else if (answer.alt.includes(sanMove)) {
+        console.log(`${sanMove} is an alternative "soft fail" move`);
+        this.gotoPreviousMove();
+      } else if (answer.alt_fail.includes(sanMove)) {
+        console.log(`${sanMove} is an alternative "hard fail" move`);
+        this.gotoPreviousMove();
+      } else {
+        console.log("Incorrect move");
+        this.gotoPreviousMove();
       }
     },
 
