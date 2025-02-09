@@ -10,7 +10,7 @@ export function quizApp() {
 
     board: null,
     chess: null,
-    status: "Ready",
+    status: "🚀",
     quizData: quizData,
     quizMoveIndex: 0,
 
@@ -20,8 +20,6 @@ export function quizApp() {
         this.chess = new window.Chess();
 
         const quizMove = this.quizData.moves[this.quizData.start]
-        console.log(quizMove.san)
-
         this.chess.move(quizMove.san);
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
@@ -42,12 +40,12 @@ export function quizApp() {
             },
           },
         });
-        console.log("Chess board loaded in initChessground()");
+        console.log("chess board loaded in initChessground()");
 
         this.playOpposingMove();
 
       } else {
-        console.error("Chessground or chess.js failed to load");
+        console.error("chessground or chess.js failed to load");
       }
     }, // initChessground()
 
@@ -83,10 +81,10 @@ export function quizApp() {
             dests: this.toDests(),
           },
         });
-        console.log(`Moved from ${orig} to ${dest} (${move.san})`);
+        // console.log(`moved from ${orig} to ${dest} (${move.san})`);
         this.checkQuizMove(move);
       } else {  // this won't happen because of "free: false"
-        this.status = `Illegal move from ${orig} to ${dest}`;
+        this.status = `illegal move from ${orig} to ${dest}`;
       }
     },
 
@@ -109,10 +107,10 @@ export function quizApp() {
             },
             lastMove: [move.from, move.to],
           });
-          console.log(`Opposing move (qi: ${this.quizMoveIndex}): ${sanMove}`);
+          // console.log(`opposing move (qi: ${this.quizMoveIndex}): ${sanMove}`);
           this.quizMoveIndex++;
         } else {  // this would be an error with the variation setup
-          console.log(`Invalid opposing move: ${sanMove}`);
+          console.log(`invalid opposing move: ${sanMove}`);
         }
       }, 250) // 0.25 second delay
       // (later: maybe 1 second for first move? shorter for subsequent?)
@@ -127,7 +125,7 @@ export function quizApp() {
 
       const answer = this.quizData.moves[this.quizMoveIndex];
 
-      console.log(`Checking move ${this.quizMoveIndex}: ${move.san} against ${answer.san} (alt: ${answer.alt}, alt_fail: ${answer.alt_fail})`);
+      // console.log(`checking move ${this.quizMoveIndex}: ${move.san} against ${answer.san} (alt: ${answer.alt}, alt_fail: ${answer.alt_fail})`);
 
       // TODO: decide what to do with handling alt/wrong moves:
       // delays, buttons, etc (annotations probably in variation view)
@@ -135,27 +133,30 @@ export function quizApp() {
       if (move.san === answer.san) {
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
-        this.status = "🟢 alt (reasonable, non-failing)";
-        this.annotateMissedMove(move.to, "green");
+        this.status = "🟢🟡";
+        this.annotateMissedMove(move.from, move.to, "green", "yellow");
       } else if (answer.alt_fail.includes(move.san)) {
-        this.status = "🟡 alt (reasonable, but failing)";
-        this.annotateMissedMove(move.to, "yellow");
+        this.status = "🟢🔴";
+        this.annotateMissedMove(move.from, move.to, "green", "red");
       } else {
-        this.status = "❌ failing (may or may not be a reasonable move)";
-        this.annotateMissedMove(move.to, "red");
+        this.status = "🔴🔴";
+        this.annotateMissedMove(move.from, move.to, "red", "red");
       }
     },
 
     //--------------------------------------------------------------------------------
-    annotateMissedMove(square, color) {
+    annotateMissedMove(from, to, arrowColor, circleColor) {
       this.board.set({
         drawable: {
-          shapes: [{ orig: square, brush: color, piece: "circle" }],
+          shapes: [
+            { orig: to, brush: circleColor, piece: "circle" },
+            { orig: from, dest: to, brush: arrowColor, piece: "arrow" }
+          ],
         },
       });
 
       setTimeout(() => {
-        this.status = "Ready";
+        this.status = "🚀";
         this.gotoPreviousMove();
       }, 1500);
     },
@@ -177,7 +178,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     completeQuiz() {
-      this.status = "Quiz completed!";
+      this.status = "✅";
     },
 
     //--------------------------------------------------------------------------------

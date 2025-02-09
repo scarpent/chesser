@@ -1,0 +1,30 @@
+body {
+  background-color: #222222;
+  color: #eeeeee;
+}
+
+#container {
+  width: 100%; /* Responsive container */
+  max-width: 450px;
+  margin: 0 auto;
+  text-align: center; /* Center align text and inline elements */
+}
+
+#board {
+  width: 100%; /* Responsive board */
+  height: 450px;
+  margin: 0 auto;
+}
+
+button {
+  background-color: #111111;
+  color: #eeeeee;
+  border: 1px solid #444444;
+  padding: 5px 10px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #444444;
+}

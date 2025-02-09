@@ -17,31 +17,19 @@
       href="{% static 'chessground/chessground.fantasy.css' %}"
       rel="stylesheet"
     />
-    <style>
-      #container {
-        width: 100%; /* Responsive container */
-        max-width: 450px;
-        margin: 0 auto;
-        text-align: center; /* Center align text and inline elements */
-      }
-      #board {
-        width: 100%; /* Responsive board */
-        height: 450px;
-        margin: 0 auto;
-      }
-    </style>
+    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="quizApp()" x-init="initChessground()">
     <div id="container">
-        <div id="board"></div>
-        <div x-text="status" style="margin: 20px 0 20px;"></div>
-        <button @click="analysisBoard()">Analyze</button>
+      <div id="board"></div>
+      <div x-text="status" style="margin: 20px 0 20px"></div>
+      <button @click="analysisBoard()">🔍️</button>
     </div>
 
     <!-- Pass quizData safely to JavaScript -->
     <script>
       window.quizData = JSON.parse("{{ quiz_data|escapejs }}");
-      console.log("Quiz data loaded:", window.quizData);
+      console.log("quiz data loaded:", window.quizData);
     </script>
 
     <!-- Import and Initialize quizApp -->

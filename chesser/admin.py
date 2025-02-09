@@ -57,8 +57,8 @@ class VariationAdmin(admin.ModelAdmin):
         "chapter",
         "alternative",
         "informational",
-        "start_move",
-        "end_move",
+        "start",
+        "end",
     )
     search_fields = ("title",)
     list_filter = ("chapter", "alternative", "informational")

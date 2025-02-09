@@ -25,8 +25,9 @@ class Variation(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     alternative = models.BooleanField(default=False)
     informational = models.BooleanField(default=False)
-    start_move = models.IntegerField(default=1)
-    end_move = models.IntegerField(default=99)
+    start = models.IntegerField(default=1)
+    end = models.IntegerField(default=99)
+    source = models.TextField(null=True, blank=True)  # chessable course, etc
     # TODO:
     #
     # ➤ annotation for evaluation at the end position (could do this for
@@ -69,6 +70,9 @@ class Move(models.Model):
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
+    alt = models.JSONField(default=dict)  # e.g. {"d4": 1, "Nf3": 1, "c4": 1}
+    alt_fail = models.JSONField(default=dict)
+    # fen?
     # TODO: draw/arrows/circles...
 
     def __str__(self):
