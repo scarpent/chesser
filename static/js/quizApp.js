@@ -137,14 +137,32 @@ export function quizApp() {
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
         console.log(`${move.san} is an alternative "soft fail" move`);
-        this.gotoPreviousMove();
+        this.annotateMissedMove(move.to, "green");
       } else if (answer.alt_fail.includes(move.san)) {
         console.log(`${move.san} is an alternative "hard fail" move`);
-        this.gotoPreviousMove();
+        this.annotateMissedMove(move.to, "yellow");
       } else {
         console.log("Incorrect move");
-        this.gotoPreviousMove();
+        this.annotateMissedMove(move.to, "red");
       }
+    },
+
+    //--------------------------------------------------------------------------------
+    annotateMissedMove(square, color) {
+      this.board.set({
+        drawable: {
+          shapes: [{ orig: square, brush: color, piece: "circle" }],
+        },
+      });
+
+      setTimeout(() => {
+        this.board.set({
+          brush: {
+            [square]: null,
+          },
+        });
+        this.gotoPreviousMove();
+      }, 2000);
     },
 
     //--------------------------------------------------------------------------------
