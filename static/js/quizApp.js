@@ -13,12 +13,18 @@ export function quizApp() {
     quizMoveIndex: 0,
 
     initChessground() {
+      console.log("initChessground()");
       const boardElement = document.getElementById("board");
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        const quizMove = this.quizData.moves[this.quizData.start];
-        this.chess.move(quizMove.san);
+        this.quizMoveIndex = this.quizData.start;
+        if (this.quizData.start >= 0) {
+          // TODO: this needs to handle moves that start later,
+          // loop through them...
+          const quizMove = this.quizData.moves[this.quizData.start];
+          this.chess.move(quizMove.san);
+        }
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
           draggable: false, // true is no different? (only want to click anyway)

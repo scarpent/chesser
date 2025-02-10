@@ -20,6 +20,7 @@ class Command(BaseCommand):
             {"chapter_id": 2, "title": "1.e4 e5 Misc", "course_id": WHITE},
             {"chapter_id": 101, "title": "1.e4 e5 Misc", "course_id": BLACK},
             {"chapter_id": 102, "title": "Bishop's Game", "course_id": BLACK},
+            {"chapter_id": 111, "title": "Others", "course_id": BLACK},
         ]
 
         for course in courses:
@@ -60,6 +61,32 @@ class Command(BaseCommand):
             {"move_id": 40007, "move_num": 4, "san": "Qh5"},
             {"move_id": 40008, "move_num": 5, "san": "Nb5"},
         ]
+        self.add_moves(variation, moves)
+
+        variation, created = Variation.objects.get_or_create(
+            chapter=Chapter.objects.get(chapter_id=111),
+            variation_id=10001,
+            title="Orangutan / Polish",
+            start=1,
+        )
+
+        moves = [
+            {"move_id": 40009, "move_num": 1, "san": "b4"},
+            {
+                "move_id": 40010,
+                "move_num": 1,
+                "san": "e5",
+                "alt": {},
+                "alt_fail": {"d5": 1, "Nf6": 1, "e6": 1, "c6": 1},
+            },
+            {"move_id": 40011, "move_num": 2, "san": "Bb2"},
+            {"move_id": 40012, "move_num": 2, "san": "Bxb4"},
+            {"move_id": 40013, "move_num": 3, "san": "Bxe5"},
+            {"move_id": 40014, "move_num": 3, "san": "Nf6"},
+        ]
+        self.add_moves(variation, moves)
+
+    def add_moves(self, variation, moves):
         for move in moves:
             move["variation"] = variation
             move_obj, created = Move.objects.get_or_create(**move)

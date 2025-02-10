@@ -18,7 +18,7 @@ def practice(request):
     variation = (
         Variation.objects.select_related("chapter__course")
         .prefetch_related("moves")
-        .first()
+        .get(variation_id=10001)
     )
     quiz_data = serialize_quiz(variation)
     context = {"quiz_data": json.dumps(quiz_data)}
