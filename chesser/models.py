@@ -61,6 +61,33 @@ class Variation(models.Model):
 
         return move_string
 
+    @property
+    def start_index(self):
+        """
+        translate move numbers to index for quiz start and end
+
+        idx  white      black      for white, e.g.:
+        0    1.e4       1.d4       ➤ if start move is 2, quiz starts at idx 0,
+        1    1...e5     1...d5       the white move before the opposing move
+        2    2.Nf3      2.c4         that will be shown when the quiz starts
+        3    2...Nc6    2...e6     ➤ if end move is 4, quiz ends at idx 6
+        4    3.d4       3.Nc3
+        5    3...exd4   3...Nf6    for black:
+        6    4.Nxd4     4.Nf3      ➤ if start move is 2, quiz starts at idx 1
+        7    4...Nf6    4...a6     ➤ if end move is 4, quiz ends at idx 7
+
+        expecting with white to always start on at least move 2, but with black
+        might want to start on move 1 and will have to revisit how js quiz
+        handling works
+        """
+        ply = self.start * 2
+        return ply - 4 if self.chapter.course.color == "white" else ply - 3
+
+    @property
+    def end_index(self):
+        ply = self.end * 2
+        return ply - 2 if self.chapter.course.color == "white" else ply - 1
+
 
 class Move(models.Model):
     move_id = models.IntegerField(unique=True)
