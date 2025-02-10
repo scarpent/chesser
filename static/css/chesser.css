@@ -17,6 +17,12 @@ body {
   max-width: 90vw; /* Allow responsiveness */
 }
 
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* Space between buttons */
+}
+
 button {
   background-color: #111111;
   color: #eeeeee;

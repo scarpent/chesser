@@ -26,7 +26,14 @@
         <div id="resize-handle"></div>
       </div>
       <div x-text="status" style="margin: 20px 0 20px"></div>
-      <button @click="analysisBoard()">🔍️</button>
+      <div class="button-container">
+        <button @click="analysisBoard()" title="Open in lichess analysis board">
+          🔍️
+        </button>
+        <button title="Restart the review">🔄</button>
+        <button title="Show/hide variation info">👁️</button>
+        <button title="Show the correct move (fails the review)">💣️</button>
+      </div>
     </div>
 
     <!-- Pass quizData safely to JavaScript -->
