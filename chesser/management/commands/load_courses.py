@@ -7,7 +7,7 @@ BLACK = 2
 
 
 class Command(BaseCommand):
-    help = "Load course metadata into the database"  # noqa: A003
+    help = "Load courses and variations into the database"  # noqa: A003
 
     def handle(self, *args, **kwargs):
         courses = [
@@ -37,6 +37,8 @@ class Command(BaseCommand):
             course_and_chapter = f"{chapter_obj.course.title}: {chapter_obj.title}"
             self.stdout.write(f"{course_and_chapter}{was_created}")
 
+        # ---------------------------------------------------------------------
+
         variation, created = Variation.objects.get_or_create(
             chapter=Chapter.objects.get(chapter_id=1),
             variation_id=10000,
@@ -63,6 +65,8 @@ class Command(BaseCommand):
         ]
         self.add_moves(variation, moves)
 
+        # ---------------------------------------------------------------------
+
         variation, created = Variation.objects.get_or_create(
             chapter=Chapter.objects.get(chapter_id=111),
             variation_id=10001,
@@ -85,6 +89,51 @@ class Command(BaseCommand):
             {"move_id": 40014, "move_num": 3, "san": "Nf6"},
         ]
         self.add_moves(variation, moves)
+
+        # ---------------------------------------------------------------------
+
+        variation, created = Variation.objects.get_or_create(
+            chapter=Chapter.objects.get(chapter_id=2),
+            variation_id=10002,
+            title="Petroff Transposition to Philidor",
+            start=3,
+        )
+
+        moves = [
+            {"move_id": 40015, "move_num": 1, "san": "e4"},
+            {"move_id": 40016, "move_num": 1, "san": "e5"},
+            {"move_id": 40017, "move_num": 2, "san": "Nf3"},
+            {"move_id": 40018, "move_num": 2, "san": "Nf6"},
+            {"move_id": 40019, "move_num": 3, "san": "Nc3"},
+            {"move_id": 40020, "move_num": 3, "san": "d6"},
+            {"move_id": 40021, "move_num": 4, "san": "d4"},
+            {"move_id": 40022, "move_num": 4, "san": "exd4"},
+            {"move_id": 40023, "move_num": 5, "san": "Nxd4"},
+        ]
+        self.add_moves(variation, moves)
+
+        # ---------------------------------------------------------------------
+
+        variation, created = Variation.objects.get_or_create(
+            chapter=Chapter.objects.get(chapter_id=102),
+            variation_id=10003,
+            title="Bishop's Game",
+            start=3,  # TODO: later may have this be 2, as an intro line
+        )
+
+        moves = [
+            {"move_id": 40024, "move_num": 1, "san": "e4"},
+            {"move_id": 40025, "move_num": 1, "san": "e5"},
+            {"move_id": 40026, "move_num": 2, "san": "Bc4"},
+            {"move_id": 40027, "move_num": 2, "san": "Nf6"},
+            {"move_id": 40028, "move_num": 3, "san": "Nc3"},
+            {"move_id": 40029, "move_num": 3, "san": "Nc6"},
+            {"move_id": 40030, "move_num": 4, "san": "d3"},
+            {"move_id": 40031, "move_num": 4, "san": "Na5"},
+        ]
+        self.add_moves(variation, moves)
+
+        # ---------------------------------------------------------------------
 
     def add_moves(self, variation, moves):
         for move in moves:

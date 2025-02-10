@@ -8,7 +8,7 @@ export function quizApp() {
   return {
     board: null,
     chess: null,
-    status: "⚪️⚪️",
+    status: "🟣🟣",
     quizData: quizData,
     quizMoveIndex: 0,
 
@@ -20,10 +20,10 @@ export function quizApp() {
 
         this.quizMoveIndex = this.quizData.start;
         if (this.quizData.start >= 0) {
-          // TODO: this needs to handle moves that start later,
-          // loop through them...
-          const quizMove = this.quizData.moves[this.quizData.start];
-          this.chess.move(quizMove.san);
+          for (let i = 0; i <= this.quizData.start; i++) {
+            const move = this.quizData.moves[i];
+            this.chess.move(move.san);
+          }
         }
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
@@ -138,7 +138,7 @@ export function quizApp() {
       // delays, buttons, etc (annotations probably in variation view)
 
       if (move.san === answer.san) {
-        this.status = "🟢🟢";
+        this.status = "🟢🟣";
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
         this.status = "🟢🟡";
@@ -167,7 +167,6 @@ export function quizApp() {
       });
 
       setTimeout(() => {
-        // this.status = "⚪️⚪️";
         this.gotoPreviousMove();
       }, 1500);
     },

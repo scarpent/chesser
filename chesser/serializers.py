@@ -14,6 +14,7 @@ def serialize_quiz(variation):
                 "alt_fail": list(move.alt_fail.keys()),
             }
         )
+        # TODO: add arrows, circles, etc., to last move?
     quiz_data["moves"] = moves
 
     return quiz_data

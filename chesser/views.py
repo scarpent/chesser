@@ -1,6 +1,6 @@
 import json
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from chesser.models import Variation
 from chesser.serializers import serialize_quiz
@@ -14,12 +14,21 @@ def nav(request):
     return render(request, "move_nav.html")
 
 
-def practice(request):
-    variation = (
-        Variation.objects.select_related("chapter__course")
-        .prefetch_related("moves")
-        .get(variation_id=10001)
-    )
+def practice(request, variation_id=None):
+    if variation_id is None:
+        variation = (
+            Variation.objects.select_related("chapter__course")
+            .prefetch_related("moves")
+            .first()
+        )
+    else:
+        variation = get_object_or_404(
+            Variation.objects.select_related("chapter__course").prefetch_related(
+                "moves"
+            ),
+            variation_id=variation_id,
+        )
+
     quiz_data = serialize_quiz(variation)
     context = {"quiz_data": json.dumps(quiz_data)}
     return render(request, "practice.html", context)
