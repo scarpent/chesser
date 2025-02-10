@@ -2,148 +2,103 @@ from django.core.management.base import BaseCommand
 
 from chesser.models import Chapter, Course, Move, Variation
 
-WHITE = 1
-BLACK = 2
-
 
 class Command(BaseCommand):
     help = "Load courses and variations into the database"  # noqa: A003
 
-    def handle(self, *args, **kwargs):
-        courses = [
-            {"course_id": WHITE, "title": "My White", "color": "white"},
-            {"course_id": BLACK, "title": "My Black", "color": "black"},
-        ]
+    def print_object_info(self, obj):
+        self.stdout.write(f"{obj.title}: {obj.id}")
 
-        chapters = [
-            {"chapter_id": 1, "title": "1.e4 Sundry", "course_id": WHITE},
-            {"chapter_id": 2, "title": "1.e4 e5 Misc", "course_id": WHITE},
-            {"chapter_id": 101, "title": "1.e4 e5 Misc", "course_id": BLACK},
-            {"chapter_id": 102, "title": "Bishop's Game", "course_id": BLACK},
-            {"chapter_id": 111, "title": "Others", "course_id": BLACK},
-        ]
+    def create_course(self, title, color):
+        course, _ = Course.objects.get_or_create(title=title, color=color)
+        self.print_object_info(course)
+        return course
 
-        for course in courses:
-            course_obj, created = Course.objects.get_or_create(**course)
-            was_created = " 💾" if created else ""
-            self.stdout.write(f"{course_obj.title}{was_created}")
+    def create_chapter(self, title, course):
+        chapter, _ = Chapter.objects.get_or_create(title=title, course=course)
+        self.print_object_info(chapter)
+        return chapter
 
-        for chapter in chapters:
-            course_id = chapter["course_id"]
-            course = Course.objects.get(course_id=course_id)
-            chapter["course"] = course
-            chapter_obj, created = Chapter.objects.get_or_create(**chapter)
-            was_created = " 💾" if created else ""
-            course_and_chapter = f"{chapter_obj.course.title}: {chapter_obj.title}"
-            self.stdout.write(f"{course_and_chapter}{was_created}")
-
-        # ---------------------------------------------------------------------
-
-        variation, created = Variation.objects.get_or_create(
-            chapter=Chapter.objects.get(chapter_id=1),
-            variation_id=10000,
-            title="Nimzowitsch 1...Nc6",
-            start=2,
+    def create_variation(self, title, chapter, start, moves=None):
+        variation, _ = Variation.objects.get_or_create(
+            title=title, chapter=chapter, start=start
         )
+        self.print_object_info(variation)
+        if moves:
+            sequence = -1
+            for move in moves:
+                sequence += 1
+                move["sequence"] = sequence
+                move["variation"] = variation
+                move_obj, _ = Move.objects.get_or_create(**move)
+                self.stdout.write(f"    {move_obj.move_num} {move_obj.san}")
+        return variation
 
+    def handle(self, *args, **kwargs):
+
+        white_course = self.create_course("My White", "white")
+        black_course = self.create_course("My Black", "black")
+
+        white_e4_sundry = self.create_chapter("1.e4 Sundry", white_course)
         moves = [
-            {"move_id": 40000, "move_num": 1, "san": "e4"},
-            {"move_id": 40001, "move_num": 1, "san": "Nc6"},
+            {"move_num": 1, "san": "e4"},
+            {"move_num": 1, "san": "Nc6"},
             {
-                "move_id": 40002,
                 "move_num": 2,
                 "san": "Nf3",
                 "alt": {"Nc3": 1},
                 "alt_fail": {"d4": 1, "Bb5": 2},
             },
-            {"move_id": 40003, "move_num": 2, "san": "d5"},
-            {"move_id": 40004, "move_num": 3, "san": "exd5"},
-            {"move_id": 40005, "move_num": 3, "san": "Qxd5"},
-            {"move_id": 40006, "move_num": 4, "san": "Nc3"},
-            {"move_id": 40007, "move_num": 4, "san": "Qh5"},
-            {"move_id": 40008, "move_num": 5, "san": "Nb5"},
+            {"move_num": 2, "san": "d5"},
+            {"move_num": 3, "san": "exd5"},
+            {"move_num": 3, "san": "Qxd5"},
+            {"move_num": 4, "san": "Nc3"},
+            {"move_num": 4, "san": "Qh5"},
+            {"move_num": 5, "san": "Nb5"},
         ]
-        self.add_moves(variation, moves)
+        self.create_variation("Nimzowitsch 1...Nc6", white_e4_sundry, 2, moves)
 
-        # ---------------------------------------------------------------------
-
-        variation, created = Variation.objects.get_or_create(
-            chapter=Chapter.objects.get(chapter_id=111),
-            variation_id=10001,
-            title="Orangutan / Polish",
-            start=1,
+        white_e4_e5_misc = self.create_chapter("1.e4 e5 Misc", white_course)
+        moves = [
+            {"move_num": 1, "san": "e4"},
+            {"move_num": 1, "san": "e5"},
+            {"move_num": 2, "san": "Nf3"},
+            {"move_num": 2, "san": "Nf6"},
+            {"move_num": 3, "san": "Nc3"},
+            {"move_num": 3, "san": "d6"},
+            {"move_num": 4, "san": "d4"},
+            {"move_num": 4, "san": "exd4"},
+            {"move_num": 5, "san": "Nxd4"},
+        ]
+        self.create_variation(
+            "Petroff Transposition to Philidor", white_e4_e5_misc, 3, moves
         )
 
+        black_bishops_game = self.create_chapter("Bishop's Game", black_course)
         moves = [
-            {"move_id": 40009, "move_num": 1, "san": "b4"},
+            {"move_num": 1, "san": "e4"},
+            {"move_num": 1, "san": "e5"},
+            {"move_num": 2, "san": "Bc4"},
+            {"move_num": 2, "san": "Nf6"},
+            {"move_num": 3, "san": "Nc3"},
+            {"move_num": 3, "san": "Nc6"},
+            {"move_num": 4, "san": "d3"},
+            {"move_num": 4, "san": "Na5"},
+        ]
+        self.create_variation("Bishop's Game", black_bishops_game, 3, moves)
+
+        black_others = self.create_chapter("Others", black_course)
+        moves = [
+            {"move_num": 1, "san": "b4"},
             {
-                "move_id": 40010,
                 "move_num": 1,
                 "san": "e5",
                 "alt": {},
                 "alt_fail": {"d5": 1, "Nf6": 1, "e6": 1, "c6": 1},
             },
-            {"move_id": 40011, "move_num": 2, "san": "Bb2"},
-            {"move_id": 40012, "move_num": 2, "san": "Bxb4"},
-            {"move_id": 40013, "move_num": 3, "san": "Bxe5"},
-            {"move_id": 40014, "move_num": 3, "san": "Nf6"},
+            {"move_num": 2, "san": "Bb2"},
+            {"move_num": 2, "san": "Bxb4"},
+            {"move_num": 3, "san": "Bxe5"},
+            {"move_num": 3, "san": "Nf6"},
         ]
-        self.add_moves(variation, moves)
-
-        # ---------------------------------------------------------------------
-
-        variation, created = Variation.objects.get_or_create(
-            chapter=Chapter.objects.get(chapter_id=2),
-            variation_id=10002,
-            title="Petroff Transposition to Philidor",
-            start=3,
-        )
-
-        moves = [
-            {"move_id": 40015, "move_num": 1, "san": "e4"},
-            {"move_id": 40016, "move_num": 1, "san": "e5"},
-            {"move_id": 40017, "move_num": 2, "san": "Nf3"},
-            {"move_id": 40018, "move_num": 2, "san": "Nf6"},
-            {"move_id": 40019, "move_num": 3, "san": "Nc3"},
-            {"move_id": 40020, "move_num": 3, "san": "d6"},
-            {"move_id": 40021, "move_num": 4, "san": "d4"},
-            {"move_id": 40022, "move_num": 4, "san": "exd4"},
-            {"move_id": 40023, "move_num": 5, "san": "Nxd4"},
-        ]
-        self.add_moves(variation, moves)
-
-        # ---------------------------------------------------------------------
-
-        variation, created = Variation.objects.get_or_create(
-            chapter=Chapter.objects.get(chapter_id=102),
-            variation_id=10003,
-            title="Bishop's Game",
-            start=3,  # TODO: later may have this be 2, as an intro line
-        )
-
-        moves = [
-            {"move_id": 40024, "move_num": 1, "san": "e4"},
-            {"move_id": 40025, "move_num": 1, "san": "e5"},
-            {"move_id": 40026, "move_num": 2, "san": "Bc4"},
-            {"move_id": 40027, "move_num": 2, "san": "Nf6"},
-            {"move_id": 40028, "move_num": 3, "san": "Nc3"},
-            {"move_id": 40029, "move_num": 3, "san": "Nc6"},
-            {"move_id": 40030, "move_num": 4, "san": "d3"},
-            {"move_id": 40031, "move_num": 4, "san": "Na5"},
-        ]
-        self.add_moves(variation, moves)
-
-        # ---------------------------------------------------------------------
-
-    def add_moves(self, variation, moves):
-        for move in moves:
-            move["variation"] = variation
-            move_obj, created = Move.objects.get_or_create(**move)
-            was_created = " 💾" if created else ""
-            course = variation.chapter.course.title
-            chapter = variation.chapter.title
-            title = variation.title
-            self.stdout.write(
-                f"{course}: {chapter}: {title} "
-                f"{move_obj.move_num} {move_obj.san}{was_created}"
-            )
+        self.create_variation("Orangutan / Polish", black_others, 1, moves)

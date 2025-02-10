@@ -1,8 +1,20 @@
 from django.db import models
 
+# short intervals for early prototyping and testing...
+REPETITION_INTERVALS = {  # level: hours
+    1: 1,  # 4, or maybe try 6? or...?
+    2: 2,  # 1 * 24,
+    3: 4,  # 3 * 24,
+    4: 8,  # 7 * 24,
+    5: 1 * 24,  # 14 * 24,
+    6: 2 * 24,  # 30 * 24,
+    7: 3 * 24,  # 60 * 24,
+    8: 4 * 24,  # 120 * 24,
+    9: 7 * 24,  # 180 * 24,
+}
+
 
 class Course(models.Model):
-    course_id = models.IntegerField(unique=True)
     title = models.CharField(max_length=100)
     color = models.CharField(max_length=5)
 
@@ -11,7 +23,6 @@ class Course(models.Model):
 
 
 class Chapter(models.Model):
-    chapter_id = models.IntegerField(unique=True)
     title = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
@@ -20,13 +31,14 @@ class Chapter(models.Model):
 
 
 class Variation(models.Model):
-    variation_id = models.IntegerField(unique=True)
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     alternative = models.BooleanField(default=False)
     informational = models.BooleanField(default=False)
-    start = models.IntegerField(default=2)
-    end = models.IntegerField(default=99)
+    start = models.IntegerField(default=2, help_text="start move number")
+    end = models.IntegerField(default=99, help_text="end move number")
+    next_review = models.DateTimeField(null=True, blank=True)
+    next_level = models.IntegerField(default=1)
     # TODO:
     #
     # ➤ annotation for evaluation at the end position (could do this for
@@ -47,7 +59,7 @@ class Variation(models.Model):
 
     @property
     def mainline_moves(self):
-        moves = self.moves.order_by("move_id")
+        moves = self.moves.order_by("sequence")
         white_to_move = True
         move_string = ""
         for move in moves:
@@ -90,8 +102,8 @@ class Variation(models.Model):
 
 
 class Move(models.Model):
-    move_id = models.IntegerField(unique=True)
     move_num = models.IntegerField()
+    sequence = models.IntegerField()
     variation = models.ForeignKey(
         Variation, on_delete=models.CASCADE, related_name="moves"
     )
@@ -100,28 +112,22 @@ class Move(models.Model):
     text = models.TextField(null=True, blank=True)
     alt = models.JSONField(default=dict)  # e.g. {"d4": 1, "Nf3": 1, "c4": 1}
     alt_fail = models.JSONField(default=dict)
-    # fen?
-    # TODO: draw/arrows/circles...
+
+    class Meta:
+        unique_together = ("variation", "sequence")
+        ordering = ["sequence"]
 
     def __str__(self):
         return (
-            f"{self.variation.variation_id}: {self.variation.title}: "
+            f"{self.variation.id}: {self.variation.title}: "
             f"{self.move_num} {self.san}"
         )
 
 
-# class VariationHistory(models.Model):
-#     variation_id = models.IntegerField(unique=True)
-#     datetime = models.DateTimeField(auto_now_add=True)
-#     level = models.IntegerField()  # 0 start, 1 first rep (4 hours)
-#     passed = models.BooleanField(default=False)
-# TODO: a field to "mark" this variation from the UI after doing it, to easily find it to review something -- e.g. reviewing on the phone and you want to go back and review more and compare to similar lines... maybe it's even a text field so can add comments...  # noqa: E501
-# TODO: should also show missed moves
+class VariationHistory(models.Model):
+    variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
+    level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
+    passed = models.BooleanField(default=False)
 
-
-# class MoveHistory(models.Model):
-#     move_id = models.IntegerField(unique=True)
-#     variation_history = models.ForeignKey(VariationHistory, on_delete=models.CASCADE)
-#     datetime = models.DateTimeField(auto_now_add=True)
-#     level = models.IntegerField()  # 0 start, 1 first rep (4 hours)
-#     passed = models.BooleanField(default=False)
+    # TODO: a field to "mark" this variation from the UI after doing it, to easily find it to review something -- e.g. reviewing on the phone and you want to go back and review more and compare to similar lines... maybe it's even a text field so can add comments...  # noqa: E501

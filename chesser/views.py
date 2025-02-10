@@ -26,7 +26,7 @@ def practice(request, variation_id=None):
             Variation.objects.select_related("chapter__course").prefetch_related(
                 "moves"
             ),
-            variation_id=variation_id,
+            pk=variation_id,
         )
 
     quiz_data = serialize_quiz(variation)

@@ -6,7 +6,7 @@ def serialize_quiz(variation):
         "end": variation.end_index,
     }
     moves = []
-    for move in variation.moves.all().order_by("move_id"):
+    for move in variation.moves.all():
         moves.append(
             {
                 "san": move.san,
