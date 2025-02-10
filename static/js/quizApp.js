@@ -8,7 +8,7 @@ export function quizApp() {
   return {
     board: null,
     chess: null,
-    status: "🟣🟣",
+    status: "Ready",
     quizData: quizData,
     quizMoveIndex: 0,
 
@@ -18,13 +18,7 @@ export function quizApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        this.quizMoveIndex = this.quizData.start;
-        if (this.quizData.start >= 0) {
-          for (let i = 0; i <= this.quizData.start; i++) {
-            const move = this.quizData.moves[i];
-            this.chess.move(move.san);
-          }
-        }
+        this.goToStartingPosition();
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
           draggable: false, // true is no different? (only want to click anyway)
@@ -51,6 +45,17 @@ export function quizApp() {
         console.error("chessground or chess.js failed to load");
       }
     }, // initChessground()
+
+    goToStartingPosition() {
+      this.status = "🟣🟣";
+      this.quizMoveIndex = this.quizData.start;
+      if (this.quizData.start >= 0) {
+        for (let i = 0; i <= this.quizData.start; i++) {
+          const move = this.quizData.moves[i];
+          this.chess.move(move.san);
+        }
+      }
+    },
 
     //--------------------------------------------------------------------------------
     toDests() {
@@ -189,6 +194,19 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     completeQuiz() {
       this.status = "✅✅";
+    },
+
+    //--------------------------------------------------------------------------------
+    restartQuiz() {
+      this.chess.reset();
+      this.goToStartingPosition();
+      this.board.set({
+        fen: this.chess.fen(),
+        movable: {
+          dests: this.toDests(),
+        },
+      });
+      this.playOpposingMove();
     },
 
     //--------------------------------------------------------------------------------
