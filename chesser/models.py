@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Max
 
 # short intervals for early prototyping and testing...
 REPETITION_INTERVALS = {  # level: hours
@@ -34,10 +33,7 @@ class Chapter(models.Model):
 class Variation(models.Model):
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    alternative = models.BooleanField(default=False)
-    informational = models.BooleanField(default=False)
     start = models.IntegerField(default=2, help_text="start move number")
-    end = models.IntegerField(default=99, help_text="end move number")
     next_review = models.DateTimeField(null=True, blank=True)
     next_level = models.IntegerField(default=1)
     # TODO:
@@ -77,17 +73,17 @@ class Variation(models.Model):
     @property
     def start_index(self):
         """
-        translate move numbers to index for quiz start and end
+        translate move numbers to index
 
         idx  white      black      for white, e.g.:
         0    1.e4       1.d4       ➤ if start move is 2, quiz starts at idx 0,
         1    1...e5     1...d5       the white move before the opposing move
         2    2.Nf3      2.c4         that will be shown when the quiz starts
-        3    2...Nc6    2...e6     ➤ if end move is 4, quiz ends at idx 6
+        3    2...Nc6    2...e6
         4    3.d4       3.Nc3
         5    3...exd4   3...Nf6    for black:
         6    4.Nxd4     4.Nf3      ➤ if start move is 2, quiz starts at idx 1
-        7    4...Nf6    4...a6     ➤ if end move is 4, quiz ends at idx 7
+        7    4...Nf6    4...a6
 
         expecting with white to always start on at least move 2, but with black
         might want to start on move 1 and will have to revisit how js quiz
@@ -95,16 +91,6 @@ class Variation(models.Model):
         """
         ply = self.start * 2
         return ply - 4 if self.chapter.course.color == "white" else ply - 3
-
-    @property
-    def end_index(self):
-        max_move_num = self.moves.aggregate(Max("move_num"))["move_num__max"]
-        if self.end > max_move_num:
-            the_end = max_move_num
-        else:
-            the_end = self.end
-        ply = the_end * 2
-        return ply - 2 if self.chapter.course.color == "white" else ply - 1
 
 
 class Move(models.Model):

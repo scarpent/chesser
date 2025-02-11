@@ -53,13 +53,10 @@ class VariationAdmin(admin.ModelAdmin):
     list_display = (
         "title",
         "chapter",
-        "alternative",
-        "informational",
         "start",
-        "end",
     )
     search_fields = ("title",)
-    list_filter = ("chapter", "alternative", "informational")
+    list_filter = ("chapter",)
     inlines = [MoveInline]
 
 

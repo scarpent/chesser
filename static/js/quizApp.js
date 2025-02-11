@@ -11,9 +11,9 @@ export function quizApp() {
     status: "Ready",
     quizData: quizData,
     quizMoveIndex: 0,
-    failed: false, // we'll report failure back to the server, but it can be reset
-    completed: false, // finished the quiz and now we'll make user go through it again
-    reviewAfterFailure: false, // when true, disallow restart and clearing the failure
+    failed: false, // we'll report failure back to the server (can reset before finish)
+    completed: false, // finished the quiz! if failed we'll review again
+    reviewAfterFailure: false, // if true: disallow restart and clearing the failure
 
     initChessground() {
       console.log("initChessground()");
@@ -83,6 +83,11 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    noMoreMoves() {
+      return this.quizMoveIndex >= this.quizData.moves.length;
+    },
+
+    //--------------------------------------------------------------------------------
     handleMove(orig, dest) {
       const move = this.chess.move({ from: orig, to: dest });
       if (move) {
@@ -92,7 +97,6 @@ export function quizApp() {
             dests: this.toDests(),
           },
         });
-        // console.log(`moved from ${orig} to ${dest} (${move.san})`);
         this.checkQuizMove(move);
       } else {
         // this shouldn't happen, because of "free: false"
@@ -104,11 +108,7 @@ export function quizApp() {
     playOpposingMove() {
       setTimeout(() => {
         this.quizMoveIndex++;
-        if (
-          // TODO: make sure this logic is correct
-          this.quizMoveIndex >= this.quizData.moves.length ||
-          this.quizMoveIndex >= this.quizData.end
-        ) {
+        if (this.noMoreMoves()) {
           this.completeQuiz();
           return;
         }
@@ -133,17 +133,15 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     checkQuizMove(move) {
-      if (this.quizMoveIndex >= this.quizData.moves.length) {
+      if (this.noMoreMoves()) {
         this.completeQuiz();
         return;
       }
 
       const answer = this.quizData.moves[this.quizMoveIndex];
 
-      // console.log(`checking move ${this.quizMoveIndex}: ${move.san} against ${answer.san} (alt: ${answer.alt}, alt_fail: ${answer.alt_fail})`);
-
       // TODO: decide what to do with handling alt/wrong moves:
-      // delays, buttons, etc (annotations probably in variation view)
+      // delays, buttons, etc (annotations probably in read view)
 
       if (move.san === answer.san) {
         // green indicates that the move was successful, and purple
@@ -151,16 +149,16 @@ export function quizApp() {
         this.status = "🟢🟣";
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
-        // alt moves are acceptable moves, and yellow means we won't fail you for it
+        // alt moves are acceptable moves; yellow means we won't fail you for it
         this.status = "🟢🟡";
         this.annotateMissedMove(move.from, move.to, "green", "yellow");
       } else if (answer.alt_fail.includes(move.san)) {
-        // alt moves are acceptable moves, but red means we will fail you for it
+        // alt moves are acceptable moves; red means we will fail you for it
         this.status = "🟢🔴";
         this.annotateMissedMove(move.from, move.to, "green", "red");
         this.failed = true;
       } else {
-        // complete fail (although the move might be fine; we just haven't marked it as such)
+        // complete fail (the move might be fine; we just haven't marked it as such)
         this.status = "🔴🔴";
         this.annotateMissedMove(move.from, move.to, "red", "red");
         this.failed = true;
@@ -169,7 +167,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     showQuizMove() {
-      if (this.quizMoveIndex > this.quizData.end) {
+      if (this.noMoreMoves()) {
         this.status = "🤷 no more moves to show 💣️";
         return;
       }
