@@ -164,31 +164,21 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     showQuizMove() {
-      // play the correct next move
-      // TODO: it's possible to click through too fast, maybe because
-      // of the delay in playOpposingMove()? make it more robust eventually
       if (this.quizMoveIndex > this.quizData.end) {
         this.status = "🤷 no more moves to show 💣️";
         return;
       }
-      // } else if (this.completed && !this.reviewAfterFailure) {
-      //   this.status = "🤷 review is complete; nothing to show 💣️";
-      //   return;
-      // }
       const san = this.quizData.moves[this.quizMoveIndex].san;
       const move = this.chess.move(san);
       if (move) {
         this.failed = true;
-        this.board.set({ fen: this.chess.fen() });
         this.annotateMove(move.from, move.to, "blue", "blue");
-        setTimeout(() => {
-          this.checkQuizMove(move);
-        }, 1000);
+        this.chess.undo();
       } else {
         // this shouldn't happen if the quiz is set up correctly
         this.status = `invalid move: ${san}`;
       }
-      // TODO: this will fail the quiz
+      // TODO: report this to the server as a failure
     },
 
     //--------------------------------------------------------------------------------
