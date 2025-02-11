@@ -54,8 +54,8 @@ export function quizApp() {
       this.quizMoveIndex = this.quizData.start;
       if (this.quizData.start >= 0) {
         for (let i = 0; i <= this.quizData.start; i++) {
-          const move = this.quizData.moves[i];
-          this.chess.move(move.san);
+          const quizMove = this.quizData.moves[i];
+          this.chess.move(quizMove.san);
         }
       }
     },
@@ -90,18 +90,14 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     handleMove(orig, dest) {
       const move = this.chess.move({ from: orig, to: dest });
-      if (move) {
-        this.board.set({
-          fen: this.chess.fen(),
-          movable: {
-            dests: this.toDests(),
-          },
-        });
-        this.checkQuizMove(move);
-      } else {
-        // this shouldn't happen, because of "free: false"
-        this.status = `illegal move from ${orig} to ${dest}`;
-      }
+
+      this.board.set({
+        fen: this.chess.fen(),
+        movable: {
+          dests: this.toDests(),
+        },
+      });
+      this.checkQuizMove(move);
     },
 
     //--------------------------------------------------------------------------------
@@ -114,19 +110,15 @@ export function quizApp() {
         }
         const san = this.quizData.moves[this.quizMoveIndex].san;
         const move = this.chess.move(san);
-        if (move) {
-          this.board.set({
-            fen: this.chess.fen(),
-            movable: {
-              dests: this.toDests(),
-            },
-            lastMove: [move.from, move.to],
-          });
-          this.quizMoveIndex++;
-        } else {
-          // this would be an error with the variation setup
-          console.log(`invalid opposing move: ${san}`);
-        }
+
+        this.board.set({
+          fen: this.chess.fen(),
+          movable: {
+            dests: this.toDests(),
+          },
+          lastMove: [move.from, move.to],
+        });
+        this.quizMoveIndex++;
       }, 250); // 0.25 second delay
       // (later: maybe 1 second for first move? shorter for subsequent?)
     },
@@ -173,14 +165,11 @@ export function quizApp() {
       }
       const san = this.quizData.moves[this.quizMoveIndex].san;
       const move = this.chess.move(san);
-      if (move) {
-        this.failed = true;
-        this.annotateMove(move.from, move.to, "blue", "blue");
-        this.chess.undo();
-      } else {
-        // this shouldn't happen if the quiz is set up correctly
-        this.status = `invalid move: ${san}`;
-      }
+
+      this.failed = true;
+      this.annotateMove(move.from, move.to, "blue", "blue");
+      this.chess.undo();
+
       // TODO: report this to the server as a failure
     },
 
