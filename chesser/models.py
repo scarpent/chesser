@@ -1,6 +1,8 @@
 from django.db import models
+from django.utils import timezone
 
 # short intervals for early prototyping and testing...
+# level 0 = "unlearned" / never reviewed
 REPETITION_INTERVALS = {  # level: hours
     1: 1,  # 4, or maybe try 6? or...?
     2: 2,  # 1 * 24,
@@ -34,8 +36,8 @@ class Variation(models.Model):
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     start = models.IntegerField(default=2, help_text="start move number")
-    next_review = models.DateTimeField(null=True, blank=True)
-    next_level = models.IntegerField(default=1)
+    next_review = models.DateTimeField(default=timezone.now)
+    next_level = models.IntegerField(default=0)
     # TODO:
     #
     # ➤ annotation for evaluation at the end position (could do this for
@@ -56,10 +58,9 @@ class Variation(models.Model):
 
     @property
     def mainline_moves(self):
-        moves = self.moves.order_by("sequence")
         white_to_move = True
         move_string = ""
-        for move in moves:
+        for move in self.moves.iterator():
             if white_to_move:
                 prefix = f"{move.move_num}."
                 white_to_move = False
@@ -85,9 +86,8 @@ class Variation(models.Model):
         6    4.Nxd4     4.Nf3      ➤ if start move is 2, quiz starts at idx 1
         7    4...Nf6    4...a6
 
-        expecting with white to always start on at least move 2, but with black
-        might want to start on move 1 and will have to revisit how js quiz
-        handling works
+        expecting with white to always start on at least move 2,
+        but with black might want to start on move 1
         """
         ply = self.start * 2
         return ply - 4 if self.chapter.course.color == "white" else ply - 3

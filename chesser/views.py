@@ -16,12 +16,15 @@ def nav(request):
 
 def practice(request, variation_id=None):
     if variation_id is None:
+        # this will be the actual practice/review mode
         variation = (
             Variation.objects.select_related("chapter__course")
             .prefetch_related("moves")
             .first()
         )
     else:
+        # this would be like chessable's "overstudy", although
+        # would like to call it something else
         variation = get_object_or_404(
             Variation.objects.select_related("chapter__course").prefetch_related(
                 "moves"
