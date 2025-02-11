@@ -180,7 +180,10 @@ export function quizApp() {
       if (move) {
         this.failed = true;
         this.board.set({ fen: this.chess.fen() });
-        this.checkQuizMove(move);
+        this.annotateMove(move.from, move.to, "blue", "blue");
+        setTimeout(() => {
+          this.checkQuizMove(move);
+        }, 1000);
       } else {
         // this shouldn't happen if the quiz is set up correctly
         this.status = `invalid move: ${san}`;
@@ -189,10 +192,7 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
-    annotateMissedMove(from, to, arrowColor, circleColor) {
-      // TODO: this could just be annotateMove, and add
-      // arrow and/or circle based on if color is set or not
-      // (although maybe would like to have default colors...)
+    annotateMove(from, to, arrowColor, circleColor) {
       this.board.set({
         drawable: {
           shapes: [
@@ -201,7 +201,11 @@ export function quizApp() {
           ],
         },
       });
+    },
 
+    //--------------------------------------------------------------------------------
+    annotateMissedMove(from, to, arrowColor, circleColor) {
+      this.annotateMove(from, to, arrowColor, circleColor);
       setTimeout(() => {
         this.gotoPreviousMove();
       }, 1000);
