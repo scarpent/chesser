@@ -25,7 +25,4 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("practice/", views.practice, name="practice_default"),
     path("practice/<int:variation_id>/", views.practice, name="practice_with_id"),
-    path("nav/", views.nav, name="nav"),
-    path("quiz/", views.quiz_poc, name="quiz_poc"),
-    path("simple/", views.simple, name="simple"),
 ]
