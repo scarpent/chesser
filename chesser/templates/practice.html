@@ -32,7 +32,12 @@
         </button>
         <button @click="restartQuiz()" title="Restart the review">🔄</button>
         <button title="Show/hide variation info">👁️</button>
-        <button title="Show the correct move (fails the review)">💣️</button>
+        <button
+          @click="showQuizMove()"
+          title="Show the correct move (fails the review)"
+        >
+          💣️
+        </button>
       </div>
     </div>
 

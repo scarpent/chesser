@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Max
 
 # short intervals for early prototyping and testing...
 REPETITION_INTERVALS = {  # level: hours
@@ -97,7 +98,12 @@ class Variation(models.Model):
 
     @property
     def end_index(self):
-        ply = self.end * 2
+        max_move_num = self.moves.aggregate(Max("move_num"))["move_num__max"]
+        if self.end > max_move_num:
+            the_end = max_move_num
+        else:
+            the_end = self.end
+        ply = the_end * 2
         return ply - 2 if self.chapter.course.color == "white" else ply - 1
 
 

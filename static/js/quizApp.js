@@ -11,6 +11,9 @@ export function quizApp() {
     status: "Ready",
     quizData: quizData,
     quizMoveIndex: 0,
+    failed: false, // we'll report failure back to the server, but it can be reset
+    completed: false, // finished the quiz and now we'll make user go through it again
+    reviewAfterFailure: false, // when true, disallow restart and clearing the failure
 
     initChessground() {
       console.log("initChessground()");
@@ -102,14 +105,15 @@ export function quizApp() {
       setTimeout(() => {
         this.quizMoveIndex++;
         if (
+          // TODO: make sure this logic is correct
           this.quizMoveIndex >= this.quizData.moves.length ||
           this.quizMoveIndex >= this.quizData.end
         ) {
           this.completeQuiz();
           return;
         }
-        const sanMove = this.quizData.moves[this.quizMoveIndex].san;
-        const move = this.chess.move(sanMove);
+        const san = this.quizData.moves[this.quizMoveIndex].san;
+        const move = this.chess.move(san);
         if (move) {
           this.board.set({
             fen: this.chess.fen(),
@@ -118,11 +122,10 @@ export function quizApp() {
             },
             lastMove: [move.from, move.to],
           });
-          // console.log(`opposing move (qi: ${this.quizMoveIndex}): ${sanMove}`);
           this.quizMoveIndex++;
         } else {
           // this would be an error with the variation setup
-          console.log(`invalid opposing move: ${sanMove}`);
+          console.log(`invalid opposing move: ${san}`);
         }
       }, 250); // 0.25 second delay
       // (later: maybe 1 second for first move? shorter for subsequent?)
@@ -151,10 +154,38 @@ export function quizApp() {
       } else if (answer.alt_fail.includes(move.san)) {
         this.status = "🟢🔴";
         this.annotateMissedMove(move.from, move.to, "green", "red");
+        this.failed = true;
       } else {
         this.status = "🔴🔴";
         this.annotateMissedMove(move.from, move.to, "red", "red");
+        this.failed = true;
       }
+    },
+
+    //--------------------------------------------------------------------------------
+    showQuizMove() {
+      // play the correct next move
+      // TODO: it's possible to click through too fast, maybe because
+      // of the delay in playOpposingMove()? make it more robust eventually
+      if (this.quizMoveIndex > this.quizData.end) {
+        this.status = "🤷 no more moves to show 💣️";
+        return;
+      }
+      // } else if (this.completed && !this.reviewAfterFailure) {
+      //   this.status = "🤷 review is complete; nothing to show 💣️";
+      //   return;
+      // }
+      const san = this.quizData.moves[this.quizMoveIndex].san;
+      const move = this.chess.move(san);
+      if (move) {
+        this.failed = true;
+        this.board.set({ fen: this.chess.fen() });
+        this.checkQuizMove(move);
+      } else {
+        // this shouldn't happen if the quiz is set up correctly
+        this.status = `invalid move: ${san}`;
+      }
+      // TODO: this will fail the quiz
     },
 
     //--------------------------------------------------------------------------------
@@ -193,11 +224,22 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     completeQuiz() {
-      this.status = "✅✅";
+      this.completed = true;
+      if (this.failed) {
+        this.status = "❌";
+        // TODO: report failure to server and review again
+        // to see if we actually learned anything
+      } else {
+        this.status = "✅";
+      }
     },
 
     //--------------------------------------------------------------------------------
     restartQuiz() {
+      // TODO: a bunch of logic about when you can and can't restart
+      // and if things get reported to the server or not
+
+      this.failed = false;
       this.chess.reset();
       this.goToStartingPosition();
       this.board.set({
