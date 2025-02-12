@@ -1,8 +1,9 @@
+from django import forms
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Chapter, Course, Move, Variation, VariationHistory
+from .models import Chapter, Course, Move, QuizResult, Variation
 
 
 class ChapterInline(admin.TabularInline):
@@ -16,8 +17,20 @@ class ChapterInline(admin.TabularInline):
         return format_html('<a href="{}">{}</a>', link, obj.title)
 
 
+class MoveInlineForm(forms.ModelForm):
+    class Meta:
+        model = Move
+        fields = "__all__"
+        widgets = {
+            "text": forms.Textarea(attrs={"rows": 3, "cols": 40}),
+            "alt": forms.Textarea(attrs={"rows": 1, "cols": 20}),
+            "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 20}),
+        }
+
+
 class MoveInline(admin.TabularInline):
     model = Move
+    form = MoveInlineForm
     extra = 0  # Number of empty forms to display
 
 
@@ -31,6 +44,13 @@ class VariationInline(admin.TabularInline):
     def mainline_moves_display(self, obj):
         link = reverse("admin:chesser_variation_change", args=[obj.id])
         return format_html('<a href="{}">{}</a>', link, obj.mainline_moves)
+
+
+class QuizResultInline(admin.TabularInline):
+    model = QuizResult
+    extra = 0  # Number of empty forms to display
+    readonly_fields = ("datetime", "level", "passed")
+    ordering = ("-datetime",)  # datetime descending
 
 
 @admin.register(Course)
@@ -57,7 +77,7 @@ class VariationAdmin(admin.ModelAdmin):
     )
     search_fields = ("title",)
     list_filter = ("chapter",)
-    inlines = [MoveInline]
+    inlines = [MoveInline, QuizResultInline]
 
 
 @admin.register(Move)
@@ -67,8 +87,8 @@ class MoveAdmin(admin.ModelAdmin):
     list_filter = ("variation",)
 
 
-@admin.register(VariationHistory)
-class VariationHistoryAdmin(admin.ModelAdmin):
+@admin.register(QuizResult)
+class QuizResultAdmin(admin.ModelAdmin):
     list_display = ("variation", "datetime", "level", "passed")
     search_fields = ("variation__title",)
     list_filter = ("variation", "passed", "level")

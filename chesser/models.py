@@ -107,7 +107,7 @@ class Variation(models.Model):
         )
         self.save()
 
-        VariationHistory.objects.create(
+        QuizResult.objects.create(
             variation=self,
             passed=passed,
             level=previous_level,
@@ -137,13 +137,10 @@ class Move(models.Model):
         )
 
 
-class VariationHistory(models.Model):
+class QuizResult(models.Model):
     variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
     passed = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name_plural = "Variation History"
 
     # TODO: a field to "mark" this variation from the UI after doing it, to easily find it to review something -- e.g. reviewing on the phone and you want to go back and review more and compare to similar lines... maybe it's even a text field so can add comments...  # noqa: E501
