@@ -285,7 +285,7 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
       console.log("no quiz data");
-      this.status = "no reviews due 😌";
+      this.status = "nothing due 😌";
       this.board = window.Chessground(boardElement, {
         viewOnly: true,
         draggable: false, // true is no different? (only want to click anyway)
