@@ -36,6 +36,7 @@ export function quizApp() {
           },
           orientation: this.quizData.color,
           fen: this.chess.fen(),
+          coordinates: false,
           movable: {
             color: "both", // allow both white and black to move
             free: false, // only legal moves
@@ -291,6 +292,7 @@ export function quizApp() {
         draggable: false, // true is no different? (only want to click anyway)
         orientation: "white",
         fen: this.chess.fen(),
+        coordinates: false,
       });
     },
 
