@@ -21,7 +21,7 @@ export function quizApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        if (!this.quizData.start) {
+        if (!this.quizData || Object.keys(this.quizData).length === 0) {
           this.nothingToSeeHere(boardElement);
           return;
         }
