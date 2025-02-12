@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Chapter, Course, Move, Variation
+from .models import Chapter, Course, Move, Variation, VariationHistory
 
 
 class ChapterInline(admin.TabularInline):
@@ -65,3 +65,10 @@ class MoveAdmin(admin.ModelAdmin):
     list_display = ("sequence", "move_num", "variation", "san", "annotation", "text")
     search_fields = ("san",)
     list_filter = ("variation",)
+
+
+@admin.register(VariationHistory)
+class VariationHistoryAdmin(admin.ModelAdmin):
+    list_display = ("variation", "datetime", "level", "passed")
+    search_fields = ("variation__title",)
+    list_filter = ("variation", "passed", "level")

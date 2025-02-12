@@ -35,9 +35,12 @@ class Chapter(models.Model):
 class Variation(models.Model):
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    start = models.IntegerField(default=2, help_text="start move number")
+    start = models.IntegerField(
+        default=2, help_text="Reviews start at this move number"
+    )
+    level = models.IntegerField(default=0)
     next_review = models.DateTimeField(default=timezone.now)
-    next_level = models.IntegerField(default=0)
+
     # TODO:
     #
     # ➤ annotation for evaluation at the end position (could do this for
@@ -92,6 +95,24 @@ class Variation(models.Model):
         ply = self.start * 2
         return ply - 4 if self.chapter.course.color == "white" else ply - 3
 
+    def handle_quiz_result(self, passed):
+        previous_level = self.level
+        # 0 is a one-time only "never reviewed" level,
+        # but otherwise the same as level 1
+        new_level = 1 if previous_level == 0 else previous_level
+        new_level = new_level + 1 if passed else 1
+        self.level = new_level
+        self.next_review = timezone.now() + timezone.timedelta(
+            hours=REPETITION_INTERVALS[self.level]
+        )
+        self.save()
+
+        VariationHistory.objects.create(
+            variation=self,
+            passed=passed,
+            level=previous_level,
+        )
+
 
 class Move(models.Model):
     move_num = models.IntegerField()
@@ -121,5 +142,8 @@ class VariationHistory(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
     passed = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = "Variation History"
 
     # TODO: a field to "mark" this variation from the UI after doing it, to easily find it to review something -- e.g. reviewing on the phone and you want to go back and review more and compare to similar lines... maybe it's even a text field so can add comments...  # noqa: E501

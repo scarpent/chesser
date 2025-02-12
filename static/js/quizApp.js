@@ -216,11 +216,12 @@ export function quizApp() {
         // in order to complete the quiz; it seems like we need some indication
         // that the move itself was good, but the quiz as a whole was not
         this.status = "🟢🔴";
-        // TODO: report failure to server and review again
-        // to see if we actually learned anything
+        this.reportResult(false);
       } else {
         this.status = "🟢🟢";
+        this.reportResult(true);
       }
+      // TODO: show variation info: chapter, title, level, etc
     },
 
     //--------------------------------------------------------------------------------
@@ -245,6 +246,35 @@ export function quizApp() {
       const fen = this.chess.fen().replace(/ /g, "_");
       const url = `https://lichess.org/analysis/standard/${fen}`;
       window.open(url, "_blank");
+    },
+
+    //--------------------------------------------------------------------------------
+    reportResult(passed) {
+      const variationId = this.quizData.variation_id;
+
+      fetch("/report_result/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          variation_id: variationId,
+          passed: passed,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            console.log(
+              `result reported successfully: ${variationId} ${passed}`
+            );
+          } else {
+            console.error("failed to report result:", data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("error reporting result:", error);
+        });
     },
   }; // return { ... }
 }

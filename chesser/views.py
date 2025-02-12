@@ -1,6 +1,8 @@
 import json
 
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.views.decorators.csrf import csrf_exempt
 
 from chesser.models import Variation
 from chesser.serializers import serialize_quiz
@@ -31,3 +33,20 @@ def practice(request, variation_id=None):
     quiz_data = serialize_quiz(variation)
     context = {"quiz_data": json.dumps(quiz_data)}
     return render(request, "practice.html", context)
+
+
+@csrf_exempt
+def report_result(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        variation_id = data.get("variation_id")
+        passed = data.get("passed")
+
+        variation = get_object_or_404(Variation, pk=variation_id)
+        variation.handle_quiz_result(passed)
+
+        return JsonResponse({"status": "success"})
+
+    return JsonResponse(
+        {"status": "error", "message": "Invalid request method"}, status=400
+    )

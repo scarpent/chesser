@@ -25,4 +25,5 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("practice/", views.practice, name="practice_default"),
     path("practice/<int:variation_id>/", views.practice, name="practice_with_id"),
+    path("report_result/", views.report_result, name="report_result"),
 ]
