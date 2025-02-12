@@ -56,7 +56,7 @@ class Variation(models.Model):
     # chessable here; if a "hard fail", clearly show if the move was as
     # good or really bad, etc. UI will have a way to toggle and show more
     # (also! consider a way to track soft fails and have some stats and/or
-    # some kind of practice mode for these...)
+    # some kind of review mode for these...)
     #
     # ➤ "source" chessable course, etc, maybe a link, too?
 

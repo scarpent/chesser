@@ -12,7 +12,7 @@ def serialize_quiz(variation):
     moves = []
     for move in variation.moves.all():
         moves.append({"san": move.san, "alt": move.alt, "alt_fail": move.alt_fail})
-        # TODO: add arrows, circles, etc., to last move?
+        # TODO: add arrows, circles, etc., for last move only?
     quiz_data["moves"] = moves
 
     return quiz_data

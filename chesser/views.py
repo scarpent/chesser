@@ -9,12 +9,12 @@ from chesser.serializers import serialize_quiz
 
 
 def home(request):
-    return practice(request)
+    return review(request)
 
 
-def practice(request, variation_id=None):
+def review(request, variation_id=None):
     if variation_id is None:
-        # this will be the actual practice/review mode
+        # this will be the actual review/practice mode
         variation = (
             Variation.objects.select_related("chapter__course")
             .prefetch_related("moves")
@@ -22,7 +22,8 @@ def practice(request, variation_id=None):
         )
     else:
         # this would be like chessable's "overstudy", although
-        # would like to call it something else
+        # would like to call it something else - we'll think about
+        # if we want it to affect current level or not...
         variation = get_object_or_404(
             Variation.objects.select_related("chapter__course").prefetch_related(
                 "moves"
@@ -32,7 +33,7 @@ def practice(request, variation_id=None):
 
     quiz_data = serialize_quiz(variation)
     context = {"quiz_data": json.dumps(quiz_data)}
-    return render(request, "practice.html", context)
+    return render(request, "review.html", context)
 
 
 @csrf_exempt
