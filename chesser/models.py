@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 
 # short intervals for early prototyping and testing...
-# level 0 = "unlearned" / never reviewed
 REPETITION_INTERVALS = {  # level: hours
     1: 1,  # 4, or maybe try 6? or...?
     2: 2,  # 1 * 24,
@@ -33,6 +32,11 @@ class Chapter(models.Model):
 
 
 class Variation(models.Model):
+    """
+    level 0 = "unlearned" / never reviewed - it's one time only, and we
+    move on to 1 from there, and return to 1 when we fail a review
+    """
+
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     start = models.IntegerField(
@@ -97,10 +101,7 @@ class Variation(models.Model):
 
     def handle_quiz_result(self, passed):
         previous_level = self.level
-        # 0 is a one-time only "never reviewed" level,
-        # but otherwise the same as level 1
-        new_level = 1 if previous_level == 0 else previous_level
-        new_level = new_level + 1 if passed else 1
+        new_level = previous_level + 1 if passed else 1
         self.level = new_level
         self.next_review = timezone.now() + timezone.timedelta(
             hours=REPETITION_INTERVALS[self.level]
