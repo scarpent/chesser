@@ -7,10 +7,5 @@ export function homeApp() {
       console.log("initHome()");
       console.log("home loaded");
     },
-
-    //--------------------------------------------------------------------------------
-    startReview() {
-      console.log("start review");
-    },
   }; // return { ... }
 }

@@ -10,8 +10,12 @@
   </head>
   <body x-data="homeApp()" x-init="initHome()">
     <div class="button-container">
-      <button @click="startReview()" title="Start review session">🚀</button>
-      <button @click="startReview()" title="Start review session">➡️</button>
+      <button
+        @click="window.location.href='/review/'"
+        title="Start review session"
+      >
+        🚀
+      </button>
     </div>
 
     <!-- Pass homeData safely to JavaScript -->
