@@ -9,7 +9,8 @@ from chesser.serializers import serialize_quiz
 
 
 def home(request):
-    return review(request)
+    home_data = {"home_data": json.dumps("This is the home page")}
+    return render(request, "home.html", home_data)
 
 
 def review(request, variation_id=None):
