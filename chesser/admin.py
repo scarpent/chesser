@@ -74,6 +74,8 @@ class VariationAdmin(admin.ModelAdmin):
         "title",
         "chapter",
         "start",
+        "level",
+        "next_review",
     )
     search_fields = ("title",)
     list_filter = ("chapter",)

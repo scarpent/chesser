@@ -15,12 +15,7 @@ def home(request):
 
 def review(request, variation_id=None):
     if variation_id is None:
-        # this will be the actual review/practice mode
-        variation = (
-            Variation.objects.select_related("chapter__course")
-            .prefetch_related("moves")
-            .first()
-        )
+        variation = Variation.due_for_review()
     else:
         # this would be like chessable's "overstudy", although
         # would like to call it something else - we'll think about
@@ -32,7 +27,11 @@ def review(request, variation_id=None):
             pk=variation_id,
         )
 
-    quiz_data = serialize_quiz(variation)
+    if variation is None:
+        quiz_data = {}
+    else:
+        quiz_data = serialize_quiz(variation)
+
     context = {"quiz_data": json.dumps(quiz_data)}
     return render(request, "review.html", context)
 

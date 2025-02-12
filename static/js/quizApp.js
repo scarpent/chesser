@@ -21,6 +21,11 @@ export function quizApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
+        if (!this.quizData.start) {
+          this.nothingToSeeHere(boardElement);
+          return;
+        }
+
         this.goToStartingPosition();
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
@@ -275,6 +280,23 @@ export function quizApp() {
         .catch((error) => {
           console.error("error reporting result:", error);
         });
+    },
+
+    //--------------------------------------------------------------------------------
+    nothingToSeeHere(boardElement) {
+      console.log("no quiz data");
+      this.status = "no reviews due 😌";
+      this.board = window.Chessground(boardElement, {
+        viewOnly: true,
+        draggable: false, // true is no different? (only want to click anyway)
+        orientation: "white",
+        fen: this.chess.fen(),
+      });
+    },
+
+    //--------------------------------------------------------------------------------
+    nextQuiz() {
+      window.location.href = "/review/";
     },
   }; // return { ... }
 }

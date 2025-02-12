@@ -114,6 +114,11 @@ class Variation(models.Model):
             level=previous_level,
         )
 
+    @classmethod
+    def due_for_review(cls):
+        now = timezone.now()
+        return cls.objects.filter(next_review__lte=now).order_by("next_review").first()
+
 
 class Move(models.Model):
     move_num = models.IntegerField()
@@ -124,8 +129,8 @@ class Move(models.Model):
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
-    alt = models.JSONField(default=list)  # e.g. ["d4", "Nf3", "c4"]
-    alt_fail = models.JSONField(default=list)  # ["f4", "b3", "g3"]
+    alt = models.JSONField(default=list, blank=True)  # e.g. ["d4", "Nf3", "c4"]
+    alt_fail = models.JSONField(default=list, blank=True)  # ["f4", "b3", "g3"]
 
     class Meta:
         unique_together = ("variation", "sequence")

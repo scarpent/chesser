@@ -26,7 +26,24 @@
         <div id="board"></div>
         <div id="resize-handle"></div>
       </div>
-      <div x-text="status" style="margin: 20px 0 20px"></div>
+      <div
+        style="
+          margin: 20px 0 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <div x-text="status" style="flex-grow: 1; text-align: center"></div>
+        <button
+          x-show="completed"
+          @click="nextQuiz()"
+          title="Next"
+          style="margin-left: 10px"
+        >
+          ➡️
+        </button>
+      </div>
       <div class="button-container">
         <button @click="analysisBoard()" title="Open in lichess analysis board">
           🔍️
