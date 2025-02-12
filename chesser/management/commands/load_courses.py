@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = "Load courses and variations into the database"  # noqa: A003
 
     def print_object_info(self, obj):
-        self.stdout.write(f"{obj.title}: {obj.id}")
+        self.stdout.write(f"{obj.title} <{obj.id}>")
 
     def create_course(self, title, color):
         course, _ = Course.objects.get_or_create(title=title, color=color)
@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 move["sequence"] = sequence
                 move["variation"] = variation
                 move_obj, _ = Move.objects.get_or_create(**move)
-                self.stdout.write(f"    {move_obj.move_num} {move_obj.san}")
+            self.stdout.write(f"    {variation.mainline_moves}")
         return variation
 
     def handle(self, *args, **kwargs):
