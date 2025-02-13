@@ -24,9 +24,8 @@
       console.log("home data loaded:", window.homeData);
     </script>
 
-    <!-- Import and Initialize homeApp -->
     <script type="module">
-      import { homeApp } from "{% static 'js/homeApp.js' %}";
+      import { homeApp } from "{% static 'js/home.js' %}";
       window.homeApp = homeApp;
       console.log("homeApp loaded");
 

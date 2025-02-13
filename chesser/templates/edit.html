@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Review</title>
+    <title>Edit</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
     <link
       href="{% static 'chessground/chessground.base.css' %}"
@@ -20,7 +20,7 @@
     />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
-  <body x-data="quizApp()" x-init="initChessground()">
+  <body x-data="editApp()" x-init="initChessground()">
     <div id="container">
       <div id="resizable-board">
         <div id="board"></div>
@@ -39,27 +39,27 @@
         >
           💣️
         </button>
-        <button @click="editVariation()" title="Edit variation">⚙️</button>
+        <button title="Edit variation">⚙️</button>
         <button title="View variation">📖</button>
         <button @click="window.location.href='/'" title="Go home">🏠️</button>
         <button x-show="completed" @click="nextQuiz()" title="Next">➡️</button>
       </div>
     </div>
 
-    <!-- Pass quizData safely to JavaScript -->
+    <!-- Pass editData safely to JavaScript -->
     <script>
-      window.quizData = JSON.parse("{{ quiz_data|escapejs }}");
-      console.log("quiz data loaded:", window.quizData);
+      window.editData = JSON.parse("{{ edit_data|escapejs }}");
+      console.log("edit data loaded:", window.editData);
     </script>
 
     <script type="module">
-      import { quizApp } from "{% static 'js/quiz.js' %}";
-      window.quizApp = quizApp;
-      console.log("quizApp loaded");
+      import { editApp } from "{% static 'js/edit.js' %}";
+      window.editApp = editApp;
+      console.log("editApp loaded");
 
       document.addEventListener("alpine:init", () => {
         console.log("alpine.js initializing");
-        Alpine.data("quizApp", quizApp);
+        Alpine.data("editApp", editApp);
       });
     </script>
     <script src="{% static 'js/resize.js' %}"></script>

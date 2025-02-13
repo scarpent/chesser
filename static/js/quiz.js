@@ -300,5 +300,11 @@ export function quizApp() {
     nextQuiz() {
       window.location.href = "/review/";
     },
+
+    //--------------------------------------------------------------------------------
+    editVariation() {
+      const variationId = this.quizData.variation_id;
+      window.location.href = `/edit/${variationId}/`;
+    },
   }; // return { ... }
 }
