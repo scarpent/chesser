@@ -8,7 +8,7 @@ export function quizApp() {
   return {
     board: null,
     chess: null,
-    status: "Ready",
+    status: "⚪️⚪️",
     quizData: quizData,
     quizMoveIndex: 0,
     failed: false, // we'll report failure back to the server (can reset before finish)
@@ -286,7 +286,7 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
       console.log("no quiz data");
-      this.status = "nothing due 😌";
+      this.status = "😌";
       this.board = window.Chessground(boardElement, {
         viewOnly: true,
         draggable: false, // true is no different? (only want to click anyway)
