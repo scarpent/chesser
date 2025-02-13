@@ -8,8 +8,10 @@ export function editApp() {
   return {
     board: null,
     chess: null,
-    status: "⚪️⚪️",
-    editData: editData,
+    course: "Course ➤",
+    chapter: "Chapter Name ➤",
+    variationTitle: "Variation Title",
+    variationMoves: "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nf6 5.Nxc6 bxc6",
     quizMoveIndex: 0,
     failed: false, // we'll report failure back to the server (can reset before finish)
     completed: false, // finished the quiz! if failed we'll review again

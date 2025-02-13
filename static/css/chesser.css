@@ -1,12 +1,14 @@
 body {
   background-color: #222222;
   color: #eeeeee;
+  font-family: "Helvetica", sans-serif;
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: flex-start; /* Align to the top */
+  flex-direction: column;
+  justify-content: flex-start; /* Align to the top */
+  align-items: center;
   height: 100vh; /* Full viewport height */
   margin: 0;
-  padding-top: 20px; /* Ensure the board starts 20px from the top */
+  padding-top: 20px; /* Board starts 20px from the top */
 }
 
 #container {
@@ -20,13 +22,15 @@ body {
 .status {
   margin-top: 20px;
   font-size: 30px;
-  font-family: "Helvetica", sans-serif;
 }
 
 .button-container {
   display: flex;
   justify-content: center;
+  align-items: center;
+  width: 100%;
   gap: 15px; /* Space between buttons */
+  margin-bottom: 20px; /* Ensure space between buttons and variation info */
 }
 
 button {
@@ -42,10 +46,19 @@ button:hover {
   background-color: #444444;
 }
 
+#variation-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
 #resizable-board {
   position: relative;
-  width: 400px; /* Start at 500px */
-  height: 400px; /* Ensure it's square */
+  width: 400px; /* Starting size */
+  height: 400px; /* Make it square */
   max-width: 90vw; /* Keep within screen limits */
   max-height: 90vh;
 }

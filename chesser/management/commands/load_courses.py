@@ -36,8 +36,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        white_course = self.create_course("My White", "white")
-        black_course = self.create_course("My Black", "black")
+        white_course = self.create_course("White", "white")
+        black_course = self.create_course("Black", "black")
 
         white_e4_sundry = self.create_chapter("1.e4 Sundry", white_course)
         moves = [

@@ -21,28 +21,20 @@
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="editApp()" x-init="initChessground()">
-    <div id="container">
-      <div id="resizable-board">
-        <div id="board"></div>
-        <div id="resize-handle"></div>
-      </div>
-      <div x-text="status" class="status"></div>
-      <div class="button-container">
-        <button @click="analysisBoard()" title="Open in lichess analysis board">
-          🔍️
-        </button>
-        <button @click="restartQuiz()" title="Restart the review">🔄</button>
-        <button title="Show/hide variation info">👁️</button>
-        <button
-          @click="showQuizMove()"
-          title="Show the correct move (fails the review)"
-        >
-          💣️
-        </button>
-        <button title="Edit variation">⚙️</button>
+    <div class="button-container">
+        <button title="Save">💾</button>
+        <button @click="window.location.href='/review/'" title="Review">🚀</button>
         <button title="View variation">📖</button>
         <button @click="window.location.href='/'" title="Go home">🏠️</button>
-        <button x-show="completed" @click="nextQuiz()" title="Next">➡️</button>
+      </div>
+      <div id="variation-info">
+        <div x-text="course"></div>
+        <div x-text="chapter"></div>
+        <div x-text="variationTitle"></div>
+        <div x-text="variationMoves"></div>
+      </div>
+      <div>
+        <div id="board"></div>
       </div>
     </div>
 
@@ -62,7 +54,6 @@
         Alpine.data("editApp", editApp);
       });
     </script>
-    <script src="{% static 'js/resize.js' %}"></script>
 
     <!-- Load alpine.js LAST -->
     <script
