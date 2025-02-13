@@ -45,21 +45,6 @@ class Variation(models.Model):
     level = models.IntegerField(default=0)
     next_review = models.DateTimeField(default=timezone.now)
 
-    # TODO:
-    #
-    # ➤ annotation for evaluation at the end position (could do this for
-    # the move, but the last move might have another annotation...) maybe
-    # it can be a standard annotation symbol but also free text, with
-    # lichess stats for the position (win/draw/loss) ...
-    #
-    # ➤ think about "soft" fails, or alternative moves - can improve on
-    # chessable here; if a "hard fail", clearly show if the move was as
-    # good or really bad, etc. UI will have a way to toggle and show more
-    # (also! consider a way to track soft fails and have some stats and/or
-    # some kind of review mode for these...)
-    #
-    # ➤ "source" chessable course, etc, maybe a link, too?
-
     def __str__(self):
         return f"{self.chapter.course.title}: {self.chapter.title}: {self.title}"
 
@@ -148,5 +133,3 @@ class QuizResult(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
     passed = models.BooleanField(default=False)
-
-    # TODO: a field to "mark" this variation from the UI after doing it, to easily find it to review something -- e.g. reviewing on the phone and you want to go back and review more and compare to similar lines... maybe it's even a text field so can add comments...  # noqa: E501

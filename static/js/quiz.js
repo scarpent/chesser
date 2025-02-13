@@ -138,9 +138,6 @@ export function quizApp() {
 
       const answer = this.quizData.moves[this.quizMoveIndex];
 
-      // TODO: decide what to do with handling alt/wrong moves:
-      // delays, buttons, etc (annotations probably in read view)
-
       if (move.san === answer.san) {
         // green indicates that the move was successful, and purple
         // that the outcome of the quiz is still pending
@@ -175,8 +172,6 @@ export function quizApp() {
       this.failed = true;
       this.annotateMove(move.from, move.to, "blue", "blue");
       this.chess.undo();
-
-      // TODO: report this to the server as a failure
     },
 
     //--------------------------------------------------------------------------------
@@ -201,7 +196,6 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     gotoPreviousMove() {
-      // TODO: maybe should have a boundary check here? 🤷
       this.quizMoveIndex = this.quizMoveIndex - 2;
       this.chess.undo();
       this.chess.undo();
@@ -227,14 +221,10 @@ export function quizApp() {
         this.status = "🟢🟢";
         this.reportResult(true);
       }
-      // TODO: show variation info: chapter, title, level, etc
     },
 
     //--------------------------------------------------------------------------------
     restartQuiz() {
-      // TODO: a bunch of logic about when you can and can't restart
-      // and if things get reported to the server or not
-
       this.failed = false;
       this.chess.reset();
       this.goToStartingPosition();
