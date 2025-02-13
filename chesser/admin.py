@@ -70,16 +70,15 @@ class ChapterAdmin(admin.ModelAdmin):
 
 @admin.register(Variation)
 class VariationAdmin(admin.ModelAdmin):
-    list_display = (
-        "title",
-        "chapter",
-        "start",
-        "level",
-        "next_review",
-    )
+    list_display = ("id", "clickable_title", "chapter", "start", "level", "next_review")
     search_fields = ("title",)
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
+
+    @admin.display(description="Title")
+    def clickable_title(self, obj):
+        link = reverse("admin:chesser_variation_change", args=[obj.id])
+        return format_html('<a href="{}">{}</a>', link, obj.title)
 
 
 @admin.register(Move)
