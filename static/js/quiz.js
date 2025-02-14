@@ -29,7 +29,7 @@ export function quizApp() {
         this.goToStartingPosition();
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
-          draggable: false, // true is no different? (only want to click anyway)
+          draggable: false,
           highlight: {
             lastMove: true,
             check: true,

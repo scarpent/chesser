@@ -21,17 +21,12 @@ export function editApp() {
         this.chess = new window.Chess();
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
-          draggable: false, // true is no different? (only want to click anyway)
-          highlight: {
-            lastMove: true,
-            check: true,
-          },
+          draggable: false,
           orientation: this.editData.color,
           fen: this.chess.fen(),
-          coordinates: true,
+          coordinates: false,
           movable: {
-            color: "both", // allow both white and black to move
-            free: false, // only legal moves
+            free: false, // only legal moves (no moves because no dests)
             showDests: false,
           },
         });
