@@ -4,31 +4,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chesser</title>
+    <title>Import</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
-  <body x-data="homeApp()" x-init="initHome()">
+  <body x-data="importApp()" x-init="initImport()">
     <div class="button-container">
       <button @click="window.location.href='/review/'" title="Review">🚀</button>
-      <button @click="window.location.href='/import/'" title="Import">📥️</button>
       <button @click="window.location.href='/edit/'" title="Edit">⚙️</button>
+      <button @click="window.location.href='/'" title="Home">🏠️</button>
     </div>
 
-    <!-- Pass homeData safely to JavaScript -->
+    <!-- Pass importData safely to JavaScript -->
     <script>
-      window.homeData = JSON.parse("{{ home_data|escapejs }}");
-      console.log("home data loaded:", window.homeData);
+      window.importData = JSON.parse("{{ import_data|escapejs }}");
+      console.log("import data loaded:", window.importData);
     </script>
 
     <script type="module">
-      import { homeApp } from "{% static 'js/home.js' %}";
-      window.homeApp = homeApp;
-      console.log("homeApp loaded");
+      import { importApp } from "{% static 'js/import.js' %}";
+      window.importApp = importApp;
+      console.log("importApp loaded");
 
       document.addEventListener("alpine:init", () => {
         console.log("alpine.js initializing");
-        Alpine.data("homeApp", homeApp);
+        Alpine.data("importApp", importApp);
       });
     </script>
 

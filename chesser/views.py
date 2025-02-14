@@ -53,6 +53,11 @@ def report_result(request):
     )
 
 
+def importer(request):
+    import_data = {"import_data": json.dumps("Import data!")}
+    return render(request, "import.html", import_data)
+
+
 def edit(request, variation_id=None):
     if variation_id is None:
         variation = Variation.objects.first()

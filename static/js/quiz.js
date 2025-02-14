@@ -73,9 +73,7 @@ export function quizApp() {
         this.chess.SQUARES ||
         this.chess
           .board()
-          .flatMap((row) =>
-            row.map((square) => (square ? square.square : null))
-          )
+          .flatMap((row) => row.map((square) => (square ? square.square : null)))
           .filter(Boolean);
       squares.forEach((s) => {
         const ms = this.chess.moves({ square: s, verbose: true });
@@ -261,9 +259,7 @@ export function quizApp() {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "success") {
-            console.log(
-              `result reported successfully: ${variationId} ${passed}`
-            );
+            console.log(`result reported successfully: ${variationId} ${passed}`);
           } else {
             console.error("failed to report result:", data.message);
           }

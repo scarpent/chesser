@@ -6,18 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Review</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-    <link
-      href="{% static 'chessground/chessground.base.css' %}"
-      rel="stylesheet"
-    />
-    <link
-      href="{% static 'chessground/chessground.brown.css' %}"
-      rel="stylesheet"
-    />
-    <link
-      href="{% static 'chessground/chessground.fantasy.css' %}"
-      rel="stylesheet"
-    />
+    <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
+    <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
+    <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="quizApp()" x-init="initChessground()">
@@ -28,10 +19,8 @@
       </div>
       <div x-text="status" class="status"></div>
       <div class="button-container">
-        <button @click="analysisBoard()" title="Open in lichess analysis board">
-          🔍️
-        </button>
-        <button @click="restartQuiz()" title="Restart the review">🔄</button>
+        <button @click="analysisBoard()" title="Lichess analysis board">🔍️</button>
+        <button @click="restartQuiz()" title="Restart">🔄</button>
         <button title="Show/hide variation info">👁️</button>
         <button
           @click="showQuizMove()"
@@ -39,9 +28,9 @@
         >
           💣️
         </button>
-        <button @click="editVariation()" title="Edit variation">⚙️</button>
-        <button title="View variation">📖</button>
-        <button @click="window.location.href='/'" title="Go home">🏠️</button>
+        <button @click="editVariation()" title="Edit">⚙️</button>
+        <button title="View">📖</button>
+        <button @click="window.location.href='/'" title="Home">🏠️</button>
         <button x-show="completed" @click="nextQuiz()" title="Next">➡️</button>
       </div>
     </div>

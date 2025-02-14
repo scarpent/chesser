@@ -26,6 +26,7 @@ urlpatterns = [
     path("review/", views.review, name="review_default"),
     path("review/<int:variation_id>/", views.review, name="review_with_id"),
     path("report_result/", views.report_result, name="report_result"),
+    path("import/", views.importer, name="import"),
     path("edit/", views.edit, name="edit_default"),
     path("edit/<int:variation_id>/", views.edit, name="edit_with_id"),
 ]

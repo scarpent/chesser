@@ -6,28 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-    <link
-      href="{% static 'chessground/chessground.base.css' %}"
-      rel="stylesheet"
-    />
-    <link
-      href="{% static 'chessground/chessground.brown.css' %}"
-      rel="stylesheet"
-    />
-    <link
-      href="{% static 'chessground/chessground.fantasy.css' %}"
-      rel="stylesheet"
-    />
+    <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
+    <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
+    <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="editApp()" x-init="initEditor()">
     <div class="button-container">
+      <button @click="window.location.href='/review/'" title="Review">🚀</button>
       <button title="Save">💾</button>
-      <button @click="window.location.href='/review/'" title="Review">
-        🚀
-      </button>
-      <button title="View variation">📖</button>
-      <button @click="window.location.href='/'" title="Go home">🏠️</button>
+      <button title="View">📖</button>
+      <button @click="window.location.href='/import/'" title="Import">📥️</button>
+      <button @click="window.location.href='/'" title="Home">🏠️</button>
     </div>
     <div id="variation-info">
       <div x-text="course"></div>
