@@ -55,7 +55,7 @@ def report_result(request):
 
 def edit(request, variation_id=None):
     if variation_id is None:
-        variation = Variation.due_for_review()
+        variation = Variation.objects.first()
     else:
         # this would be like chessable's "overstudy", although
         # would like to call it something else - we'll think about

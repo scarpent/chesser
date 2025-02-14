@@ -293,7 +293,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     editVariation() {
-      const variationId = this.quizData.variation_id;
+      const variationId = this.quizData.variation_id || 1;
       window.location.href = `/edit/${variationId}/`;
     },
   }; // return { ... }

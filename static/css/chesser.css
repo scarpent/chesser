@@ -55,17 +55,29 @@ button:hover {
   text-align: center;
 }
 
+/* Ensure quiz app board remains unaffected */
 #resizable-board {
   position: relative;
-  width: 400px; /* Starting size */
-  height: 400px; /* Make it square */
-  max-width: 90vw; /* Keep within screen limits */
+  width: 400px; /* Keep quiz board resizable */
+  height: 400px;
+  max-width: 90vw;
   max-height: 90vh;
 }
 
 #board {
   width: 100%;
   height: 100%;
+}
+
+#edit-board {
+  width: 250px;
+  height: 250px;
+}
+
+/* Editor-specific board styles */
+#boards-container .edit-board {
+  width: 250px;
+  height: 250px;
 }
 
 #resize-handle {

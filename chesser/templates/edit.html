@@ -20,22 +20,23 @@
     />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
-  <body x-data="editApp()" x-init="initChessground()">
+  <body x-data="editApp()" x-init="initEditor()">
     <div class="button-container">
-        <button title="Save">💾</button>
-        <button @click="window.location.href='/review/'" title="Review">🚀</button>
-        <button title="View variation">📖</button>
-        <button @click="window.location.href='/'" title="Go home">🏠️</button>
-      </div>
-      <div id="variation-info">
-        <div x-text="course"></div>
-        <div x-text="chapter"></div>
-        <div x-text="variationTitle"></div>
-        <div x-text="variationMoves"></div>
-      </div>
-      <div>
-        <div id="board"></div>
-      </div>
+      <button title="Save">💾</button>
+      <button @click="window.location.href='/review/'" title="Review">
+        🚀
+      </button>
+      <button title="View variation">📖</button>
+      <button @click="window.location.href='/'" title="Go home">🏠️</button>
+    </div>
+    <div id="variation-info">
+      <div x-text="course"></div>
+      <div x-text="chapter"></div>
+      <div x-text="variationTitle"></div>
+      <div x-text="variationMoves"></div>
+    </div>
+    <div id="boards-container">
+      <div id="edit-board"></div>
     </div>
 
     <!-- Pass editData safely to JavaScript -->
