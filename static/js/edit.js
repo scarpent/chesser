@@ -25,7 +25,7 @@ export function editApp() {
           this.variationData.moves.forEach((move, index) => {
             const boardElement = document.getElementById(`edit-board-${index}`);
             if (boardElement) {
-              chess.move(move.san);
+              const moveResult = chess.move(move.san);
               this.boards.push(
                 window.Chessground(boardElement, {
                   fen: chess.fen(),
@@ -33,6 +33,8 @@ export function editApp() {
                   draggable: false,
                   coordinates: false,
                   movable: { free: false, showDests: false },
+                  highlight: { lastMove: true, check: true },
+                  lastMove: [moveResult.from, moveResult.to],
                 })
               );
             } else {
