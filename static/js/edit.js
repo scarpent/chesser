@@ -6,34 +6,42 @@ window.Chess = Chess;
 
 export function editApp() {
   return {
-    board: null,
+    boards: [],
     chess: null,
-    course: "Course ➤",
-    chapter: "Chapter Name ➤",
-    variationTitle: "Variation Title",
-    variationMoves: "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nf6 5.Nxc6 bxc6",
+    course: variationData.course,
+    chapter: variationData.chapter,
+    variationTitle: variationData.title,
+    variationMainline: variationData.mainline,
     variationData: variationData,
 
     initEditor() {
       console.log("initEditor()");
-      const boardElement = document.getElementById("edit-board");
-      if (boardElement && window.Chessground && window.Chess) {
-        this.chess = new window.Chess();
-        this.board = window.Chessground(boardElement, {
-          viewOnly: false,
-          draggable: false,
-          orientation: this.variationData.color,
-          fen: this.chess.fen(),
-          coordinates: false,
-          movable: {
-            free: false, // only legal moves (no moves because no dests)
-            showDests: false,
-          },
+      document.addEventListener("alpine:initialized", () => {
+        console.log("Alpine initialized");
+        const chess = new window.Chess();
+
+        this.$nextTick(() => {
+          console.log("Running after DOM update");
+          this.variationData.moves.forEach((move, index) => {
+            const boardElement = document.getElementById(`edit-board-${index}`);
+            if (boardElement) {
+              chess.move(move.san);
+              this.boards.push(
+                window.Chessground(boardElement, {
+                  fen: chess.fen(),
+                  orientation: this.variationData.color,
+                  draggable: false,
+                  coordinates: false,
+                  movable: { free: false, showDests: false },
+                })
+              );
+            } else {
+              console.error(`Board element edit-board-${index} not found`);
+            }
+          });
+          console.log("All boards initialized", this.boards);
         });
-        console.log("editor loaded");
-      } else {
-        console.error("chessground or chess.js failed to load");
-      }
-    }, // initEditor()
-  }; // return { ... }
+      });
+    },
+  };
 }

@@ -35,6 +35,11 @@ class Variation(models.Model):
     """
     level 0 = "unlearned" / never reviewed - it's one time only, and we
     move on to 1 from there, and return to 1 when we fail a review
+
+    TODO consider
+    * a "header" block, e.g. showing source course/chapter info
+    * one or two fields for chessable variation ids: source course, my course
+      (to help with the import process)
     """
 
     title = models.CharField(max_length=100)
@@ -53,12 +58,8 @@ class Variation(models.Model):
         white_to_move = True
         move_string = ""
         for move in self.moves.iterator():
-            if white_to_move:
-                prefix = f"{move.move_num}."
-                white_to_move = False
-            else:
-                prefix = ""
-                white_to_move = True
+            prefix = f"{move.move_num}." if white_to_move else ""
+            white_to_move = not white_to_move
             move_string += f"{prefix}{move.san} "
 
         return move_string

@@ -4,11 +4,11 @@ body {
   font-family: "Helvetica", sans-serif;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align to the top */
+  justify-content: flex-start;
   align-items: center;
-  height: 100vh; /* Full viewport height */
+  height: 100vh;
   margin: 0;
-  padding-top: 20px; /* Board starts 20px from the top */
+  padding-top: 20px;
 }
 
 #container {
@@ -16,7 +16,7 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 90vw; /* Allow responsiveness */
+  max-width: 90vw;
 }
 
 .status {
@@ -29,8 +29,8 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  gap: 15px; /* Space between buttons */
-  margin-bottom: 20px; /* Ensure space between buttons and variation info */
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 button {
@@ -55,13 +55,11 @@ button:hover {
   text-align: center;
 }
 
-/* Ensure quiz app board remains unaffected */
-#resizable-board {
-  position: relative;
-  width: 400px; /* Keep quiz board resizable */
-  height: 400px;
-  max-width: 90vw;
-  max-height: 90vh;
+#boards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
 }
 
 #board {
@@ -69,15 +67,41 @@ button:hover {
   height: 100%;
 }
 
-#edit-board {
-  width: 250px;
-  height: 250px;
+#resizable-board {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
 }
 
-/* Editor-specific board styles */
-#boards-container .edit-board {
+.edit-board {
   width: 250px;
   height: 250px;
+  position: relative;
+  display: block; /* Ensure block display */
+}
+
+.move-block {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+.move-verbose {
+  font-size: 18px;
+  color: #eeeeee;
+  margin-left: 15px;
+}
+
+.edit-board canvas {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
 }
 
 #resize-handle {
