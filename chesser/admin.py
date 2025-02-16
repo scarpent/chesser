@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.db.models import Subquery
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -50,7 +51,11 @@ class QuizResultInline(admin.TabularInline):
     model = QuizResult
     extra = 0  # Number of empty forms to display
     readonly_fields = ("datetime", "level", "passed")
-    ordering = ("-datetime",)  # datetime descending
+    # ordering = ("-datetime",)  # datetime descending
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request).order_by("-datetime")
+        return qs.filter(pk__in=Subquery(qs.values("pk")[:10]))
 
 
 @admin.register(Course)

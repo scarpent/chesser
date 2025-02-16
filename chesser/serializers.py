@@ -15,7 +15,8 @@ def serialize_variation(variation):
     for move in variation.moves.all():
         dots = "." if white_to_move else "..."
         white_to_move = not white_to_move
-        move_verbose = f"{move.move_num}{dots}{move.san}"
+        annotation = move.annotation if move.annotation else ""
+        move_verbose = f"{move.move_num}{dots}{move.san}{annotation}"
         moves.append(
             {
                 "san": move.san,
