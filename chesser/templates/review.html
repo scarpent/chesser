@@ -21,13 +21,8 @@
       <div class="button-container">
         <button @click="analysisBoard()" title="Lichess analysis board">🔍️</button>
         <button @click="restartQuiz()" title="Restart">🔄</button>
-        <button title="Show/hide variation info">👁️</button>
-        <button
-          @click="showQuizMove()"
-          title="Show the correct move (fails the review)"
-        >
-          💣️
-        </button>
+        <button title="Info">👁️</button>
+        <button @click="showQuizMove()" title="Show move">💣️</button>
         <button @click="editVariation()" title="Edit">⚙️</button>
         <button title="View">📖</button>
         <button @click="window.location.href='/'" title="Home">🏠️</button>
