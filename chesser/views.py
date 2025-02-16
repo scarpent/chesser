@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
 from chesser.models import Variation
-from chesser.serializers import serialize_quiz
+from chesser.serializers import serialize_variation
 
 
 def home(request):
@@ -28,11 +28,11 @@ def review(request, variation_id=None):
         )
 
     if variation is None:
-        quiz_data = {}
+        variation_data = {}
     else:
-        quiz_data = serialize_quiz(variation)
+        variation_data = serialize_variation(variation)
 
-    context = {"quiz_data": json.dumps(quiz_data)}
+    context = {"variation_data": json.dumps(variation_data)}
     return render(request, "review.html", context)
 
 
@@ -73,9 +73,9 @@ def edit(request, variation_id=None):
         )
 
     if variation is None:
-        quiz_data = {}
+        variation_data = {}
     else:
-        quiz_data = serialize_quiz(variation)
+        variation_data = serialize_variation(variation)
 
-    context = {"edit_data": json.dumps(quiz_data)}
+    context = {"variation_data": json.dumps(variation_data)}
     return render(request, "edit.html", context)

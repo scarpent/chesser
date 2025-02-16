@@ -30,10 +30,10 @@
       </div>
     </div>
 
-    <!-- Pass quizData safely to JavaScript -->
+    <!-- Pass variationData safely to JavaScript -->
     <script>
-      window.quizData = JSON.parse("{{ quiz_data|escapejs }}");
-      console.log("quiz data loaded:", window.quizData);
+      window.variationData = JSON.parse("{{ variation_data|escapejs }}");
+      console.log("variation data loaded:", window.variationData);
     </script>
 
     <script type="module">

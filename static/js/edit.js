@@ -12,7 +12,7 @@ export function editApp() {
     chapter: "Chapter Name ➤",
     variationTitle: "Variation Title",
     variationMoves: "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nf6 5.Nxc6 bxc6",
-    editData: editData,
+    variationData: variationData,
 
     initEditor() {
       console.log("initEditor()");
@@ -22,7 +22,7 @@ export function editApp() {
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
           draggable: false,
-          orientation: this.editData.color,
+          orientation: this.variationData.color,
           fen: this.chess.fen(),
           coordinates: false,
           movable: {

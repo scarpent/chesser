@@ -88,9 +88,11 @@ class Variation(models.Model):
         previous_level = self.level
         new_level = previous_level + 1 if passed else 1
         self.level = new_level
-        self.next_review = timezone.now() + timezone.timedelta(
-            hours=REPETITION_INTERVALS[self.level]
-        )
+
+        max_level = max(REPETITION_INTERVALS.keys())
+        hours = REPETITION_INTERVALS.get(new_level, REPETITION_INTERVALS[max_level])
+        self.next_review = timezone.now() + timezone.timedelta(hours=hours)
+
         self.save()
 
         QuizResult.objects.create(

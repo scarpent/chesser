@@ -29,10 +29,10 @@
       <div id="edit-board"></div>
     </div>
 
-    <!-- Pass editData safely to JavaScript -->
+    <!-- Pass variationData safely to JavaScript -->
     <script>
-      window.editData = JSON.parse("{{ edit_data|escapejs }}");
-      console.log("edit data loaded:", window.editData);
+      window.variationData = JSON.parse("{{ variation_data|escapejs }}");
+      console.log("variation data loaded:", window.variationData);
     </script>
 
     <script type="module">

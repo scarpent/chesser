@@ -9,7 +9,7 @@ export function quizApp() {
     board: null,
     chess: null,
     status: "⚪️⚪️",
-    quizData: quizData,
+    variationData: variationData,
     quizMoveIndex: 0,
     failed: false, // we'll report failure back to the server (can reset before finish)
     completed: false, // finished the quiz! if failed we'll review again
@@ -21,7 +21,7 @@ export function quizApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        if (!this.quizData || Object.keys(this.quizData).length === 0) {
+        if (!this.variationData || Object.keys(this.variationData).length === 0) {
           this.nothingToSeeHere(boardElement);
           return;
         }
@@ -34,7 +34,7 @@ export function quizApp() {
             lastMove: true,
             check: true,
           },
-          orientation: this.quizData.color,
+          orientation: this.variationData.color,
           fen: this.chess.fen(),
           coordinates: false,
           movable: {
@@ -57,10 +57,10 @@ export function quizApp() {
 
     goToStartingPosition() {
       this.status = "🟣🟣";
-      this.quizMoveIndex = this.quizData.start;
-      if (this.quizData.start >= 0) {
-        for (let i = 0; i <= this.quizData.start; i++) {
-          const quizMove = this.quizData.moves[i];
+      this.quizMoveIndex = this.variationData.start;
+      if (this.variationData.start >= 0) {
+        for (let i = 0; i <= this.variationData.start; i++) {
+          const quizMove = this.variationData.moves[i];
           this.chess.move(quizMove.san);
         }
       }
@@ -88,7 +88,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     noMoreMoves() {
-      return this.quizMoveIndex >= this.quizData.moves.length;
+      return this.quizMoveIndex >= this.variationData.moves.length;
     },
 
     //--------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ export function quizApp() {
           this.completeQuiz();
           return;
         }
-        const san = this.quizData.moves[this.quizMoveIndex].san;
+        const san = this.variationData.moves[this.quizMoveIndex].san;
         const move = this.chess.move(san);
 
         this.board.set({
@@ -134,7 +134,7 @@ export function quizApp() {
         return;
       }
 
-      const answer = this.quizData.moves[this.quizMoveIndex];
+      const answer = this.variationData.moves[this.quizMoveIndex];
 
       if (move.san === answer.san) {
         // green indicates that the move was successful, and purple
@@ -164,7 +164,7 @@ export function quizApp() {
         this.status = "🤷 no more moves to show 💣️";
         return;
       }
-      const san = this.quizData.moves[this.quizMoveIndex].san;
+      const san = this.variationData.moves[this.quizMoveIndex].san;
       const move = this.chess.move(san);
 
       this.failed = true;
@@ -244,7 +244,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     reportResult(passed) {
-      const variationId = this.quizData.variation_id;
+      const variationId = this.variationData.variation_id;
 
       fetch("/report_result/", {
         method: "POST",
@@ -271,7 +271,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
-      console.log("no quiz data");
+      console.log("no variation data");
       this.status = "😌";
       this.board = window.Chessground(boardElement, {
         viewOnly: true,
@@ -289,7 +289,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     editVariation() {
-      const variationId = this.quizData.variation_id || 1;
+      const variationId = this.variationData.variation_id || 1;
       window.location.href = `/edit/${variationId}/`;
     },
   }; // return { ... }
