@@ -57,9 +57,9 @@ export function quizApp() {
 
     goToStartingPosition() {
       this.status = "🟣🟣";
-      this.quizMoveIndex = this.variationData.start;
-      if (this.variationData.start >= 0) {
-        for (let i = 0; i <= this.variationData.start; i++) {
+      this.quizMoveIndex = this.variationData.start_index;
+      if (this.variationData.start_index >= 0) {
+        for (let i = 0; i <= this.variationData.start_index; i++) {
           const quizMove = this.variationData.moves[i];
           this.chess.move(quizMove.san);
         }
