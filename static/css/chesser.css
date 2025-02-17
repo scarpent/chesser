@@ -114,8 +114,3 @@ button:hover {
   cursor: nwse-resize;
   border-radius: 3px;
 }
-
-.move-text {
-  max-width: 500px;
-  width: 100%;
-}
