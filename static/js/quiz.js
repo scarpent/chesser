@@ -246,7 +246,7 @@ export function quizApp() {
     reportResult(passed) {
       const variationId = this.variationData.variation_id;
 
-      fetch("/report_result/", {
+      fetch("/report-result/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

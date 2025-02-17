@@ -79,3 +79,21 @@ def edit(request, variation_id=None):
 
     context = {"variation_data": json.dumps(variation_data)}
     return render(request, "edit.html", context)
+
+
+@csrf_exempt
+def save_variation(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        print(data)
+        # variation_id = data.get("variation_id")
+        # passed = data.get("passed")
+
+        # variation = get_object_or_404(Variation, pk=variation_id)
+        # variation.handle_quiz_result(passed)
+
+        return JsonResponse({"status": "success"})
+
+    return JsonResponse(
+        {"status": "error", "message": "Invalid request method"}, status=400
+    )
