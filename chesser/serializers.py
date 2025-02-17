@@ -19,6 +19,7 @@ annotations = {
 
 def serialize_variation(variation):
     color = variation.chapter.course.color
+
     variation_data = {
         "variation_id": variation.id,
         "title": variation.title,
@@ -28,14 +29,24 @@ def serialize_variation(variation):
         "start_move": variation.start,
         "level": variation.level,
         "mainline": variation.mainline_moves,
-        "annotations": annotations,
     }
-    moves = []
 
+    temp_annotations = annotations.copy()
+    moves = []
     white_to_move = True
     for move in variation.moves.all():
         dots = "." if white_to_move else "..."
         white_to_move = not white_to_move
+
+        annotation = move.annotation or ""
+        if annotation and annotation not in temp_annotations:
+            # add this to annotation dict so we can re-save it
+            temp_annotations[annotation] = f"unknown: {annotation}"
+            print(
+                "unknown annotation in variation "
+                f"{variation.id}, move {move.id}: {annotation}"
+            )
+
         annotation = move.annotation if move.annotation else ""
         move_verbose = f"{move.move_num}{dots}{move.san}{annotation}"
         moves.append(
@@ -45,9 +56,10 @@ def serialize_variation(variation):
                 "alt": move.alt,
                 "alt_fail": move.alt_fail,
                 "text": move.text,
-                "annotation": move.annotation,
+                "annotation": annotation,
             }
         )
     variation_data["moves"] = moves
+    variation_data["annotations"] = temp_annotations
 
     return variation_data
