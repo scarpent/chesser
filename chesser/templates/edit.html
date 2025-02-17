@@ -39,6 +39,15 @@
             rows="10"
             cols="60"
           ></textarea>
+          <select class="annotation" x-model="move.annotation">
+            <template x-for="[key, value] in Object.entries(variationData.annotations)">
+              <option
+                :value="key"
+                x-text="value"
+                :selected="key === move.annotation"
+              ></option>
+            </template>
+          </select>
         </div>
       </template>
     </div>

@@ -1,3 +1,22 @@
+annotations = {
+    "": "No annotation",
+    "?": "? Poor",
+    "?!": "?! Dubious",
+    "!?": "!? Interesting",
+    "!": "! Good",
+    "!!": "!! Brilliant",
+    "??": "?? Blunder",
+    "=": "= Drawish",
+    "∞": "∞ Unclear",
+    "⩲": "⩲ White Slight",
+    "⩱": "⩱ Black Slight",
+    "±": "± White Moderate",
+    "∓": "∓ Black Moderate",
+    "+-": "+- White Decisive",
+    "-+": "-+ Black Decisive",
+}
+
+
 def serialize_variation(variation):
     color = variation.chapter.course.color
     variation_data = {
@@ -8,6 +27,7 @@ def serialize_variation(variation):
         "start": variation.start_index,
         "level": variation.level,
         "mainline": variation.mainline_moves,
+        "annotations": annotations,
     }
     moves = []
 
