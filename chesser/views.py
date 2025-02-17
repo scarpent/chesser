@@ -85,15 +85,30 @@ def edit(request, variation_id=None):
 def save_variation(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        print(data)
-        # variation_id = data.get("variation_id")
-        # passed = data.get("passed")
+        variation_id = data.get("variation_id")
+        print(f"saving variation {variation_id}")
+        variation = get_object_or_404(Variation, pk=variation_id)
+        variation.title = data["title"]
+        variation.start = data["start_move"]
+        variation.save()
 
-        # variation = get_object_or_404(Variation, pk=variation_id)
-        # variation.handle_quiz_result(passed)
+        for idx, move in enumerate(variation.moves.all()):
+            move.san = data["moves"][idx]["san"]
+            move.text = data["moves"][idx]["text"]
+            move.alt = listify_alt_moves(data["moves"][idx]["alt"])
+            move.alt_fail = listify_alt_moves(data["moves"][idx]["alt_fail"])
+            move.annotation = data["moves"][idx]["annotation"]
+            move.save()
 
         return JsonResponse({"status": "success"})
 
     return JsonResponse(
         {"status": "error", "message": "Invalid request method"}, status=400
     )
+
+
+def listify_alt_moves(alt_moves):
+    if isinstance(alt_moves, str):
+        return [move.strip() for move in alt_moves.split(",") if move.strip()]
+    else:
+        return alt_moves

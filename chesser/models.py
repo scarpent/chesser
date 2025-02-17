@@ -44,7 +44,7 @@ class Variation(models.Model):
 
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    start = models.IntegerField(
+    start = models.IntegerField(  # TODO: maybe rename to start_move
         default=2, help_text="Reviews start at this move number"
     )
     level = models.IntegerField(default=0)

@@ -45,19 +45,22 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     saveVariation() {
-      console.log("Saving variation data...");
+      console.log("Saving variation data...", this.variationData);
+      console.log(this.variationData.start_move);
       this.saveErrors = [];
       const payload = {
         variation_id: this.variationData.variation_id,
         title: this.variationData.title,
-        moves: this.variationData.moves.map((move) => ({
-          san: move.san,
-          annotation: move.annotation,
-          text: move.text,
-          alt: move.alt,
-          alt_fail: move.alt_fail,
-        })),
+        start_move: this.variationData.start_move,
       };
+
+      payload.moves = this.variationData.moves.map((move) => ({
+        san: move.san,
+        annotation: move.annotation,
+        text: move.text,
+        alt: move.alt,
+        alt_fail: move.alt_fail,
+      }));
 
       fetch("/save-variation/", {
         method: "POST",
@@ -71,6 +74,7 @@ export function editApp() {
             console.error("Save errors:", this.saveErrors);
           } else {
             console.log("Variation saved successfully");
+            window.location.reload(); // Reload page to reflect backend changes
           }
         })
         .catch((error) => {
@@ -78,5 +82,5 @@ export function editApp() {
           this.saveErrors.push("An unexpected error occurred.");
         });
     },
-  };
+  }; // return { ... }
 }

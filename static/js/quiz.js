@@ -11,9 +11,9 @@ export function quizApp() {
     status: "⚪️⚪️",
     variationData: variationData,
     quizMoveIndex: 0,
-    failed: false, // we'll report failure back to the server (can reset before finish)
-    completed: false, // finished the quiz! if failed we'll review again
-    reviewAfterFailure: false, // if true: disallow restart and clearing the failure
+    failed: false, // We'll report failure back to the server (can reset before finish)
+    completed: false, // Finished the quiz! if failed we'll review again
+    reviewAfterFailure: false, // If true: disallow restart and clearing the failure
 
     initChessground() {
       console.log("initChessground()");
@@ -38,8 +38,8 @@ export function quizApp() {
           fen: this.chess.fen(),
           coordinates: false,
           movable: {
-            color: "both", // allow both white and black to move
-            free: false, // only legal moves
+            color: "both", // Allow both white and black to move
+            free: false, // Only legal moves
             dests: this.toDests(),
             showDests: false,
             events: {
@@ -47,7 +47,7 @@ export function quizApp() {
             },
           },
         });
-        console.log("chess board loaded");
+        console.log("Chess board loaded");
 
         this.playOpposingMove();
       } else {
@@ -124,7 +124,7 @@ export function quizApp() {
         });
         this.quizMoveIndex++;
       }, 250); // 0.25 second delay
-      // (later: maybe 1 second for first move? shorter for subsequent?)
+      // (Later: maybe 1 second for first move? shorter for subsequent?)
     },
 
     //--------------------------------------------------------------------------------
@@ -137,21 +137,21 @@ export function quizApp() {
       const answer = this.variationData.moves[this.quizMoveIndex];
 
       if (move.san === answer.san) {
-        // green indicates that the move was successful, and purple
+        // Green indicates that the move was successful, and purple
         // that the outcome of the quiz is still pending
         this.status = "🟢🟣";
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
-        // alt moves are acceptable moves; yellow means we won't fail you for it
+        // Alt moves are acceptable moves; yellow means we won't fail you for it
         this.status = "🟢🟡";
         this.annotateMissedMove(move.from, move.to, "green", "yellow");
       } else if (answer.alt_fail.includes(move.san)) {
-        // alt moves are acceptable moves; red means we will fail you for it
+        // Alt moves are acceptable moves; red means we will fail you for it
         this.status = "🟢🔴";
         this.annotateMissedMove(move.from, move.to, "green", "red");
         this.failed = true;
       } else {
-        // complete fail (the move might be fine; we just haven't marked it as such)
+        // Complete fail (the move might be fine; we just haven't marked it as such)
         this.status = "🔴🔴";
         this.annotateMissedMove(move.from, move.to, "red", "red");
         this.failed = true;
@@ -210,7 +210,7 @@ export function quizApp() {
     completeQuiz() {
       this.completed = true;
       if (this.failed) {
-        // green indicates that the last move was successful, which it *has* to be
+        // Green indicates that the last move was successful, which it *has* to be
         // in order to complete the quiz; it seems like we need some indication
         // that the move itself was good, but the quiz as a whole was not
         this.status = "🟢🔴";
@@ -259,13 +259,13 @@ export function quizApp() {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "success") {
-            console.log(`result reported successfully: ${variationId} ${passed}`);
+            console.log(`Result reported successfully: ${variationId} ${passed}`);
           } else {
-            console.error("failed to report result:", data.message);
+            console.error("Failed to report result:", data.message);
           }
         })
         .catch((error) => {
-          console.error("error reporting result:", error);
+          console.error("Error reporting result:", error);
         });
     },
 
