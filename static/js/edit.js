@@ -8,10 +8,6 @@ export function editApp() {
   return {
     boards: [],
     chess: null,
-    course: variationData.course,
-    chapter: variationData.chapter,
-    variationTitle: variationData.title,
-    variationMainline: variationData.mainline,
     variationData: variationData,
 
     initEditor() {
@@ -26,6 +22,7 @@ export function editApp() {
             const boardElement = document.getElementById(`edit-board-${index}`);
             if (boardElement) {
               const moveResult = chess.move(move.san);
+              move.fen = chess.fen();
               this.boards.push(
                 window.Chessground(boardElement, {
                   fen: chess.fen(),

@@ -79,20 +79,28 @@ button:hover {
   width: 250px;
   height: 250px;
   position: relative;
-  display: block; /* Ensure block display */
+  display: block;
+  align-self: flex-start; /* Align to top */
 }
 
 .move-block {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   gap: 15px;
+}
+
+.move-text-container,
+.move-other-container {
+  display: flex;
+  flex-direction: column !important; /* Force vertical stacking */
+  gap: 10px;
+  align-self: flex-start;
 }
 
 .move-verbose {
   font-size: 18px;
   color: #eeeeee;
-  margin-left: 15px;
 }
 
 .edit-board canvas {
