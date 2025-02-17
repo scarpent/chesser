@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 sequence += 1
                 move["sequence"] = sequence
                 move["variation"] = variation
-                move_obj, _ = Move.objects.get_or_create(**move)
+                Move.objects.get_or_create(**move)
             self.stdout.write(f"    {variation.mainline_moves}")
         return variation
 
@@ -42,14 +42,32 @@ class Command(BaseCommand):
         white_e4_sundry = self.create_chapter("1.e4 Sundry", white_course)
         moves = [
             {"move_num": 1, "san": "e4"},
-            {"move_num": 1, "san": "Nc6"},
-            {"move_num": 2, "san": "Nf3", "alt": ["Nc3"], "alt_fail": ["d4", "Bb5"]},
-            {"move_num": 2, "san": "d5"},
+            {
+                "move_num": 1,
+                "san": "Nc6",
+                "text": "The Nimzovich Defence. It is not that bad if you use it just as a transpositional tool to reach 1 e4 e5 positions - the independent lines, however, are not that reliable for Black, or just downright bad.",  # noqa: E501
+            },
+            {
+                "move_num": 2,
+                "san": "Nf3",
+                "alt": ["Nc3"],
+                "alt_fail": ["d4", "Bb5"],
+                "text": "Instead, 2.d4 is good as well. But 2.Nf3 is logical and easier to handle.",  # noqa: E501
+            },
+            {
+                "move_num": 2,
+                "san": "d5",
+                "text": "Scandi style play - it is very questionable though.",
+            },
             {"move_num": 3, "san": "exd5"},
             {"move_num": 3, "san": "Qxd5"},
             {"move_num": 4, "san": "Nc3"},
             {"move_num": 4, "san": "Qh5"},
-            {"move_num": 5, "san": "Nb5"},
+            {
+                "move_num": 5,
+                "san": "Nb5",
+                "text": "Quite an embarrassing moment for Black - now ...Kd8 is the only move and it is not pretty.",  # noqa: E501
+            },
         ]
         self.create_variation("Nimzowitsch 1...Nc6", white_e4_sundry, 2, moves)
 
