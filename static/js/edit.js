@@ -90,6 +90,7 @@ export function editApp() {
       let alternateMoves = this.variationData.moves[index][field];
       console.log("Validating alt moves for", actualMoveVerbose, "➤", alternateMoves);
 
+      // Return early if no valid input
       if (
         !alternateMoves ||
         typeof alternateMoves !== "string" ||
@@ -97,10 +98,15 @@ export function editApp() {
       )
         return;
 
-      const altMoves = alternateMoves
-        .split(",")
-        .map((m) => m.trim())
-        .filter((m, i, arr) => m && arr.indexOf(m) === i); // Remove duplicates
+      // Process input: trim spaces and remove duplicates
+      const altMoves = [
+        ...new Set(
+          alternateMoves
+            .split(",")
+            .map((m) => m.trim())
+            .filter(Boolean)
+        ),
+      ];
       const bad = [],
         good = [];
 
@@ -108,8 +114,8 @@ export function editApp() {
       for (let i = 0; i < index; i++) chess.move(this.variationData.moves[i].san);
 
       altMoves.forEach((altMove) => {
-        if (!altMove || altMove === actualSan) {
-          bad.push(altMove);
+        if (altMove === actualSan) {
+          bad.push(altMove); // Ignore if identical to the actual move
           return;
         }
         try {
@@ -117,16 +123,18 @@ export function editApp() {
           good.push(altMove);
           chess.undo();
         } catch (error) {
+          console.error(`Invalid move for ${actualMoveVerbose}: ${altMove}`);
           bad.push(altMove);
         }
       });
 
-      console.log("good/bad", good, bad);
+      // console.log("good/bad:", good, bad);
       if (bad.length)
         console.error(
           `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`
         );
 
+      // Update input with only valid moves
       this.variationData.moves[index][field] = good.join(", ");
     },
   }; // return { ... }
