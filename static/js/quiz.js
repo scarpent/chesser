@@ -43,6 +43,12 @@ export function quizApp() {
         });
         console.log("Chess board loaded");
 
+        if (this.variationData.start_index < -1) {
+          // White to move on first move. No opposing move - we'll manually fix
+          // quizMoveIndex. (We may not ever start this way but let's handle it)
+          this.quizMoveIndex = 0;
+          return;
+        }
         this.playOpposingMove();
       } else {
         console.error("chessground or chess.js failed to load");

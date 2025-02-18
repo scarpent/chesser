@@ -23,6 +23,8 @@ class MoveInlineForm(forms.ModelForm):
         model = Move
         fields = "__all__"
         widgets = {
+            "san": forms.TextInput(attrs={"size": 7}),
+            "annotation": forms.TextInput(attrs={"size": 7}),
             "text": forms.Textarea(attrs={"rows": 3, "cols": 40}),
             "alt": forms.Textarea(attrs={"rows": 1, "cols": 15}),
             "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 15}),

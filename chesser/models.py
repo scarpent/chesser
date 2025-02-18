@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils import timezone
 
-# short intervals for early prototyping and testing...
-REPETITION_INTERVALS = {  # level: hours
+# Short intervals for early prototyping and testing
+REPETITION_INTERVALS = {  # Level value is hours
     1: 1,  # 4, or maybe try 6? or...?
     2: 2,  # 1 * 24,
     3: 4,  # 3 * 24,
@@ -33,12 +33,12 @@ class Chapter(models.Model):
 
 class Variation(models.Model):
     """
-    level 0 = "unlearned" / never reviewed - it's one time only, and we
+    Level 0 = "unlearned" / never reviewed - it's one time only, and we
     move on to 1 from there, and return to 1 when we fail a review
 
-    TODO consider
-    * a "header" block, e.g. showing source course/chapter info
-    * one or two fields for chessable variation ids: source course, my course
+    TODO Consider
+    * A "header" block, e.g. showing source course/chapter info
+    * One or two fields for chessable variation ids: source course, my course
       (to help with the import process)
     """
 
@@ -67,7 +67,7 @@ class Variation(models.Model):
     @property
     def start_index(self):
         """
-        translate move numbers to index
+        Translate move numbers to index
 
         idx  white      black      for white, e.g.:
         0    1.e4       1.d4       ➤ if start move is 2, quiz starts at idx 0,
@@ -79,8 +79,8 @@ class Variation(models.Model):
         6    4.Nxd4     4.Nf3      ➤ if start move is 2, quiz starts at idx 1
         7    4...Nf6    4...a6
 
-        expecting with white to always start on at least move 2,
-        but with black might want to start on move 1
+        Expecting with white to always start on at least move 2, but the front
+        end can deal with starting on 1; black may very well start on move 1
         """
         ply = self.start * 2
         return ply - 4 if self.chapter.course.color == "white" else ply - 3
