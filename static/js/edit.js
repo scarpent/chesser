@@ -102,11 +102,12 @@ export function editApp() {
       const altMoves = [
         ...new Set(
           alternateMoves
-            .split(",")
+            .split(/[,\s]+/)
             .map((m) => m.trim())
             .filter(Boolean)
         ),
       ];
+
       const bad = [],
         good = [];
 
