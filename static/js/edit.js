@@ -89,6 +89,7 @@ export function editApp() {
       const actualMoveVerbose = this.variationData.moves[index].move_verbose;
       let alternateMoves = this.variationData.moves[index][field];
       console.log("Validating alt moves for", actualMoveVerbose, "➤", alternateMoves);
+
       if (
         !alternateMoves ||
         typeof alternateMoves !== "string" ||
@@ -96,16 +97,18 @@ export function editApp() {
       )
         return;
 
-      const altMoves = alternateMoves.split(",");
+      const altMoves = alternateMoves
+        .split(",")
+        .map((m) => m.trim())
+        .filter((m, i, arr) => m && arr.indexOf(m) === i); // Remove duplicates
+      const bad = [],
+        good = [];
+
       const chess = new window.Chess();
       for (let i = 0; i < index; i++) chess.move(this.variationData.moves[i].san);
 
-      const bad = [],
-        good = [];
       altMoves.forEach((altMove) => {
-        altMove = altMove.trim();
-        if (!altMove) return;
-        if (altMove === actualSan) {
+        if (!altMove || altMove === actualSan) {
           bad.push(altMove);
           return;
         }
