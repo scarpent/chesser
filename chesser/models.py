@@ -119,6 +119,9 @@ class Move(models.Model):
     text = models.TextField(null=True, blank=True)
     alt = models.JSONField(default=list, blank=True)  # e.g. ["d4", "Nf3", "c4"]
     alt_fail = models.JSONField(default=list, blank=True)  # ["f4", "b3", "g3"]
+    # chessground drawable shapes (arrows and circles are implied by origin/dest)
+    # e.g. [{"orig":"f4","brush":"green"},{"orig":"c5","dest":"d3","brush":"red"}]
+    shapes = models.JSONField(default=list, blank=True)
 
     class Meta:
         unique_together = ("variation", "sequence")

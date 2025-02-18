@@ -29,11 +29,7 @@ export function quizApp() {
         this.goToStartingPosition();
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
-          draggable: false,
-          highlight: {
-            lastMove: true,
-            check: true,
-          },
+          highlight: { lastMove: true, check: true },
           orientation: this.variationData.color,
           fen: this.chess.fen(),
           coordinates: false,
@@ -42,9 +38,7 @@ export function quizApp() {
             free: false, // Only legal moves
             dests: this.toDests(),
             showDests: false,
-            events: {
-              after: this.handleMove.bind(this),
-            },
+            events: { after: this.handleMove.bind(this) },
           },
         });
         console.log("Chess board loaded");
@@ -97,9 +91,7 @@ export function quizApp() {
 
       this.board.set({
         fen: this.chess.fen(),
-        movable: {
-          dests: this.toDests(),
-        },
+        movable: { dests: this.toDests() },
       });
       this.checkQuizMove(move);
     },
@@ -117,9 +109,7 @@ export function quizApp() {
 
         this.board.set({
           fen: this.chess.fen(),
-          movable: {
-            dests: this.toDests(),
-          },
+          movable: { dests: this.toDests() },
           lastMove: [move.from, move.to],
         });
         this.quizMoveIndex++;
@@ -174,11 +164,12 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     annotateMove(from, to, arrowColor, circleColor) {
+      // piece: "circle" or "arrow" is implied based on one or two points being given
       this.board.set({
         drawable: {
           shapes: [
-            { orig: to, brush: circleColor, piece: "circle" },
-            { orig: from, dest: to, brush: arrowColor, piece: "arrow" },
+            { orig: to, brush: circleColor },
+            { orig: from, dest: to, brush: arrowColor },
           ],
         },
       });
@@ -199,9 +190,7 @@ export function quizApp() {
       this.chess.undo();
       this.board.set({
         fen: this.chess.fen(),
-        movable: {
-          dests: this.toDests(),
-        },
+        movable: { dests: this.toDests() },
       });
       this.playOpposingMove();
     },
@@ -228,9 +217,7 @@ export function quizApp() {
       this.goToStartingPosition();
       this.board.set({
         fen: this.chess.fen(),
-        movable: {
-          dests: this.toDests(),
-        },
+        movable: { dests: this.toDests() },
       });
       this.playOpposingMove();
     },
@@ -275,7 +262,6 @@ export function quizApp() {
       this.status = "😌";
       this.board = window.Chessground(boardElement, {
         viewOnly: true,
-        draggable: false, // true is no different? (only want to click anyway)
         orientation: "white",
         fen: this.chess.fen(),
         coordinates: false,

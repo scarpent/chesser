@@ -24,8 +24,9 @@ class MoveInlineForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "text": forms.Textarea(attrs={"rows": 3, "cols": 40}),
-            "alt": forms.Textarea(attrs={"rows": 1, "cols": 20}),
-            "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 20}),
+            "alt": forms.Textarea(attrs={"rows": 1, "cols": 15}),
+            "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 15}),
+            "shapes": forms.Textarea(attrs={"rows": 1, "cols": 15}),
         }
 
 

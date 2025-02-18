@@ -52,11 +52,12 @@ def serialize_variation(variation):
         moves.append(
             {
                 "san": move.san,
+                "annotation": annotation,
                 "move_verbose": move_verbose,
+                "text": move.text,
                 "alt": move.alt,
                 "alt_fail": move.alt_fail,
-                "text": move.text,
-                "annotation": annotation,
+                "shapes": move.shapes,
             }
         )
     variation_data["moves"] = moves

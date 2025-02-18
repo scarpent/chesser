@@ -94,10 +94,11 @@ def save_variation(request):
 
         for idx, move in enumerate(variation.moves.all()):
             move.san = data["moves"][idx]["san"]
-            move.text = data["moves"][idx]["text"]
-            move.alt = listify_alt_moves(data["moves"][idx]["alt"])
-            move.alt_fail = listify_alt_moves(data["moves"][idx]["alt_fail"])
             move.annotation = data["moves"][idx]["annotation"]
+            move.text = data["moves"][idx]["text"]
+            move.alt = data["moves"][idx].get("alt", [])
+            move.alt_fail = data["moves"][idx].get("alt_fail", [])
+            move.shapes = parse_shapes(data["moves"][idx].get("shapes", []))
             move.save()
 
         return JsonResponse({"status": "success"})
@@ -107,8 +108,8 @@ def save_variation(request):
     )
 
 
-def listify_alt_moves(alt_moves):
-    if isinstance(alt_moves, str):
-        return [move.strip() for move in alt_moves.split(",") if move.strip()]
+def parse_shapes(shapes_string):
+    if isinstance(shapes_string, str):
+        return json.loads(shapes_string)
     else:
-        return alt_moves
+        return shapes_string
