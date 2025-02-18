@@ -55,9 +55,9 @@ def serialize_variation(variation):
                 "annotation": annotation,
                 "move_verbose": move_verbose,
                 "text": move.text,
-                "alt": move.alt,
-                "alt_fail": move.alt_fail,
-                "shapes": move.shapes,
+                "alt": move.alt or "",
+                "alt_fail": move.alt_fail or "",
+                "shapes": move.shapes or "",
             }
         )
     variation_data["moves"] = moves

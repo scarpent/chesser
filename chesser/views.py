@@ -96,9 +96,9 @@ def save_variation(request):
             move.san = data["moves"][idx]["san"]
             move.annotation = data["moves"][idx]["annotation"]
             move.text = data["moves"][idx]["text"]
-            move.alt = data["moves"][idx].get("alt", [])
-            move.alt_fail = data["moves"][idx].get("alt_fail", [])
-            move.shapes = parse_shapes(data["moves"][idx].get("shapes", []))
+            move.alt = data["moves"][idx]["alt"]
+            move.alt_fail = data["moves"][idx]["alt_fail"]
+            move.shapes = data["moves"][idx]["shapes"]
             move.save()
 
         return JsonResponse({"status": "success"})
@@ -106,10 +106,3 @@ def save_variation(request):
     return JsonResponse(
         {"status": "error", "message": "Invalid request method"}, status=400
     )
-
-
-def parse_shapes(shapes_string):
-    if isinstance(shapes_string, str):
-        return json.loads(shapes_string)
-    else:
-        return shapes_string

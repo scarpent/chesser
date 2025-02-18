@@ -50,8 +50,8 @@ class Command(BaseCommand):
             {
                 "move_num": 2,
                 "san": "Nf3",
-                "alt": ["Nc3"],
-                "alt_fail": ["d4", "Bb5"],
+                "alt": "Nc3",
+                "alt_fail": "d4, Bb5",
                 "text": "Instead, 2.d4 is good as well. But 2.Nf3 is logical and easier to handle.",  # noqa: E501
             },
             {
@@ -106,8 +106,8 @@ class Command(BaseCommand):
             {
                 "move_num": 1,
                 "san": "e5",
-                "alt": [],
-                "alt_fail": ["d5", "Nf6", "e6", "c6"],
+                "alt": "",
+                "alt_fail": "d5, Nf6, e6, c6",
             },
             {"move_num": 2, "san": "Bb2"},
             {"move_num": 2, "san": "Bxb4"},
