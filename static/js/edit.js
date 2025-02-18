@@ -57,8 +57,8 @@ export function editApp() {
         san: move.san,
         annotation: move.annotation === "No annotation" ? "" : move.annotation,
         text: move.text,
-        alt: move.alt,
-        alt_fail: move.alt_fail,
+        alt: move.alt, // TODO: validation here and/or on backend;
+        alt_fail: move.alt_fail, // don't let your data get into a bad state!
         shapes: JSON.stringify(this.boards[index].state.drawable.shapes),
       }));
 
