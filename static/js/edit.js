@@ -82,5 +82,56 @@ export function editApp() {
           this.saveErrors.push("An unexpected error occurred.");
         });
     },
+
+    //--------------------------------------------------------------------------------
+    validateAltMoves(index, alternateMoves) {
+      const actualSan = this.variationData.moves[index].san;
+      const actualMoveVerbose = this.variationData.moves[index].move_verbose;
+      if (
+        !alternateMoves ||
+        typeof alternateMoves !== "string" ||
+        !alternateMoves.trim()
+      ) {
+        return;
+      }
+      const altMoves = alternateMoves.split(",");
+
+      console.log("Validating alt moves for", actualMoveVerbose, index, altMoves);
+
+      const chess = new window.Chess();
+      // Play the moves to the move previous to the alt move
+      // (we'll need to add special handling for first position, probably)
+      for (let i = 0; i < index; i++) {
+        chess.move(this.variationData.moves[i].san);
+      }
+
+      const bad = [];
+      const good = [];
+      altMoves.forEach((alternateMove) => {
+        const altMove = alternateMove.trim();
+        console.log("Validating alt move:", altMove);
+        if (!altMove) {
+          return;
+        } else if (altMove === actualSan) {
+          bad.push(altMove);
+          return;
+        }
+        try {
+          chess.move(altMove);
+          good.push(altMove);
+          chess.undo();
+        } catch (error) {
+          console.log("Invalid alt move:", altMove);
+          bad.push(altMove);
+        }
+      });
+      console.log("Good alt moves:", good);
+      console.log("Bad alt moves:", bad);
+      if (bad.length) {
+        console.error(
+          `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`
+        );
+      }
+    },
   }; // return { ... }
 }

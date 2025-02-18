@@ -66,12 +66,14 @@
               class="move-alt"
               x-model="move.alt"
               placeholder="Alternative move"
+              @blur="validateAltMoves(index, move.alt)"
             />
             <input
               type="text"
               class="move-alt-fail"
               x-model="move.alt_fail"
               placeholder="Alt move fail"
+              @blur="validateAltMoves(index, move.alt_fail)"
             />
           </div>
         </div>
