@@ -100,7 +100,8 @@ export function quizApp() {
     playOpposingMove() {
       setTimeout(() => {
         if (this.quizMoveIndex < -1) {
-          // White has the first move (either playing it or missing it and going back)
+          // White quiz starting on first move
+          // (either playing it or missing it and going back)
           this.quizMoveIndex = 0;
           return;
         }
