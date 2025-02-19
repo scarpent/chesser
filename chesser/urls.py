@@ -30,4 +30,6 @@ urlpatterns = [
     path("edit/", views.edit, name="edit_default"),
     path("edit/<int:variation_id>/", views.edit, name="edit_with_id"),
     path("save-variation/", views.save_variation, name="save_variation"),
+    path("variation/", views.variation, name="variation_default"),
+    path("variation/<int:variation_id>/", views.variation, name="variation"),
 ]

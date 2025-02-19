@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+    <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
+    <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
+    <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
+  </head>
+  <body x-data="variationApp()" x-init="initVariation()">
+    <div id="container">
+      <div id="resizable-board">
+        <div id="board"></div>
+        <div id="resize-handle"></div>
+      </div>
+      <div x-text="status" class="status"></div>
+      <div class="button-container">
+        <button @click="analysisBoard()" title="Lichess analysis board">🔍️</button>
+        <button @click="restartQuiz()" title="Restart">🔄</button>
+        <button title="Info">👁️</button>
+        <button @click="showQuizMove()" title="Show move">💣️</button>
+        <button @click="editVariation()" title="Edit">⚙️</button>
+        <button title="View">📖</button>
+        <button @click="window.location.href='/'" title="Home">🏠️</button>
+        <button x-show="completed" @click="nextQuiz()" title="Next">➡️</button>
+      </div>
+    </div>
+
+    <!-- Pass variationData safely to JavaScript -->
+    <script>
+      window.variationData = JSON.parse("{{ variation_data|escapejs }}");
+      console.log("variation data loaded:", window.variationData);
+    </script>
+
+    <script type="module">
+      import { variationApp } from "{% static 'js/variation.js' %}";
+      window.variationApp = variationApp;
+      console.log("variationApp loaded");
+
+      document.addEventListener("alpine:init", () => {
+        console.log("alpine.js initializing");
+        Alpine.data("variationApp", variationApp);
+      });
+    </script>
+    <script src="{% static 'js/resize.js' %}"></script>
+
+    <!-- Load alpine.js LAST -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"
+    ></script>
+  </body>
+</html>

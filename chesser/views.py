@@ -106,3 +106,23 @@ def save_variation(request):
     return JsonResponse(
         {"status": "error", "message": "Invalid request method"}, status=400
     )
+
+
+def variation(request, variation_id=None):
+    if variation_id is None:
+        variation = Variation.objects.first()
+    else:
+        variation = get_object_or_404(
+            Variation.objects.select_related("chapter__course").prefetch_related(
+                "moves"
+            ),
+            pk=variation_id,
+        )
+
+    if variation is None:
+        variation_data = {}
+    else:
+        variation_data = serialize_variation(variation)
+
+    context = {"variation_data": json.dumps(variation_data)}
+    return render(request, "variation.html", context)
