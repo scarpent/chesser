@@ -43,12 +43,6 @@ export function quizApp() {
         });
         console.log("Chess board loaded");
 
-        if (this.variationData.start_index < -1) {
-          // White to move on first move. No opposing move - we'll manually fix
-          // quizMoveIndex. (We may not ever start this way but let's handle it)
-          this.quizMoveIndex = 0;
-          return;
-        }
         this.playOpposingMove();
       } else {
         console.error("chessground or chess.js failed to load");
@@ -106,7 +100,7 @@ export function quizApp() {
     playOpposingMove() {
       setTimeout(() => {
         if (this.quizMoveIndex < -1) {
-          // We missed the first move and tried to go back: no opposing move to play
+          // White has the first move (either playing it or missing it and going back)
           this.quizMoveIndex = 0;
           return;
         }
