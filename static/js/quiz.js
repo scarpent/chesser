@@ -252,7 +252,8 @@ export function quizApp() {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "success") {
-            console.log(`Result reported successfully: ${variationId} ${passed}`);
+            const text = passed ? "Passed" : "Failed";
+            console.log(`Result reported successfully: ${text} ${variationId}`);
           } else {
             console.error("Failed to report result:", data.message);
           }
