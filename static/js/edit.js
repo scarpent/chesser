@@ -93,7 +93,6 @@ export function editApp() {
       let alternateMoves = this.variationData.moves[index][field];
       console.log("Validating alt moves for", actualMoveVerbose, "➤", alternateMoves);
 
-      // Return early if no valid input
       if (
         !alternateMoves ||
         typeof alternateMoves !== "string" ||
@@ -101,7 +100,7 @@ export function editApp() {
       )
         return;
 
-      // Process input: trim spaces and remove duplicates
+      // Trim spaces and remove duplicates
       const altMoves = [
         ...new Set(
           alternateMoves
@@ -115,6 +114,7 @@ export function editApp() {
         good = [];
 
       const chess = new window.Chess();
+      // Play up to previous move so we can check for legal alt moves
       for (let i = 0; i < index; i++) chess.move(this.variationData.moves[i].san);
 
       altMoves.forEach((altMove) => {
