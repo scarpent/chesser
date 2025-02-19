@@ -122,3 +122,12 @@ button:hover {
   cursor: nwse-resize;
   border-radius: 3px;
 }
+
+.move-fen a {
+  text-decoration: none;
+  color: #eeeeee;
+}
+
+.move-fen a:visited {
+  color: #eeeeee;
+}

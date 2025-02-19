@@ -47,7 +47,13 @@
               rows="10"
               cols="60"
             ></textarea>
-            <div class="move-fen" x-text="move.fen"></div>
+            <div class="move-fen">
+              <a
+                :href="'https://lichess.org/analysis/standard/' + move.fen.replace(/ /g, '_')"
+                target="_blank"
+                x-text="move.fen"
+              ></a>
+            </div>
           </div>
           <div class="move-other-container">
             <select class="annotation" x-model="move.annotation">
