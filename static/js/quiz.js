@@ -105,6 +105,11 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     playOpposingMove() {
       setTimeout(() => {
+        if (this.quizMoveIndex < -1) {
+          // We missed the first move and tried to go back: no opposing move to play
+          this.quizMoveIndex = 0;
+          return;
+        }
         this.quizMoveIndex++;
         if (this.noMoreMoves()) {
           this.completeQuiz();
