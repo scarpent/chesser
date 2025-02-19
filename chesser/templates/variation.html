@@ -21,7 +21,7 @@
       <div class="button-container">
         <button @click="window.location.href='/review/'" title="Review">🚀</button>
         <button
-          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_'), '_blank')"
+          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
           title="Lichess analysis board"
         >
           🔍️

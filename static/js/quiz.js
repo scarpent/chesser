@@ -10,6 +10,7 @@ export function quizApp() {
     chess: null,
     status: "⚪️⚪️",
     variationData: variationData,
+    showInfo: false,
     quizMoveIndex: 0,
     failed: false, // We'll report failure back to the server (can reset before finish)
     completed: false, // Finished the quiz! if failed we'll review again
@@ -204,6 +205,7 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     completeQuiz() {
       this.completed = true;
+      this.showInfo = true;
       if (this.failed) {
         // Green indicates that the last move was successful, which it *has* to be
         // in order to complete the quiz; it seems like we need some indication

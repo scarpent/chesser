@@ -20,13 +20,13 @@
       <div x-text="status" class="status"></div>
       <div class="button-container">
         <button
-          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_'), '_blank')"
+          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
           title="Lichess analysis board"
         >
           🔍️
         </button>
         <button @click="restartQuiz()" title="Restart">🔄</button>
-        <button title="Info">👁️</button>
+        <button @click="showInfo = !showInfo" title="Info">👁️</button>
         <button @click="showQuizMove()" title="Show move">💣️</button>
         <button
           @click="window.location.href='/edit/' + variationData.variation_id"
@@ -48,6 +48,17 @@
         >
           ➡️
         </button>
+      </div>
+      <div x-show="showInfo && variationData.title" class="info-container">
+        <div class="chapter-title">
+          <span x-text="variationData.chapter"></span>
+          <span> ➤ </span>
+          <span x-text="variationData.title"></span>
+        </div>
+        <div class="after-info-container">
+          <div x-show="completed" x-text="variationData.mainline"></div>
+          <div x-show="completed" x-text="'Level ➤ ' + variationData.level"></div>
+        </div>
       </div>
     </div>
 
