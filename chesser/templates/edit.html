@@ -15,7 +15,12 @@
     <div class="button-container">
       <button @click="window.location.href='/review/'" title="Review">🚀</button>
       <button @click="saveVariation()" title="Save">💾</button>
-      <button title="View">📖</button>
+      <button
+        @click="window.location.href='/variation/' + variationData.variation_id"
+        title="View"
+      >
+        📖
+      </button>
       <button @click="window.location.href='/import/'" title="Import">📥️</button>
       <button @click="window.location.href='/'" title="Home">🏠️</button>
     </div>

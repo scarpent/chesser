@@ -19,14 +19,35 @@
       </div>
       <div x-text="status" class="status"></div>
       <div class="button-container">
-        <button @click="analysisBoard()" title="Lichess analysis board">🔍️</button>
+        <button
+          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_'), '_blank')"
+          title="Lichess analysis board"
+        >
+          🔍️
+        </button>
         <button @click="restartQuiz()" title="Restart">🔄</button>
         <button title="Info">👁️</button>
         <button @click="showQuizMove()" title="Show move">💣️</button>
-        <button @click="editVariation()" title="Edit">⚙️</button>
-        <button title="View">📖</button>
+        <button
+          @click="window.location.href='/edit/' + variationData.variation_id"
+          title="Edit"
+        >
+          ⚙️
+        </button>
+        <button
+          @click="window.location.href='/variation/' + variationData.variation_id"
+          title="View"
+        >
+          📖
+        </button>
         <button @click="window.location.href='/'" title="Home">🏠️</button>
-        <button x-show="completed" @click="nextQuiz()" title="Next">➡️</button>
+        <button
+          x-show="completed"
+          @click="window.location.href='/review/'"
+          title="Next"
+        >
+          ➡️
+        </button>
       </div>
     </div>
 

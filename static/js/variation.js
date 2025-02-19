@@ -229,13 +229,6 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
-    analysisBoard() {
-      const fen = this.chess.fen().replace(/ /g, "_");
-      const url = `https://lichess.org/analysis/standard/${fen}`;
-      window.open(url, "_blank");
-    },
-
-    //--------------------------------------------------------------------------------
     reportResult(passed) {
       const variationId = this.variationData.variation_id;
 
@@ -273,17 +266,6 @@ export function variationApp() {
         fen: this.chess.fen(),
         coordinates: false,
       });
-    },
-
-    //--------------------------------------------------------------------------------
-    nextQuiz() {
-      window.location.href = "/variation/";
-    },
-
-    //--------------------------------------------------------------------------------
-    editVariation() {
-      const variationId = this.variationData.variation_id || 1;
-      window.location.href = `/edit/${variationId}/`;
     },
   }; // return { ... }
 }
