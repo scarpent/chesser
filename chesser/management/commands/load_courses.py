@@ -41,7 +41,11 @@ class Command(BaseCommand):
 
         white_e4_sundry = self.create_chapter("1.e4 Sundry", white_course)
         moves = [
-            {"move_num": 1, "san": "e4"},
+            {
+                "move_num": 1,
+                "san": "e4",
+                "shapes": '[{"orig":"g1","dest":"f3","brush":"green"},{"orig":"d5","brush":"green"},{"orig":"f5","brush":"green"},{"orig":"d4","brush":"green"},{"orig":"e5","brush":"green"}]',  # noqa: E501
+            },
             {
                 "move_num": 1,
                 "san": "Nc6",
