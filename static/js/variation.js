@@ -17,11 +17,6 @@ export function variationApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        if (!this.variationData || Object.keys(this.variationData).length === 0) {
-          this.nothingToSeeHere(boardElement);
-          return;
-        }
-
         this.goToStartingPosition();
         this.board = window.Chessground(boardElement, {
           viewOnly: true,
@@ -51,14 +46,9 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
-    noMoreMoves() {
-      return this.mainlineMoveIndex >= this.variationData.moves.length;
-    },
-
-    //--------------------------------------------------------------------------------
     drawShapes() {
-      const shapes = this.variationData.moves[this.mainlineMoveIndex].shapes;
-      if (!shapes) return;
+      let shapes = this.variationData.moves[this.mainlineMoveIndex].shapes;
+      if (!shapes) shapes = "[]";
       this.board.set({
         drawable: { shapes: JSON.parse(shapes) },
       });
@@ -66,7 +56,7 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     nextMainlineMove() {
-      if (this.noMoreMoves()) return;
+      if (this.mainlineMoveIndex >= this.variationData.moves.length - 1) return;
       this.mainlineMoveIndex++;
       this.chess.move(this.variationData.moves[this.mainlineMoveIndex].san);
       this.board.set({ fen: this.chess.fen() });
@@ -75,34 +65,20 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     previousMainlineMove() {
-      if (this.mainlineMoveIndex <= 0) return;
-      this.chess.undo();
-      this.mainlineMoveIndex--;
-      this.board.set({ fen: this.chess.fen() });
-      this.drawShapes();
-    },
-
-    //--------------------------------------------------------------------------------
-    gotoPreviousMove() {
-      this.moveIndex = this.mainlineMoveIndex - 2;
-      this.chess.undo();
-      this.chess.undo();
-      this.board.set({
-        fen: this.chess.fen(),
-        movable: { dests: this.toDests() },
-      });
-    },
-
-    //--------------------------------------------------------------------------------
-    nothingToSeeHere(boardElement) {
-      console.log("no variation data");
-      this.status = "😌";
-      this.board = window.Chessground(boardElement, {
-        viewOnly: true,
-        orientation: "white",
-        fen: this.chess.fen(),
-        coordinates: false,
-      });
+      if (this.mainlineMoveIndex === 0) {
+        // we're on the first move and going back to the starting position
+        this.mainlineMoveIndex--; // so that going forward will work properly
+        this.chess.reset();
+        this.board.set({
+          fen: this.chess.fen(),
+          drawable: { shapes: [] },
+        });
+      } else if (this.mainlineMoveIndex > 0) {
+        this.chess.undo();
+        this.mainlineMoveIndex--;
+        this.board.set({ fen: this.chess.fen() });
+        this.drawShapes();
+      }
     },
   }; // return { ... }
 }
