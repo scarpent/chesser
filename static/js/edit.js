@@ -55,7 +55,7 @@ export function editApp() {
 
       payload.moves = this.variationData.moves.map((move, index) => ({
         san: move.san,
-        annotation: move.annotation === "No annotation" ? "" : move.annotation,
+        annotation: move.annotation === "none" ? "" : move.annotation,
         text: move.text,
         alt: move.alt,
         alt_fail: move.alt_fail,

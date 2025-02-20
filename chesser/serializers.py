@@ -1,5 +1,5 @@
 annotations = {
-    "": "No annotation",
+    "none": "No annotation",
     "?": "? Poor",
     "?!": "?! Dubious",
     "!?": "!? Interesting",
