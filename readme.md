@@ -1,10 +1,12 @@
 ## notes...
 
+(getGame endpoint has lastReviewed info which I'm currently excluding, but maybe will use during migration...)
+
 Looks like chessable getReview endpoint holds spaced repetition "level" data
 
 https://www.chessable.com/api/v1/getReview?uid=118804&bid=51617&lid=23&oid=39269901
 
-lesson, moves,
+lesson ➤ moves ➤
 
 there is level_b and level_b_origin, where both seem to be the same (tbd: if that's for black specifically)
 level_origin is 0
