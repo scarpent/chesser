@@ -58,31 +58,41 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     nextMainlineMove() {
-      if (this.mainlineMoveIndex >= this.variationData.moves.length - 1) return;
-      this.mainlineMoveIndex++;
-      this.chess.move(this.variationData.moves[this.mainlineMoveIndex].san);
-      this.board.set({ fen: this.chess.fen() });
-      this.drawShapes();
+      if (this.mainlineMoveIndex < this.variationData.moves.length - 1) {
+        this.chess.move(this.variationData.moves[++this.mainlineMoveIndex].san);
+        this.updateBoard();
+      }
     },
 
     //--------------------------------------------------------------------------------
     previousMainlineMove() {
-      if (this.mainlineMoveIndex === 0) {
-        // we're on the first move and going back to the starting position
-        this.mainlineMoveIndex--; // so that going forward will work properly
+      if (this.mainlineMoveIndex <= 0) {
+        this.mainlineMoveIndex = -1; // Ensure forward navigation works correctly
         this.chess.reset();
-        this.board.set({
-          fen: this.chess.fen(),
-          drawable: { shapes: [] },
-        });
-      } else if (this.mainlineMoveIndex > 0) {
+      } else {
         this.chess.undo();
         this.mainlineMoveIndex--;
-        this.board.set({ fen: this.chess.fen() });
-        this.drawShapes();
       }
+
+      this.updateBoard();
     },
 
+    //--------------------------------------------------------------------------------
+    updateBoard() {
+      this.board.set({
+        fen: this.chess.fen(),
+        drawable: {
+          shapes:
+            this.mainlineMoveIndex >= 0
+              ? JSON.parse(
+                  this.variationData.moves[this.mainlineMoveIndex].shapes || "[]"
+                )
+              : [],
+        },
+      });
+    },
+
+    //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
       if (event.key === "ArrowLeft") {
         this.previousMainlineMove();
