@@ -82,5 +82,13 @@ export function variationApp() {
         this.drawShapes();
       }
     },
+
+    handleKeyNavigation(event) {
+      if (event.key === "ArrowLeft") {
+        this.previousMainlineMove();
+      } else if (event.key === "ArrowRight") {
+        this.nextMainlineMove();
+      }
+    },
   }; // return { ... }
 }
