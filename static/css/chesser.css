@@ -164,3 +164,20 @@ button:hover {
   flex-direction: column;
   gap: 10px;
 }
+
+.variation-mainline {
+  font-size: 20px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+#variation-text p {
+  font-size: 20px;
+  color: #eeeeee;
+  line-height: 1.5;
+  padding-bottom: 5px;
+}
+
+#variation-text {
+  padding-top: 10px;
+}
