@@ -11,12 +11,19 @@ body {
   padding-top: 20px;
 }
 
-#container {
+#quiz-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   max-width: 90vw;
+}
+
+#board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .status {

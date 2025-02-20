@@ -12,27 +12,46 @@
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="variationApp()" x-init="initVariation()">
-    <div id="container">
-      <div id="resizable-board">
-        <div id="board"></div>
-        <div id="resize-handle"></div>
+    <div id="outer-container">
+      <div id="board-container">
+        <div id="resizable-board">
+          <div id="board"></div>
+          <div id="resize-handle"></div>
+        </div>
+        <div class="button-container">
+          <button title="Mainline Back">⬅️</button>
+          <button title="Mainline Forward">➡️</button>
+          <button title="All Moves Back">↖️</button>
+          <button title="All Moves Forward">↘️</button>
+        </div>
+        <div class="button-container">
+          <button @click="window.location.href='/review/'" title="Review">🚀</button>
+          <button
+            @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+            title="Lichess analysis board"
+          >
+            🔍️
+          </button>
+          <button
+            @click="window.location.href='/edit/' + variationData.variation_id"
+            title="Edit"
+          >
+            ⚙️
+          </button>
+          <button @click="window.location.href='/'" title="Home">🏠️</button>
+        </div>
+        <div class="info-container">
+          <div class="chapter-title">
+            <span x-text="variationData.chapter"></span>
+            <span> ➤ </span>
+            <span x-text="variationData.title"></span>
+          </div>
+          <div x-text="variationData.mainline"></div>
+          <div x-text="'Level ➤ ' + variationData.level"></div>
+        </div>
       </div>
-      <div x-text="status" class="status"></div>
-      <div class="button-container">
-        <button @click="window.location.href='/review/'" title="Review">🚀</button>
-        <button
-          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
-          title="Lichess analysis board"
-        >
-          🔍️
-        </button>
-        <button
-          @click="window.location.href='/edit/' + variationData.variation_id"
-          title="Edit"
-        >
-          ⚙️
-        </button>
-        <button @click="window.location.href='/'" title="Home">🏠️</button>
+      <div id="variation-text">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce volutpat.</p>
       </div>
     </div>
 
