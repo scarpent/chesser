@@ -48,13 +48,12 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     drawShapes() {
-      let shapes = "[]";
-      if (this.mainlineMoveIndex >= 0)
-        shapes = this.variationData.moves[this.mainlineMoveIndex].shapes;
-      if (!shapes) shapes = "[]";
-      this.board.set({
-        drawable: { shapes: JSON.parse(shapes) },
-      });
+      const shapes =
+        this.mainlineMoveIndex >= 0
+          ? this.variationData.moves[this.mainlineMoveIndex].shapes || "[]"
+          : "[]";
+
+      this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
     },
 
     //--------------------------------------------------------------------------------
