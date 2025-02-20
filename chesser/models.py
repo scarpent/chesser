@@ -67,23 +67,20 @@ class Variation(models.Model):
     @property
     def start_index(self):
         """
-        Translate move numbers to index
+        Translate move numbers to index of array of moves sent to client
 
         idx  white      black      for white, e.g.:
-        0    1.e4       1.d4       ➤ if start move is 2, quiz starts at idx 0,
-        1    1...e5     1...d5       the white move before the opposing move
-        2    2.Nf3      2.c4         that will be shown when the quiz starts
+        0    1.e4       1.d4       ➤ move 2 = 2 * 2 - 2 = 2
+        1    1...e5     1...d5     ➤ move 4 = 4 * 2 - 2 = 6
+        2    2.Nf3      2.c4
         3    2...Nc6    2...e6
         4    3.d4       3.Nc3
         5    3...exd4   3...Nf6    for black:
-        6    4.Nxd4     4.Nf3      ➤ if start move is 2, quiz starts at idx 1
-        7    4...Nf6    4...a6
-
-        Expecting with white to always start on at least move 2, but the front
-        end can deal with starting on 1; black may very well start on move 1
+        6    4.Nxd4     4.Nf3      ➤ move 2 = 2 * 2 - 1 = 3
+        7    4...Nf6    4...a6     ➤ move 4 = 4 * 2 - 1 = 7
         """
         ply = self.start * 2
-        return ply - 4 if self.chapter.course.color == "white" else ply - 3
+        return ply - 2 if self.chapter.course.color == "white" else ply - 1
 
     def handle_quiz_result(self, passed):
         previous_level = self.level

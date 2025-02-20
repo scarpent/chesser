@@ -52,9 +52,10 @@ export function quizApp() {
 
     goToStartingPosition() {
       this.status = "🟣🟣";
-      this.quizMoveIndex = this.variationData.start_index;
-      if (this.variationData.start_index >= 0) {
-        for (let i = 0; i <= this.variationData.start_index; i++) {
+      // Go back to so we can play the first opposing move
+      this.quizMoveIndex = this.variationData.start_index - 2;
+      if (this.quizMoveIndex >= 0) {
+        for (let i = 0; i <= this.quizMoveIndex; i++) {
           const quizMove = this.variationData.moves[i];
           this.chess.move(quizMove.san);
         }
@@ -100,8 +101,8 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     playOpposingMove() {
       setTimeout(() => {
-        if (this.quizMoveIndex < -1) {
-          // White quiz starting on first move
+        if (this.quizMoveIndex === -2) {
+          // White quiz starting on first move (not something we'll see often)
           // (either playing it or missing it and going back)
           this.quizMoveIndex = 0;
           return;
@@ -130,7 +131,6 @@ export function quizApp() {
         this.completeQuiz();
         return;
       }
-
       const answer = this.variationData.moves[this.quizMoveIndex];
 
       if (move.san === answer.san) {

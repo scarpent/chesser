@@ -50,7 +50,7 @@ export function editApp() {
       const payload = {
         variation_id: this.variationData.variation_id,
         title: this.variationData.title,
-        start_move: this.variationData.start_move,
+        start_move: this.variationData.start_move, // TODO: validation
       };
 
       payload.moves = this.variationData.moves.map((move, index) => ({

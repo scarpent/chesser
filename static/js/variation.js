@@ -38,16 +38,19 @@ export function variationApp() {
     }, // initVariation()
 
     goToStartingPosition() {
-      this.mainlineMoveIndex = this.variationData.start_index;
-      if (this.variationData.start_index >= 0) {
-        for (let i = 0; i <= this.variationData.start_index; i++)
+      // Show the state before our first move
+      this.mainlineMoveIndex = this.variationData.start_index - 1;
+      if (this.mainlineMoveIndex >= 0) {
+        for (let i = 0; i <= this.mainlineMoveIndex; i++)
           this.chess.move(this.variationData.moves[i].san);
       }
     },
 
     //--------------------------------------------------------------------------------
     drawShapes() {
-      let shapes = this.variationData.moves[this.mainlineMoveIndex].shapes;
+      let shapes = "[]";
+      if (this.mainlineMoveIndex >= 0)
+        shapes = this.variationData.moves[this.mainlineMoveIndex].shapes;
       if (!shapes) shapes = "[]";
       this.board.set({
         drawable: { shapes: JSON.parse(shapes) },
