@@ -23,8 +23,8 @@ body {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  justify-content: center;
   width: 100%;
-  max-width: 90vw;
   gap: 20px; /* Space between board and variation text */
 }
 
@@ -32,17 +32,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
 }
 
 #variation-text {
-  width: 400px;
+  width: 500px;
   padding: 15px;
   background-color: #333333;
   color: #eeeeee;
   display: flex;
   flex-direction: column;
-  align-items: left;
+  align-items: flex-start;
+  white-space: normal; /* Ensure text wraps properly */
+  word-wrap: break-word; /* Prevent overflow */
 }
 
 .status {
