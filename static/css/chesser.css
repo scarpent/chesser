@@ -181,3 +181,12 @@ button:hover {
 #variation-text {
   padding-top: 10px;
 }
+
+.mainline-move {
+  padding: 2px;
+}
+
+.move.highlight {
+  background-color: #222222;
+  color: greenyellow;
+}

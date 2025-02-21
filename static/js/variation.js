@@ -30,7 +30,7 @@ export function variationApp() {
             showDests: false,
           },
         });
-        this.drawShapes();
+        this.updateBoard();
         console.log("Chess board loaded");
       } else {
         console.error("chessground or chess.js failed to load");
@@ -90,6 +90,24 @@ export function variationApp() {
               : [],
         },
       });
+
+      this.highlightCurrentMove();
+    },
+
+    //--------------------------------------------------------------------------------
+    highlightCurrentMove() {
+      // Remove existing highlights
+      document
+        .querySelectorAll(".move.highlight")
+        .forEach((el) => el.classList.remove("highlight"));
+
+      // Find the current move and highlight it
+      const currentMoveElement = document.querySelector(
+        `.move[data-index="${this.mainlineMoveIndex}"]`
+      );
+      if (currentMoveElement) {
+        currentMoveElement.classList.add("highlight");
+      }
     },
 
     //--------------------------------------------------------------------------------
