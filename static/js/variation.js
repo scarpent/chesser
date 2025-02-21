@@ -10,6 +10,7 @@ export function variationApp() {
     chess: null,
     variationData: variationData,
     mainlineMoveIndex: 0,
+    subvarMoveIndex: -1,
 
     initVariation() {
       console.log("initVariation()");
@@ -109,11 +110,70 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
+    nextSubvarMove() {
+      const subvarMoves = this.getSubvarMoves();
+      if (!subvarMoves.length) return;
+
+      if (this.subvarMoveIndex < subvarMoves.length - 1) {
+        this.subvarMoveIndex++;
+      } else {
+        return;
+      }
+
+      const subvarMoveElement = subvarMoves[this.subvarMoveIndex];
+      const fen = subvarMoveElement.dataset.fen;
+
+      this.board.set({
+        fen: fen,
+        drawable: { shapes: [] }, // Clear mainline shapes
+      });
+
+      this.highlightSubvarMove();
+    },
+
+    previousSubvarMove() {
+      if (this.subvarMoveIndex <= 0) return;
+      this.subvarMoveIndex--;
+
+      const subvarMoves = this.getSubvarMoves();
+      if (!subvarMoves.length) return;
+
+      const subvarMoveElement = subvarMoves[this.subvarMoveIndex];
+      const fen = subvarMoveElement.dataset.fen;
+
+      this.board.set({ fen: fen, drawable: { shapes: [] } });
+
+      this.highlightSubvarMove();
+    },
+
+    highlightSubvarMove() {
+      document
+        .querySelectorAll(".subvar-move.highlight-subvar")
+        .forEach((el) => el.classList.remove("highlight-subvar"));
+
+      const subvarMoves = this.getSubvarMoves();
+      if (this.subvarMoveIndex >= 0 && this.subvarMoveIndex < subvarMoves.length) {
+        subvarMoves[this.subvarMoveIndex].classList.add("highlight-subvar");
+      }
+    },
+
+    getSubvarMoves() {
+      if (this.mainlineMoveIndex < 0) return [];
+      return Array.from(document.querySelectorAll(`.subvar-move[data-index]`)).filter(
+        (move) => move.dataset.index
+      );
+    },
+
+    //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
       if (event.key === "ArrowLeft") {
         this.previousMainlineMove();
       } else if (event.key === "ArrowRight") {
         this.nextMainlineMove();
+      } else if (event.key === "ArrowUp") {
+        this.previousSubvarMove();
+      } else if (event.key === "ArrowDown") {
+        this.nextSubvarMove();
       }
     },
   }; // return { ... }

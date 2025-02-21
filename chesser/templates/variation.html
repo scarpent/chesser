@@ -25,8 +25,8 @@
         <div class="button-container">
           <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
           <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
-          <button title="Subvariation Back">↖️</button>
-          <button title="Subvariation Forward">↘️</button>
+          <button @click="previousSubvarMove()" title="Subvariation Back">↖️</button>
+          <button @click="nextSubvarMove()" title="Subvariation Forward">↘️</button>
         </div>
         <div class="button-container">
           <button @click="window.location.href='/review/'" title="Review">🚀</button>

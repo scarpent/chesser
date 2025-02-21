@@ -189,3 +189,12 @@ button:hover {
   background-color: #222222;
   color: greenyellow;
 }
+
+.subvar-move {
+  padding: 2px;
+}
+
+.subvar-move.highlight-subvar {
+  background-color: #222222;
+  color: yellow;
+}
