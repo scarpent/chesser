@@ -216,6 +216,9 @@ export function quizApp() {
         this.status = "🟢🟢";
         this.reportResult(true);
       }
+
+      const shapes = this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]";
+      this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
     },
 
     //--------------------------------------------------------------------------------
