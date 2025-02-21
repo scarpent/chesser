@@ -91,22 +91,20 @@ export function variationApp() {
         },
       });
 
-      this.highlightCurrentMove();
+      this.highlightMainlineMove();
     },
 
     //--------------------------------------------------------------------------------
-    highlightCurrentMove() {
-      // Remove existing highlights
+    highlightMainlineMove() {
       document
-        .querySelectorAll(".move.highlight")
+        .querySelectorAll(".mainline-move.highlight")
         .forEach((el) => el.classList.remove("highlight"));
 
-      // Find the current move and highlight it
-      const currentMoveElement = document.querySelector(
-        `.move[data-index="${this.mainlineMoveIndex}"]`
+      const mainlineMoveElement = document.querySelector(
+        `.mainline-move[data-index="${this.mainlineMoveIndex}"]`
       );
-      if (currentMoveElement) {
-        currentMoveElement.classList.add("highlight");
+      if (mainlineMoveElement) {
+        mainlineMoveElement.classList.add("highlight");
       }
     },
 

@@ -175,7 +175,6 @@ button:hover {
   font-size: 20px;
   color: #eeeeee;
   line-height: 1.5;
-  padding-bottom: 5px;
 }
 
 #variation-text {
@@ -186,7 +185,7 @@ button:hover {
   padding: 2px;
 }
 
-.move.highlight {
+.mainline-move.highlight {
   background-color: #222222;
   color: greenyellow;
 }
