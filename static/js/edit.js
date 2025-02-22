@@ -22,6 +22,8 @@ export function editApp() {
             const boardElement = document.getElementById(`edit-board-${index}`);
             if (boardElement) {
               const moveResult = chess.move(move.san);
+              // We use x-init for move.fen in the template to avoid
+              // a console error before we assign the value here
               move.fen = chess.fen();
               this.boards.push(
                 window.Chessground(boardElement, {

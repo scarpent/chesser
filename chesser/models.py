@@ -38,7 +38,7 @@ class Variation(models.Model):
     TODO Consider
     * A "header" block, e.g. showing source course/chapter info
     * One or two fields for chessable variation ids: source course, my course
-      (to help with the import process)
+      (maybe a related model four id/course/chapter/variation name?)
     """
 
     title = models.CharField(max_length=100)
@@ -82,7 +82,7 @@ class Variation(models.Model):
         return ply - 2 if self.chapter.course.color == "white" else ply - 1
 
     def handle_quiz_result(self, passed):
-        previous_level = self.level
+        previous_level = self.level if self.level >= 0 else 0
         new_level = previous_level + 1 if passed else 1
         self.level = new_level
 

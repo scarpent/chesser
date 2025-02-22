@@ -163,6 +163,8 @@ button:hover {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  color: #f7b14f;
+  font-size: 20px;
 }
 
 .variation-mainline {

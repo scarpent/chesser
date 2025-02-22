@@ -42,7 +42,8 @@
     <!-- Generate multiple boards dynamically -->
     <div id="boards-container">
       <template x-for="(move, index) in variationData.moves" :key="index">
-        <div class="move-block">
+        <!-- move.fen is set in js; make sure it is initialized here -->
+        <div class="move-block" x-init="move.fen = move.fen || ''">
           <div class="edit-board" :id="'edit-board-' + index"></div>
           <div class="move-text-container">
             <div class="move-verbose" x-text="move.move_verbose"></div>

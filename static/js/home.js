@@ -5,7 +5,7 @@ export function homeApp() {
 
     initHome() {
       console.log("initHome()");
-      console.log("home loaded");
+      console.log("Home loaded");
     },
   }; // return { ... }
 }
