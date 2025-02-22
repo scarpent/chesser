@@ -61,6 +61,7 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     nextMainlineMove() {
       if (this.mainlineMoveIndex < this.variationData.moves.length - 1) {
+        this.subvarMoveIndex = -1;
         this.chess.move(this.variationData.moves[++this.mainlineMoveIndex].san);
         this.updateBoard();
       }
@@ -68,14 +69,17 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     previousMainlineMove() {
-      if (this.mainlineMoveIndex <= 0) {
+      if (this.subvarMoveIndex !== -1) {
+        // We are in a subvariation; we want to return to the mainline but are
+        // already on the move we want to be at, so we'll just update the board
+        this.subvarMoveIndex = -1;
+      } else if (this.mainlineMoveIndex <= 0) {
         this.mainlineMoveIndex = -1; // Ensure forward navigation works correctly
         this.chess.reset();
       } else {
         this.chess.undo();
         this.mainlineMoveIndex--;
       }
-
       this.updateBoard();
     },
 
@@ -121,7 +125,7 @@ export function variationApp() {
         return;
       }
 
-      if (this.subvarMoveIndex === null) {
+      if (this.subvarMoveIndex < -1) {
         // Enter subvariation
         this.subvarMoveIndex = 0;
       } else if (this.subvarMoveIndex < subvarMoves.length - 1) {
@@ -129,7 +133,7 @@ export function variationApp() {
         this.subvarMoveIndex++;
       } else {
         // End of subvariations, move to next mainline move
-        this.subvarMoveIndex = null;
+        this.subvarMoveIndex = -1;
         this.nextMainlineMove();
         return;
       }
@@ -142,7 +146,7 @@ export function variationApp() {
     previousSubvarMove() {
       const subvarMoves = this.getSubvarMoves();
 
-      if (this.subvarMoveIndex === null) {
+      if (this.subvarMoveIndex === -1) {
         // We are in the mainline → check if the previous mainline move has subvariations
         this.previousMainlineMove();
 
@@ -161,12 +165,12 @@ export function variationApp() {
         this.subvarMoveIndex--;
       } else {
         // At first subvar move, return to parent mainline move
-        this.subvarMoveIndex = null;
+        this.subvarMoveIndex = -1;
         this.updateBoard(); // Ensure correct board and highlight update
       }
 
       // Highlight & update board with new subvariation move
-      if (this.subvarMoveIndex !== null) {
+      if (this.subvarMoveIndex !== -1) {
         this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
       }
     },
@@ -179,6 +183,7 @@ export function variationApp() {
       const parentMainlineIndex = parseInt(subvarContainer.dataset.mainlineIndex, 10);
       if (!isNaN(parentMainlineIndex)) {
         this.mainlineMoveIndex = parentMainlineIndex;
+        this.jumpToMainlineMove(this.mainlineMoveIndex);
         console.log("Updated mainlineMoveIndex:", this.mainlineMoveIndex);
       }
 
