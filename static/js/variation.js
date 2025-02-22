@@ -138,23 +138,25 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     previousSubvarMove() {
+      const subvarMoves = this.getSubvarMoves();
+
       if (this.subvarMoveIndex === null) {
-        // Already in mainline, move back a mainline move
+        // We are in the mainline; move back one mainline move
         this.previousMainlineMove();
         return;
       }
 
       if (this.subvarMoveIndex > 0) {
-        // Move up in the subvariation list
+        // Move up/backward within the subvariation list
         this.subvarMoveIndex--;
       } else {
-        // If at first subvar move, go to previous mainline move
+        // At first subvar move, transition back to corresponding mainline move
         this.subvarMoveIndex = null;
-        this.previousMainlineMove();
+        this.updateBoard();
         return;
       }
 
-      const subvarMoves = this.getSubvarMoves();
+      // Highlight & update board with new subvariation move
       this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
     },
 
