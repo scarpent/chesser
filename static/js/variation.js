@@ -107,6 +107,7 @@ export function variationApp() {
       if (mainlineMoveElement) {
         mainlineMoveElement.classList.add("highlight");
       }
+      this.removeSubvarHighlights();
     },
 
     //--------------------------------------------------------------------------------
@@ -159,13 +160,22 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     updateBoardForSubvar(moveElement) {
-      document
-        .querySelectorAll(".move.highlight")
-        .forEach((el) => el.classList.remove("highlight"));
-      moveElement.classList.add("highlight");
+      this.removeSubvarHighlights();
 
+      if (moveElement) {
+        moveElement.classList.add("subvar-highlight");
+      }
+
+      // Set the board position from the subvar move
       let fen = moveElement.dataset.fen;
       this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
+    },
+
+    //--------------------------------------------------------------------------------
+    removeSubvarHighlights() {
+      document
+        .querySelectorAll(".subvar-move.subvar-highlight")
+        .forEach((el) => el.classList.remove("subvar-highlight"));
     },
 
     //--------------------------------------------------------------------------------
