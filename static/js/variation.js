@@ -163,7 +163,7 @@ export function variationApp() {
       this.removeSubvarHighlights();
 
       if (moveElement) {
-        moveElement.classList.add("subvar-highlight");
+        moveElement.classList.add("highlight");
       }
 
       // Set the board position from the subvar move
@@ -174,8 +174,8 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     removeSubvarHighlights() {
       document
-        .querySelectorAll(".subvar-move.subvar-highlight")
-        .forEach((el) => el.classList.remove("subvar-highlight"));
+        .querySelectorAll(".subvar-move.highlight")
+        .forEach((el) => el.classList.remove("highlight"));
     },
 
     //--------------------------------------------------------------------------------
