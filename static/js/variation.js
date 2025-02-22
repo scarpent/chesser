@@ -107,6 +107,7 @@ export function variationApp() {
       );
       if (mainlineMoveElement) {
         mainlineMoveElement.classList.add("highlight");
+        mainlineMoveElement.scrollIntoView({ behavior: "smooth", block: "start" });
       }
       this.removeSubvarHighlights();
     },

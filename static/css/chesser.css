@@ -36,7 +36,11 @@ body {
 
 #variation-text {
   width: 500px;
-  padding: 15px;
+  height: 100vh; /* Full viewport height */
+  max-height: 95vh; /* Limit height to 90% of viewport */
+  overflow-y: auto; /* Enable vertical scrolling */
+  box-sizing: border-box;
+  padding: 10px 15px 15px;
   background-color: #333333;
   color: #eeeeee;
   display: flex;
@@ -44,6 +48,12 @@ body {
   align-items: flex-start;
   white-space: normal; /* Ensure text wraps properly */
   word-wrap: break-word; /* Prevent overflow */
+}
+
+#variation-text p {
+  font-size: 20px;
+  color: #eeeeee;
+  line-height: 1.5;
 }
 
 .status {
@@ -171,16 +181,6 @@ button:hover {
   font-size: 20px;
   margin-bottom: 0px;
   margin-top: 0px;
-}
-
-#variation-text p {
-  font-size: 20px;
-  color: #eeeeee;
-  line-height: 1.5;
-}
-
-#variation-text {
-  padding-top: 10px;
 }
 
 .mainline-move {
