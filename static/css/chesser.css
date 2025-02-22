@@ -191,10 +191,11 @@ button:hover {
 }
 
 .subvar-move {
+  color: cyan;
   padding: 2px;
 }
 
 .subvar-move.highlight-subvar {
-  background-color: #222222;
-  color: yellow;
+  background-color: cyan;
+  color: #222222;
 }
