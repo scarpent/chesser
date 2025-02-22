@@ -182,12 +182,13 @@ button:hover {
 }
 
 .mainline-move {
+  color: greenyellow;
   padding: 2px;
 }
 
 .mainline-move.highlight {
-  background-color: #222222;
-  color: greenyellow;
+  color: #222222;
+  background-color: greenyellow;
 }
 
 .subvar-move {
@@ -196,6 +197,6 @@ button:hover {
 }
 
 .subvar-move.highlight-subvar {
-  background-color: cyan;
   color: #222222;
+  background-color: cyan;
 }

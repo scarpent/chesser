@@ -1,17 +1,16 @@
 from django.db import models
 from django.utils import timezone
 
-# Short intervals for early prototyping and testing
 REPETITION_INTERVALS = {  # Level value is hours
-    1: 1,  # 4, or maybe try 6? or...?
-    2: 2,  # 1 * 24,
-    3: 4,  # 3 * 24,
-    4: 8,  # 7 * 24,
-    5: 1 * 24,  # 14 * 24,
-    6: 2 * 24,  # 30 * 24,
-    7: 3 * 24,  # 60 * 24,
-    8: 4 * 24,  # 120 * 24,
-    9: 7 * 24,  # 180 * 24,
+    1: 4,  # Or maybe try 6? or...?
+    2: 1 * 24,
+    3: 3 * 24,
+    4: 7 * 24,
+    5: 14 * 24,
+    6: 30 * 24,
+    7: 60 * 24,
+    8: 120 * 24,
+    9: 180 * 24,
 }
 
 
