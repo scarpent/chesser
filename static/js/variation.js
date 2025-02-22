@@ -202,12 +202,13 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     attachClickHandlers() {
-      document.querySelectorAll(".mainline-move").forEach((move) => {
+      document.querySelectorAll(".mainline-move, .subvar-move").forEach((move) => {
         move.style.cursor = "pointer";
         move.addEventListener("click", (event) => {
-          const index = parseInt(event.target.dataset.index, 10);
-          if (!isNaN(index)) {
-            this.jumpToMainlineMove(index);
+          if (move.classList.contains("mainline-move")) {
+            this.jumpToMainlineMove(parseInt(event.target.dataset.index, 10));
+          } else {
+            this.updateBoardForSubvar(event.target);
           }
         });
       });
