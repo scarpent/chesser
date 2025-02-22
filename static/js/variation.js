@@ -107,7 +107,7 @@ export function variationApp() {
       );
       if (mainlineMoveElement) {
         mainlineMoveElement.classList.add("highlight");
-        mainlineMoveElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        this.scrollIntoView(mainlineMoveElement);
       }
       this.removeSubvarHighlights();
     },
@@ -177,10 +177,12 @@ export function variationApp() {
 
       if (moveElement) {
         moveElement.classList.add("highlight");
+        // TODO: would be nice to maintain top margin here while scrolling,
+        // while not snapping things to top as in mainline move nav
       }
 
       // Set the board position from the subvar move
-      let fen = moveElement.dataset.fen;
+      const fen = moveElement.dataset.fen;
       this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
     },
 
@@ -236,6 +238,20 @@ export function variationApp() {
         this.previousSubvarMove();
       } else if (event.key === "ArrowDown") {
         this.nextSubvarMove();
+      }
+    },
+
+    scrollIntoView(element) {
+      if (element) {
+        const container = document.getElementById("variation-text");
+        const offset = 20; // Adjust this if needed
+        const elementTop =
+          element.getBoundingClientRect().top + container.scrollTop - offset;
+
+        container.scrollTo({
+          top: elementTop,
+          behavior: "smooth",
+        });
       }
     },
   }; // return { ... }
