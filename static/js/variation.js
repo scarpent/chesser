@@ -171,19 +171,45 @@ export function variationApp() {
       }
     },
 
+    selectSubvarMove(moveElement) {
+      console.log("selectSubvarMove()", moveElement);
+
+      // Ensure it's inside a subvariations container and get the parent mainline move index
+      const subvarContainer = moveElement.closest(".subvariations");
+      if (!subvarContainer) return;
+
+      const parentMainlineIndex = parseInt(subvarContainer.dataset.mainlineIndex, 10);
+      if (!isNaN(parentMainlineIndex)) {
+        this.mainlineMoveIndex = parentMainlineIndex;
+        console.log("Updated mainlineMoveIndex:", this.mainlineMoveIndex);
+      }
+
+      // Identify the move index within the subvariation
+      const subvarMoves = this.getSubvarMoves();
+      const clickedIndex = subvarMoves.indexOf(moveElement);
+
+      if (clickedIndex !== -1) {
+        this.subvarMoveIndex = clickedIndex;
+        console.log("Updated subvarMoveIndex:", this.subvarMoveIndex);
+        this.updateBoardForSubvar(moveElement);
+      } else {
+        console.warn("Clicked subvar move not found in list.");
+      }
+    },
+
     //--------------------------------------------------------------------------------
     updateBoardForSubvar(moveElement) {
+      console.log("updateBoardForSubvar()", moveElement);
+
       this.removeSubvarHighlights();
 
       if (moveElement) {
         moveElement.classList.add("highlight");
-        // TODO: would be nice to maintain top margin here while scrolling,
-        // while not snapping things to top as in mainline move nav
-      }
 
-      // Set the board position from the subvar move
-      const fen = moveElement.dataset.fen;
-      this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
+        // Set board position from the move's FEN
+        const fen = moveElement.dataset.fen;
+        this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
+      }
     },
 
     //--------------------------------------------------------------------------------
@@ -211,7 +237,7 @@ export function variationApp() {
           if (move.classList.contains("mainline-move")) {
             this.jumpToMainlineMove(parseInt(event.target.dataset.index, 10));
           } else {
-            this.updateBoardForSubvar(event.target);
+            this.selectSubvarMove(event.target);
           }
         });
       });
