@@ -112,55 +112,69 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     nextSubvarMove() {
       const subvarMoves = this.getSubvarMoves();
-      if (!subvarMoves.length) return;
-
-      if (this.subvarMoveIndex < subvarMoves.length - 1) {
-        this.subvarMoveIndex++;
-      } else {
+      if (subvarMoves.length === 0) {
+        // No subvariations, move to next mainline move
+        this.nextMainlineMove();
         return;
       }
 
-      const subvarMoveElement = subvarMoves[this.subvarMoveIndex];
-      const fen = subvarMoveElement.dataset.fen;
-
-      this.board.set({
-        fen: fen,
-        drawable: { shapes: [] }, // Clear mainline shapes
-      });
-
-      this.highlightSubvarMove();
-    },
-
-    previousSubvarMove() {
-      if (this.subvarMoveIndex <= 0) return;
-      this.subvarMoveIndex--;
-
-      const subvarMoves = this.getSubvarMoves();
-      if (!subvarMoves.length) return;
-
-      const subvarMoveElement = subvarMoves[this.subvarMoveIndex];
-      const fen = subvarMoveElement.dataset.fen;
-
-      this.board.set({ fen: fen, drawable: { shapes: [] } });
-
-      this.highlightSubvarMove();
-    },
-
-    highlightSubvarMove() {
-      document
-        .querySelectorAll(".subvar-move.highlight-subvar")
-        .forEach((el) => el.classList.remove("highlight-subvar"));
-
-      const subvarMoves = this.getSubvarMoves();
-      if (this.subvarMoveIndex >= 0 && this.subvarMoveIndex < subvarMoves.length) {
-        subvarMoves[this.subvarMoveIndex].classList.add("highlight-subvar");
+      if (this.subvarMoveIndex === null) {
+        // Enter subvariation
+        this.subvarMoveIndex = 0;
+      } else if (this.subvarMoveIndex < subvarMoves.length - 1) {
+        // Move forward in subvariation
+        this.subvarMoveIndex++;
+      } else {
+        // End of subvariations, move to next mainline move
+        this.subvarMoveIndex = null;
+        this.nextMainlineMove();
+        return;
       }
+
+      // Highlight & update board
+      this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
     },
 
+    //--------------------------------------------------------------------------------
+    previousSubvarMove() {
+      if (this.subvarMoveIndex === null) {
+        // Already in mainline, move back a mainline move
+        this.previousMainlineMove();
+        return;
+      }
+
+      if (this.subvarMoveIndex > 0) {
+        // Move up in the subvariation list
+        this.subvarMoveIndex--;
+      } else {
+        // If at first subvar move, go to previous mainline move
+        this.subvarMoveIndex = null;
+        this.previousMainlineMove();
+        return;
+      }
+
+      const subvarMoves = this.getSubvarMoves();
+      this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
+    },
+
+    //--------------------------------------------------------------------------------
+    updateBoardForSubvar(moveElement) {
+      document
+        .querySelectorAll(".move.highlight")
+        .forEach((el) => el.classList.remove("highlight"));
+      moveElement.classList.add("highlight");
+
+      let fen = moveElement.dataset.fen;
+      this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
+    },
+
+    //--------------------------------------------------------------------------------
     getSubvarMoves() {
       if (this.mainlineMoveIndex < 0) return [];
-      return Array.from(document.querySelectorAll(`.subvar-move[data-index]`)).filter(
-        (move) => move.dataset.index
+      return Array.from(
+        document.querySelectorAll(
+          `.subvariations[data-mainline-index="${this.mainlineMoveIndex}"] .subvar-move`
+        )
       );
     },
 
