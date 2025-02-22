@@ -172,8 +172,6 @@ export function variationApp() {
     },
 
     selectSubvarMove(moveElement) {
-      console.log("selectSubvarMove()", moveElement);
-
       // Ensure it's inside a subvariations container and get the parent mainline move index
       const subvarContainer = moveElement.closest(".subvariations");
       if (!subvarContainer) return;
@@ -199,8 +197,6 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     updateBoardForSubvar(moveElement) {
-      console.log("updateBoardForSubvar()", moveElement);
-
       this.removeSubvarHighlights();
 
       if (moveElement) {
