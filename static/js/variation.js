@@ -32,6 +32,7 @@ export function variationApp() {
           },
         });
         this.updateBoard();
+        this.attachClickHandlers(); // To moves
         console.log("Chess board loaded");
       } else {
         console.error("chessground or chess.js failed to load");
@@ -197,6 +198,30 @@ export function variationApp() {
           `.subvariations[data-mainline-index="${this.mainlineMoveIndex}"] .subvar-move`
         )
       );
+    },
+
+    //--------------------------------------------------------------------------------
+    attachClickHandlers() {
+      document.querySelectorAll(".mainline-move").forEach((move) => {
+        move.style.cursor = "pointer";
+        move.addEventListener("click", (event) => {
+          const index = parseInt(event.target.dataset.index, 10);
+          if (!isNaN(index)) {
+            this.jumpToMainlineMove(index);
+          }
+        });
+      });
+    },
+
+    //--------------------------------------------------------------------------------
+    jumpToMainlineMove(index) {
+      if (index < 0 || index >= this.variationData.moves.length) return;
+      this.chess.reset();
+      for (let i = 0; i <= index; i++) {
+        this.chess.move(this.variationData.moves[i].san);
+      }
+      this.mainlineMoveIndex = index;
+      this.updateBoard();
     },
 
     //--------------------------------------------------------------------------------
