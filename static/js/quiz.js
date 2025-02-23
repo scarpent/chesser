@@ -234,6 +234,12 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    finalMove() {
+      if (!this.variationData.moves || this.variationData.moves.length === 0) return {};
+      return this.variationData.moves[this.variationData.moves.length - 1];
+    },
+
+    //--------------------------------------------------------------------------------
     reportResult(passed) {
       const variationId = this.variationData.variation_id;
 

@@ -59,6 +59,13 @@
         <div x-show="completed" x-text="variationData.mainline"></div>
         <div x-show="completed" x-text="'Level ➤ ' + variationData.level"></div>
       </div>
+
+      <template x-if="completed && finalMove().text">
+        <div class="final-move">
+          <h3 x-text="finalMove().move_verbose"></h3>
+          <p x-text="finalMove().text"></p>
+        </div>
+      </template>
     </div>
 
     <!-- Pass variationData safely to JavaScript -->
