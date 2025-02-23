@@ -20,7 +20,12 @@ annotations = {
 def serialize_variation(variation, generate_html=False):
     color = variation.chapter.course.color
 
-    html = variation_html if generate_html else None
+    if generate_html:
+        html = (
+            variation_html if variation.id == 1 else generate_variation_html(variation)
+        )
+    else:
+        html = None
 
     variation_data = {
         "variation_id": variation.id,
@@ -69,6 +74,35 @@ def serialize_variation(variation, generate_html=False):
     variation_data["annotations"] = temp_annotations
 
     return variation_data
+
+
+def generate_variation_html(variation):
+    html = ""
+    white_to_move = True
+    beginning_of_move_group = True
+    for index, move in enumerate(variation.moves.iterator()):
+        if beginning_of_move_group:
+            html += "<h3 class='variation-mainline'>\n"
+            beginning_of_move_group = False
+        if white_to_move:
+            move_str = f"{move.move_num}."  # White always has dot and number
+        else:
+            move_str = f"{move.move_num}..." if beginning_of_move_group else ""
+
+        white_to_move = not white_to_move
+
+        annotation = move.annotation or ""
+        move_str += f"{move.san}{annotation}"
+
+        html += (
+            f'<span class="move mainline-move" data-index="{index}">{move_str}</span>\n'
+        )
+
+        if move.text:
+            beginning_of_move_group = True
+            html += f"</h3>\n<p>{move.text}</p>\n"  # TODO: Parse PGN for subvars, etc
+
+    return html
 
 
 variation_html = """

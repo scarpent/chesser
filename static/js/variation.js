@@ -33,6 +33,10 @@ export function variationApp() {
         });
         this.updateBoard();
         this.attachClickHandlers(); // To moves
+        setTimeout(() => {
+          // updateBoard calls this, but alpine.js hasn't fully processed dynamic html yet
+          this.highlightMainlineMove();
+        }, 100);
         console.log("Chess board loaded");
       } else {
         console.error("chessground or chess.js failed to load");

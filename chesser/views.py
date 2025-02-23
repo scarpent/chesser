@@ -122,8 +122,7 @@ def variation(request, variation_id=None):
     if variation is None:
         variation_data = {}
     else:
-        generate_html = True if variation_id == 1 else False
-        variation_data = serialize_variation(variation, generate_html=generate_html)
+        variation_data = serialize_variation(variation, generate_html=True)
 
     context = {"variation_data": json.dumps(variation_data)}
     return render(request, "variation.html", context)
