@@ -210,3 +210,7 @@ button:hover {
   color: #222222;
   background-color: cyan;
 }
+
+.final-move {
+  max-width: 400px;
+}
