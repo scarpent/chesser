@@ -81,15 +81,16 @@ def generate_variation_html(variation):
     white_to_move = True
     beginning_of_move_group = True
     for index, move in enumerate(variation.moves.iterator()):
-        if beginning_of_move_group:
-            html += "<h3 class='variation-mainline'>\n"
-            beginning_of_move_group = False
         if white_to_move:
             move_str = f"{move.move_num}."  # White always has dot and number
         else:
             move_str = f"{move.move_num}..." if beginning_of_move_group else ""
 
         white_to_move = not white_to_move
+
+        if beginning_of_move_group:
+            html += "<h3 class='variation-mainline'>\n"
+            beginning_of_move_group = False
 
         annotation = move.annotation or ""
         move_str += f"{move.san}{annotation}"
