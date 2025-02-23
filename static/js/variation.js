@@ -61,7 +61,7 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     nextMainlineMove() {
       if (this.mainlineMoveIndex < this.variationData.moves.length - 1) {
-        this.subvarMoveIndex = -1;
+        this.exitSubvariation();
         this.chess.move(this.variationData.moves[++this.mainlineMoveIndex].san);
         this.updateBoard();
       }
@@ -69,16 +69,16 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     previousMainlineMove() {
-      if (this.subvarMoveIndex !== -1) {
-        // We are in a subvariation; we want to return to the mainline but are
-        // already on the move we want to be at, so we'll just update the board
-        this.subvarMoveIndex = -1;
-      } else if (this.mainlineMoveIndex <= 0) {
-        this.mainlineMoveIndex = -1; // Ensure forward navigation works correctly
-        this.chess.reset();
-      } else {
+      if (this.isInSubvariation()) {
+        // We're already on the move we want to be at, so
+        // we'll just exit subvar and update the board
+        this.exitSubvariation();
+      } else if (this.mainlineMoveIndex > 0) {
         this.chess.undo();
         this.mainlineMoveIndex--;
+      } else {
+        this.mainlineMoveIndex = -1; // Ensure forward nav works correctly
+        this.chess.reset();
       }
       this.updateBoard();
     },
@@ -120,25 +120,19 @@ export function variationApp() {
     nextSubvarMove() {
       const subvarMoves = this.getSubvarMoves();
       if (subvarMoves.length === 0) {
-        // No subvariations, move to next mainline move
         this.nextMainlineMove();
         return;
       }
 
-      if (this.subvarMoveIndex < -1) {
-        // Enter subvariation
-        this.subvarMoveIndex = 0;
+      if (!this.isInSubvariation()) {
+        this.subvarMoveIndex = 0; // Enter subvariation
       } else if (this.subvarMoveIndex < subvarMoves.length - 1) {
-        // Move forward in subvariation
         this.subvarMoveIndex++;
       } else {
-        // End of subvariations, move to next mainline move
-        this.subvarMoveIndex = -1;
+        this.exitSubvariation();
         this.nextMainlineMove();
         return;
       }
-
-      // Highlight & update board
       this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
     },
 
@@ -146,13 +140,12 @@ export function variationApp() {
     previousSubvarMove() {
       const subvarMoves = this.getSubvarMoves();
 
-      if (this.subvarMoveIndex === -1) {
-        // We are in the mainline → check if the previous mainline move has subvariations
+      if (!this.isInSubvariation()) {
         this.previousMainlineMove();
 
-        // Get the new subvar moves of the previous mainline move
+        // See if previous mainline move has subvariation(s)
         const prevSubvarMoves = this.getSubvarMoves();
-        if (prevSubvarMoves.length > 0) {
+        if (prevSubvarMoves.length) {
           // Enter the last subvar move of the previous mainline move
           this.subvarMoveIndex = prevSubvarMoves.length - 1;
           this.updateBoardForSubvar(prevSubvarMoves[this.subvarMoveIndex]);
@@ -161,16 +154,13 @@ export function variationApp() {
       }
 
       if (this.subvarMoveIndex > 0) {
-        // Move up within the subvariation list
-        this.subvarMoveIndex--;
+        this.subvarMoveIndex--; // Move up within the subvar list
       } else {
-        // At first subvar move, return to parent mainline move
-        this.subvarMoveIndex = -1;
+        this.exitSubvariation(); // Return to parent mainline move
         this.updateBoard(); // Ensure correct board and highlight update
       }
 
-      // Highlight & update board with new subvariation move
-      if (this.subvarMoveIndex !== -1) {
+      if (this.isInSubvariation()) {
         this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
       }
     },
@@ -186,15 +176,12 @@ export function variationApp() {
         this.jumpToMainlineMove(parentMainlineIndex);
       }
 
-      // Identify the move index within the subvariation
       const subvarMoves = this.getSubvarMoves();
       const clickedIndex = subvarMoves.indexOf(moveElement);
 
       if (clickedIndex !== -1) {
         this.subvarMoveIndex = clickedIndex;
         this.updateBoardForSubvar(moveElement);
-      } else {
-        console.warn("Clicked subvar move not found in list.");
       }
     },
 
@@ -228,17 +215,20 @@ export function variationApp() {
       );
     },
 
+    //
+    isInSubvariation() {
+      return this.subvarMoveIndex !== -1;
+    },
+
+    exitSubvariation() {
+      this.subvarMoveIndex = -1;
+    },
+
     //--------------------------------------------------------------------------------
     attachClickHandlers() {
       document.querySelectorAll(".mainline-move, .subvar-move").forEach((move) => {
         move.style.cursor = "pointer";
-        move.addEventListener("click", (event) => {
-          if (move.classList.contains("mainline-move")) {
-            this.jumpToMainlineMove(parseInt(event.target.dataset.index, 10));
-          } else {
-            this.selectClickedSubvarMove(event.target);
-          }
-        });
+        move.addEventListener("click", this.handleMoveClick.bind(this));
       });
     },
 
@@ -251,6 +241,17 @@ export function variationApp() {
       }
       this.mainlineMoveIndex = index;
       this.updateBoard();
+    },
+
+    //--------------------------------------------------------------------------------
+    handleMoveClick(event) {
+      const moveElement = event.target;
+
+      if (moveElement.classList.contains("mainline-move")) {
+        this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
+      } else if (moveElement.classList.contains("subvar-move")) {
+        this.selectClickedSubvarMove(moveElement);
+      }
     },
 
     //--------------------------------------------------------------------------------
