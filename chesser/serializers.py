@@ -33,6 +33,8 @@ def serialize_variation(variation, generate_html=False):
         "mainline": variation.mainline_moves,
         "html": html,
     }
+    # TODO: May eventually have rendered "final move text" for after the quiz. For now
+    # we're showing plain text from moves, but that could have FENs or other encoding.
 
     temp_annotations = annotations.copy()
     moves = []
