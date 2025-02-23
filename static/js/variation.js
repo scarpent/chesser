@@ -175,16 +175,15 @@ export function variationApp() {
       }
     },
 
-    selectSubvarMove(moveElement) {
-      // Ensure it's inside a subvariations container and get the parent mainline move index
+    selectClickedSubvarMove(moveElement) {
+      // Ensure we're inside a subvariations container and
+      // get the parent mainline move index
       const subvarContainer = moveElement.closest(".subvariations");
       if (!subvarContainer) return;
 
       const parentMainlineIndex = parseInt(subvarContainer.dataset.mainlineIndex, 10);
       if (!isNaN(parentMainlineIndex)) {
-        this.mainlineMoveIndex = parentMainlineIndex;
-        this.jumpToMainlineMove(this.mainlineMoveIndex);
-        console.log("Updated mainlineMoveIndex:", this.mainlineMoveIndex);
+        this.jumpToMainlineMove(parentMainlineIndex);
       }
 
       // Identify the move index within the subvariation
@@ -193,7 +192,6 @@ export function variationApp() {
 
       if (clickedIndex !== -1) {
         this.subvarMoveIndex = clickedIndex;
-        console.log("Updated subvarMoveIndex:", this.subvarMoveIndex);
         this.updateBoardForSubvar(moveElement);
       } else {
         console.warn("Clicked subvar move not found in list.");
@@ -238,7 +236,7 @@ export function variationApp() {
           if (move.classList.contains("mainline-move")) {
             this.jumpToMainlineMove(parseInt(event.target.dataset.index, 10));
           } else {
-            this.selectSubvarMove(event.target);
+            this.selectClickedSubvarMove(event.target);
           }
         });
       });
