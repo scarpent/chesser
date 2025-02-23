@@ -14,13 +14,15 @@ black==25.1.0
     # via -r requirements.in
 build==1.2.2.post1
     # via pip-tools
+chess==1.11.1
+    # via -r requirements.in
 click==8.1.8
     # via
     #   black
     #   pip-tools
 coverage[toml]==7.6.12
     # via pytest-cov
-decorator==5.1.1
+decorator==5.2.0
     # via
     #   ipdb
     #   ipython
@@ -32,7 +34,7 @@ django-extensions==3.2.3
     # via -r requirements.in
 executing==2.2.0
     # via stack-data
-flake8==7.1.1
+flake8==7.1.2
     # via
     #   -r requirements.in
     #   flake8-bugbear
