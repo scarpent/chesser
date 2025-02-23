@@ -23,22 +23,29 @@ body {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: center; /* Keeps both sections centered */
   width: 100%;
-  gap: 20px; /* Space between board and variation text */
+  height: 100vh;
+  overflow: hidden;
+  gap: 20px; /* Maintains space between board and variation text */
+  padding-left: 20px; /* Ensures board doesn't touch the left edge */
 }
 
 #board-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: sticky;
+  top: 0; /* Stick the board to the top */
+  background-color: #222222; /* Ensure background matches */
+  z-index: 10;
 }
 
 #variation-text {
-  width: 500px;
-  height: 100vh; /* Full viewport height */
-  max-height: 95vh; /* Limit height to 90% of viewport */
-  overflow-y: auto; /* Enable vertical scrolling */
+  max-width: 600px;
+  height: 100vh;
+  max-height: 95vh;
+  overflow-y: auto;
   box-sizing: border-box;
   padding: 10px 15px 15px;
   background-color: #333333;
@@ -48,6 +55,7 @@ body {
   align-items: flex-start;
   white-space: normal; /* Ensure text wraps properly */
   word-wrap: break-word; /* Prevent overflow */
+  flex-shrink: 0; /* Prevents it from shrinking */
 }
 
 #variation-text p {
