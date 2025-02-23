@@ -187,7 +187,9 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     updateBoardForSubvar(moveElement) {
-      this.removeSubvarHighlights();
+      // Sets scrolling and removes subvar highlights
+      // (subvar scrolling and scrolling in general needs work)
+      this.highlightMainlineMove();
 
       if (moveElement) {
         moveElement.classList.add("highlight");
