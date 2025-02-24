@@ -39,8 +39,8 @@ export function editApp() {
             } else {
               console.error(`Board element edit-board-${index} not found`);
             }
+            console.log("All boards initialized");
           });
-          // console.log("All boards initialized", this.boards);
         });
       });
     },

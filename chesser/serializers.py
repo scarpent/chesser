@@ -1,3 +1,8 @@
+import io
+
+import chess
+import chess.pgn
+
 annotations = {
     "none": "No annotation",
     "?": "? Poor",
@@ -80,11 +85,14 @@ def generate_variation_html(variation):
     html = ""
     white_to_move = True
     beginning_of_move_group = True
+    pgn_moves = ""
     for index, move in enumerate(variation.moves.iterator()):
         if white_to_move:
             move_str = f"{move.move_num}."  # White always has dot and number
+            pgn_moves += f"{move.move_num}.{move.san} "  # For PGN parsing
         else:
             move_str = f"{move.move_num}..." if beginning_of_move_group else ""
+            pgn_moves += f" {move.san} "  # For PGN parsing
 
         white_to_move = not white_to_move
 
@@ -101,9 +109,85 @@ def generate_variation_html(variation):
 
         if move.text:
             beginning_of_move_group = True
+            if variation.id == 2:
+                parse_pgn(pgn_moves, move.text)
             html += f"</h3>\n<p>{move.text}</p>\n"  # TODO: Parse PGN for subvars, etc
 
     return html
+
+    # def parse_pgn(pgn_text, move_text):
+    #     pgn = io.StringIO(pgn_text + move_text)
+    #     game = chess.pgn.read_game(pgn)
+    #     board = game.board()
+    #     for move in game.mainline_moves():
+    #         board.push(move)
+
+    #     node = game
+
+
+def parse_pgn(pgn_text, move_text):
+    full_pgn = pgn_text + move_text
+    pgn = io.StringIO(full_pgn)
+    game = chess.pgn.read_game(pgn)
+
+    # board = game.board()  # Start from the initial position
+    parsed_moves = []
+
+    node = game  # Root node
+
+    while node.variations:
+        node = node.variations[0]  # Follow mainline
+        move_san = node.san()  # Get SAN notation
+        move_fen = node.board().fen()  # Get FEN after the move
+
+        move_data = {
+            "san": move_san,
+            "fen": move_fen,
+            "comment": node.comment.strip() if node.comment else "",
+            "subvariations": [],
+        }
+
+        # Extract subvariations
+        for subvar in node.variations[1:]:  # Ignore the first variation (mainline)
+            sub_moves = []
+            sub_node = subvar
+            while sub_node:
+                sub_moves.append(
+                    {
+                        "san": sub_node.san(),
+                        "fen": sub_node.board().fen(),
+                        "comment": (
+                            sub_node.comment.strip() if sub_node.comment else ""
+                        ),
+                    }
+                )
+                sub_node = sub_node.variations[0] if sub_node.variations else None
+
+            move_data["subvariations"].append(sub_moves)
+
+        parsed_moves.append(move_data)
+
+    import json
+
+    print(json.dumps(parsed_moves, indent=2))
+
+    return parsed_moves
+
+
+def parse_test():
+    # Example PGN fragment
+    pgn_text = "1.e4 e5 2.Nf3 Nf6 3.Nc3 "
+    move_text = (
+        "{We invite a transposition to the four knights. More often played is} "
+        "(3.Nxe5 d6 4.Nf3 Nxe4){.}"
+    )
+
+    parsed = parse_pgn(pgn_text, move_text)
+
+    # Display parsed moves
+    import json
+
+    print(json.dumps(parsed, indent=2))
 
 
 variation_html = """

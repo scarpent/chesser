@@ -221,7 +221,7 @@ export function variationApp() {
       );
     },
 
-    //
+    //--------------------------------------------------------------------------------
     isInSubvariation() {
       return this.subvarMoveIndex !== -1;
     },

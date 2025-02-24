@@ -17,7 +17,7 @@ def review(request, variation_id=None):
     if variation_id is None:
         variation = Variation.due_for_review()
     else:
-        # this would be like chessable's "overstudy", although
+        # This would be like chessable's "overstudy", although
         # would like to call it something else - we'll think about
         # if we want it to affect current level or not...
         variation = get_object_or_404(
@@ -62,9 +62,6 @@ def edit(request, variation_id=None):
     if variation_id is None:
         variation = Variation.objects.first()
     else:
-        # this would be like chessable's "overstudy", although
-        # would like to call it something else - we'll think about
-        # if we want it to affect current level or not...
         variation = get_object_or_404(
             Variation.objects.select_related("chapter__course").prefetch_related(
                 "moves"
