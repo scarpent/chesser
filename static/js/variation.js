@@ -32,10 +32,10 @@ export function variationApp() {
           },
         });
         this.updateBoard();
-        this.attachClickHandlers(); // To moves
         setTimeout(() => {
-          // updateBoard calls this, but alpine.js hasn't fully processed dynamic html yet
+          // Wait for alpine.js to process dynamic html
           this.highlightMainlineMove();
+          this.attachClickHandlers(); // To moves
         }, 100);
         console.log("Chess board loaded");
       } else {
