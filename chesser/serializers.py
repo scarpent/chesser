@@ -76,7 +76,11 @@ def serialize_variation(variation, generate_html=False):
 def generate_variation_html(variation):
 
     if variation.id == 2:
-        parse_pgn(variation)
+        parsed_pgn = parse_pgn(variation)
+        import json
+
+        print(json.dumps(parsed_pgn, indent=2))
+        print(f"len(parsed_moves): {len(parsed_pgn)}")
 
     html = ""
     white_to_move = True
@@ -110,9 +114,10 @@ def generate_variation_html(variation):
 
 
 def parse_pgn(variation):
-    full_pgn = "\n".join(
-        f"{move.move_verbose}\n{move.text}" for move in variation.moves.all().iterator()
-    )
+    full_pgn = ""
+    for move in variation.moves.all().iterator():
+        move_text = f"{move.text.strip()}\n" if move.text else ""
+        full_pgn += f"{move.move_verbose}\n{move_text}"
     # full_pgn = "1.e4 e5 2.Nf3 Nf6 3.Nc3"
 
     pgn = io.StringIO(full_pgn)
@@ -153,11 +158,6 @@ def parse_pgn(variation):
             move_data["subvariations"].append(sub_moves)
 
         parsed_moves.append(move_data)
-
-    import json
-
-    print(json.dumps(parsed_moves, indent=2))
-    print(f"len(parsed_moves): {len(parsed_moves)}")
 
     return parsed_moves
 
