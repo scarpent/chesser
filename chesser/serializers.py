@@ -170,6 +170,7 @@ def parse_pgn(pgn_text, move_text):
     import json
 
     print(json.dumps(parsed_moves, indent=2))
+    print(f"len(parsed_moves): {len(parsed_moves)}")
 
     return parsed_moves
 

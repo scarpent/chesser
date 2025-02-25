@@ -72,7 +72,7 @@ def edit(request, variation_id=None):
     if variation is None:
         variation_data = {}
     else:
-        variation_data = serialize_variation(variation)
+        variation_data = serialize_variation(variation, generate_html=True)
 
     context = {"variation_data": json.dumps(variation_data)}
     return render(request, "edit.html", context)
