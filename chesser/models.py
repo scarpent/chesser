@@ -106,12 +106,12 @@ class Variation(models.Model):
 
 class Move(models.Model):
     move_num = models.IntegerField()
-    sequence = models.IntegerField()
+    sequence = models.IntegerField()  # expected to be in order from 0: 0, 1, 2, 3...
     variation = models.ForeignKey(
         Variation, on_delete=models.CASCADE, related_name="moves"
     )
     san = models.CharField(max_length=10)
-    annotation = models.CharField(max_length=10, null=True, blank=True)
+    annotation = models.CharField(max_length=10, default="", blank=True)
     text = models.TextField(null=True, blank=True)
     alt = models.TextField(null=True, blank=True)  # e.g. d4, Nf3, c4
     alt_fail = models.TextField(null=True, blank=True)  # ["f4", "b3", "g3"]
@@ -128,6 +128,12 @@ class Move(models.Model):
             f"{self.variation.id}: {self.variation.title}: "
             f"{self.move_num} {self.san}"
         )
+
+    @property
+    def move_verbose(self):
+        white_to_move = self.sequence % 2 == 0
+        dots = "." if white_to_move else "..."
+        return f"{self.move_num}{dots}{self.san}{self.annotation}"
 
 
 class QuizResult(models.Model):

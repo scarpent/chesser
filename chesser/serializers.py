@@ -48,27 +48,19 @@ def serialize_variation(variation, generate_html=False):
 
     temp_annotations = annotations.copy()
     moves = []
-    white_to_move = True
     for move in variation.moves.all():
-        dots = "." if white_to_move else "..."
-        white_to_move = not white_to_move
-
-        annotation = move.annotation or ""
-        if annotation and annotation not in temp_annotations:
+        if move.annotation and move.annotation not in temp_annotations:
             # add this to annotation dict so we can re-save it
-            temp_annotations[annotation] = f"unknown: {annotation}"
+            temp_annotations[move.annotation] = f"unknown: {move.annotation}"
             print(
-                "unknown annotation in variation "
-                f"{variation.id}, move {move.id}: {annotation}"
+                f"unknown annotation in variation {variation.id}: {move.move_verbose}"
             )
 
-        annotation = move.annotation if move.annotation else ""
-        move_verbose = f"{move.move_num}{dots}{move.san}{annotation}"
         moves.append(
             {
                 "san": move.san,
-                "annotation": annotation,
-                "move_verbose": move_verbose,
+                "annotation": move.annotation,
+                "move_verbose": move.move_verbose,
                 "text": move.text,
                 "alt": move.alt or "",
                 "alt_fail": move.alt_fail or "",
@@ -82,6 +74,10 @@ def serialize_variation(variation, generate_html=False):
 
 
 def generate_variation_html(variation):
+
+    if variation.id == 2:
+        parse_pgn(variation)
+
     html = ""
     white_to_move = True
     beginning_of_move_group = True
@@ -100,8 +96,7 @@ def generate_variation_html(variation):
             html += "<h3 class='variation-mainline'>\n"
             beginning_of_move_group = False
 
-        annotation = move.annotation or ""
-        move_str += f"{move.san}{annotation}"
+        move_str += f"{move.san}{move.annotation}"
 
         html += (
             f'<span class="move mainline-move" data-index="{index}">{move_str}</span>\n'
@@ -109,28 +104,20 @@ def generate_variation_html(variation):
 
         if move.text:
             beginning_of_move_group = True
-            if variation.id == 2:
-                parse_pgn(pgn_moves, move.text)
             html += f"</h3>\n<p>{move.text}</p>\n"  # TODO: Parse PGN for subvars, etc
 
     return html
 
-    # def parse_pgn(pgn_text, move_text):
-    #     pgn = io.StringIO(pgn_text + move_text)
-    #     game = chess.pgn.read_game(pgn)
-    #     board = game.board()
-    #     for move in game.mainline_moves():
-    #         board.push(move)
 
-    #     node = game
+def parse_pgn(variation):
+    full_pgn = "\n".join(
+        f"{move.move_verbose}\n{move.text}" for move in variation.moves.all().iterator()
+    )
+    # full_pgn = "1.e4 e5 2.Nf3 Nf6 3.Nc3"
 
-
-def parse_pgn(pgn_text, move_text):
-    full_pgn = pgn_text + move_text
     pgn = io.StringIO(full_pgn)
     game = chess.pgn.read_game(pgn)
 
-    # board = game.board()  # Start from the initial position
     parsed_moves = []
 
     node = game  # Root node
@@ -173,22 +160,6 @@ def parse_pgn(pgn_text, move_text):
     print(f"len(parsed_moves): {len(parsed_moves)}")
 
     return parsed_moves
-
-
-def parse_test():
-    # Example PGN fragment
-    pgn_text = "1.e4 e5 2.Nf3 Nf6 3.Nc3 "
-    move_text = (
-        "{We invite a transposition to the four knights. More often played is} "
-        "(3.Nxe5 d6 4.Nf3 Nxe4){.}"
-    )
-
-    parsed = parse_pgn(pgn_text, move_text)
-
-    # Display parsed moves
-    import json
-
-    print(json.dumps(parsed, indent=2))
 
 
 variation_html = """
