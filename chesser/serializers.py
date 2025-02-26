@@ -1,4 +1,5 @@
 import io
+import re
 
 import chess
 import chess.pgn
@@ -75,18 +76,20 @@ def serialize_variation(variation, generate_html=False):
 
 def generate_variation_html(variation):
 
-    if variation.id == 2:
-        parsed_pgn = parse_pgn(variation)
-        import json
+    # if variation.id == 2:
+    #     parsed_pgn = parse_pgn(variation)
+    #     import json
 
-        print(json.dumps(parsed_pgn, indent=2))
-        print(f"len(parsed_moves): {len(parsed_pgn)}")
+    #     print(json.dumps(parsed_pgn, indent=2))
+    #     print(f"len(parsed_moves): {len(parsed_pgn)}")
 
     html = ""
     white_to_move = True
     beginning_of_move_group = True
     pgn_moves = ""
-    for index, move in enumerate(variation.moves.iterator()):
+    board = chess.Board()
+    for move in variation.moves.iterator():
+
         if white_to_move:
             move_str = f"{move.move_num}."  # White always has dot and number
             pgn_moves += f"{move.move_num}.{move.san} "  # For PGN parsing
@@ -103,14 +106,66 @@ def generate_variation_html(variation):
         move_str += f"{move.san}{move.annotation}"
 
         html += (
-            f'<span class="move mainline-move" data-index="{index}">{move_str}</span>\n'
+            '<span class="move mainline-move" '
+            f'data-index="{move.sequence}">{move_str}</span>\n'
         )
 
         if move.text:
             beginning_of_move_group = True
+            if variation.id == 2:
+                moves_with_fen = extract_moves_with_fen(board.copy(), move.text)
+                import json
+
+                print(json.dumps(moves_with_fen, indent=2))
+
             html += f"</h3>\n<p>{move.text}</p>\n"  # TODO: Parse PGN for subvars, etc
 
+        board.push_san(move.san)  # Mainline moves better be valid
+
     return html
+
+
+def generate_subvariations_html(move, parsed_pgn):
+    """
+    {sicilian}
+    (1...c5 {or french}) (1...e6 {or caro}) (1...c6?!)
+    (1...e5  2.Nc3)
+    """
+    pass
+
+
+def extract_moves_with_fen(board, pgn_text):
+    # Step 1: Remove text inside {} brackets
+    cleaned_pgn = re.sub(r"\{.*?\}", "", pgn_text)
+
+    # Step 2: Find all move sequences inside parentheses ()
+    move_blocks = re.findall(r"\((.*?)\)", cleaned_pgn)
+
+    # Step 4: Process each move sequence
+    move_fen_map = []  # Store (move_list, corresponding FEN)
+
+    for block in move_blocks:
+        moves = block.strip().split()  # Split into individual moves
+        board_copy = board.copy()  # Copy board state before applying moves
+
+        fen_sequence = []
+        for move in moves:
+            try:
+                # extract just the valid san part for updating board
+                move_regex = r"^(\d*\.*)(O-O-O|O-O|[A-Za-z0-9]+)"
+                m = re.match(move_regex, move)
+                move_san = m.group(2)
+                # print(f"move: {move}")
+                board_copy.push_san(move_san)  # Apply move in SAN format
+                fen_sequence.append((move, board_copy.fen()))  # Store move + FEN
+            except ValueError:
+                print(f"Skipping invalid move: {move}")
+                break  # Skip broken variations
+
+        if fen_sequence:
+            move_fen_map.append(fen_sequence)
+
+    return move_fen_map
 
 
 def parse_pgn(variation):
@@ -128,6 +183,7 @@ def parse_pgn(variation):
     node = game  # Root node
 
     while node.variations:
+        # TODO: handle subvars on first move (node.variations[1]...)
         node = node.variations[0]  # Follow mainline
         move_san = node.san()  # Get SAN notation
         move_fen = node.board().fen()  # Get FEN after the move
