@@ -104,16 +104,13 @@ def generate_variation_html(variation):
 
         if move.text:
             beginning_of_move_group = True
-            if variation.id == 2:
-                moves_with_fen = extract_moves_with_fen(board.copy(), move.text)
-                from pprint import pprint
+            moves_with_fen = extract_moves_with_fen(board.copy(), move.text)
+            from pprint import pprint
 
-                pprint(moves_with_fen)
+            pprint(moves_with_fen)
 
-                subvar_html = generate_subvariations_html(move, moves_with_fen)
-                html += subvar_html
-
-            html += f"</h3>\n<p>{move.text}</p>\n"  # TODO: Parse PGN for subvars, etc
+            subvar_html = generate_subvariations_html(move, moves_with_fen)
+            html += f"</h3>\n<p>{subvar_html}</p>\n"  # TODO: Parse PGN for subvars, etc
 
         board.push_san(move.san)  # Mainline moves better be valid
 
@@ -136,8 +133,6 @@ def generate_subvariations_html(move, move_fen_map):
     html = ""
     remaining_text = move.text
     for san, fen in move_fen_map:
-        counter += 1
-
         while True:
             m = re.search(re.escape(san), remaining_text)
             if m:
@@ -150,14 +145,16 @@ def generate_subvariations_html(move, move_fen_map):
                     html += matched_move
                     continue
                 else:
+                    counter += 1
                     html += (
                         f'<span class="move subvar-move" data-fen="{fen}" '
                         f'data-index="{counter}">{matched_move}</span>\n'
                     )
                     break
             else:
-                html += remaining_text.strip()
                 break
+
+    html += remaining_text.strip()
 
     return (
         '<div class="subvariations" '
