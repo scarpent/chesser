@@ -1,4 +1,3 @@
-import io
 import re
 
 import chess
@@ -26,12 +25,7 @@ annotations = {
 def serialize_variation(variation, generate_html=False):
     color = variation.chapter.course.color
 
-    if generate_html:
-        html = (
-            variation_html if variation.id == 1 else generate_variation_html(variation)
-        )
-    else:
-        html = None
+    html = generate_variation_html(variation) if generate_html else None
 
     variation_data = {
         "variation_id": variation.id,
@@ -110,7 +104,7 @@ def generate_variation_html(variation):
             pprint(moves_with_fen)
 
             subvar_html = generate_subvariations_html(move, moves_with_fen)
-            html += f"</h3>\n<p>{subvar_html}</p>\n"  # TODO: Parse PGN for subvars, etc
+            html += f"</h3>\n{subvar_html}\n"
 
         board.push_san(move.san)  # Mainline moves better be valid
 
@@ -130,7 +124,7 @@ def generate_subvariations_html(move, move_fen_map):
     """
 
     counter = -1
-    html = ""
+    html = "<p>\n"
     remaining_text = move.text
     for san, fen in move_fen_map:
         while True:
@@ -138,7 +132,7 @@ def generate_subvariations_html(move, move_fen_map):
             if m:
                 mstart = m.start()
                 mend = m.end()
-                html += remaining_text[:mstart].strip()
+                html += remaining_text[:mstart]
                 remaining_text = remaining_text[mend:]
                 matched_move = m.group(0)
                 if is_in_comment(remaining_text):
@@ -154,11 +148,11 @@ def generate_subvariations_html(move, move_fen_map):
             else:
                 break
 
-    html += remaining_text.strip()
+    html += f"{remaining_text.strip()}"
 
     return (
         '<div class="subvariations" '
-        f'data-mainline-index="{move.sequence}">\n{html}\n</div>\n'
+        f'data-mainline-index="{move.sequence}">\n{html}\n</p>\n</div>'
     )
 
 
@@ -239,56 +233,6 @@ def flatten_move_fen_map(nested_list):
         else:
             flat_list.append(item)  # Add move-FEN pair
     return flat_list
-
-
-def parse_pgn(variation):
-    full_pgn = ""
-    for move in variation.moves.all().iterator():
-        move_text = f"{move.text.strip()}\n" if move.text else ""
-        full_pgn += f"{move.move_verbose}\n{move_text}"
-    # full_pgn = "1.e4 e5 2.Nf3 Nf6 3.Nc3"
-
-    pgn = io.StringIO(full_pgn)
-    game = chess.pgn.read_game(pgn)
-
-    parsed_moves = []
-
-    node = game  # Root node
-
-    while node.variations:
-        # TODO: handle subvars on first move (node.variations[1]...)
-        node = node.variations[0]  # Follow mainline
-        move_san = node.san()  # Get SAN notation
-        move_fen = node.board().fen()  # Get FEN after the move
-
-        move_data = {
-            "san": move_san,
-            "fen": move_fen,
-            "comment": node.comment.strip() if node.comment else "",
-            "subvariations": [],
-        }
-
-        # Extract subvariations
-        for subvar in node.variations[1:]:  # Ignore the first variation (mainline)
-            sub_moves = []
-            sub_node = subvar
-            while sub_node:
-                sub_moves.append(
-                    {
-                        "san": sub_node.san(),
-                        "fen": sub_node.board().fen(),
-                        "comment": (
-                            sub_node.comment.strip() if sub_node.comment else ""
-                        ),
-                    }
-                )
-                sub_node = sub_node.variations[0] if sub_node.variations else None
-
-            move_data["subvariations"].append(sub_moves)
-
-        parsed_moves.append(move_data)
-
-    return parsed_moves
 
 
 variation_html = """

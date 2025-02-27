@@ -14,6 +14,8 @@
   <body x-data="editApp()" x-init="initEditor()">
     <div class="button-container">
       <button @click="window.location.href='/review/'" title="Review">🚀</button>
+      <button @click="window.location.href='/import/'" title="Import">📥️</button>
+      <button @click="window.location.href='/'" title="Home">🏠️</button>
       <button @click="saveVariation()" title="Save">💾</button>
       <button
         @click="window.location.href='/variation/' + variationData.variation_id"
@@ -21,8 +23,6 @@
       >
         📖
       </button>
-      <button @click="window.location.href='/import/'" title="Import">📥️</button>
-      <button @click="window.location.href='/'" title="Home">🏠️</button>
     </div>
 
     <div id="variation-info">
