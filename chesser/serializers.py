@@ -75,14 +75,6 @@ def serialize_variation(variation, generate_html=False):
 
 
 def generate_variation_html(variation):
-
-    # if variation.id == 2:
-    #     parsed_pgn = parse_pgn(variation)
-    #     import json
-
-    #     print(json.dumps(parsed_pgn, indent=2))
-    #     print(f"len(parsed_moves): {len(parsed_pgn)}")
-
     html = ""
     white_to_move = True
     beginning_of_move_group = True
@@ -114,9 +106,12 @@ def generate_variation_html(variation):
             beginning_of_move_group = True
             if variation.id == 2:
                 moves_with_fen = extract_moves_with_fen(board.copy(), move.text)
-                import json
+                from pprint import pprint
 
-                print(json.dumps(moves_with_fen, indent=2))
+                pprint(moves_with_fen)
+
+                subvar_html = generate_subvariations_html(move, moves_with_fen)
+                html += subvar_html
 
             html += f"</h3>\n<p>{move.text}</p>\n"  # TODO: Parse PGN for subvars, etc
 
@@ -125,17 +120,53 @@ def generate_variation_html(variation):
     return html
 
 
-def generate_subvariations_html(move, parsed_pgn):
+def generate_subvariations_html(move, move_fen_map):
     """
     {sicilian}
     (1...c5 {or french}) (1...e6 {or caro}) (1...c6?!)
     (1...e5  2.Nc3)
+
+    move_fen_map is a list of (move, fen) pairs for each navigable subvar move
+
+    try to match up the text/html with the FENs, perhaps we can assume it
+    all lines up beautifully, if we do our work on import/validation
     """
-    pass
+
+    counter = -1
+    html = ""
+    remaining_text = move.text
+    for san, fen in move_fen_map:
+        counter += 1
+
+        while True:
+            m = re.search(re.escape(san), remaining_text)
+            if m:
+                mstart = m.start()
+                mend = m.end()
+                html += remaining_text[:mstart].strip()
+                remaining_text = remaining_text[mend:]
+                matched_move = m.group(0)
+                if is_in_comment(remaining_text):
+                    html += matched_move
+                    continue
+                else:
+                    html += (
+                        f'<span class="move subvar-move" data-fen="{fen}" '
+                        f'data-index="{counter}">{matched_move}</span>\n'
+                    )
+                    break
+            else:
+                html += remaining_text.strip()
+                break
+
+    return (
+        '<div class="subvariations" '
+        f'data-mainline-index="{move.sequence}">\n{html}\n</div>\n'
+    )
 
 
 def extract_moves_with_fen(board, pgn_text):
-    # Step 1: Remove text inside {} brackets
+    # Step 1: Remove text inside comment {} brackets
     cleaned_pgn = re.sub(r"\{.*?\}", "", pgn_text)
 
     # Step 2: Find all move sequences inside parentheses ()
@@ -165,7 +196,52 @@ def extract_moves_with_fen(board, pgn_text):
         if fen_sequence:
             move_fen_map.append(fen_sequence)
 
-    return move_fen_map
+    # We might not need this structured list and can just
+    # build it flat, but for now we'll flatten at end
+
+    flattened = flatten_move_fen_map(move_fen_map)
+    return flattened
+
+
+def is_in_comment(upcoming_text):
+    """
+    Determines if a given index in a string is within a PGN comment
+    {inside brackets}. We might be in the middle of a comment. We're
+    assuming PGN comments can't be nested, or that we won't allow them
+    to be.
+
+    Args:
+        upcoming_text (str): The remaining text to be processed.
+
+    Returns:
+        bool: True if the index is within a bracketed section, False otherwise.
+    """
+
+    next_open = upcoming_text.find("{")  # finds the first open bracket
+    next_close = upcoming_text.find("}")  # and so on
+
+    if next_open + next_close == -2:  # No brackets found
+        return False
+    elif next_close == -1:
+        # No closing bracket found (there really should always be, if we
+        # can assume properly formatted pgn! we really should clean things
+        # up on import to make sure we do...)
+        return False
+    elif next_open == -1:  # No opening bracket found
+        return True
+
+    return next_close < next_open  # True if closing bracket comes first
+
+
+def flatten_move_fen_map(nested_list):
+    """Recursively flattens a nested list of move-FEN pairs."""
+    flat_list = []
+    for item in nested_list:
+        if isinstance(item, list):
+            flat_list.extend(flatten_move_fen_map(item))  # Recursively flatten
+        else:
+            flat_list.append(item)  # Add move-FEN pair
+    return flat_list
 
 
 def parse_pgn(variation):
