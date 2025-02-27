@@ -28,9 +28,18 @@ class Command(BaseCommand):
             sequence = -1
             for move in moves:
                 sequence += 1
+                move_defaults = {
+                    key: value
+                    for key, value in move.items()
+                    if key not in ["sequence", "variation"]
+                }
                 move["sequence"] = sequence
                 move["variation"] = variation
-                Move.objects.get_or_create(**move)
+                Move.objects.get_or_create(
+                    sequence=sequence,
+                    variation=variation,
+                    defaults=move_defaults,
+                )
             self.stdout.write(f"    {variation.mainline_moves}")
         return variation
 
@@ -102,7 +111,9 @@ class Command(BaseCommand):
             {"move_num": 4, "san": "d3"},
             {"move_num": 4, "san": "Na5"},
         ]
-        self.create_variation("Bishop's Game", black_bishops_game, 3, moves)
+        self.create_variation(
+            "Bishop's Opening - Vienna Hybrid", black_bishops_game, 3, moves
+        )
 
         black_others = self.create_chapter("Others", black_course)
         moves = [
@@ -119,3 +130,22 @@ class Command(BaseCommand):
             {"move_num": 3, "san": "Nf6"},
         ]
         self.create_variation("Orangutan / Polish", black_others, 1, moves)
+
+        black_italian = self.create_chapter("Italian 4.Ng5", black_course)
+        moves = [
+            {"move_num": 1, "san": "e4"},
+            {"move_num": 1, "san": "e5"},
+            {"move_num": 2, "san": "Nf3"},
+            {"move_num": 2, "san": "Nc6"},
+            {"move_num": 3, "san": "Bc4"},
+            {"move_num": 3, "san": "Nf6"},
+            {"move_num": 4, "san": "Ng5"},
+            {"move_num": 4, "san": "d5"},
+            {"move_num": 5, "san": "exd5"},
+            {"move_num": 5, "san": "Na5"},
+            {"move_num": 6, "san": "Bb5+"},
+            {"move_num": 6, "san": "c6"},
+            {"move_num": 7, "san": "dxc6"},
+            {"move_num": 7, "san": "bxc6"},
+        ]
+        self.create_variation("Italian 4.Ng5 (Intro)", black_italian, 3, moves)

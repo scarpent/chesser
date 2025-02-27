@@ -108,6 +108,8 @@ def generate_variation_html(variation):
 
         board.push_san(move.san)  # Mainline moves better be valid
 
+    html = html.replace("@@SANStart@@", "<b>").replace("@@SANEnd@@", "</b>")
+
     return html
 
 
