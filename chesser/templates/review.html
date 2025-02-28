@@ -29,13 +29,13 @@
         <button @click="showInfo = !showInfo" title="Info">👁️</button>
         <button @click="showQuizMove()" title="Show move">💣️</button>
         <button
-          @click="window.location.href='/edit/' + variationData.variation_id"
+          @click="window.location.href='/edit/' + (variationData.variation_id || 1)"
           title="Edit"
         >
           ⚙️
         </button>
         <button
-          @click="window.location.href='/variation/' + variationData.variation_id"
+          @click="window.location.href='/variation/' + (variationData.variation_id || 1)"
           title="View"
         >
           📖
@@ -60,7 +60,7 @@
         <div x-show="completed" x-text="'Level ➤ ' + variationData.level"></div>
       </div>
 
-      <template x-if="completed && finalMove().text">
+      <template x-if="showInfo && completed && finalMove().text">
         <div class="final-move">
           <h3 x-text="finalMove().move_verbose"></h3>
           <p x-text="finalMove().text"></p>
@@ -95,6 +95,7 @@
     <!-- Pass variationData safely to JavaScript -->
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
+      window.extraStudy = JSON.parse("{{ extra_study|escapejs }}");
       console.log("variation data loaded:", window.variationData);
     </script>
 

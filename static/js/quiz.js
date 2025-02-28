@@ -10,6 +10,7 @@ export function quizApp() {
     chess: null,
     status: "⚪️⚪️",
     variationData: variationData,
+    extraStudy: extraStudy,
     showInfo: false,
     quizMoveIndex: 0,
     failed: false, // We'll report failure back to the server (can reset before finish)
@@ -157,6 +158,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     showQuizMove() {
+      if (!this.variationData.moves) return;
       if (this.noMoreMoves()) {
         this.status = "🤷 no more moves to show 💣️";
         return;
@@ -211,19 +213,30 @@ export function quizApp() {
         // in order to complete the quiz; it seems like we need some indication
         // that the move itself was good, but the quiz as a whole was not
         this.status = "🟢🔴";
-        this.reportResult(false);
       } else {
         this.status = "🟢🟢";
-        this.reportResult(true);
       }
 
-      const shapes = this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]";
-      this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
+      if (this.extraStudy) {
+        console.log("extraStudy: not reporting result");
+      } else {
+        this.reportResult(!this.failed);
+      }
+
+      if (this.failed && !this.extraStudy) {
+        this.extraStudy = true;
+        this.showInfo = false;
+        this.restartQuiz();
+      } else {
+        const shapes = this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]";
+        this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
+      }
     },
 
     //--------------------------------------------------------------------------------
     restartQuiz() {
-      this.failed = false;
+      if (!this.variationData.moves) return;
+      if (!this.completed) this.failed = false;
       this.chess.reset();
       this.goToStartingPosition();
       this.board.set({

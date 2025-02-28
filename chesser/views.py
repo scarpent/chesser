@@ -15,11 +15,11 @@ def home(request):
 
 def review(request, variation_id=None):
     if variation_id is None:
+        extra_study = False
         variation = Variation.due_for_review()
     else:
-        # This would be like chessable's "overstudy", although
-        # would like to call it something else - we'll think about
-        # if we want it to affect current level or not...
+        # Can review "on demand", but it won't update level/next_review
+        extra_study = True
         variation = get_object_or_404(
             Variation.objects.select_related("chapter__course").prefetch_related(
                 "moves"
@@ -32,7 +32,10 @@ def review(request, variation_id=None):
     else:
         variation_data = serialize_variation(variation)
 
-    context = {"variation_data": json.dumps(variation_data)}
+    context = {
+        "variation_data": json.dumps(variation_data),
+        "extra_study": json.dumps(extra_study),
+    }
     return render(request, "review.html", context)
 
 
