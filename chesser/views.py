@@ -2,15 +2,118 @@ import json
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from chesser.models import Variation
+from chesser.models import Chapter, Course, QuizResult, Variation
 from chesser.serializers import serialize_variation
 
 
 def home(request):
-    home_data = {"home_data": json.dumps("This is the home page")}
+    nav = get_course_links(request)
+    home_data = {
+        "home_data": json.dumps(
+            {
+                "nav": nav,
+                "recent": get_recently_reviewed(),
+                "upcoming": get_upcoming_time_planner(),
+            }
+        )
+    }
     return render(request, "home.html", home_data)
+
+
+def get_upcoming_time_planner():
+    # get django now
+    times = []
+    now = timezone.now()
+
+    ranges = [
+        ("now", 0),
+        ("1 hour", 1),
+        ("2 hours", 2),
+        ("4 hours", 4),
+        ("8 hours", 8),
+        ("16 hours", 16),
+        ("1 day", 1 * 24),
+        ("2 days", 2 * 24),
+        ("3 days", 3 * 24),
+        ("4 days", 4 * 24),
+        ("5 days", 5 * 25),
+        ("6 days", 6 * 24),
+        ("1 week", 1 * 7 * 24),
+        ("2 weeks", 2 * 7 * 24),
+        ("3 weeks", 3 * 7 * 24),
+        ("1 month", int(365 / 12 * 24)),
+        ("2 months", int(365 / 12 * 24) * 2),
+    ]
+    previous_count = 0
+    for label, hours in ranges:
+        count = get_variation_count_for_time_range(now, hours)
+        if previous_count != count:
+            print(label, count)
+            previous_count = count
+        times.append((label, count))
+
+    return times
+
+
+def get_variation_count_for_time_range(now, hours):
+    # use timedelta to find the time range
+    end_time = now + timezone.timedelta(hours=hours)
+    return Variation.objects.filter(
+        next_review__lt=end_time,
+    ).count()
+
+
+def get_recently_reviewed():
+    recently_reviewed = QuizResult.objects.filter().order_by("-datetime")[:30]
+    reviewed = {}
+    seen = set()
+    for result in recently_reviewed:
+        if result.variation_id not in seen:
+            seen.add(result.variation_id)
+            reviewed[result.variation_id] = result.variation.title
+            if len(seen) > 5:
+                break
+    return reviewed
+
+
+def get_course_links(request):
+    nav = {
+        "course_id": "",
+        "course_name": "",
+        "chapter_id": "",
+        "chapter_name": "",
+        "courses": {},
+        "chapters": {},
+        "variations": {},
+    }
+    course = request.GET.get("course")
+    chapter = request.GET.get("chapter")
+    if not course:
+        for course in Course.objects.all():
+            nav["courses"][course.id] = course.title
+    elif not chapter:
+        for chapter in (
+            Chapter.objects.filter(course=course).order_by("title").iterator()
+        ):
+            nav["chapters"][chapter.id] = chapter.title
+
+        nav["course_id"] = course
+        nav["course_name"] = Course.objects.get(id=course).title
+    else:
+        for variation in (
+            Variation.objects.filter(chapter=chapter).order_by("title").iterator()
+        ):
+            nav["variations"][variation.id] = variation.title
+
+        nav["course_id"] = course
+        nav["course_name"] = Course.objects.get(id=course).title
+        nav["chapter_id"] = chapter
+        nav["chapter_name"] = Chapter.objects.get(id=chapter).title
+
+    return nav
 
 
 def review(request, variation_id=None):

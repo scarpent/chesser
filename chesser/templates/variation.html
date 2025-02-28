@@ -54,29 +54,6 @@
           <div x-text="variationData.mainline"></div>
           <div x-text="'Level ➤ ' + variationData.level"></div>
         </div>
-        <div style="line-height: 1.5">
-          <h3>Variations</h3>
-          <div>
-            1. <a href="/variation/1/">Nimzowitsch 1...Nc6</a>
-            <a href="/review/1/">review</a>
-            <a href="/edit/1/">edit</a>
-          </div>
-          <div>
-            2. <a href="/variation/2/">Petroff Transposition to Philidor</a>
-            <a href="/review/2/">review</a>
-            <a href="/edit/2/">edit</a>
-          </div>
-          <div>
-            3. <a href="/variation/3/">Bishop's Opening - Vienna Hybrid</a>
-            <a href="/review/3/">review</a>
-            <a href="/edit/3/">edit</a>
-          </div>
-          <div>
-            4. <a href="/variation/4/">Orangutan / Polish</a>
-            <a href="/review/4/">review</a>
-            <a href="/edit/4/">edit</a>
-          </div>
-        </div>
       </div>
       <div id="variation-text" x-html="variationData.html"></div>
     </div>
@@ -99,10 +76,7 @@
     </script>
     <script src="{% static 'js/resize.js' %}"></script>
 
-    <!-- Load alpine.js LAST -->
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"
-    ></script>
+    <!-- Load alpine.js last -->
+    <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
 </html>

@@ -1,5 +1,5 @@
-import { Chessground } from "https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.min.js";
-import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/chess.js";
+import { Chessground } from "../chessground/chessground.min.js";
+import { Chess } from "../chessjs/chess.js";
 
 window.Chessground = Chessground;
 window.Chess = Chess;
@@ -13,9 +13,8 @@ export function quizApp() {
     extraStudy: extraStudy,
     showInfo: false,
     quizMoveIndex: 0,
-    failed: false, // We'll report failure back to the server (can reset before finish)
-    completed: false, // Finished the quiz! if failed we'll review again
-    reviewAfterFailure: false, // If true: disallow restart and clearing the failure
+    failed: false,
+    completed: false,
 
     initChessground() {
       console.log("initChessground()");

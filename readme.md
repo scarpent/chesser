@@ -1,5 +1,24 @@
 ## notes...
 
+## js libraries
+
+```
+import { Chessground } from "https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.min.js";
+import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/chess.js";
+
+import { Chessground } from "../chessground/chessground.min.js";
+import { Chess } from "../chessjs/chess.js";
+
+<script
+    defer
+    src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"
+></script>
+
+<script defer src="{% static 'alpine/cdn.min.js' %}"></script>
+```
+
+## getGame
+
 (getGame endpoint has lastReviewed info which I'm currently excluding, but maybe will use during migration...)
 
 Looks like chessable getReview endpoint holds spaced repetition "level" data
