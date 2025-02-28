@@ -17,19 +17,48 @@ def home(request):
                 "nav": nav,
                 "recent": get_recently_reviewed(),
                 "upcoming": get_upcoming_time_planner(),
+                "levels": get_level_report(),
             }
         )
     }
     return render(request, "home.html", home_data)
 
 
+def get_level_report():
+    level_counts = []
+
+    levels = [
+        (" 0 - Not started", 0),
+        (" 1 - 4 hours", 1),
+        (" 2 - 1 day", 2),
+        (" 3 - 3 days", 3),
+        (" 4 - 1 week", 4),
+        (" 5 - 2 weeks", 5),
+        (" 6 - 1 month", 6),
+        (" 7 - 2 months", 7),
+        (" 8 - 4 months", 8),
+        (" 9 - 6 months", 9),
+        ("10+", 10),
+    ]
+
+    for label, level in levels:
+        if level == 10:
+            count = Variation.objects.filter(level__gte=level).count()
+        else:
+            count = Variation.objects.filter(level=level).count()
+
+        if count > 0:
+            level_counts.append((label, count))
+
+    return level_counts
+
+
 def get_upcoming_time_planner():
-    # get django now
     times = []
     now = timezone.now()
 
     ranges = [
-        ("now", 0),
+        ("Now", 0),
         ("1 hour", 1),
         ("2 hours", 2),
         ("4 hours", 4),
@@ -44,16 +73,17 @@ def get_upcoming_time_planner():
         ("1 week", 1 * 7 * 24),
         ("2 weeks", 2 * 7 * 24),
         ("3 weeks", 3 * 7 * 24),
-        ("1 month", int(365 / 12 * 24)),
-        ("2 months", int(365 / 12 * 24) * 2),
+        ("1 month", 1 * 30 * 24),
+        ("2 months", 2 * 30 * 24),
     ]
-    previous_count = 0
+    previous_count = -1
     for label, hours in ranges:
         count = get_variation_count_for_time_range(now, hours)
-        if previous_count != count:
-            print(label, count)
+        if previous_count != count or count == 0:
             previous_count = count
-        times.append((label, count))
+            times.append((label, count))
+
+    print(times)
 
     return times
 

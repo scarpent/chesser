@@ -22,7 +22,7 @@
     >
       <h3>Courses</h3>
       <ul>
-        <template x-for="[id, name] in Object.entries(homeData.nav.courses)">
+        <template x-for="[id, name] in Object.entries(homeData.nav.courses)" :key="id">
           <li>
             <a :href="'/?course=' + id" x-text="name"></a>
           </li>
@@ -36,7 +36,7 @@
     >
       <h3><span x-text="homeData.nav.course_name"></span> Chapters</h3>
       <ol>
-        <template x-for="[id, name] in Object.entries(homeData.nav.chapters)">
+        <template x-for="[id, name] in Object.entries(homeData.nav.chapters)" :key="id">
           <li>
             <a
               :href="'/?course=' + homeData.nav.course_id + '&chapter=' + id"
@@ -56,7 +56,10 @@
         <span x-text="homeData.nav.chapter_name"></span>
       </h3>
       <ol>
-        <template x-for="[id, name] in Object.entries(homeData.nav.variations)">
+        <template
+          x-for="[id, name] in Object.entries(homeData.nav.variations)"
+          :key="id"
+        >
           <li>
             <a :href="'/variation/' + id" x-text="name"></a>
           </li>
@@ -64,18 +67,52 @@
       </ol>
     </div>
 
-    <div style="line-height: 1.5">
-      <h3>Recently Reviewed</h3>
-      <ul>
-        <template x-for="[id, name] in Object.entries(homeData.recent)">
-          <li>
-            <a :href="'/variation/' + id" x-text="name"></a>
-            <a :href="'/edit/' + id">edit</a>
-            <a :href="'/review/' + id">review</a>
-          </li>
+    <h3>Recently Reviewed</h3>
+    <ul>
+      <template x-for="[id, name] in Object.entries(homeData.recent)" :key="id">
+        <li>
+          <a :href="'/variation/' + id" x-text="name"></a>
+          <a :href="'/edit/' + id">edit</a>
+          <a :href="'/review/' + id">review</a>
+        </li>
+      </template>
+    </ul>
+
+    <h3>Time Planner</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">When?</th>
+          <th style="text-align: right"># Vars</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in homeData.upcoming" :key="item[0]">
+          <tr>
+            <td x-text="item[0]"></td>
+            <td style="text-align: right" x-text="item[1]"></td>
+          </tr>
         </template>
-      </ul>
-    </div>
+      </tbody>
+    </table>
+
+    <h3>Current Levels</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: left">Level</th>
+          <th style="text-align: right"># Vars</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in homeData.levels" :key="item[0]">
+          <tr>
+            <td x-text="item[0]"></td>
+            <td style="text-align: right" x-text="item[1]"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
 
     <!-- Pass homeData safely to JavaScript -->
     <script>
@@ -94,7 +131,7 @@
       });
     </script>
 
-    <!-- Load alpine.js LAST -->
+    <!-- Load alpine.js last -->
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
 </html>
