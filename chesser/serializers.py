@@ -108,8 +108,15 @@ def generate_variation_html(variation):
 
         board.push_san(move.san)  # Mainline moves better be valid
 
-    html = html.replace("@@SANStart@@", "<b>").replace("@@SANEnd@@", "</b>")
+    html = htmlize_chessable_tags(html)
 
+    return html
+
+
+def htmlize_chessable_tags(html):
+    html = html.replace("@@SANStart@@", "<b>").replace("@@SANEnd@@", "</b>")
+    html = html.replace("@@ul@@", "</p><ul>").replace("@@/ul@@", "</ul><p>")
+    html = html.replace("@@li@@", "<li>").replace("@@/li@@", "</li>")
     return html
 
 
