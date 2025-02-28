@@ -178,6 +178,10 @@ def extract_moves_with_fen(board, pgn_text):
                 # extract just the valid san part for updating board
                 move_regex = r"^(\d*\.*)(O-O-O|O-O|[A-Za-z0-9]+)"
                 m = re.match(move_regex, move)
+                if not m:
+                    # e.g. a hanging exclam, Nf6 !
+                    print(f"Skipping invalid move: {move}")
+                    break
                 move_san = m.group(2)
                 # print(f"move: {move}")
                 board_copy.push_san(move_san)  # Apply move in SAN format
