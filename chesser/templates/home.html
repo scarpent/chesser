@@ -69,11 +69,11 @@
 
     <h3>Recently Reviewed</h3>
     <ul>
-      <template x-for="[id, name] in Object.entries(homeData.recent)" :key="id">
+      <template x-for="item in homeData.recent" :key="item[0]">
         <li>
-          <a :href="'/variation/' + id" x-text="name"></a>
-          <a :href="'/edit/' + id">edit</a>
-          <a :href="'/review/' + id">review</a>
+          <a :href="'/variation/' + item[0]" x-text="item[1]"></a>
+          <a :href="'/edit/' +item[0]">edit</a>
+          <a :href="'/review/' + item[0]">review</a>
         </li>
       </template>
     </ul>
