@@ -97,7 +97,7 @@ def get_variation_count_for_time_range(now, hours):
 
 
 def get_recently_reviewed():
-    recently_reviewed = QuizResult.objects.filter().order_by("-datetime")[:30]
+    recently_reviewed = QuizResult.objects.filter().order_by("-datetime")[:50]
     reviewed = []
     seen = set()
     for result in recently_reviewed:
@@ -107,7 +107,7 @@ def get_recently_reviewed():
             reviewed.append(
                 (result.variation_id, f"{result.variation.title} ({the_date})")
             )
-            if len(seen) > 5:
+            if len(seen) > 12:
                 break
     print(reviewed)
     return reviewed

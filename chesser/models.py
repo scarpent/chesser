@@ -58,7 +58,7 @@ class Variation(models.Model):
     )
     level = models.IntegerField(default=0)
     next_review = models.DateTimeField(default=timezone.now)
-    source = models.JSONField(null=True, blank=True)
+    source = models.JSONField(null=True, blank=True, default=dict)
     move_sequence = models.TextField(null=True, blank=True)
 
     class Meta:
