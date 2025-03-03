@@ -13,7 +13,12 @@
   </head>
   <body x-data="editApp()" x-init="initEditor()">
     <div class="button-container">
-      <button @click="window.location.href='/review/'" title="Review">🚀</button>
+      <button
+        @click="window.location.href='/review/' + variationData.variation_id"
+        title="Review"
+      >
+        🚀
+      </button>
       <button @click="window.location.href='/import/'" title="Import">📥️</button>
       <button @click="window.location.href='/'" title="Home">🏠️</button>
       <button @click="saveVariation()" title="Save">💾</button>

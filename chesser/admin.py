@@ -109,3 +109,5 @@ class QuizResultAdmin(admin.ModelAdmin):
     list_display = ("variation", "datetime", "level", "passed")
     search_fields = ("variation__title",)
     list_filter = ("variation", "passed", "level")
+    readonly_fields = ("variation", "datetime", "level", "passed")
+    fields = ("variation", "datetime", "level", "passed")

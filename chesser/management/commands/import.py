@@ -5,9 +5,9 @@ from django.core.management.base import BaseCommand
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import make_aware
 
-from chesser.models import Course, Move, Variation
+from chesser.models import Course, Move, QuizResult, Variation
 
-# 23124550, 17709033, 21090319, 17709033 EG
+# 23124550, 21090319, 17709033 EG
 
 
 class Command(BaseCommand):
@@ -38,6 +38,12 @@ class Command(BaseCommand):
 
         self.import_variation(import_data)
 
+    def get_timezone_aware_datetime(self, date_string):
+        if parsed_datetime := parse_datetime(date_string):
+            return make_aware(parsed_datetime)
+        else:
+            self.stderr.write(f"Invalid format for date_string: {date_string}")
+
     def import_variation(self, import_data):
         course = Course.objects.get(color=import_data["color"])
         chapter, created = course.chapter_set.get_or_create(
@@ -57,11 +63,9 @@ class Command(BaseCommand):
         variation.title = import_data["variation_title"]
         variation.start = import_data["start_move"]
         variation.level = import_data["level"]
-        next_review = parse_datetime(import_data["next_review"])
-        if next_review is not None:
-            variation.next_review = make_aware(next_review)
-        else:
-            self.stderr.write("Invalid date format for next_review")
+        variation.next_review = self.get_timezone_aware_datetime(
+            import_data["next_review"]
+        )
 
         variation.save()
 
@@ -80,3 +84,13 @@ class Command(BaseCommand):
             # move.shapes = move_import["shapes"]
 
             move.save()
+
+        if not variation.quizresult_set.first():
+            self.stdout.write("Creating QuizResult")
+            quiz_result = QuizResult.objects.create(
+                variation=variation, passed=False, level=variation.level
+            )
+            quiz_result.datetime = self.get_timezone_aware_datetime(
+                import_data["last_review"]
+            )
+            quiz_result.save()
