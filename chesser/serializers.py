@@ -36,6 +36,7 @@ def serialize_variation(variation, generate_html=False):
         "start_move": variation.start_move,
         "level": variation.level,
         "mainline": variation.mainline_moves,
+        "source_html": get_source_html(variation.source),
         "html": html,
     }
     # TODO: May eventually have rendered "final move text" for after the quiz. For now
@@ -66,6 +67,34 @@ def serialize_variation(variation, generate_html=False):
     variation_data["annotations"] = temp_annotations
 
     return variation_data
+
+
+def get_source_html(source):
+    """
+    {"my_course": {"course": "My White Openings", "chapter": "Caro-Kann 2K", "variation_title": "Caro-Kann 3...Bg4", "variation_id": 21090319}, "original_course": {"course": "Keep It Simple: 1. e4", "chapter": "1. Quickstarter Guide", "variation_title": "Quickstarter Guide #56 - Caro-Kann", "variation_id": 6611081}}
+    """  # noqa: E501
+    mine = ""
+    original = ""
+
+    if my_course := source.get("my_course"):
+        mine = (
+            '<p><a href="https://www.chessable.com/variation/'
+            f'{my_course["variation_id"]}/" target="_blank">'
+            "Source Variation</a></p>"
+        )
+
+    if original_course := source.get("original_course"):
+        original = (
+            f'<p>{original_course["course"]} ➤ {original_course["chapter"]} ➤<br/>'
+            '<a href="https://www.chessable.com/variation/'
+            f'{original_course["variation_id"]}/" target="_blank">'
+            f"{original_course["variation_title"]}</a></p>"
+        )
+
+    if mine + original == "":
+        return "<p>No source information available.</p>"
+
+    return mine + original
 
 
 def generate_variation_html(variation):

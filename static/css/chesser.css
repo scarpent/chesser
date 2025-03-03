@@ -192,6 +192,7 @@ button:hover {
   gap: 10px;
   color: #f7b14f;
   font-size: 20px;
+  max-width: 600px;
 }
 
 .variation-mainline {
