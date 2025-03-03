@@ -33,7 +33,7 @@ def serialize_variation(variation, generate_html=False):
         "chapter": variation.chapter.title,
         "color": color,
         "start_index": variation.start_index,
-        "start_move": variation.start,
+        "start_move": variation.start_move,
         "level": variation.level,
         "mainline": variation.mainline_moves,
         "html": html,

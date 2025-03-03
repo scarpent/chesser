@@ -19,9 +19,9 @@ class Command(BaseCommand):
         self.print_object_info(chapter)
         return chapter
 
-    def create_variation(self, title, chapter, start, moves=None):
+    def create_variation(self, title, chapter, start_move, moves=None):
         variation, _ = Variation.objects.get_or_create(
-            title=title, chapter=chapter, start=start
+            title=title, chapter=chapter, course=chapter.course, start_move=start_move
         )
         self.print_object_info(variation)
         if moves:
@@ -40,7 +40,9 @@ class Command(BaseCommand):
                     variation=variation,
                     defaults=move_defaults,
                 )
+            # Will force move_sequence to be calculated and saved
             self.stdout.write(f"    {variation.mainline_moves}")
+
         return variation
 
     def handle(self, *args, **kwargs):
@@ -58,19 +60,19 @@ class Command(BaseCommand):
             {
                 "move_num": 1,
                 "san": "Nc6",
-                "text": "The Nimzovich Defence. It is not that bad if you use it just as a transpositional tool to reach 1 e4 e5 positions - the independent lines, however, are not that reliable for Black, or just downright bad.",  # noqa: E501
+                "text": "{The Nimzovich Defence. It is not that bad if you use it just as a transpositional tool to reach 1 e4 e5 positions - the independent lines, however, are not that reliable for Black, or just downright bad.}",  # noqa: E501
             },
             {
                 "move_num": 2,
                 "san": "Nf3",
                 "alt": "Nc3",
                 "alt_fail": "d4, Bb5",
-                "text": "Instead, 2.d4 is good as well. But 2.Nf3 is logical and easier to handle.",  # noqa: E501
+                "text": "{Instead, 2.d4 is good as well. But 2.Nf3 is logical and easier to handle.} (2.d4 h5)",  # noqa: E501
             },
             {
                 "move_num": 2,
                 "san": "d5",
-                "text": "Scandi style play - it is very questionable though.",
+                "text": "{Scandi style play - it is very questionable though.}",
             },
             {"move_num": 3, "san": "exd5"},
             {"move_num": 3, "san": "Qxd5"},
@@ -79,7 +81,7 @@ class Command(BaseCommand):
             {
                 "move_num": 5,
                 "san": "Nb5",
-                "text": "Quite an embarrassing moment for Black - now ...Kd8 is the only move and it is not pretty.",  # noqa: E501
+                "text": "{Quite an embarrassing moment for Black - now ...Kd8 is the only move and it is not pretty.}",  # noqa: E501
             },
         ]
         self.create_variation("Nimzowitsch 1...Nc6", white_e4_sundry, 2, moves)

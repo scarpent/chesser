@@ -78,10 +78,18 @@ class ChapterAdmin(admin.ModelAdmin):
 
 @admin.register(Variation)
 class VariationAdmin(admin.ModelAdmin):
-    list_display = ("id", "clickable_title", "chapter", "start", "level", "next_review")
+    list_display = (
+        "id",
+        "clickable_title",
+        "chapter",
+        "start_move",
+        "level",
+        "next_review",
+    )
     search_fields = ("title",)
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
+    readonly_fields = ("move_sequence",)
 
     @admin.display(description="Title")
     def clickable_title(self, obj):
