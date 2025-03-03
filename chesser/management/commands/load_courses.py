@@ -19,9 +19,15 @@ class Command(BaseCommand):
         self.print_object_info(chapter)
         return chapter
 
-    def create_variation(self, title, chapter, start_move, moves=None):
+    def create_variation(
+        self, title, chapter, start_move, moves=None, move_sequence=None
+    ):
         variation, _ = Variation.objects.get_or_create(
-            title=title, chapter=chapter, course=chapter.course, start_move=start_move
+            title=title,
+            chapter=chapter,
+            course=chapter.course,
+            move_sequence=move_sequence,
+            start_move=start_move,
         )
         self.print_object_info(variation)
         if moves:
@@ -40,7 +46,10 @@ class Command(BaseCommand):
                     variation=variation,
                     defaults=move_defaults,
                 )
-            # Will force move_sequence to be calculated and saved
+            assert variation.mainline_moves == move_sequence, (
+                f"Mainline moves do not match: {variation.mainline_moves} != "
+                f"{move_sequence}"
+            )
             self.stdout.write(f"    {variation.mainline_moves}")
 
         return variation
@@ -84,7 +93,14 @@ class Command(BaseCommand):
                 "text": "{Quite an embarrassing moment for Black - now ...Kd8 is the only move and it is not pretty.}",  # noqa: E501
             },
         ]
-        self.create_variation("Nimzowitsch 1...Nc6", white_e4_sundry, 2, moves)
+        mainline_moves = "1.e4 Nc6 2.Nf3 d5 3.exd5 Qxd5 4.Nc3 Qh5 5.Nb5"
+        self.create_variation(
+            "Nimzowitsch 1...Nc6",
+            white_e4_sundry,
+            2,
+            moves=moves,
+            move_sequence=mainline_moves,
+        )
 
         white_e4_e5_misc = self.create_chapter("1.e4 e5 Misc", white_course)
         moves = [
@@ -98,8 +114,13 @@ class Command(BaseCommand):
             {"move_num": 4, "san": "exd4"},
             {"move_num": 5, "san": "Nxd4"},
         ]
+        mainline_moves = "1.e4 e5 2.Nf3 Nf6 3.Nc3 d6 4.d4 exd4 5.Nxd4"
         self.create_variation(
-            "Petroff Transposition to Philidor", white_e4_e5_misc, 3, moves
+            "Petroff Transposition to Philidor",
+            white_e4_e5_misc,
+            3,
+            moves=moves,
+            move_sequence=mainline_moves,
         )
 
         black_bishops_game = self.create_chapter("Bishop's Game", black_course)
@@ -113,8 +134,13 @@ class Command(BaseCommand):
             {"move_num": 4, "san": "d3"},
             {"move_num": 4, "san": "Na5"},
         ]
+        mainline_moves = "1.e4 e5 2.Bc4 Nf6 3.Nc3 Nc6 4.d3 Na5"
         self.create_variation(
-            "Bishop's Opening - Vienna Hybrid", black_bishops_game, 3, moves
+            "Bishop's Opening - Vienna Hybrid",
+            black_bishops_game,
+            3,
+            moves=moves,
+            move_sequence=mainline_moves,
         )
 
         black_others = self.create_chapter("Others", black_course)
@@ -131,7 +157,14 @@ class Command(BaseCommand):
             {"move_num": 3, "san": "Bxe5"},
             {"move_num": 3, "san": "Nf6"},
         ]
-        self.create_variation("Orangutan / Polish", black_others, 1, moves)
+        mainline_moves = "1.b4 e5 2.Bb2 Bxb4 3.Bxe5 Nf6"
+        self.create_variation(
+            "Orangutan / Polish",
+            black_others,
+            1,
+            moves=moves,
+            move_sequence=mainline_moves,
+        )
 
         black_italian = self.create_chapter("Italian 4.Ng5", black_course)
         moves = [
@@ -150,4 +183,13 @@ class Command(BaseCommand):
             {"move_num": 7, "san": "dxc6"},
             {"move_num": 7, "san": "bxc6"},
         ]
-        self.create_variation("Italian 4.Ng5 (Intro)", black_italian, 3, moves)
+        mainline_moves = (
+            "1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 d5 5.exd5 Na5 6.Bb5+ c6 7.dxc6 bxc6"
+        )
+        self.create_variation(
+            "Italian 4.Ng5 (Intro)",
+            black_italian,
+            3,
+            moves=moves,
+            move_sequence=mainline_moves,
+        )
