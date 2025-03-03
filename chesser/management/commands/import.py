@@ -40,13 +40,21 @@ class Command(BaseCommand):
 
     def import_variation(self, import_data):
         course = Course.objects.get(color=import_data["color"])
+        chapter, created = course.chapter_set.get_or_create(
+            course=course, title=import_data["chapter_title"]
+        )
+        label = "Creating" if created else "Getting"
+        self.stdout.write(f"{label} chapter: {chapter}")
         variation, created = Variation.objects.get_or_create(
             course=course,
+            chapter=chapter,
             move_sequence=import_data["mainline"],
         )
-        self.stdout.write("Creating variation" if created else "Updating variation")
+        label = "Creating" if created else "Updating"
+        self.stdout.write(f"{label} variation: {variation.mainline_moves}")
 
-        variation.title = import_data["title"]
+        variation.source = import_data["source"]
+        variation.title = import_data["variation_title"]
         variation.start = import_data["start_move"]
         variation.level = import_data["level"]
         next_review = parse_datetime(import_data["next_review"])
@@ -55,14 +63,14 @@ class Command(BaseCommand):
         else:
             self.stderr.write("Invalid date format for next_review")
 
-        # variation.save()
+        variation.save()
 
         for idx, move_import in enumerate(import_data["moves"]):
             move, created = Move.objects.get_or_create(
                 variation=variation,
+                move_num=move_import["move_num"],
                 sequence=idx,
             )
-            self.stdout.write("Creating move" if created else "Updating move")
             move.move_num = move_import["move_num"]
             move.san = move_import["san"]
             move.annotation = move_import["annotation"]
@@ -71,4 +79,4 @@ class Command(BaseCommand):
             # move.alt_fail = move_import["alt_fail"]
             # move.shapes = move_import["shapes"]
 
-            # move.save()
+            move.save()
