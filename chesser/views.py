@@ -56,22 +56,34 @@ def get_level_report():
 
 
 def get_next_due(now):
-    if Variation.objects.filter(next_review__lt=now).count():
-        output = "right now!"
+    output = ""
+    if Variation.objects.filter(next_review__lte=now).count():
+        output = "Right now, and then "
 
-    if next_due := Variation.objects.filter().order_by("next_review").first():
+    if (
+        next_due := Variation.objects.filter(next_review__gt=now)
+        .order_by("next_review")
+        .first()
+    ):
         time_until = next_due.next_review - now
         hours, remainder = divmod(time_until.seconds, 3600)
-        minutes, _ = divmod(remainder, 60)
-        output = ""
+        minutes, seconds = divmod(remainder, 60)
         if hours:
-            output += f"{hours} hours"
+            output += pluralize(hours, "hour")
         if minutes:
-            output += f" {minutes} minutes"
+            output += pluralize(minutes, "minute")
+        if not hours and not minutes or minutes < 2:
+            output += pluralize(seconds, "second")
     else:
         output = "♾️"
 
     return f"Next: {output}"
+
+
+def pluralize(count, label):
+    if count != 1:
+        label += "s"
+    return f" {count} {label}"
 
 
 def get_upcoming_time_planner(now):
