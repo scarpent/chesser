@@ -81,7 +81,10 @@ class Command(BaseCommand):
             move.text = move_import["text"]
             # move.alt = move_import["alt"]
             # move.alt_fail = move_import["alt_fail"]
-            # move.shapes = move_import["shapes"]
+
+            move.shapes = (
+                json.dumps(move_import["shapes"]) if move_import["shapes"] else ""
+            )
 
             move.save()
 
