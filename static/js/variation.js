@@ -53,16 +53,6 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
-    drawShapes() {
-      const shapes =
-        this.mainlineMoveIndex >= 0
-          ? this.variationData.moves[this.mainlineMoveIndex].shapes || "[]"
-          : "[]";
-
-      this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
-    },
-
-    //--------------------------------------------------------------------------------
     nextMainlineMove() {
       if (this.mainlineMoveIndex < this.variationData.moves.length - 1) {
         this.exitSubvariation();
