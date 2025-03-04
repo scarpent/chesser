@@ -11,12 +11,14 @@ from chesser.serializers import serialize_variation
 
 def home(request):
     nav = get_course_links(request)
+    now = timezone.now()
     home_data = {
         "home_data": json.dumps(
             {
                 "nav": nav,
                 "recent": get_recently_reviewed(),
-                "upcoming": get_upcoming_time_planner(),
+                "next_due": get_next_due(now),
+                "upcoming": get_upcoming_time_planner(now),
                 "levels": get_level_report(),
             }
         )
@@ -53,10 +55,26 @@ def get_level_report():
     return level_counts
 
 
-def get_upcoming_time_planner():
-    times = []
-    now = timezone.now()
+def get_next_due(now):
+    if Variation.objects.filter(next_review__lt=now).count():
+        output = "right now!"
 
+    if next_due := Variation.objects.filter().order_by("next_review").first():
+        time_until = next_due.next_review - now
+        hours, remainder = divmod(time_until.seconds, 3600)
+        minutes, _ = divmod(remainder, 60)
+        output = ""
+        if hours:
+            output += f"{hours} hours"
+        if minutes:
+            output += f" {minutes} minutes"
+    else:
+        output = "♾️"
+
+    return f"Next: {output}"
+
+
+def get_upcoming_time_planner(now):
     ranges = [
         ("Now", 0),
         ("1 hour", 1),
@@ -76,10 +94,11 @@ def get_upcoming_time_planner():
         ("1 month", 1 * 30 * 24),
         ("2 months", 2 * 30 * 24),
     ]
-    previous_count = -1
+    times = []
+    previous_count = 0
     for label, hours in ranges:
         count = get_variation_count_for_time_range(now, hours)
-        if previous_count != count or count == 0:
+        if previous_count != count:
             previous_count = count
             times.append((label, count))
 
@@ -89,7 +108,6 @@ def get_upcoming_time_planner():
 
 
 def get_variation_count_for_time_range(now, hours):
-    # use timedelta to find the time range
     end_time = now + timezone.timedelta(hours=hours)
     return Variation.objects.filter(
         next_review__lt=end_time,
