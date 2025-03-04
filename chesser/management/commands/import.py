@@ -81,7 +81,6 @@ class Command(BaseCommand):
             move.text = move_import["text"]
             # move.alt = move_import["alt"]
             # move.alt_fail = move_import["alt_fail"]
-
             move.shapes = (
                 json.dumps(move_import["shapes"]) if move_import["shapes"] else ""
             )
@@ -91,7 +90,7 @@ class Command(BaseCommand):
         if not variation.quizresult_set.first():
             self.stdout.write("Creating QuizResult")
             quiz_result = QuizResult.objects.create(
-                variation=variation, passed=False, level=variation.level
+                variation=variation, passed=True, level=variation.level
             )
             quiz_result.datetime = self.get_timezone_aware_datetime(
                 import_data["last_review"]
