@@ -85,7 +85,7 @@ def get_source_html(source):
 
     if original_course := source.get("original_course"):
         original = (
-            f'<p>{original_course["course"]} ➤ {original_course["chapter"]} ➤<br/>'
+            f'<p>{original_course["course"]} ➤<br/>{original_course["chapter"]} ➤<br/>'
             '<a href="https://www.chessable.com/variation/'
             f'{original_course["variation_id"]}/" target="_blank">'
             f"{original_course["variation_title"]}</a></p>"

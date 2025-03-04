@@ -7,7 +7,11 @@ from django.utils.timezone import make_aware
 
 from chesser.models import Course, Move, QuizResult, Variation
 
-# 23124550 (source + text), 21090319, 17709033 EG
+"""
+23124550 (source + text), 21090319, 17709033 EG
+33933185 (alapin, lots of shapes but no alts)
+17682568 (center game with alts)
+"""
 
 
 class Command(BaseCommand):
