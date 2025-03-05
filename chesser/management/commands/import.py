@@ -11,6 +11,7 @@ from chesser.models import Course, Move, QuizResult, Variation
 23124550 (source + text), 21090319, 17709033 EG
 33933185 (alapin, lots of shapes but no alts)
 17682568 (center game with alts)
+16607398 (scandi with just source header, shapes, alts)
 """
 
 
@@ -83,8 +84,8 @@ class Command(BaseCommand):
             move.san = move_import["san"]
             move.annotation = move_import["annotation"]
             move.text = move_import["text"]
-            # move.alt = move_import["alt"]
-            # move.alt_fail = move_import["alt_fail"]
+            move.alt = move_import.get("alt", "")
+            move.alt_fail = move_import.get("alt_fail", "")
             move.shapes = (
                 json.dumps(move_import["shapes"]) if move_import["shapes"] else ""
             )
