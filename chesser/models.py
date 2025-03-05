@@ -67,7 +67,7 @@ class Variation(models.Model):
             UniqueConstraint(
                 fields=["course", "move_sequence"],
                 name="unique_move_sequence_per_course",
-            )
+            ),
         ]
 
     def __str__(self):
