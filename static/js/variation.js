@@ -92,6 +92,7 @@ export function variationApp() {
       });
 
       this.highlightMainlineMove();
+      this.updateAlts();
     },
 
     //--------------------------------------------------------------------------------
@@ -237,6 +238,27 @@ export function variationApp() {
       }
       this.mainlineMoveIndex = index;
       this.updateBoard();
+    },
+
+    //--------------------------------------------------------------------------------
+    updateAlts() {
+      const altsElement = document.getElementById("alts");
+      if (!altsElement) return;
+
+      const moveData =
+        this.mainlineMoveIndex >= 0
+          ? this.variationData.moves[this.mainlineMoveIndex]
+          : null;
+
+      if (moveData) {
+        const altMoves = moveData.alt ? moveData.alt.split(",") : [];
+        const altFailMoves = moveData.alt_fail ? moveData.alt_fail.split(",") : [];
+        const combinedAlts = [...altMoves, ...altFailMoves].join(", ") || "None";
+
+        altsElement.innerHTML = `<strong>Alts:</strong> ${combinedAlts}`;
+      } else {
+        altsElement.innerHTML = ""; // Clear if there's no move data
+      }
     },
 
     //--------------------------------------------------------------------------------

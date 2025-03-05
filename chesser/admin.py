@@ -28,7 +28,7 @@ class MoveInlineForm(forms.ModelForm):
             "text": forms.Textarea(attrs={"rows": 3, "cols": 40}),
             "alt": forms.Textarea(attrs={"rows": 1, "cols": 15}),
             "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 15}),
-            "shapes": forms.Textarea(attrs={"rows": 1, "cols": 15}),
+            "shapes": forms.Textarea(attrs={"rows": 3, "cols": 15}),
         }
 
 
