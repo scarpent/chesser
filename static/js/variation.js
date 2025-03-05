@@ -114,49 +114,23 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     nextSubvarMove() {
       const subvarMoves = this.getSubvarMoves();
-      if (subvarMoves.length === 0) {
-        this.nextMainlineMove();
-        return;
-      }
-
-      if (!this.isInSubvariation()) {
-        this.subvarMoveIndex = 0; // Enter subvariation
-      } else if (this.subvarMoveIndex < subvarMoves.length - 1) {
+      if (this.subvarMoveIndex < subvarMoves.length - 1) {
         this.subvarMoveIndex++;
+        this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
       } else {
         this.exitSubvariation();
-        this.nextMainlineMove();
-        return;
+        this.nextMainlineMove(); // Continue with mainline after subvariation
       }
-      this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
     },
 
     //--------------------------------------------------------------------------------
     previousSubvarMove() {
-      const subvarMoves = this.getSubvarMoves();
-
-      if (!this.isInSubvariation()) {
-        this.previousMainlineMove();
-
-        // See if previous mainline move has subvariation(s)
-        const prevSubvarMoves = this.getSubvarMoves();
-        if (prevSubvarMoves.length) {
-          // Enter the last subvar move of the previous mainline move
-          this.subvarMoveIndex = prevSubvarMoves.length - 1;
-          this.updateBoardForSubvar(prevSubvarMoves[this.subvarMoveIndex]);
-        }
-        return;
-      }
-
       if (this.subvarMoveIndex > 0) {
-        this.subvarMoveIndex--; // Move up within the subvar list
+        this.subvarMoveIndex--;
+        this.updateBoardForSubvar(this.getSubvarMoves()[this.subvarMoveIndex]);
       } else {
-        this.exitSubvariation(); // Return to parent mainline move
-        this.updateBoard(); // Ensure correct board and highlight update
-      }
-
-      if (this.isInSubvariation()) {
-        this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
+        this.exitSubvariation();
+        this.previousMainlineMove(); // Go back to the previous mainline move
       }
     },
 
@@ -274,17 +248,37 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
-      if (event.key === "ArrowLeft") {
-        this.previousMainlineMove();
-      } else if (event.key === "ArrowRight") {
-        this.nextMainlineMove();
-      } else if (event.key === "ArrowUp") {
-        this.previousSubvarMove();
-      } else if (event.key === "ArrowDown") {
-        this.nextSubvarMove();
+      if (event.key === "ArrowRight") {
+        if (event.shiftKey) {
+          // Shift + Right → Enter subvariation if available
+          this.enterSubvariation();
+        } else {
+          // Regular Right → Advance mainline or exit subvar at the end
+          if (this.isInSubvariation()) {
+            this.nextSubvarMove();
+          } else {
+            this.nextMainlineMove();
+          }
+        }
+      } else if (event.key === "ArrowLeft") {
+        if (this.isInSubvariation()) {
+          this.previousSubvarMove();
+        } else {
+          this.previousMainlineMove();
+        }
       }
     },
 
+    //--------------------------------------------------------------------------------
+    enterSubvariation() {
+      const subvarMoves = this.getSubvarMoves();
+      if (subvarMoves.length > 0) {
+        this.subvarMoveIndex = 0; // Enter subvariation at the first move
+        this.updateBoardForSubvar(subvarMoves[this.subvarMoveIndex]);
+      }
+    },
+
+    //--------------------------------------------------------------------------------
     scrollIntoView(element) {
       if (element) {
         const container = document.getElementById("variation-text");
