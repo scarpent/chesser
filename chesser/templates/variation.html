@@ -53,7 +53,10 @@
         </div>
         <div class="info-container">
           <div class="chapter-title">
-            <span x-text="variationData.chapter"></span>
+            <a
+              :href="'/?course=' + variationData.course_id + '&chapter=' + variationData.chapter_id"
+              ><span x-text="variationData.chapter"></span
+            ></a>
             <span> ➤ </span>
             <span x-text="variationData.title"></span>
           </div>

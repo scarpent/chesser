@@ -30,6 +30,8 @@ def serialize_variation(variation, generate_html=False):
     variation_data = {
         "variation_id": variation.id,
         "title": variation.title,
+        "course_id": variation.chapter.course.id,
+        "chapter_id": variation.chapter.id,
         "chapter": variation.chapter.title,
         "color": color,
         "start_index": variation.start_index,

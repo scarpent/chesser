@@ -153,29 +153,32 @@ def get_course_links(request):
         "chapters": {},
         "variations": {},
     }
-    course = request.GET.get("course")
-    chapter = request.GET.get("chapter")
-    if not course:
+    course_id = request.GET.get("course")
+    chapter_id = request.GET.get("chapter")
+    if not course_id:
         for course in Course.objects.all():
-            nav["courses"][course.id] = course.title
-    elif not chapter:
-        for chapter in (
+            var_count = Variation.objects.filter(chapter__course=course).count()
+            nav["courses"][course.id] = f"{course.title} • {var_count}"
+    elif not chapter_id:
+        course = Course.objects.get(id=course_id)
+        for chapter_id in (
             Chapter.objects.filter(course=course).order_by("title").iterator()
         ):
-            nav["chapters"][chapter.id] = chapter.title
+            var_count = Variation.objects.filter(chapter=chapter_id).count()
+            nav["chapters"][chapter_id.id] = f"{chapter_id.title} • {var_count}"
 
-        nav["course_id"] = course
-        nav["course_name"] = Course.objects.get(id=course).title
+        nav["course_id"] = course.id
+        nav["course_name"] = course.title
     else:
         for variation in (
-            Variation.objects.filter(chapter=chapter).order_by("title").iterator()
+            Variation.objects.filter(chapter=chapter_id).order_by("title").iterator()
         ):
             nav["variations"][variation.id] = variation.title
 
-        nav["course_id"] = course
-        nav["course_name"] = Course.objects.get(id=course).title
-        nav["chapter_id"] = chapter
-        nav["chapter_name"] = Chapter.objects.get(id=chapter).title
+        nav["course_id"] = course_id
+        nav["course_name"] = Course.objects.get(id=course_id).title
+        nav["chapter_id"] = chapter_id
+        nav["chapter_name"] = Chapter.objects.get(id=chapter_id).title
 
     return nav
 
