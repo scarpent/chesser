@@ -74,17 +74,19 @@
     </div>
 
     <h3>Recently Reviewed</h3>
-    <ul>
+    <p>
       <template x-for="item in homeData.recent" :key="item[0]">
-        <li>
+        <span>
+          <span x-text="item[3]"></span>
           <a :href="'/variation/' + item[0]" x-text="item[1]"></a>
+          <span x-text="item[2]"></span>
           <a :href="'/edit/' +item[0]">edit</a>
-          <a :href="'/review/' + item[0]">review</a>
-        </li>
+          <a :href="'/review/' + item[0]">review</a><br />
+        </span>
       </template>
-    </ul>
+    </p>
 
-    <h3>Time Planner</h3>
+    <h3>Upcoming Reviews</h3>
     <span x-text="homeData.next_due" style="color: lightgreen"></span><br />
     <table>
       <thead>
@@ -104,7 +106,7 @@
     </table>
 
     <h3>Current Levels</h3>
-    <table>
+    <table style="padding-bottom: 50px">
       <thead>
         <tr>
           <th style="text-align: left">Level</th>

@@ -224,15 +224,13 @@ export function variationApp() {
           ? this.variationData.moves[this.mainlineMoveIndex]
           : null;
 
+      let combinedAlts = "";
       if (moveData) {
         const altMoves = moveData.alt ? moveData.alt.split(",") : [];
         const altFailMoves = moveData.alt_fail ? moveData.alt_fail.split(",") : [];
-        const combinedAlts = [...altMoves, ...altFailMoves].join(", ") || "None";
-
-        altsElement.innerHTML = `<strong>Alts:</strong> ${combinedAlts}`;
-      } else {
-        altsElement.innerHTML = ""; // Clear if there's no move data
+        combinedAlts = [...altMoves, ...altFailMoves].join(", ") || "";
       }
+      altsElement.innerHTML = `<b>Alts:</b> ${combinedAlts}`;
     },
 
     //--------------------------------------------------------------------------------

@@ -135,15 +135,17 @@ def get_recently_reviewed(now):
         if result.variation_id not in seen:
             seen.add(result.variation_id)
 
-            # TODO: consider django naturaltime from humanize;
+            # TODO: Consider django naturaltime from humanize;
             # requires enabling django.contrib.humanize in INSTALLED_APPS.
 
             time_ago = timesince(result.datetime, now)
-            largest_unit = time_ago.split(",")[0] + " ago"
+            date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
             reviewed.append(
                 (
                     result.variation_id,
-                    f"{result.variation.title} ({largest_unit}, L{result.level})",
+                    result.variation.title,
+                    f"({date_unit}, L{result.level})",
+                    "✅" if result.passed else "❌",
                 )
             )
 

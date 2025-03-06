@@ -75,10 +75,10 @@ def serialize_variation(variation, generate_html=False):
     now = timezone.now()
     for quiz_result in variation.quizresult_set.all().order_by("-datetime"):
         time_ago = timesince(quiz_result.datetime, now)
-        largest_unit = time_ago.split(",")[0] + " ago"
+        largest_date_unit = time_ago.split(",")[0] + " ago"
         history.append(
             {
-                "datetime": largest_unit,
+                "datetime": largest_date_unit,
                 "level": quiz_result.level,
                 "passed": "✅" if quiz_result.passed else "❌",
             }
