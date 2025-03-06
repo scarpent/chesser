@@ -3,6 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 
 from chesser.models import Chapter, Course, QuizResult, Variation
@@ -16,7 +17,7 @@ def home(request):
         "home_data": json.dumps(
             {
                 "nav": nav,
-                "recent": get_recently_reviewed(),
+                "recent": get_recently_reviewed(now),
                 "next_due": get_next_due(now),
                 "upcoming": get_upcoming_time_planner(now),
                 "levels": get_level_report(),
@@ -126,17 +127,23 @@ def get_variation_count_for_time_range(now, hours):
     ).count()
 
 
-def get_recently_reviewed():
+def get_recently_reviewed(now):
     recently_reviewed = QuizResult.objects.filter().order_by("-datetime")[:50]
     reviewed = []
     seen = set()
     for result in recently_reviewed:
         if result.variation_id not in seen:
             seen.add(result.variation_id)
-            the_date = result.datetime.strftime("%m-%d %H:%M")
+
+            # TODO: consider django naturaltime from humanize;
+            # requires enabling django.contrib.humanize in INSTALLED_APPS.
+
+            time_ago = timesince(result.datetime, now)
+            largest_unit = time_ago.split(",")[0] + " ago"  # Take only the first unit
             reviewed.append(
-                (result.variation_id, f"{result.variation.title} ({the_date})")
+                (result.variation_id, f"{result.variation.title} ({largest_unit})")
             )
+
             if len(seen) > 12:
                 break
     print(reviewed)
