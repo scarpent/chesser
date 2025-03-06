@@ -45,7 +45,7 @@ a:hover {
   padding-left: 20px; /* Ensures board doesn't touch the left edge */
 }
 
-#board-container {
+#left-column {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -55,7 +55,14 @@ a:hover {
   z-index: 10;
 }
 
-#variation-text {
+#under-board {
+  max-width: 600px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+/* variation-text */
+#right-column {
   max-width: 600px;
   height: 100vh;
   max-height: 95vh;
@@ -72,7 +79,7 @@ a:hover {
   flex-shrink: 0; /* Prevents it from shrinking */
 }
 
-#variation-text p {
+#right-column p {
   font-size: 20px;
   color: #eeeeee;
   line-height: 1.5;

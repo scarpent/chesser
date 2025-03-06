@@ -16,67 +16,76 @@
     x-init="initVariation()"
     @keydown.window="handleKeyNavigation($event)"
   >
-    <div id="outer-container">
-      <div id="board-container">
-        <div id="resizable-board">
+    <div id="outer-container" style="border: 1px solid green">
+      <!-- maybe rename container... -->
+      <div id="left-column" style="border: 1px solid red">
+        <div id="resizable-board" style="border: 2px solid blue">
           <div id="board"></div>
           <div id="resize-handle"></div>
         </div>
-        <div class="button-container">
-          <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
-          <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
-          <button @click="previousSubvarMove()" title="Subvariation Back">↖️</button>
-          <button @click="nextSubvarMove()" title="Subvariation Forward">↘️</button>
-        </div>
-        <span id="alts"></span>
-        <div class="button-container">
-          <button
-            @click="window.location.href='/review/' + variationData.variation_id"
-            title="Review"
-          >
-            🚀
-          </button>
-          <!-- board.state.fen will work for either mainline or subvar position -->
-          <button
-            @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
-            title="Lichess analysis board"
-          >
-            🔍️
-          </button>
-          <button @click="window.location.href='/'" title="Home">🏠️</button>
-          <button
-            @click="window.location.href='/edit/' + variationData.variation_id"
-            title="Edit"
-          >
-            ⚙️
-          </button>
-        </div>
-        <div class="info-container">
-          <div class="chapter-title">
-            <a
-              :href="'/?course=' + variationData.course_id + '&chapter=' + variationData.chapter_id"
-              ><span x-text="variationData.chapter"></span
-            ></a>
-            <span> ➤ </span>
-            <span x-text="variationData.title"></span>
+        <div id="under-board" style="border: 1px solid purple">
+          <div class="button-container">
+            <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
+            <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
+            <button @click="previousSubvarMove()" title="Subvariation Back">↖️</button>
+            <button @click="nextSubvarMove()" title="Subvariation Forward">↘️</button>
           </div>
-          <div x-text="variationData.mainline"></div>
-          <div x-text="'Level ➤ ' + variationData.level"></div>
-        </div>
-        <div id="source" x-html="variationData.source_html"></div>
-        <div id="history">
-          <h3>History</h3>
-          <p>
-            <template x-for="(entry, index) in variationData.history" :key="index">
-              <span
-                ><span x-text="entry.passed"></span> L<span x-text="entry.level"></span>
-                ➤ <span x-text="entry.datetime"></span><br
-              /></span>
-            </template>
-          </p>
+          <span id="alts"></span>
+          <div class="button-container">
+            <button
+              @click="window.location.href='/review/' + variationData.variation_id"
+              title="Review"
+            >
+              🚀
+            </button>
+            <!-- board.state.fen will work for either mainline or subvar position -->
+            <button
+              @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+              title="Lichess analysis board"
+            >
+              🔍️
+            </button>
+            <button @click="window.location.href='/'" title="Home">🏠️</button>
+            <button
+              @click="window.location.href='/edit/' + variationData.variation_id"
+              title="Edit"
+            >
+              ⚙️
+            </button>
+          </div>
+          <div class="info-container">
+            <div class="chapter-title">
+              <a
+                :href="'/?course=' + variationData.course_id + '&chapter=' + variationData.chapter_id"
+                ><span x-text="variationData.chapter"></span
+              ></a>
+              <span> ➤ </span>
+              <span x-text="variationData.title"></span>
+            </div>
+            <div x-text="variationData.mainline"></div>
+            <div x-text="'Level ➤ ' + variationData.level"></div>
+          </div>
+          <div id="source" x-html="variationData.source_html"></div>
+          <div id="history">
+            <h3>History</h3>
+            <p>
+              <template x-for="(entry, index) in variationData.history" :key="index">
+                <span
+                  ><span x-text="entry.passed"></span> L<span
+                    x-text="entry.level"
+                  ></span>
+                  ➤ <span x-text="entry.datetime"></span><br
+                /></span>
+              </template>
+            </p>
+          </div>
         </div>
       </div>
-      <div id="variation-text" x-html="variationData.html"></div>
+      <div
+        id="right-column"
+        x-html="variationData.html"
+        style="border: 1px solid yellow"
+      ></div>
     </div>
 
     <!-- Pass variationData safely to JavaScript -->
