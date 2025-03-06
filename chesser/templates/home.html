@@ -20,7 +20,7 @@
       x-show="Object.keys(homeData.nav.courses).length > 0"
       class="courses-container"
     >
-      <h3>Colors</h3>
+      <h3>Courses</h3>
       <ul>
         <template x-for="[id, name] in Object.entries(homeData.nav.courses)" :key="id">
           <li>
@@ -35,7 +35,7 @@
       class="chapters-container"
     >
       <h3>
-        <a href="/">Colors</a> ➤
+        <a href="/">Courses</a> ➤
         <span x-text="homeData.nav.course_name"></span> Chapters
       </h3>
       <ol>
