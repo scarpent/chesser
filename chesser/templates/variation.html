@@ -16,14 +16,14 @@
     x-init="initVariation()"
     @keydown.window="handleKeyNavigation($event)"
   >
-    <div id="outer-container" style="border: 1px solid green">
+    <div id="outer-container">
       <!-- maybe rename container... -->
-      <div id="left-column" style="border: 1px solid red">
-        <div id="resizable-board" style="border: 2px solid blue">
+      <div id="left-column">
+        <div id="resizable-board">
           <div id="board"></div>
           <div id="resize-handle"></div>
         </div>
-        <div id="underboard" style="border: 1px solid purple">
+        <div id="underboard">
           <div class="button-container">
             <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
             <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
@@ -70,22 +70,19 @@
             <h3>History</h3>
             <p>
               <template x-for="(entry, index) in variationData.history" :key="index">
-                <span
-                  ><span x-text="entry.passed"></span> L<span
+                <span>
+                  <span x-text="entry.passed"></span>
+                  <span x-text="entry.datetime"></span>, L<span
                     x-text="entry.level"
-                  ></span>
-                  ➤ <span x-text="entry.datetime"></span><br
-                /></span>
+                  ></span
+                  ><br />
+                </span>
               </template>
             </p>
           </div>
         </div>
       </div>
-      <div
-        id="right-column"
-        x-html="variationData.html"
-        style="border: 1px solid yellow"
-      ></div>
+      <div id="right-column" x-html="variationData.html"></div>
     </div>
 
     <!-- Pass variationData safely to JavaScript -->

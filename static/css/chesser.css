@@ -99,7 +99,7 @@ a:hover {
   align-items: center;
   width: 100%;
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 button {
@@ -242,4 +242,30 @@ button:hover {
 
 .final-move {
   max-width: 400px;
+}
+
+/* Webkit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px; /* Thinner scrollbar */
+  height: 8px; /* For horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+  background: #222222; /* Matches background */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444444; /* Darker thumb */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666666; /* Slightly lighter on hover */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444444 #222222;
 }

@@ -141,7 +141,10 @@ def get_recently_reviewed(now):
             time_ago = timesince(result.datetime, now)
             largest_unit = time_ago.split(",")[0] + " ago"
             reviewed.append(
-                (result.variation_id, f"{result.variation.title} ({largest_unit})")
+                (
+                    result.variation_id,
+                    f"{result.variation.title} ({largest_unit}, L{result.level})",
+                )
             )
 
             if len(seen) > 12:
