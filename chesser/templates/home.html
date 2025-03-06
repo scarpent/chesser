@@ -20,7 +20,7 @@
       x-show="Object.keys(homeData.nav.courses).length > 0"
       class="courses-container"
     >
-      <h3>Courses</h3>
+      <h3>📚️ My Book</h3>
       <ul>
         <template x-for="[id, name] in Object.entries(homeData.nav.courses)" :key="id">
           <li>
@@ -35,7 +35,7 @@
       class="chapters-container"
     >
       <h3>
-        <a href="/">Courses</a> ➤
+        <a href="/">📚️ My Book</a> ➤
         <span x-text="homeData.nav.course_name"></span> Chapters
       </h3>
       <ol>
@@ -50,10 +50,7 @@
       </ol>
     </div>
 
-    <div
-      x-show="Object.keys(homeData.nav.variations).length > 0"
-      class="variations-container"
-    >
+    <div x-show="homeData.nav.chapter_id" class="variations-container">
       <h3>
         <a :href="'/?course=' + homeData.nav.course_id"
           ><span x-text="homeData.nav.course_name"></span
@@ -71,6 +68,9 @@
           </li>
         </template>
       </ol>
+      <template x-if="Object.keys(homeData.nav.variations).length === 0">
+        <p>This chapter lacks variations.</p>
+      </template>
     </div>
 
     <h3>Recently Reviewed</h3>

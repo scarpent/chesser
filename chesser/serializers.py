@@ -73,7 +73,7 @@ def serialize_variation(variation, generate_html=False):
 
 def get_source_html(source):
     """
-    {"my_course": {"course": "My White Openings", "chapter": "Caro-Kann 2K", "variation_title": "Caro-Kann 3...Bg4", "variation_id": 21090319}, "original_course": {"course": "Keep It Simple: 1. e4", "chapter": "1. Quickstarter Guide", "variation_title": "Quickstarter Guide #56 - Caro-Kann", "variation_id": 6611081}}
+    {"my_course": {"course": "My White Openings", "chapter": "Caro-Kann 2K", "variation_title": "Caro-Kann 3...Bg4", "variation_id": 21090319, "note": ""}, "original_course": {"course": "Keep It Simple: 1. e4", "chapter": "1. Quickstarter Guide", "variation_title": "Quickstarter Guide #56 - Caro-Kann", "variation_id": 6611081, "note": ""}}
     """  # noqa: E501
     mine = ""
     original = ""
@@ -84,14 +84,18 @@ def get_source_html(source):
             f'{my_course["variation_id"]}/" target="_blank">'
             "Source Variation</a></p>"
         )
+        if note := my_course.get("note"):
+            mine += f"<p>{note}</p>"
 
     if original_course := source.get("original_course"):
         original = (
             f'<p>{original_course["course"]} ➤<br/>{original_course["chapter"]} ➤<br/>'
             '<a href="https://www.chessable.com/variation/'
             f'{original_course["variation_id"]}/" target="_blank">'
-            f"{original_course["variation_title"]}</a></p>"
+            f'{original_course["variation_title"]}</a></p>'
         )
+        if note := original_course.get("note"):
+            original += f"<p>{note}</p>"
 
     if mine + original == "":
         return "<p>No source information available.</p>"

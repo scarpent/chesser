@@ -1,5 +1,13 @@
 ## notes...
 
+## next up?
+
+- track results and show completed/remaining during review session (use local storage?)
+  - need some way to decide when new session starts
+- show review history for specific variation
+- decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
+- a way to have "shared reference" moves?
+
 ## js libraries
 
 ```
