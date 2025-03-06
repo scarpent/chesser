@@ -1,12 +1,17 @@
 ## notes...
 
-## next up?
+## todo
 
 - track results and show completed/remaining during review session (use local storage?)
   - need some way to decide when new session starts
-- show review history for specific variation
+- toggle show alt moves on board
+  - "alt" label to be a link - click and alts remain showing
+  - holding down "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
+- set up railway.app account
+- work on db export/import from sqlite <==> postgres
+- mobile view
 
 ## js libraries
 

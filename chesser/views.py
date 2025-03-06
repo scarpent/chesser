@@ -139,7 +139,7 @@ def get_recently_reviewed(now):
             # requires enabling django.contrib.humanize in INSTALLED_APPS.
 
             time_ago = timesince(result.datetime, now)
-            largest_unit = time_ago.split(",")[0] + " ago"  # Take only the first unit
+            largest_unit = time_ago.split(",")[0] + " ago"
             reviewed.append(
                 (result.variation_id, f"{result.variation.title} ({largest_unit})")
             )

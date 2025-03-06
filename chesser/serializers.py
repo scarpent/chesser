@@ -2,6 +2,8 @@ import re
 
 import chess
 import chess.pgn
+from django.utils import timezone
+from django.utils.timesince import timesince
 
 annotations = {
     "none": "No annotation",
@@ -26,6 +28,7 @@ def serialize_variation(variation, generate_html=False):
     color = variation.chapter.course.color
 
     html = generate_variation_html(variation) if generate_html else None
+    # could further fine tune what is included or not depending on view...
 
     variation_data = {
         "variation_id": variation.id,
@@ -68,6 +71,20 @@ def serialize_variation(variation, generate_html=False):
     variation_data["moves"] = moves
     variation_data["annotations"] = temp_annotations
 
+    history = []
+    now = timezone.now()
+    for quiz_result in variation.quizresult_set.all().order_by("-datetime"):
+        time_ago = timesince(quiz_result.datetime, now)
+        largest_unit = time_ago.split(",")[0] + " ago"
+        history.append(
+            {
+                "datetime": largest_unit,
+                "level": quiz_result.level,
+                "passed": "✅" if quiz_result.passed else "❌",
+            }
+        )
+    variation_data["history"] = history
+
     return variation_data
 
 
@@ -84,7 +101,7 @@ def get_source_html(source):
             f'{my_course["variation_id"]}/" target="_blank">'
             "Source Variation</a></p>"
         )
-        if note := my_course.get("note"):
+        if note := my_course.get("note", "").strip():
             mine += f"<p>{note}</p>"
 
     if original_course := source.get("original_course"):
@@ -94,7 +111,7 @@ def get_source_html(source):
             f'{original_course["variation_id"]}/" target="_blank">'
             f'{original_course["variation_title"]}</a></p>'
         )
-        if note := original_course.get("note"):
+        if note := original_course.get("note", "").strip():
             original += f"<p>{note}</p>"
 
     if mine + original == "":
