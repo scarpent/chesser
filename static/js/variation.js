@@ -281,7 +281,7 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     scrollIntoView(element) {
       if (element) {
-        const container = document.getElementById("variation-text");
+        const container = document.getElementById("right-column");
         const offset = 20; // Margin from the top
         const elementTop =
           element.getBoundingClientRect().top + container.scrollTop - offset;

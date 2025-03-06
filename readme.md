@@ -4,6 +4,7 @@
 
 - track results and show completed/remaining during review session (use local storage?)
   - need some way to decide when new session starts
+- show level in recently reviewed
 - toggle show alt moves on board
   - "alt" label to be a link - click and alts remain showing
   - holding down "a" will show them only while holding, then restore other paint or clear
