@@ -158,14 +158,14 @@ def get_course_links(request):
     if not course_id:
         for course in Course.objects.all():
             var_count = Variation.objects.filter(chapter__course=course).count()
-            nav["courses"][course.id] = f"{course.title} • {var_count}"
+            nav["courses"][course.id] = f"{course.title} ({var_count})"
     elif not chapter_id:
         course = Course.objects.get(id=course_id)
         for chapter_id in (
             Chapter.objects.filter(course=course).order_by("title").iterator()
         ):
             var_count = Variation.objects.filter(chapter=chapter_id).count()
-            nav["chapters"][chapter_id.id] = f"{chapter_id.title} • {var_count}"
+            nav["chapters"][chapter_id.id] = f"{chapter_id.title} ({var_count})"
 
         nav["course_id"] = course.id
         nav["course_name"] = course.title

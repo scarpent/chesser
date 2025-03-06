@@ -12,12 +12,17 @@ body {
 }
 
 a {
-  /* text-decoration: none; */
+  text-decoration: none;
   color: cyan;
 }
 
 a:visited {
+  text-decoration: none;
   color: cyan;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 #quiz-container {
