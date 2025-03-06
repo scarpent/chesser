@@ -58,7 +58,7 @@ a:hover {
   max-height: 95vh;
 }
 
-#under-board {
+#underboard {
   display: flex;
   flex-direction: column;
   align-items: left;
@@ -142,6 +142,10 @@ button:hover {
   height: 400px;
   max-width: 90vw;
   max-height: 90vh;
+  min-width: 300px; /* Prevents it from shrinking too much */
+  min-height: 300px;
+  flex-shrink: 0; /* Prevents shrinking */
+  overflow: hidden;
 }
 
 .edit-board {
