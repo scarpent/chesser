@@ -108,7 +108,7 @@ def get_upcoming_time_planner(now):
         ("2 months", 2 * 30 * 24),
     ]
     times = []
-    previous_count = 0
+    previous_count = -1
     for label, hours in ranges:
         count = get_variation_count_for_time_range(now, hours)
         if previous_count != count:
