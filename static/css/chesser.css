@@ -53,14 +53,15 @@ a:hover {
   top: 0; /* Stick the board to the top */
   background-color: #222222; /* Ensure background matches */
   z-index: 10;
+  box-sizing: border-box;
+  max-width: 600px;
+  max-height: 95vh;
 }
 
 #under-board {
   display: flex;
   flex-direction: column;
   align-items: left;
-  max-width: 600px;
-  max-height: 95vh;
   overflow-y: auto;
   padding: 10px 15px 15px;
 }
