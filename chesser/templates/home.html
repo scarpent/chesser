@@ -75,45 +75,51 @@
       </template>
     </div>
 
-    <h3>Upcoming Reviews</h3>
-    <span id="next-due" x-text="homeData.next_due"></span><br />
-    <table>
-      <thead>
-        <tr>
-          <th>When?</th>
-          <th># Vars</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template x-for="timeframe in homeData.upcoming" :key="timeframe.label">
-          <tr>
-            <td x-text="timeframe.label"></td>
-            <td x-text="timeframe.count"></td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+    <div class="reviews-levels-container">
+      <div class="reviews-container">
+        <h3>Upcoming Reviews</h3>
+        <span id="next-due" x-text="homeData.next_due"></span><br />
+        <table>
+          <thead>
+            <tr>
+              <th>When?</th>
+              <th># Vars</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="timeframe in homeData.upcoming" :key="timeframe.label">
+              <tr>
+                <td x-text="timeframe.label"></td>
+                <td x-text="timeframe.count"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
 
-    <h3>Current Levels</h3>
-    <table class="current-levels">
-      <thead>
-        <tr>
-          <th>Level</th>
-          <th># Vars</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template
-          x-for="variation_level in homeData.levels"
-          :key="variation_level.label"
-        >
-          <tr>
-            <td x-text="variation_level.label"></td>
-            <td x-text="variation_level.count"></td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+      <div class="levels-container">
+        <h3>Current Levels</h3>
+        <table class="current-levels">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th># Vars</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template
+              x-for="variation_level in homeData.levels"
+              :key="variation_level.label"
+            >
+              <tr>
+                <td x-text="variation_level.label"></td>
+                <td x-text="variation_level.count"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <h3>Recently Reviewed</h3>
     <p style="margin-top: 0px">

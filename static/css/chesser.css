@@ -297,3 +297,22 @@ td:last-child {
   padding: 0px 5px; /* 0px top & bottom, 5px left & right */
   text-align: left;
 }
+
+.reviews-levels-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.reviews-container,
+.levels-container {
+  flex: 1;
+  min-width: 300px; /* Ensures proper stacking on small screens */
+}
+
+@media (max-width: 600px) {
+  .reviews-levels-container {
+    flex-direction: column;
+  }
+}
