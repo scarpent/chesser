@@ -294,25 +294,43 @@ td:last-child {
 }
 
 .history-table td {
-  padding: 0px 5px; /* 0px top & bottom, 5px left & right */
+  padding: 0px 5px;
   text-align: left;
+}
+
+.reviews-levels-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .reviews-levels-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
+  gap: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: center;
 }
 
 .reviews-container,
 .levels-container {
   flex: 1;
-  min-width: 300px; /* Ensures proper stacking on small screens */
+  min-width: 300px;
+  text-align: center;
+}
+
+.reviews-container table,
+.levels-container table {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 600px) {
   .reviews-levels-container {
     flex-direction: column;
+    align-items: center;
   }
 }
