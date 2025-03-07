@@ -212,6 +212,7 @@ def get_course_links(request):
                 {
                     "id": variation.id,
                     "title": variation.title,
+                    "level": variation.level,
                     "move_sequence": variation.move_sequence,
                 }
             )

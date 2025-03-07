@@ -37,7 +37,7 @@
     >
       <h3>
         📚️ <a href="/">My Book</a> ➤
-        <span x-text="homeData.nav.course_name"></span> Chapters
+        <span x-text="homeData.nav.course_name"></span>
       </h3>
       <ol>
         <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
@@ -54,6 +54,7 @@
 
     <div x-show="homeData.nav.chapter_id" class="variations-container">
       <h3>
+        📚️ <a href="/">My Book</a> ➤
         <a :href="'/?course=' + homeData.nav.course_id"
           ><span x-text="homeData.nav.course_name"></span
         ></a>
@@ -64,6 +65,8 @@
         <template x-for="variation in homeData.nav.variations" :key="variation.id">
           <li>
             <a :href="'/variation/' + variation.id" x-text="variation.title"></a>
+            (L<span x-text="variation.level"></span>)<br />
+            <span x-text="variation.move_sequence"></span>
           </li>
         </template>
       </ol>
@@ -71,22 +74,6 @@
         <p>This chapter lacks variations.</p>
       </template>
     </div>
-
-    <h3>Recently Reviewed</h3>
-    <p>
-      <template x-for="review in homeData.recent" :key="review.variation_id">
-        <span>
-          <span x-text="review.passed"></span>
-          <a
-            :href="'/variation/' + review.variation_id"
-            x-text="review.variation_title"
-          ></a>
-          (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span>)
-          <a :href="'/edit/' +review.variation_id">edit</a>
-          <a :href="'/review/' + review.variation_id">review</a><br />
-        </span>
-      </template>
-    </p>
 
     <h3>Upcoming Reviews</h3>
     <span id="next-due" x-text="homeData.next_due"></span><br />
@@ -127,7 +114,22 @@
         </template>
       </tbody>
     </table>
-    <p>📌</p>
+
+    <h3>Recently Reviewed</h3>
+    <p style="margin-top: 0px">
+      <template x-for="review in homeData.recent" :key="review.variation_id">
+        <span>
+          <span x-text="review.passed"></span>
+          <a
+            :href="'/variation/' + review.variation_id"
+            x-text="review.variation_title"
+          ></a>
+          (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span>)
+          <a :href="'/edit/' +review.variation_id">edit</a>
+          <a :href="'/review/' + review.variation_id">review</a><br />
+        </span>
+      </template>
+    </p>
 
     <!-- Pass homeData safely to JavaScript -->
     <script>

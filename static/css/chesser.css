@@ -274,6 +274,10 @@ button:hover {
   color: lightgreen;
 }
 
+.variations-container {
+  max-width: 600px;
+}
+
 table {
   border-collapse: collapse;
 }

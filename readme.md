@@ -4,10 +4,6 @@
 
 - track results and show completed/remaining during review session (use local storage?)
   - need some way to decide when new session starts
-- chapter detail view
-  - something like ?course=1&chapter=3&detail=true
-  - lists variations and move sequences and maybe other things (pause, etc)
-  - link from chapter title where you have the chapter "less detailed" view
 - toggle show alt moves on board
   - "alt" label to be a link - click and alts remain showing
   - holding down "a" will show them only while holding, then restore other paint or clear
