@@ -292,3 +292,8 @@ th:last-child,
 td:last-child {
   text-align: right;
 }
+
+.history-table td {
+  padding: 0px 5px; /* 0px top & bottom, 5px left & right */
+  text-align: left;
+}

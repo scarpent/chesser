@@ -65,17 +65,17 @@
           <div id="source" x-html="variationData.source_html"></div>
           <div id="history">
             <h3>History</h3>
-            <p>
-              <template x-for="(entry, index) in variationData.history" :key="index">
-                <span>
-                  <span x-text="entry.passed"></span>
-                  <span x-text="entry.datetime"></span>, L<span
-                    x-text="entry.level"
-                  ></span
-                  ><br />
-                </span>
-              </template>
-            </p>
+            <table class="history-table">
+              <tbody>
+                <template x-for="(entry, index) in variationData.history" :key="index">
+                  <tr>
+                    <td x-text="entry.passed"></td>
+                    <td>L<span x-text="entry.level"></span></td>
+                    <td x-text="entry.datetime"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
