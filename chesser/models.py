@@ -189,7 +189,9 @@ class Move(models.Model):
 
 
 class QuizResult(models.Model):
-    variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
+    variation = models.ForeignKey(
+        Variation, on_delete=models.CASCADE, related_name="quiz_results"
+    )
     datetime = models.DateTimeField(auto_now_add=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
     passed = models.BooleanField(default=False)

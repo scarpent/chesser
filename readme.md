@@ -10,7 +10,7 @@
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
 - set up railway.app account
-- work on db export/import from sqlite <==> postgres
+- work on django db export/import from sqlite <==> postgres
 - mobile view
 
 ## js libraries

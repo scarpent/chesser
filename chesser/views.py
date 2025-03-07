@@ -202,12 +202,16 @@ def review(request, variation_id=None):
     else:
         # Can review "on demand", but it won't update level/next_review
         extra_study = True
+        # fmt: off
         variation = get_object_or_404(
-            Variation.objects.select_related("chapter__course").prefetch_related(
-                "moves"
+            Variation.objects.select_related(
+                "chapter__course"
+            ).prefetch_related(
+                "moves",
+                "quiz_results",
             ),
             pk=variation_id,
-        )
+        )  # fmt: on
 
     if variation is None:
         variation_data = {}

@@ -74,7 +74,7 @@ def serialize_variation(variation, all_data=False):
     history = []
     if all_data:
         now = timezone.now()
-        for quiz_result in variation.quizresult_set.all().order_by("-datetime"):
+        for quiz_result in variation.quiz_results.all().order_by("-datetime"):
             time_ago = timesince(quiz_result.datetime, now)
             largest_date_unit = time_ago.split(",")[0] + " ago"
             history.append(

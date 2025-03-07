@@ -92,7 +92,7 @@ class Command(BaseCommand):
 
             move.save()
 
-        if not variation.quizresult_set.first():
+        if not variation.quiz_results.first():
             self.stdout.write("Creating QuizResult")
             quiz_result = QuizResult.objects.create(
                 variation=variation, passed=True, level=variation.level
