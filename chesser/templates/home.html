@@ -22,9 +22,10 @@
     >
       <h3>📚️ My Book</h3>
       <ul>
-        <template x-for="[id, name] in Object.entries(homeData.nav.courses)" :key="id">
+        <template x-for="course in homeData.nav.courses" :key="course.id">
           <li>
-            <a :href="'/?course=' + id" x-text="name"></a>
+            <a :href="'/?course=' + course.id" x-text="course.title"></a>
+            (<span x-text="course.variation_count"></span>)
           </li>
         </template>
       </ul>
@@ -39,12 +40,13 @@
         <span x-text="homeData.nav.course_name"></span> Chapters
       </h3>
       <ol>
-        <template x-for="[id, name] in Object.entries(homeData.nav.chapters)" :key="id">
+        <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
           <li>
             <a
-              :href="'/?course=' + homeData.nav.course_id + '&chapter=' + id"
-              x-text="name"
+              :href="'/?course=' + homeData.nav.course_id + '&chapter=' + chapter.id"
+              x-text="chapter.title"
             ></a>
+            (<span x-text="chapter.variation_count"></span>)
           </li>
         </template>
       </ol>
@@ -59,12 +61,9 @@
         <span x-text="homeData.nav.chapter_name"></span>
       </h3>
       <ol>
-        <template
-          x-for="[id, name] in Object.entries(homeData.nav.variations)"
-          :key="id"
-        >
+        <template x-for="variation in homeData.nav.variations" :key="variation.id">
           <li>
-            <a :href="'/variation/' + id" x-text="name"></a>
+            <a :href="'/variation/' + variation.id" x-text="variation.title"></a>
           </li>
         </template>
       </ol>
@@ -75,13 +74,16 @@
 
     <h3>Recently Reviewed</h3>
     <p>
-      <template x-for="item in homeData.recent" :key="item[0]">
+      <template x-for="review in homeData.recent" :key="review.variation_id">
         <span>
-          <span x-text="item[3]"></span>
-          <a :href="'/variation/' + item[0]" x-text="item[1]"></a>
-          <span x-text="item[2]"></span>
-          <a :href="'/edit/' +item[0]">edit</a>
-          <a :href="'/review/' + item[0]">review</a><br />
+          <span x-text="review.passed"></span>
+          <a
+            :href="'/variation/' + review.variation_id"
+            x-text="review.variation_title"
+          ></a>
+          (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span>)
+          <a :href="'/edit/' +review.variation_id">edit</a>
+          <a :href="'/review/' + review.variation_id">review</a><br />
         </span>
       </template>
     </p>
@@ -96,10 +98,10 @@
         </tr>
       </thead>
       <tbody>
-        <template x-for="item in homeData.upcoming" :key="item[0]">
+        <template x-for="timeframe in homeData.upcoming" :key="timeframe.label">
           <tr>
-            <td x-text="item[0]"></td>
-            <td style="text-align: right" x-text="item[1]"></td>
+            <td x-text="timeframe.label"></td>
+            <td style="text-align: right" x-text="timeframe.count"></td>
           </tr>
         </template>
       </tbody>
@@ -114,10 +116,13 @@
         </tr>
       </thead>
       <tbody>
-        <template x-for="item in homeData.levels" :key="item[0]">
+        <template
+          x-for="variation_level in homeData.levels"
+          :key="variation_level.label"
+        >
           <tr>
-            <td x-text="item[0]"></td>
-            <td style="text-align: right" x-text="item[1]"></td>
+            <td x-text="variation_level.label"></td>
+            <td style="text-align: right" x-text="variation_level.count"></td>
           </tr>
         </template>
       </tbody>

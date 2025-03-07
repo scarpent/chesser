@@ -51,7 +51,12 @@ def get_level_report():
             count = Variation.objects.filter(level=level).count()
 
         if count > 0:
-            level_counts.append((label, count))
+            level_counts.append(
+                {
+                    "label": label,
+                    "count": count,
+                }
+            )
 
     return level_counts
 
@@ -106,6 +111,8 @@ def get_upcoming_time_planner(now):
         ("3 weeks", 3 * 7 * 24),
         ("1 month", 1 * 30 * 24),
         ("2 months", 2 * 30 * 24),
+        ("4 months", 4 * 30 * 24),
+        ("6 months", 6 * 30 * 24),
     ]
     times = []
     previous_count = -1
@@ -113,10 +120,12 @@ def get_upcoming_time_planner(now):
         count = get_variation_count_for_time_range(now, hours)
         if previous_count != count:
             previous_count = count
-            times.append((label, count))
-
-    print(times)
-
+            times.append(
+                {
+                    "label": label,
+                    "count": count,
+                }
+            )
     return times
 
 
@@ -141,17 +150,17 @@ def get_recently_reviewed(now):
             time_ago = timesince(result.datetime, now)
             date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
             reviewed.append(
-                (
-                    result.variation_id,
-                    result.variation.title,
-                    f"({date_unit}, L{result.level})",
-                    "✅" if result.passed else "❌",
-                )
+                {
+                    "variation_id": result.variation_id,
+                    "variation_title": result.variation.title,
+                    "datetime": date_unit,
+                    "level": result.level,
+                    "passed": "✅" if result.passed else "❌",
+                }
             )
 
             if len(seen) > 12:
                 break
-    print(reviewed)
     return reviewed
 
 
@@ -161,31 +170,51 @@ def get_course_links(request):
         "course_name": "",
         "chapter_id": "",
         "chapter_name": "",
-        "courses": {},
-        "chapters": {},
-        "variations": {},
+        "courses": [],
+        "chapters": [],
+        "variations": [],
     }
     course_id = request.GET.get("course")
     chapter_id = request.GET.get("chapter")
     if not course_id:
         for course in Course.objects.all():
-            var_count = Variation.objects.filter(chapter__course=course).count()
-            nav["courses"][course.id] = f"{course.title} ({var_count})"
+            variation_count = Variation.objects.filter(chapter__course=course).count()
+            nav["courses"].append(
+                {
+                    "id": course.id,
+                    "title": course.title,
+                    "variation_count": variation_count,
+                }
+            )
     elif not chapter_id:
         course = Course.objects.get(id=course_id)
         for chapter_id in (
             Chapter.objects.filter(course=course).order_by("title").iterator()
         ):
-            var_count = Variation.objects.filter(chapter=chapter_id).count()
-            nav["chapters"][chapter_id.id] = f"{chapter_id.title} ({var_count})"
+            variation_count = Variation.objects.filter(chapter=chapter_id).count()
+            nav["chapters"].append(
+                {
+                    "id": chapter_id.id,
+                    "title": chapter_id.title,
+                    "variation_count": variation_count,
+                }
+            )
 
         nav["course_id"] = course.id
         nav["course_name"] = course.title
     else:
         for variation in (
-            Variation.objects.filter(chapter=chapter_id).order_by("title").iterator()
+            Variation.objects.filter(chapter=chapter_id)
+            .order_by("move_sequence")
+            .iterator()
         ):
-            nav["variations"][variation.id] = variation.title
+            nav["variations"].append(
+                {
+                    "id": variation.id,
+                    "title": variation.title,
+                    "move_sequence": variation.move_sequence,
+                }
+            )
 
         nav["course_id"] = course_id
         nav["course_name"] = Course.objects.get(id=course_id).title
