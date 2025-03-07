@@ -19,6 +19,7 @@
       </div>
       <div x-text="status" class="status"></div>
       <div class="button-container">
+        <button @click="window.location.href='/'" title="Home">🏠️</button>
         <button
           @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
           title="Lichess analysis board"
@@ -40,7 +41,6 @@
         >
           📖
         </button>
-        <button @click="window.location.href='/'" title="Home">🏠️</button>
         <button
           x-show="completed"
           @click="window.location.href='/review/'"

@@ -10,9 +10,9 @@
   </head>
   <body x-data="importApp()" x-init="initImport()">
     <div class="button-container">
+      <button @click="window.location.href='/'" title="Home">🏠️</button>
       <button @click="window.location.href='/review/'" title="Review">🚀</button>
       <button @click="window.location.href='/edit/'" title="Edit">⚙️</button>
-      <button @click="window.location.href='/'" title="Home">🏠️</button>
     </div>
 
     <!-- Pass importData safely to JavaScript -->
@@ -34,4 +34,5 @@
 
     <!-- Load alpine.js last -->
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
+  </body>
 </html>
