@@ -24,11 +24,11 @@ annotations = {
 }
 
 
-def serialize_variation(variation, generate_html=False):
+def serialize_variation(variation, all_data=False):
     color = variation.chapter.course.color
 
-    html = generate_variation_html(variation) if generate_html else None
-    # could further fine tune what is included or not depending on view...
+    source_html = get_source_html(variation.source) if all_data else None
+    html = generate_variation_html(variation) if all_data else None
 
     variation_data = {
         "variation_id": variation.id,
@@ -41,7 +41,7 @@ def serialize_variation(variation, generate_html=False):
         "start_move": variation.start_move,
         "level": variation.level,
         "mainline": variation.mainline_moves,
-        "source_html": get_source_html(variation.source),
+        "source_html": source_html,
         "html": html,
     }
     # TODO: May eventually have rendered "final move text" for after the quiz. For now
@@ -72,17 +72,19 @@ def serialize_variation(variation, generate_html=False):
     variation_data["annotations"] = temp_annotations
 
     history = []
-    now = timezone.now()
-    for quiz_result in variation.quizresult_set.all().order_by("-datetime"):
-        time_ago = timesince(quiz_result.datetime, now)
-        largest_date_unit = time_ago.split(",")[0] + " ago"
-        history.append(
-            {
-                "datetime": largest_date_unit,
-                "level": quiz_result.level,
-                "passed": "✅" if quiz_result.passed else "❌",
-            }
-        )
+    if all_data:
+        now = timezone.now()
+        for quiz_result in variation.quizresult_set.all().order_by("-datetime"):
+            time_ago = timesince(quiz_result.datetime, now)
+            largest_date_unit = time_ago.split(",")[0] + " ago"
+            history.append(
+                {
+                    "datetime": largest_date_unit,
+                    "level": quiz_result.level,
+                    "passed": "✅" if quiz_result.passed else "❌",
+                }
+            )
+
     variation_data["history"] = history
 
     return variation_data
