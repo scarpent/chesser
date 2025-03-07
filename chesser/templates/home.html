@@ -36,7 +36,7 @@
       class="chapters-container"
     >
       <h3>
-        <a href="/">📚️ My Book</a> ➤
+        📚️ <a href="/">My Book</a> ➤
         <span x-text="homeData.nav.course_name"></span> Chapters
       </h3>
       <ol>
@@ -89,30 +89,30 @@
     </p>
 
     <h3>Upcoming Reviews</h3>
-    <span x-text="homeData.next_due" style="color: lightgreen"></span><br />
+    <span id="next-due" x-text="homeData.next_due"></span><br />
     <table>
       <thead>
         <tr>
-          <th style="text-align: left">When?</th>
-          <th style="text-align: right"># Vars</th>
+          <th>When?</th>
+          <th># Vars</th>
         </tr>
       </thead>
       <tbody>
         <template x-for="timeframe in homeData.upcoming" :key="timeframe.label">
           <tr>
             <td x-text="timeframe.label"></td>
-            <td style="text-align: right" x-text="timeframe.count"></td>
+            <td x-text="timeframe.count"></td>
           </tr>
         </template>
       </tbody>
     </table>
 
     <h3>Current Levels</h3>
-    <table style="padding-bottom: 50px">
+    <table class="current-levels">
       <thead>
         <tr>
-          <th style="text-align: left">Level</th>
-          <th style="text-align: right"># Vars</th>
+          <th>Level</th>
+          <th># Vars</th>
         </tr>
       </thead>
       <tbody>
@@ -122,11 +122,12 @@
         >
           <tr>
             <td x-text="variation_level.label"></td>
-            <td style="text-align: right" x-text="variation_level.count"></td>
+            <td x-text="variation_level.count"></td>
           </tr>
         </template>
       </tbody>
     </table>
+    <p>📌</p>
 
     <!-- Pass homeData safely to JavaScript -->
     <script>

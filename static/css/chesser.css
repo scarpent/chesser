@@ -269,3 +269,21 @@ button:hover {
   scrollbar-width: thin;
   scrollbar-color: #444444 #222222;
 }
+
+#next-due {
+  color: lightgreen;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th:last-child,
+td:last-child {
+  text-align: right;
+}
