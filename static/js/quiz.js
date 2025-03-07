@@ -9,7 +9,7 @@ export function quizApp() {
     board: null,
     chess: null,
     status: "⚪️⚪️",
-    reviewStats: "Completed: 5 (4/5, 80%), Remaining: 10 (+5 soon)",
+    reviewStats: "",
     variationData: variationData,
     reviewData: reviewData,
     showInfo: false,
@@ -46,6 +46,7 @@ export function quizApp() {
         console.log("Chess board loaded");
 
         this.playOpposingMove();
+        this.updateReviewStats();
       } else {
         console.error("chessground or chess.js failed to load");
       }
@@ -250,6 +251,12 @@ export function quizApp() {
     finalMove() {
       if (!this.variationData.moves || this.variationData.moves.length === 0) return {};
       return this.variationData.moves[this.variationData.moves.length - 1];
+    },
+
+    //--------------------------------------------------------------------------------
+    updateReviewStats() {
+      if (!this.reviewData) return;
+      this.reviewStats = "Completed: 5 (4/5, 80%), Remaining: 10 (+5 soon)";
     },
 
     //--------------------------------------------------------------------------------
