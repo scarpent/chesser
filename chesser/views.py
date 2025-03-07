@@ -272,7 +272,14 @@ def report_result(request):
         variation = get_object_or_404(Variation, pk=variation_id)
         variation.handle_quiz_result(passed)
 
-        return JsonResponse({"status": "success"})
+        total_due_now, total_due_soon = Variation.due_counts()
+        return JsonResponse(
+            {
+                "status": "success",
+                "total_due_now": total_due_now,
+                "total_due_soon": total_due_soon,
+            },
+        )
 
     return JsonResponse(
         {"status": "error", "message": "Invalid request method"}, status=400

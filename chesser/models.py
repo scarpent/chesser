@@ -148,7 +148,7 @@ class Variation(models.Model):
         else:
             relatively_soon = 10
 
-        soon = now + timezone.timedelta(hours=relatively_soon)
+        soon = now + timezone.timedelta(minutes=relatively_soon)
         total_due_soon = cls.objects.filter(
             next_review__gte=now, next_review__lte=soon
         ).count()

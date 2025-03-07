@@ -50,6 +50,13 @@
         </button>
       </div>
       <p x-text="reviewStats"></p>
+      <a
+        href="#"
+        x-show="reviewData.total_due_now && ! reviewData.extra_study"
+        @click.prevent="resetReviewSession()"
+      >
+        reset session
+      </a>
       <div x-show="showInfo && variationData.title" class="info-container">
         <div class="chapter-title">
           <a

@@ -29,6 +29,9 @@ export function quizApp() {
         }
 
         this.goToStartingPosition();
+        if (this.reviewSessionIsComplete()) {
+          this.resetReviewSession();
+        }
         this.board = window.Chessground(boardElement, {
           viewOnly: false,
           highlight: { lastMove: true, check: true },
@@ -46,7 +49,7 @@ export function quizApp() {
         console.log("Chess board loaded");
 
         this.playOpposingMove();
-        this.updateReviewStats();
+        this.displayReviewSessionStats();
       } else {
         console.error("chessground or chess.js failed to load");
       }
@@ -254,9 +257,64 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
-    updateReviewStats() {
+    displayReviewSessionStats() {
       if (!this.reviewData) return;
-      this.reviewStats = "Completed: 5 (4/5, 80%), Remaining: 10 (+5 soon)";
+
+      const passed = parseInt(localStorage.getItem("review_pass") || "0", 10);
+      const failed = parseInt(localStorage.getItem("review_fail") || "0", 10);
+
+      const totalCompleted = passed + failed;
+      const dueSoon = this.reviewData.total_due_soon
+        ? ` (+${this.reviewData.total_due_soon} soon)`
+        : "";
+
+      if (this.reviewData.extra_study) {
+        this.reviewStats = "Extra study";
+      } else {
+        this.reviewStats = `Completed: ${totalCompleted} (${passed}/${totalCompleted}, ${
+          totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
+        }%), Remaining: ${this.reviewData.total_due_now}${dueSoon}`;
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    saveQuizResult(passed) {
+      console.log("saveQuizResult", passed);
+      if (this.reviewSessionIsComplete()) {
+        localStorage.removeItem("review_session_complete");
+        localStorage.setItem("review_pass", 0);
+        localStorage.setItem("review_fail", 0);
+      }
+
+      let passCount = parseInt(localStorage.getItem("review_pass") || "0", 10);
+      let failCount = parseInt(localStorage.getItem("review_fail") || "0", 10);
+
+      if (passed) {
+        localStorage.setItem("review_pass", ++passCount);
+      } else {
+        localStorage.setItem("review_fail", ++failCount);
+      }
+
+      this.displayReviewSessionStats();
+    },
+
+    //--------------------------------------------------------------------------------
+    completeReviewSession() {
+      localStorage.setItem("review_session_complete", "true");
+    },
+
+    //--------------------------------------------------------------------------------
+    reviewSessionIsComplete() {
+      return localStorage.getItem("review_session_complete") === "true";
+    },
+
+    //--------------------------------------------------------------------------------
+    resetReviewSession() {
+      localStorage.removeItem("review_pass");
+      localStorage.removeItem("review_fail");
+      localStorage.removeItem("review_complete");
+
+      this.displayReviewSessionStats();
     },
 
     //--------------------------------------------------------------------------------
@@ -278,6 +336,9 @@ export function quizApp() {
           if (data.status === "success") {
             const text = passed ? "Passed" : "Failed";
             console.log(`Result reported successfully: ${text} ${variationId}`);
+            this.reviewData.total_due_now = data.total_due_now;
+            this.reviewData.total_due_soon = data.total_due_soon;
+            this.saveQuizResult(passed);
           } else {
             console.error("Failed to report result:", data.message);
           }
@@ -297,6 +358,8 @@ export function quizApp() {
         fen: this.chess.fen(),
         coordinates: false,
       });
+      this.completeReviewSession();
+      this.displayReviewSessionStats();
     },
   }; // return { ... }
 }
