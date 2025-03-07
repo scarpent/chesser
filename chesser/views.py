@@ -83,7 +83,7 @@ def get_next_due(now):
     else:
         output = "♾️"
 
-    return f"Next: {output}"
+    return f"Next review: {output}"
 
 
 def pluralize(count, label):

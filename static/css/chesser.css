@@ -279,6 +279,21 @@ button:hover {
   max-width: 600px;
 }
 
+.courses-container ul {
+  list-style-type: none;
+  padding-left: 12px;
+}
+
+.courses-container ul li {
+  font-size: 20px;
+}
+
+.courses-container ul li,
+.chapters-container ol li,
+.variations-container ol li {
+  margin-bottom: 10px;
+}
+
 table {
   border-collapse: collapse;
 }
