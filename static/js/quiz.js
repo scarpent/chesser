@@ -9,8 +9,9 @@ export function quizApp() {
     board: null,
     chess: null,
     status: "⚪️⚪️",
+    reviewStats: "Completed: 5 (4/5, 80%), Remaining: 10 (+5 soon)",
     variationData: variationData,
-    extraStudy: extraStudy,
+    reviewData: reviewData,
     showInfo: false,
     quizMoveIndex: 0,
     failed: false,
@@ -216,14 +217,14 @@ export function quizApp() {
         this.status = "🟢🟢";
       }
 
-      if (this.extraStudy) {
-        console.log("extraStudy: not reporting result");
+      if (this.reviewData.extra_study) {
+        console.log("extra study: not reporting result");
       } else {
         this.reportResult(!this.failed);
       }
 
-      if (this.failed && !this.extraStudy) {
-        this.extraStudy = true;
+      if (this.failed && !this.reviewData.extra_study) {
+        this.reviewData.extra_study = true;
         this.showInfo = false;
         this.restartQuiz();
       } else {

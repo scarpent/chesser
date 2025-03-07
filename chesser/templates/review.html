@@ -49,6 +49,7 @@
           ➡️
         </button>
       </div>
+      <p x-text="reviewStats"></p>
       <div x-show="showInfo && variationData.title" class="info-container">
         <div class="chapter-title">
           <a
@@ -71,11 +72,12 @@
       </template>
     </div>
 
-    <!-- Pass variationData safely to JavaScript -->
+    <!-- Pass variationData to JavaScript -->
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
-      window.extraStudy = JSON.parse("{{ extra_study|escapejs }}");
-      console.log("variation data loaded:", window.variationData);
+      window.reviewData = JSON.parse("{{ review_data|escapejs }}");
+      console.log("variation data:", window.variationData);
+      console.log("review data:", window.reviewData);
     </script>
 
     <script type="module">

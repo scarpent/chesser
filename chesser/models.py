@@ -126,6 +126,35 @@ class Variation(models.Model):
         now = timezone.now()
         return cls.objects.filter(next_review__lte=now).order_by("next_review").first()
 
+    @classmethod
+    def due_counts(cls):
+        """Returns a tuple of (total due now, total due soon)
+
+        Soon will vary depending on the number due now, e.g. if
+        only 1 review is due now, very soon might be 1 minute, since
+        it will come up as we finish the current review. Reviews can
+        vary quite a bit in how long to do, say 10 seconds to 5 minutes,
+        depending on length/lookups/analysis.
+
+        We'll not look too far ahead, we want this to be fairly immediate.
+        """
+        now = timezone.now()
+        total_due_now = cls.objects.filter(next_review__lte=now).count()
+
+        if total_due_now < 5:
+            relatively_soon = 2
+        if total_due_now < 10:
+            relatively_soon = 5
+        else:
+            relatively_soon = 10
+
+        soon = now + timezone.timedelta(hours=relatively_soon)
+        total_due_soon = cls.objects.filter(
+            next_review__gte=now, next_review__lte=soon
+        ).count()
+
+        return total_due_now, total_due_soon
+
 
 class Move(models.Model):
     move_num = models.IntegerField()

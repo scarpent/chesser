@@ -214,9 +214,16 @@ def review(request, variation_id=None):
     else:
         variation_data = serialize_variation(variation)
 
+    total_due_now, total_due_soon = Variation.due_counts()
+    review_data = {
+        "extra_study": extra_study,
+        "total_due_now": total_due_now,
+        "total_due_soon": total_due_soon,
+    }
+
     context = {
         "variation_data": json.dumps(variation_data),
-        "extra_study": json.dumps(extra_study),
+        "review_data": json.dumps(review_data),
     }
     return render(request, "review.html", context)
 
