@@ -89,7 +89,7 @@ class VariationAdmin(admin.ModelAdmin):
     search_fields = ("title",)
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
-    readonly_fields = ("move_sequence",)
+    readonly_fields = ("mainline_moves_str",)
 
     @admin.display(description="Title")
     def clickable_title(self, obj):

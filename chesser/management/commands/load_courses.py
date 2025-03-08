@@ -20,13 +20,13 @@ class Command(BaseCommand):
         return chapter
 
     def create_variation(
-        self, title, chapter, start_move, moves=None, move_sequence=None
+        self, title, chapter, start_move, moves=None, mainline_moves_str=None
     ):
         variation, _ = Variation.objects.get_or_create(
             title=title,
             chapter=chapter,
             course=chapter.course,
-            move_sequence=move_sequence,
+            mainline_moves_str=mainline_moves_str,
             start_move=start_move,
         )
         self.print_object_info(variation)
@@ -46,9 +46,9 @@ class Command(BaseCommand):
                     variation=variation,
                     defaults=move_defaults,
                 )
-            assert variation.mainline_moves == move_sequence, (
+            assert variation.mainline_moves == mainline_moves_str, (
                 f"Mainline moves do not match: {variation.mainline_moves} != "
-                f"{move_sequence}"
+                f"{mainline_moves_str}"
             )
             self.stdout.write(f"    {variation.mainline_moves}")
 
@@ -99,7 +99,7 @@ class Command(BaseCommand):
             white_e4_sundry,
             2,
             moves=moves,
-            move_sequence=mainline_moves,
+            mainline_moves_str=mainline_moves,
         )
 
         white_e4_e5_misc = self.create_chapter("1.e4 e5 Misc", white_course)
@@ -120,7 +120,7 @@ class Command(BaseCommand):
             white_e4_e5_misc,
             3,
             moves=moves,
-            move_sequence=mainline_moves,
+            mainline_moves_str=mainline_moves,
         )
 
         black_bishops_game = self.create_chapter("Bishop's Game", black_course)
@@ -140,7 +140,7 @@ class Command(BaseCommand):
             black_bishops_game,
             3,
             moves=moves,
-            move_sequence=mainline_moves,
+            mainline_moves_str=mainline_moves,
         )
 
         black_others = self.create_chapter("Others", black_course)
@@ -163,7 +163,7 @@ class Command(BaseCommand):
             black_others,
             1,
             moves=moves,
-            move_sequence=mainline_moves,
+            mainline_moves_str=mainline_moves,
         )
 
         black_italian = self.create_chapter("Italian 4.Ng5", black_course)
@@ -191,5 +191,5 @@ class Command(BaseCommand):
             black_italian,
             3,
             moves=moves,
-            move_sequence=mainline_moves,
+            mainline_moves_str=mainline_moves,
         )

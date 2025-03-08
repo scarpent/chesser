@@ -59,7 +59,7 @@ class Command(BaseCommand):
         variation, created = Variation.objects.get_or_create(
             course=course,
             chapter=chapter,
-            move_sequence=import_data["mainline"],
+            mainline_moves_str=import_data["mainline"],
         )
         label = "Creating" if created else "Updating"
         self.stdout.write(f"{label} variation: {variation.mainline_moves}")

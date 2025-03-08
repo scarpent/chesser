@@ -216,7 +216,7 @@ class HomeView:
         else:
             for variation in (
                 Variation.objects.filter(chapter=chapter_id)
-                .order_by("move_sequence")
+                .order_by("mainline_moves_str")
                 .iterator()
             ):
                 nav["variations"].append(
@@ -224,7 +224,7 @@ class HomeView:
                         "id": variation.id,
                         "title": variation.title,
                         "level": variation.level,
-                        "move_sequence": variation.move_sequence,
+                        "mainline_moves_str": variation.mainline_moves_str,
                     }
                 )
 

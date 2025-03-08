@@ -52,7 +52,6 @@ class Variation(models.Model):
 
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    # TODO: add check to make sure coure == chapter.course!
     course = models.ForeignKey(Course, on_delete=models.CASCADE)  # Denormalized field
     start_move = models.IntegerField(
         default=2, help_text="Reviews start at this move number"
@@ -60,13 +59,13 @@ class Variation(models.Model):
     level = models.IntegerField(default=0)
     next_review = models.DateTimeField(default=timezone.now)
     source = models.JSONField(null=True, blank=True, default=dict)
-    move_sequence = models.TextField(null=True, blank=True)  # TODO: bad name?
+    mainline_moves_str = models.TextField(null=True, blank=True)
 
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=["course", "move_sequence"],
-                name="unique_move_sequence_per_course",
+                fields=["course", "mainline_moves_str"],
+                name="unique_moves_string_per_course",
             ),
         ]
 
@@ -75,16 +74,16 @@ class Variation(models.Model):
 
     @property
     def mainline_moves(self):  # TODO: maybe don't need this anymore...
-        if not self.move_sequence:
+        if not self.mainline_moves_str:
             white_to_move = True
             move_string = ""
             for move in self.moves.iterator():
                 prefix = f"{move.move_num}." if white_to_move else ""
                 white_to_move = not white_to_move
                 move_string += f"{prefix}{move.san} "
-            self.move_sequence = move_string.strip()
-            self.save(update_fields=["move_sequence"])
-        return self.move_sequence
+            self.mainline_moves_str = move_string.strip()
+            self.save(update_fields=["mainline_moves_str"])
+        return self.mainline_moves_str
 
     @property
     def start_index(self):
