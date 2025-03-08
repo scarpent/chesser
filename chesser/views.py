@@ -280,7 +280,7 @@ class HomeView:
             .order_by("next_review")
             .first()
         ):
-            output = self.format_time_until(next_due.next_review)
+            output += self.format_time_until(next_due.next_review)
         else:
             output = "♾️"
 
