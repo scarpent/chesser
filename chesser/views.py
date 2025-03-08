@@ -284,15 +284,21 @@ class HomeView:
             days = time_until.days
             hours, remainder = divmod(time_until.seconds, 3600)
             minutes, seconds = divmod(remainder, 60)
+
             if days:
                 output += self.pluralize(days, "day")
-            if hours and days and days < 2:
+                if hours and days < 2:
+                    output += self.pluralize(hours, "hour")
+            elif hours:
                 output += self.pluralize(hours, "hour")
-            if minutes and not days:
+                if minutes:
+                    output += self.pluralize(minutes, "minute")
+            elif minutes:
                 output += self.pluralize(minutes, "minute")
-            if not days and not hours:
-                if not minutes or minutes < 2:
+                if seconds and minutes < 5:
                     output += self.pluralize(seconds, "second")
+            else:
+                output += self.pluralize(seconds, "second")
         else:
             output = "♾️"
 
