@@ -286,12 +286,13 @@ class HomeView:
             minutes, seconds = divmod(remainder, 60)
             if days:
                 output += self.pluralize(days, "day")
-            if hours:
+            if hours and days and days < 2:
                 output += self.pluralize(hours, "hour")
-            if minutes:
+            if minutes and not days:
                 output += self.pluralize(minutes, "minute")
-            if not hours and not minutes or minutes < 2:
-                output += self.pluralize(seconds, "second")
+            if not days and not hours:
+                if not minutes or minutes < 2:
+                    output += self.pluralize(seconds, "second")
         else:
             output = "♾️"
 
