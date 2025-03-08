@@ -339,6 +339,8 @@ export function quizApp() {
             this.reviewData.total_due_now = data.total_due_now;
             this.reviewData.total_due_soon = data.total_due_soon;
             this.saveQuizResult(passed);
+            if (data.total_due_now === 0 && data.total_due_soon === 0)
+              this.completeReviewSession();
           } else {
             console.error("Failed to report result:", data.message);
           }

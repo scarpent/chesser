@@ -11,6 +11,11 @@
 - work on django db export/import from sqlite <==> postgres
 - work out variation mobile view (stack things: board, buttons, text, other stuff)
 
+longer term:
+
+- ways to smooth out upcoming reviews
+- redistribute related openings so they come more regularly
+
 ## js libraries
 
 ```
