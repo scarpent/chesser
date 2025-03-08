@@ -12,22 +12,28 @@ from chesser.serializers import serialize_variation
 
 def home(request):
     nav = get_course_links(request)
+    course_id = nav["course_id"]
+    chapter_id = nav["chapter_id"]
     now = timezone.now()
     home_data = {
         "home_data": json.dumps(
             {
                 "nav": nav,
                 "recent": get_recently_reviewed(now),
-                "next_due": get_next_due(now),
-                "upcoming": get_upcoming_time_planner(now),
-                "levels": get_level_report(),
+                "next_due": get_next_due(
+                    now, course_id=course_id, chapter_id=chapter_id
+                ),
+                "upcoming": get_upcoming_time_planner(
+                    now, course_id=course_id, chapter_id=chapter_id
+                ),
+                "levels": get_level_report(course_id=course_id, chapter_id=chapter_id),
             }
         )
     }
     return render(request, "home.html", home_data)
 
 
-def get_level_report():
+def get_level_report(course_id=None, chapter_id=None):
     level_counts = []
 
     levels = [
@@ -44,11 +50,17 @@ def get_level_report():
         ("10+", 10),
     ]
 
+    variations = Variation.objects.all()
+    if course_id:
+        variations = variations.filter(course_id=course_id)
+    if chapter_id:
+        variations = variations.filter(chapter_id=chapter_id)
+
     for label, level in levels:
         if level == 10:
-            count = Variation.objects.filter(level__gte=level).count()
+            count = variations.filter(level__gte=level).count()
         else:
-            count = Variation.objects.filter(level=level).count()
+            count = variations.filter(level=level).count()
 
         if count > 0:
             level_counts.append(
@@ -61,19 +73,28 @@ def get_level_report():
     return level_counts
 
 
-def get_next_due(now):
+def get_next_due(now, course_id=None, chapter_id=None):
     output = ""
-    if Variation.objects.filter(next_review__lte=now).count():
+    variations = Variation.objects.all()
+    if course_id:
+        variations = variations.filter(course_id=course_id)
+    if chapter_id:
+        variations = variations.filter(chapter_id=chapter_id)
+
+    if variations.filter(next_review__lte=now).count():
         output = "Right now, and then "
 
     if (
-        next_due := Variation.objects.filter(next_review__gt=now)
+        next_due := variations.filter(next_review__gt=now)
         .order_by("next_review")
         .first()
     ):
         time_until = next_due.next_review - now
+        days = time_until.days
         hours, remainder = divmod(time_until.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
+        if days:
+            output += pluralize(days, "day")
         if hours:
             output += pluralize(hours, "hour")
         if minutes:
@@ -92,7 +113,7 @@ def pluralize(count, label):
     return f" {count} {label}"
 
 
-def get_upcoming_time_planner(now):
+def get_upcoming_time_planner(now, course_id=None, chapter_id=None):
     ranges = [
         ("Now", 0),
         ("1 hour", 1),
@@ -117,7 +138,9 @@ def get_upcoming_time_planner(now):
     times = []
     previous_count = -1
     for label, hours in ranges:
-        count = get_variation_count_for_time_range(now, hours)
+        count = get_variation_count_for_time_range(
+            now, hours, course_id=course_id, chapter_id=chapter_id
+        )
         if previous_count != count:
             previous_count = count
             times.append(
@@ -129,11 +152,15 @@ def get_upcoming_time_planner(now):
     return times
 
 
-def get_variation_count_for_time_range(now, hours):
+def get_variation_count_for_time_range(now, hours, course_id=None, chapter_id=None):
     end_time = now + timezone.timedelta(hours=hours)
-    return Variation.objects.filter(
-        next_review__lt=end_time,
-    ).count()
+    variations = Variation.objects.all()
+    if course_id:
+        variations = variations.filter(course_id=course_id)
+    if chapter_id:
+        variations = variations.filter(chapter_id=chapter_id)
+
+    return variations.filter(next_review__lt=end_time).count()
 
 
 def get_recently_reviewed(now):
