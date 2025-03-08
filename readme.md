@@ -2,8 +2,6 @@
 
 ## todo
 
-- track results and show completed/remaining during review session (use local storage?)
-  - need some way to decide when new session starts
 - toggle show alt moves on board
   - "alt" label to be a link - click and alts remain showing
   - holding down "a" will show them only while holding, then restore other paint or clear
@@ -11,7 +9,7 @@
 - a way to have "shared reference" moves?
 - set up railway.app account
 - work on django db export/import from sqlite <==> postgres
-- mobile view
+- work out variation mobile view (stack things: board, buttons, text, other stuff)
 
 ## js libraries
 
