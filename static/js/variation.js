@@ -166,6 +166,9 @@ export function variationApp() {
         // Set board position from the move's FEN
         const fen = moveElement.dataset.fen;
         this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
+        // Alts don't really make sense in subvariations
+        const altsElement = document.getElementById("alts");
+        if (altsElement) altsElement.innerHTML = `<b>Alts:</b>`;
       }
     },
 
@@ -230,6 +233,7 @@ export function variationApp() {
         const altFailMoves = moveData.alt_fail ? moveData.alt_fail.split(",") : [];
         combinedAlts = [...altMoves, ...altFailMoves].join(", ") || "";
       }
+
       if (!combinedAlts) {
         altsElement.innerHTML = `<b>Alts:</b> ${combinedAlts}`;
       } else {
@@ -238,13 +242,13 @@ export function variationApp() {
 
         const altLink = document.getElementById("altLink");
         if (altLink) {
-          altLink.addEventListener("click", (event) => this.showAltMoves(event));
+          altLink.addEventListener("click", (event) => this.showAltMoveArrows(event));
         }
       }
     },
 
     //--------------------------------------------------------------------------------
-    showAltMoves(event) {
+    showAltMoveArrows(event) {
       event.preventDefault();
       const altShapes = this.variationData.moves[this.mainlineMoveIndex].alt_shapes;
       if (!altShapes || this.isInSubvariation()) return;
