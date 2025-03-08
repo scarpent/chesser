@@ -269,7 +269,7 @@ export function quizApp() {
         : "";
 
       if (this.reviewData.extra_study) {
-        this.reviewStats = "Extra study";
+        this.reviewStats = "Extra Study";
       } else {
         this.reviewStats = `Completed: ${totalCompleted} (${passed}/${totalCompleted}, ${
           totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0

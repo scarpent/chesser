@@ -60,7 +60,7 @@ class Variation(models.Model):
     level = models.IntegerField(default=0)
     next_review = models.DateTimeField(default=timezone.now)
     source = models.JSONField(null=True, blank=True, default=dict)
-    move_sequence = models.TextField(null=True, blank=True)
+    move_sequence = models.TextField(null=True, blank=True)  # TODO: bad name?
 
     class Meta:
         constraints = [

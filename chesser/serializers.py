@@ -1,3 +1,4 @@
+import json
 import re
 
 import chess
@@ -68,6 +69,10 @@ def serialize_variation(variation, all_data=False):
                 "shapes": move.shapes or "",
             }
         )
+
+    if all_data:
+        add_alt_shapes_to_moves(moves)
+
     variation_data["moves"] = moves
     variation_data["annotations"] = temp_annotations
 
@@ -88,6 +93,25 @@ def serialize_variation(variation, all_data=False):
     variation_data["history"] = history
 
     return variation_data
+
+
+def add_alt_shapes_to_moves(moves_list):
+    board = chess.Board()
+    for move_dict in moves_list:
+        shapes = []
+        move = board.push_san(move_dict["san"])
+        if move_dict["alt"] or move_dict["alt_fail"]:
+            add_alt_shape(shapes, move, "green")  # mainline move (quiz answer)
+
+        # TODO: loop over alt and alt_fail and add shapes for each
+
+        move_dict["alt_shapes"] = json.dumps(shapes) if shapes else ""
+
+
+def add_alt_shape(shapes, move, color):
+    from_square = chess.square_name(move.from_square)
+    to_square = chess.square_name(move.to_square)
+    shapes.append({"orig": from_square, "dest": to_square, "brush": color})
 
 
 def get_source_html(source):

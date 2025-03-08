@@ -230,7 +230,27 @@ export function variationApp() {
         const altFailMoves = moveData.alt_fail ? moveData.alt_fail.split(",") : [];
         combinedAlts = [...altMoves, ...altFailMoves].join(", ") || "";
       }
-      altsElement.innerHTML = `<b>Alts:</b> ${combinedAlts}`;
+      if (!combinedAlts) {
+        altsElement.innerHTML = `<b>Alts:</b> ${combinedAlts}`;
+      } else {
+        // Clear previous event listener to prevent duplication
+        altsElement.innerHTML = `<a href="#" id="altLink"><b>Alts:</b></a> ${combinedAlts}`;
+
+        const altLink = document.getElementById("altLink");
+        if (altLink) {
+          altLink.addEventListener("click", (event) => this.showAltMoves(event));
+        }
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    showAltMoves(event) {
+      event.preventDefault();
+      const altShapes = this.variationData.moves[this.mainlineMoveIndex].alt_shapes;
+      if (!altShapes || this.isInSubvariation()) return;
+
+      console.log("altMoveShapes:", altShapes);
+      this.board.set({ drawable: { shapes: JSON.parse(altShapes) } });
     },
 
     //--------------------------------------------------------------------------------
