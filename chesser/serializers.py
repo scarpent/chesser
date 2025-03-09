@@ -80,11 +80,15 @@ def serialize_variation(variation, all_data=False):
     if all_data:
         now = timezone.now()
         for quiz_result in variation.quiz_results.all().order_by("-datetime"):
-            time_ago = timesince(quiz_result.datetime, now)
-            largest_date_unit = time_ago.split(",")[0] + " ago"
+            # TODO: shared code "ago" code fro here and views
+            if now < quiz_result.datetime:
+                date_unit = "In the future?!"
+            else:
+                time_ago = timesince(quiz_result.datetime, now)
+                date_unit = time_ago.split(",")[0] + " ago"
             history.append(
                 {
-                    "datetime": largest_date_unit,
+                    "datetime": date_unit,
                     "level": quiz_result.level,
                     "passed": "✅" if quiz_result.passed else "❌",
                 }

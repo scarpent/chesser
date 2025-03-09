@@ -365,7 +365,7 @@ class HomeView:
                 seen.add(result.variation_id)
 
                 if self.now < result.datetime:
-                    date_unit = "Future"
+                    date_unit = "In the future?!"
                 else:
                     time_ago = timesince(result.datetime, self.now)
                     date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
