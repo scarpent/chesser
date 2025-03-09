@@ -364,11 +364,12 @@ class HomeView:
             if result.variation_id not in seen:
                 seen.add(result.variation_id)
 
-                # TODO: Consider django naturaltime from humanize;
-                # requires enabling django.contrib.humanize in INSTALLED_APPS.
+                if self.now < result.datetime:
+                    date_unit = "Future"
+                else:
+                    time_ago = timesince(result.datetime, self.now)
+                    date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
 
-                time_ago = timesince(result.datetime, self.now)
-                date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
                 reviewed.append(
                     {
                         "variation_id": result.variation_id,

@@ -1,9 +1,9 @@
 import json
 import os
+from datetime import timezone
 
 from django.core.management.base import BaseCommand
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import make_aware
 
 from chesser.models import Course, Move, QuizResult, Variation
 
@@ -43,9 +43,11 @@ class Command(BaseCommand):
 
         self.import_variation(import_data)
 
-    def get_timezone_aware_datetime(self, date_string):
+    def get_utc_datetime(self, date_string):
+        # chessable is in UTC but has no Z, e.g. "2025-03-09T04:19:46"
         if parsed_datetime := parse_datetime(date_string):
-            return make_aware(parsed_datetime)
+            utc_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
+            return utc_datetime
         else:
             self.stderr.write(f"Invalid format for date_string: {date_string}")
 
@@ -68,9 +70,7 @@ class Command(BaseCommand):
         variation.title = import_data["variation_title"]
         variation.start = import_data["start_move"]
         variation.level = import_data["level"]
-        variation.next_review = self.get_timezone_aware_datetime(
-            import_data["next_review"]
-        )
+        variation.next_review = self.get_utc_datetime(import_data["next_review"])
 
         variation.save()
 
@@ -97,7 +97,5 @@ class Command(BaseCommand):
             quiz_result = QuizResult.objects.create(
                 variation=variation, passed=True, level=variation.level
             )
-            quiz_result.datetime = self.get_timezone_aware_datetime(
-                import_data["last_review"]
-            )
+            quiz_result.datetime = self.get_utc_datetime(import_data["last_review"])
             quiz_result.save()
