@@ -99,15 +99,32 @@ def serialize_variation(variation, all_data=False):
     return variation_data
 
 
+def parse_san_moves(alt_moves):
+    """handles various lists: 1, 2, 3 or 1,2,3 or 1 2 3"""
+    return [move.strip() for move in re.split(r"[\s,]+", alt_moves) if move]
+
+
 def add_alt_shapes_to_moves(moves_list):
     board = chess.Board()
     for move_dict in moves_list:
         shapes = []
-        move = board.push_san(move_dict["san"])
-        if move_dict["alt"] or move_dict["alt_fail"]:
-            add_alt_shape(shapes, move, "green")  # mainline move (quiz answer)
 
-        # TODO: loop over alt and alt_fail and add shapes for each
+        # Evaluate alts first before applying mainline move
+        # (Waiting to see if/when errors before adding ValueError handling)
+
+        if alt_moves := parse_san_moves(move_dict["alt"]):
+            for alt_move in alt_moves:
+                alt_move = board.parse_san(alt_move)
+                add_alt_shape(shapes, alt_move, "yellow")
+
+        if alt_fail_moves := parse_san_moves(move_dict["alt_fail"]):
+            for alt_fail_move in alt_fail_moves:
+                alt_fail_move = board.parse_san(alt_fail_move)
+                add_alt_shape(shapes, alt_fail_move, "red")
+
+        move = board.push_san(move_dict["san"])
+        if shapes:
+            add_alt_shape(shapes, move, "green")  # mainline move (quiz answer)
 
         move_dict["alt_shapes"] = json.dumps(shapes) if shapes else ""
 
@@ -181,9 +198,9 @@ def generate_variation_html(variation):
         if move.text:
             beginning_of_move_group = True
             moves_with_fen = extract_moves_with_fen(board.copy(), move.text)
-            from pprint import pprint
+            # from pprint import pprint
 
-            pprint(moves_with_fen)
+            # pprint(moves_with_fen)
 
             subvar_html = generate_subvariations_html(move, moves_with_fen)
             html += f"</h3>\n{subvar_html}\n"
