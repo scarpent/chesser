@@ -282,7 +282,7 @@ class HomeView:
         ):
             output += self.format_time_until(next_due.next_review)
         else:
-            output = "♾️"
+            output += "…?"
 
         return f"Next review: {output}"
 

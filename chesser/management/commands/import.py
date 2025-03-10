@@ -44,7 +44,8 @@ class Command(BaseCommand):
         self.import_variation(import_data)
 
     def get_utc_datetime(self, date_string):
-        # chessable is in UTC but has no Z, e.g. "2025-03-09T04:19:46"
+        # chessable is in UTC but we expect an ISO8601 date with no Z,
+        # e.g. "2025-03-09T04:19:46" (that's how we build the import file)
         if parsed_datetime := parse_datetime(date_string):
             utc_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
             return utc_datetime
@@ -92,7 +93,9 @@ class Command(BaseCommand):
 
             move.save()
 
-        if not variation.quiz_results.first():
+        if variation.level < 1:
+            self.stdout.write("Not creating QuizResult for new level 0 variation")
+        elif not variation.quiz_results.first():
             self.stdout.write("Creating QuizResult")
             quiz_result = QuizResult.objects.create(
                 variation=variation, passed=True, level=variation.level
