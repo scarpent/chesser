@@ -144,9 +144,9 @@ def get_source_html(source):
 
     if my_course := source.get("my_course"):
         mine = (
-            '<p><a href="https://www.chessable.com/variation/'
+            '<p>Source Variation <a href="https://www.chessable.com/variation/'
             f'{my_course["variation_id"]}/" target="_blank">'
-            "Source Variation</a></p>"
+            f'{my_course["variation_id"]}</a></p>'
         )
         if note := my_course.get("note", "").strip():
             mine += f"<p>{note}</p>"
@@ -154,9 +154,10 @@ def get_source_html(source):
     if original_course := source.get("original_course"):
         original = (
             f'<p>{original_course["course"]} ➤<br/>{original_course["chapter"]} ➤<br/>'
+            f'{original_course["variation_title"]} '
             '<a href="https://www.chessable.com/variation/'
             f'{original_course["variation_id"]}/" target="_blank">'
-            f'{original_course["variation_title"]}</a></p>'
+            f'{original_course["variation_id"]}</a></p>'
         )
         if note := original_course.get("note", "").strip():
             original += f"<p>{note}</p>"
