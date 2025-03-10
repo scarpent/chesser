@@ -306,6 +306,11 @@ button:hover {
   white-space: nowrap; /* Prevents breaking */
 }
 
+.chapters-container h3 {
+  text-align: center;
+  width: 100%;
+}
+
 .chapters-container ol {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)); /* Two columns */
