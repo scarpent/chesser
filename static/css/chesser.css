@@ -305,6 +305,26 @@ button:hover {
   white-space: nowrap; /* Prevents breaking */
 }
 
+.chapters-container ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Two columns */
+  gap: 10px 20px; /* Space between rows and columns */
+  padding-left: 20px; /* Adjust padding for ordered numbers */
+  counter-reset: list-counter; /* Ensures numbers remain continuous */
+}
+
+.chapters-container ol li {
+  list-style-position: inside; /* Keeps numbers inside the grid */
+}
+
+/* When the viewport is smaller than 600px, switch to a single column */
+@media (max-width: 600px) {
+  .chapters-container ol {
+    grid-template-columns: 1fr; /* Switch to a single column */
+    gap: 3px; /* Space between rows */
+  }
+}
+
 .chapters-container ol li,
 .variations-container ol li {
   margin-bottom: 10px;
