@@ -3,7 +3,6 @@
 ## todo
 
 - toggle show alt moves on board
-  - "alt" label to be a link - click and alts remain showing
   - holding down "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
@@ -16,9 +15,16 @@ longer term:
 - ways to smooth out upcoming reviews
 - redistribute related openings so they come more regularly
 
+## db import/export
+
+```sh
+./manage.py dumpdata chesser --indent 4 --output temp.json --verbosity 1
+./manage.py loaddata temp.json
+```
+
 ## js libraries
 
-```
+```js
 import { Chessground } from "https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.min.js";
 import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/chess.js";
 
