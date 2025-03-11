@@ -401,19 +401,29 @@ td:last-child {
     padding-left: 0; /* Remove left padding for better spacing */
   }
 
-  #left-column,
-  #right-column {
-    max-width: 100%; /* Ensure columns take full width on small screens */
+  #left-column {
+    display: flex;
+    flex-direction: column; /* Allow the children to stack vertically */
     width: 100%; /* Take up the full width of the container */
-  }
-
-  #right-column {
-    max-height: none; /* Allow the right column to grow in height */
-    overflow: visible; /* Allow scrolling of content if needed */
-    overflow-y: auto; /* Allow vertical scrolling */
   }
 
   #underboard {
     max-height: 300px;
+    flex-grow: 0; /* Ensures the underboard doesn't grow beyond the allocated space */
+    flex-shrink: 0; /* Prevents it from shrinking */
+    flex-basis: 30%; /* 30% of the remaining space */
+  }
+
+  #right-column {
+    max-height: none; /* Allow the right column to grow in height */
+    overflow-y: auto; /* Allow vertical scrolling */
+    flex-grow: 7; /* Allocates 70% of the remaining space */
+  }
+
+  #left-column,
+  #right-column,
+  #underboard {
+    max-width: 100%; /* Ensure columns take full width on small screens */
+    width: 100%; /* Take up the full width of the container */
   }
 }
