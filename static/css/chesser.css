@@ -396,34 +396,36 @@ td:last-child {
 @media (max-width: 900px) {
   #outer-container {
     flex-direction: column; /* Stack left and right columns vertically */
-    height: auto; /* Allow content to adjust its height */
-    gap: 10px; /* Adjust space between the columns */
-    padding-left: 0; /* Remove left padding for better spacing */
+    height: 100vh; /* Make the container take full viewport height */
+    padding-left: 0; /* Remove left padding */
+    gap: 10px; /* Space between the columns */
   }
 
   #left-column {
     display: flex;
-    flex-direction: column; /* Allow the children to stack vertically */
-    width: 100%; /* Take up the full width of the container */
+    flex-direction: column;
+    width: 100%;
+    height: auto; /* Allow content to adjust its height */
+  }
+
+  #resizable-board {
+    flex-shrink: 0; /* Prevent the board from shrinking */
   }
 
   #underboard {
-    max-height: 300px;
-    flex-grow: 0; /* Ensures the underboard doesn't grow beyond the allocated space */
-    flex-shrink: 0; /* Prevents it from shrinking */
-    flex-basis: 30%; /* 30% of the remaining space */
+    max-height: 75px; /* Max height for the underboard */
+    overflow-y: auto; /* Allow scrolling if content overflows */
   }
 
   #right-column {
-    max-height: none; /* Allow the right column to grow in height */
-    overflow-y: auto; /* Allow vertical scrolling */
-    flex-grow: 7; /* Allocates 70% of the remaining space */
+    flex-grow: 1; /* Take the remaining space */
+    overflow-y: auto; /* Allow scrolling */
+    width: 100%; /* Ensure it takes up the full width */
   }
 
-  #left-column,
-  #right-column,
-  #underboard {
-    max-width: 100%; /* Ensure columns take full width on small screens */
-    width: 100%; /* Take up the full width of the container */
+  #right-column p,
+  .variation-mainline,
+  .info-container {
+    font-size: 16px;
   }
 }
