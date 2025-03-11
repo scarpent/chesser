@@ -58,7 +58,10 @@
               <span x-text="variationData.title"></span>
             </div>
             <div x-text="variationData.mainline"></div>
-            <div x-text="'Level ➤ ' + variationData.level"></div>
+            <div>
+              <span x-text="'Level ➤ ' + variationData.level"></span>&nbsp;&nbsp;&nbsp;
+              <span x-text="'Starts @ ' + variationData.start_move"></span>
+            </div>
           </div>
           <p id="alts"></p>
           <div id="source" x-html="variationData.source_html"></div>

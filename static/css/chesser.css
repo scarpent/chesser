@@ -83,7 +83,7 @@ a:hover {
 }
 
 #right-column p {
-  font-size: 20px;
+  font-size: 18px;
   color: #eeeeee;
   line-height: 1.5;
 }
@@ -210,7 +210,7 @@ button:hover {
   flex-direction: column;
   gap: 10px;
   color: #f7b14f;
-  font-size: 20px;
+  font-size: 18px;
   max-width: 600px;
   margin-top: 20px;
 }
