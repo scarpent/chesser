@@ -215,6 +215,11 @@ button:hover {
   margin-top: 20px;
 }
 
+.recently-reviewed {
+  margin: 0 0 0 15px;
+  padding-bottom: 50px;
+}
+
 .variation-mainline {
   font-size: 20px;
   margin-bottom: 0px;
