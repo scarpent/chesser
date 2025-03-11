@@ -3,9 +3,9 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 
+from chesser import util
 from chesser.models import Chapter, Course, QuizResult, Variation
 from chesser.serializers import serialize_variation
 
@@ -144,22 +144,21 @@ def variation(request, variation_id=None):
 
 class HomeView:
     def __init__(self, request):
+        self.now = timezone.now()
+
         nav = self.get_course_links(request)
         self.course_id = nav["course_id"]
         self.chapter_id = nav["chapter_id"]
-        self.now = timezone.now()
 
-        self.home_data = {
-            "home_data": json.dumps(
-                {
-                    "nav": nav,
-                    "recent": self.get_recently_reviewed(),
-                    "next_due": self.get_next_due(),
-                    "upcoming": self.get_upcoming_time_planner(),
-                    "levels": self.get_level_report(),
-                }
-            )
+        home_stuff = {
+            "nav": nav,
+            "recent": self.get_recently_reviewed(),
+            "next_due": self.get_next_due(),
+            "upcoming": self.get_upcoming_time_planner(),
+            "levels": self.get_level_report(),
         }
+
+        self.home_data = {"home_data": json.dumps(home_stuff)}
 
     @property
     def data(self):
@@ -170,7 +169,9 @@ class HomeView:
         if self.course_id:
             variations = variations.filter(course_id=self.course_id)
         if self.chapter_id:
-            variations = variations.filter(chapter_id=self.chapter_id)
+            variations = variations.filter(chapter_id=self.chapter_id).prefetch_related(
+                "quiz_results"
+            )
         return variations
 
     def get_course_links(self, request):
@@ -224,6 +225,10 @@ class HomeView:
                         "id": variation.id,
                         "title": variation.title,
                         "level": variation.level,
+                        "time_since_last_review": "TBD",
+                        "time_until_next_review": self.format_time_until(
+                            variation.next_review
+                        ),
                         "mainline_moves_str": variation.mainline_moves_str,
                     }
                 )
@@ -287,6 +292,9 @@ class HomeView:
         return f"Next review: {output}"
 
     def format_time_until(self, next_review):
+        if self.now > next_review:
+            return "right now"
+
         time_until = next_review - self.now
         days, remainder = divmod(time_until.total_seconds(), 24 * 60 * 60)  # a day
         hours, remainder = divmod(remainder, 60 * 60)  # an hour
@@ -368,17 +376,11 @@ class HomeView:
             if result.variation_id not in seen:
                 seen.add(result.variation_id)
 
-                if self.now < result.datetime:
-                    date_unit = "In the future?!"
-                else:
-                    time_ago = timesince(result.datetime, self.now)
-                    date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
-
                 reviewed.append(
                     {
                         "variation_id": result.variation_id,
                         "variation_title": result.variation.title,
-                        "datetime": date_unit,
+                        "datetime": util.get_time_ago(self.now, result.datetime),
                         "level": result.level,
                         "passed": "✅" if result.passed else "❌",
                     }

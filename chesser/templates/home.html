@@ -65,7 +65,21 @@
         <template x-for="variation in homeData.nav.variations" :key="variation.id">
           <li>
             <a :href="'/variation/' + variation.id" x-text="variation.title"></a>
-            (L<span x-text="variation.level"></span>)<br />
+            (<span
+              x-text="'L' + variation.level"
+              class="chapter-vars-review-info"
+            ></span
+            >, last
+            <span
+              x-text="variation.time_since_last_review"
+              class="chapter-vars-review-info"
+            ></span>
+            ago, next
+            <span
+              x-text="variation.time_until_next_review"
+              class="chapter-vars-review-info"
+            ></span
+            >)<br />
             <span x-text="variation.mainline_moves_str"></span>
           </li>
         </template>

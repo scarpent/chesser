@@ -4,7 +4,8 @@ import re
 import chess
 import chess.pgn
 from django.utils import timezone
-from django.utils.timesince import timesince
+
+from chesser import util
 
 annotations = {
     "none": "No annotation",
@@ -80,15 +81,9 @@ def serialize_variation(variation, all_data=False):
     if all_data:
         now = timezone.now()
         for quiz_result in variation.quiz_results.all().order_by("-datetime"):
-            # TODO: shared code "ago" code fro here and views
-            if now < quiz_result.datetime:
-                date_unit = "In the future?!"
-            else:
-                time_ago = timesince(quiz_result.datetime, now)
-                date_unit = time_ago.split(",")[0] + " ago"
             history.append(
                 {
-                    "datetime": date_unit,
+                    "datetime": util.get_time_ago(now, quiz_result.datetime),
                     "level": quiz_result.level,
                     "passed": "✅" if quiz_result.passed else "❌",
                 }
