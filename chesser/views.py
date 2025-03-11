@@ -357,7 +357,11 @@ class HomeView:
         return variations.filter(next_review__lt=end_time).count()
 
     def get_recently_reviewed(self):
-        recently_reviewed = QuizResult.objects.filter().order_by("-datetime")[:50]
+        variations_qs = self.get_variations().values("id")  # Subquery, not list of IDs
+        recently_reviewed = QuizResult.objects.filter(
+            variation__in=variations_qs
+        ).order_by("-datetime")[:50]
+
         reviewed = []
         seen = set()
         for result in recently_reviewed:
@@ -380,6 +384,6 @@ class HomeView:
                     }
                 )
 
-                if len(seen) > 12:
+                if len(seen) > 15:
                     break
         return reviewed

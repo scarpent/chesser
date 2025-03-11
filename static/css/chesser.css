@@ -279,6 +279,8 @@ button:hover {
 #next-due {
   color: lightgreen;
   font-size: 20px;
+  text-align: center;
+  padding: 10px 10px 15px;
 }
 
 .variations-container {
@@ -289,7 +291,7 @@ button:hover {
   display: flex;
   align-items: center; /* Aligns the header and list vertically */
   gap: 15px; /* Space between "My Book" and the list */
-  margin: 20px 0 10px;
+  margin: 20px 0;
 }
 
 .courses-container h3 {
