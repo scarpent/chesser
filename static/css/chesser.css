@@ -415,12 +415,13 @@ td:last-child {
   #underboard {
     max-height: 75px; /* Max height for the underboard */
     overflow-y: auto; /* Allow scrolling if content overflows */
+    width: 100%;
   }
 
   #right-column {
     flex-grow: 1; /* Take the remaining space */
     overflow-y: auto; /* Allow scrolling */
-    width: 100%; /* Ensure it takes up the full width */
+    width: 100%;
   }
 
   #right-column p,
