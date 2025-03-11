@@ -17,38 +17,37 @@
     @keydown.window="handleKeyNavigation($event)"
   >
     <div id="outer-container">
-      <!-- maybe rename container... -->
       <div id="left-column">
         <div id="resizable-board">
           <div id="board"></div>
           <div id="resize-handle"></div>
         </div>
+        <div class="button-container">
+          <button @click="window.location.href='/'" title="Home">🏠️</button>
+          <button
+            @click="window.location.href='/review/' + variationData.variation_id"
+            title="Review"
+          >
+            📝
+          </button>
+          <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
+          <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
+          <button @click="previousSubvarMove()" title="Subvariation Back">↖️</button>
+          <button @click="nextSubvarMove()" title="Subvariation Forward">↘️</button>
+          <button
+            @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+            title="Lichess analysis board"
+          >
+            🔍️
+          </button>
+          <button
+            @click="window.location.href='/edit/' + variationData.variation_id"
+            title="Edit"
+          >
+            ⚙️
+          </button>
+        </div>
         <div id="underboard">
-          <div class="button-container">
-            <button @click="window.location.href='/'" title="Home">🏠️</button>
-            <button
-              @click="window.location.href='/review/' + variationData.variation_id"
-              title="Review"
-            >
-              📝
-            </button>
-            <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
-            <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
-            <button @click="previousSubvarMove()" title="Subvariation Back">↖️</button>
-            <button @click="nextSubvarMove()" title="Subvariation Forward">↘️</button>
-            <button
-              @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
-              title="Lichess analysis board"
-            >
-              🔍️
-            </button>
-            <button
-              @click="window.location.href='/edit/' + variationData.variation_id"
-              title="Edit"
-            >
-              ⚙️
-            </button>
-          </div>
           <div class="info-container">
             <div class="chapter-title">
               <a

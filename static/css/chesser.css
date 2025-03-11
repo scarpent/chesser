@@ -391,3 +391,29 @@ td:last-child {
     align-items: center;
   }
 }
+
+/* variation view */
+@media (max-width: 900px) {
+  #outer-container {
+    flex-direction: column; /* Stack left and right columns vertically */
+    height: auto; /* Allow content to adjust its height */
+    gap: 10px; /* Adjust space between the columns */
+    padding-left: 0; /* Remove left padding for better spacing */
+  }
+
+  #left-column,
+  #right-column {
+    max-width: 100%; /* Ensure columns take full width on small screens */
+    width: 100%; /* Take up the full width of the container */
+  }
+
+  #right-column {
+    max-height: none; /* Allow the right column to grow in height */
+    overflow: visible; /* Allow scrolling of content if needed */
+    overflow-y: auto; /* Allow vertical scrolling */
+  }
+
+  #underboard {
+    max-height: 300px;
+  }
+}
