@@ -2,10 +2,46 @@ from django.utils.timesince import timesince
 
 
 def get_time_ago(now, result_datetime):
-    if now < result_datetime:
-        date_unit = "In the future?!"
+    if not result_datetime:
+        time_ago = "Never"
+    elif now < result_datetime:
+        time_ago = "In the future?!"
     else:
         time_ago = timesince(result_datetime, now)
-        date_unit = time_ago.split(",")[0] + " ago"  # Largest unit
+        time_ago = time_ago.split(",")[0] + " ago"  # Largest unit
 
-    return date_unit
+    return time_ago
+
+
+def format_time_until(now, next_review):
+    if now > next_review:
+        return "right now"
+
+    time_until = next_review - now
+    days, remainder = divmod(time_until.total_seconds(), 24 * 60 * 60)  # a day
+    hours, remainder = divmod(remainder, 60 * 60)  # an hour
+    minutes, seconds = divmod(remainder, 60)
+
+    parts = []
+    if days:
+        parts.append(pluralize(int(days), "day"))
+        if hours and days < 2:
+            parts.append(pluralize(int(hours), "hour"))
+    elif hours:
+        parts.append(pluralize(int(hours), "hour"))
+        if minutes:
+            parts.append(pluralize(int(minutes), "minute"))
+    elif minutes:
+        parts.append(pluralize(int(minutes), "minute"))
+        if seconds and minutes < 5:
+            parts.append(pluralize(int(seconds), "second"))
+    else:
+        parts.append(pluralize(int(seconds), "second"))
+
+    return " ".join(parts)
+
+
+def pluralize(count, label):
+    if count != 1:
+        label += "s"
+    return f" {count} {label}"

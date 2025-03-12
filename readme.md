@@ -8,9 +8,8 @@
 - a way to have "shared reference" moves?
 - set up railway.app account
 - work on django db export/import from sqlite <==> postgres
-- work out variation mobile view (stack things: board, buttons, text, other stuff)
 
-longer term:
+## longer term:
 
 - ways to smooth out upcoming reviews
 - redistribute related openings so they come more regularly

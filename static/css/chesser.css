@@ -361,6 +361,7 @@ td:last-child {
   color: orange;
 }
 
+.mainline-moves,
 .chapter-vars-mainline-moves {
   color: greenyellow;
 }

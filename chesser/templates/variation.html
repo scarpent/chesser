@@ -54,13 +54,16 @@
                 :href="'/?course=' + variationData.course_id + '&chapter=' + variationData.chapter_id"
                 ><span x-text="variationData.chapter"></span
               ></a>
-              <span> ➤ </span>
+              <span class="sep"> ➤ </span>
               <span x-text="variationData.title"></span>
             </div>
-            <div x-text="variationData.mainline"></div>
+            <div x-text="variationData.mainline" class="mainline-moves"></div>
             <div>
               <span x-text="'Level ➤ ' + variationData.level"></span>&nbsp;&nbsp;&nbsp;
-              <span x-text="'Starts @ ' + variationData.start_move"></span>
+              <span x-text="'Last ➤ ' + variationData.time_since_last_review"></span
+              >&nbsp;&nbsp;&nbsp;<span
+                x-text="'Start Move ➤ ' + variationData.start_move"
+              ></span>
             </div>
           </div>
           <p id="alts"></p>
@@ -72,7 +75,7 @@
                 <template x-for="(entry, index) in variationData.history" :key="index">
                   <tr>
                     <td x-text="entry.passed"></td>
-                    <td>L<span x-text="entry.level"></span></td>
+                    <td><span x-text="'L' + entry.level"></span></td>
                     <td x-text="entry.datetime"></td>
                   </tr>
                 </template>

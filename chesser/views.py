@@ -221,14 +221,12 @@ class HomeView:
                 .iterator()
             ):
 
-                if latest := variation.get_latest_quiz_result():
-                    time_since_last_review = util.get_time_ago(
-                        self.now, latest.datetime
-                    )
-                else:
-                    time_since_last_review = "never"
-
-                time_until_next_review = self.format_time_until(variation.next_review)
+                time_since_last_review = util.get_time_ago(
+                    self.now, variation.get_latest_quiz_result_datetime()
+                )
+                time_until_next_review = util.format_time_until(
+                    self.now, variation.next_review
+                )
 
                 nav["variations"].append(
                     {
@@ -293,43 +291,11 @@ class HomeView:
             .order_by("next_review")
             .first()
         ):
-            output += self.format_time_until(next_due.next_review)
+            output += util.format_time_until(self.now, next_due.next_review)
         else:
             output += "…?"
 
         return f"Next review: {output}"
-
-    def format_time_until(self, next_review):
-        if self.now > next_review:
-            return "right now"
-
-        time_until = next_review - self.now
-        days, remainder = divmod(time_until.total_seconds(), 24 * 60 * 60)  # a day
-        hours, remainder = divmod(remainder, 60 * 60)  # an hour
-        minutes, seconds = divmod(remainder, 60)
-
-        parts = []
-        if days:
-            parts.append(self.pluralize(int(days), "day"))
-            if hours and days < 2:
-                parts.append(self.pluralize(int(hours), "hour"))
-        elif hours:
-            parts.append(self.pluralize(int(hours), "hour"))
-            if minutes:
-                parts.append(self.pluralize(int(minutes), "minute"))
-        elif minutes:
-            parts.append(self.pluralize(int(minutes), "minute"))
-            if seconds and minutes < 5:
-                parts.append(self.pluralize(int(seconds), "second"))
-        else:
-            parts.append(self.pluralize(int(seconds), "second"))
-
-        return " ".join(parts)
-
-    def pluralize(self, count, label):
-        if count != 1:
-            label += "s"
-        return f" {count} {label}"
 
     def get_upcoming_time_planner(self):
         ranges = [
