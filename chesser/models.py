@@ -120,6 +120,9 @@ class Variation(models.Model):
             level=previous_level,
         )
 
+    def get_latest_quiz_result(self):
+        return self.quiz_results.order_by("-datetime").first()
+
     @classmethod
     def due_for_review(cls):
         now = timezone.now()

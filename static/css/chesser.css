@@ -361,6 +361,10 @@ td:last-child {
   color: orange;
 }
 
+.chapter-vars-mainline-moves {
+  color: greenyellow;
+}
+
 .history-table td {
   padding: 0px 5px;
   text-align: left;

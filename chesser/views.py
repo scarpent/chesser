@@ -220,15 +220,23 @@ class HomeView:
                 .order_by("mainline_moves_str")
                 .iterator()
             ):
+
+                if latest := variation.get_latest_quiz_result():
+                    time_since_last_review = util.get_time_ago(
+                        self.now, latest.datetime
+                    )
+                else:
+                    time_since_last_review = "never"
+
+                time_until_next_review = self.format_time_until(variation.next_review)
+
                 nav["variations"].append(
                     {
                         "id": variation.id,
                         "title": variation.title,
                         "level": variation.level,
-                        "time_since_last_review": "TBD",
-                        "time_until_next_review": self.format_time_until(
-                            variation.next_review
-                        ),
+                        "time_since_last_review": time_since_last_review,
+                        "time_until_next_review": time_until_next_review,
                         "mainline_moves_str": variation.mainline_moves_str,
                     }
                 )
