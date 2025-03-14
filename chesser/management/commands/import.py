@@ -65,7 +65,14 @@ class Command(BaseCommand):
             mainline_moves_str=import_data["mainline"],
         )
         label = "Creating" if created else "Updating"
-        self.stdout.write(f"{label} variation: {variation.mainline_moves}")
+        self.stdout.write(
+            f"{label} variation #{variation.id}: {variation.mainline_moves}"
+        )
+
+        # TODO: eventually we'll have more options for re-imports; once
+        # we're reviewing on chesser, we won't want to update level and
+        # next_review anymore. Also will have a flag for if a variation's
+        # text/shapes/alts can be overwritten or not.
 
         variation.source = import_data["source"]
         variation.title = import_data["variation_title"]

@@ -41,6 +41,14 @@ class MoveInline(admin.TabularInline):
 class VariationInline(admin.TabularInline):
     model = Variation
     extra = 0  # Number of empty forms to display
+    fields = (
+        "title",
+        "course",
+        "start_move",
+        "level",
+        "next_review",
+        "mainline_moves_display",
+    )
     readonly_fields = ("mainline_moves_display",)
     ordering = ("title",)
 

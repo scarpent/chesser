@@ -1,5 +1,9 @@
 ## notes...
 
+pgn-safe parens
+@@StartBracket@@ @@EndBracket@@
+This ⸨is⸩ a test. ⸨This might be best?⸩
+
 ## todo
 
 - toggle show alt moves on board
@@ -8,6 +12,7 @@
 - a way to have "shared reference" moves?
 - set up railway.app account
 - work on django db export/import from sqlite <==> postgres
+- authentication / login
 
 ## longer term:
 

@@ -49,6 +49,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "chesser.middleware.LoginRequiredMiddleware",
 ]
 
 ROOT_URLCONF = "chesser.urls"
@@ -127,6 +128,13 @@ STATICFILES_DIRS = [
 
 # Ensure this line is present to collect static files from apps
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/"
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # One year in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_SECURE = not DEBUG  # Secure cookies in production only
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

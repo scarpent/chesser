@@ -16,12 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
+from django.contrib.auth.views import LoginView
 from django.urls import path
 
 from chesser import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("login/", LoginView.as_view(), name="login"),
     path("", views.home, name="home"),
     path("review/", views.review, name="review_default"),
     path("review/<int:variation_id>/", views.review, name="review_with_id"),
