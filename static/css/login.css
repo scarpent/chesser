@@ -1,23 +1,35 @@
+/* Simplified login page CSS */
 body {
   background-color: #222222;
   color: #eeeeee;
   font-family: "Helvetica", sans-serif;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+  justify-content: flex-start; /* Align content at the top */
+  align-items: center; /* Center content horizontally */
   height: 100vh;
   margin: 0;
-  padding-top: 20px;
+  padding: 0;
+}
+
+form {
+  text-align: center; /* Center the form content */
+  background-color: #333333;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  margin-top: 50px; /* Move the form 20% down from the top */
 }
 
 button {
   background-color: #111111;
   color: #eeeeee;
   border: 1px solid #444444;
-  font-size: 24px;
+  font-size: 18px;
   margin-top: 20px;
   cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
 
 button:hover {

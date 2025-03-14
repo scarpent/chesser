@@ -131,6 +131,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/login/"
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # One year in seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False

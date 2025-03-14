@@ -183,8 +183,8 @@ class HomeView:
             "courses": [],
             "chapters": [],
             "variations": [],
-            "courses_var_count": 0,
-            "chapters_var_count": 0,
+            "courses_var_count": 0,  # total white + black variations
+            "chapters_var_count": 0,  # total white or black variations
         }
         course_id = request.GET.get("course")
         chapter_id = request.GET.get("chapter")

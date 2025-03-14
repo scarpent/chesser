@@ -159,6 +159,18 @@
       </template>
     </p>
 
+    <!-- Admin and Logout links side by side -->
+    <div class="links-container">
+      <!-- Admin link -->
+      <a href="/admin/" class="admin-link">Admin</a>
+
+      <!-- Logout form styled as a link -->
+      <form method="POST" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="logout-button">Logout</button>
+      </form>
+    </div>
+
     <!-- Pass homeData safely to JavaScript -->
     <script>
       window.homeData = JSON.parse("{{ home_data|escapejs }}");
