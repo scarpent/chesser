@@ -183,6 +183,8 @@ class HomeView:
             "courses": [],
             "chapters": [],
             "variations": [],
+            "courses_var_count": 0,
+            "chapters_var_count": 0,
         }
         course_id = request.GET.get("course")
         chapter_id = request.GET.get("chapter")
@@ -191,6 +193,7 @@ class HomeView:
                 variation_count = Variation.objects.filter(
                     chapter__course=course
                 ).count()
+                nav["courses_var_count"] += variation_count
                 nav["courses"].append(
                     {
                         "id": course.id,
@@ -204,6 +207,7 @@ class HomeView:
                 Chapter.objects.filter(course=course).order_by("title").iterator()
             ):
                 variation_count = Variation.objects.filter(chapter=chapter_id).count()
+                nav["chapters_var_count"] += variation_count
                 nav["chapters"].append(
                     {
                         "id": chapter_id.id,

@@ -20,7 +20,7 @@
       x-show="Object.keys(homeData.nav.courses).length > 0"
       class="courses-container"
     >
-      <h3>📚️ My Book ➤</h3>
+      <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
       <ul>
         <template x-for="course in homeData.nav.courses" :key="course.id">
           <li>
@@ -38,6 +38,7 @@
       <h3>
         📚️ <a href="/">My Book</a> ➤
         <span x-text="homeData.nav.course_name"></span>
+        (<span x-text="homeData.nav.chapters_var_count"></span>)
       </h3>
       <ol>
         <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
@@ -60,6 +61,7 @@
         ></a>
         ➤
         <span x-text="homeData.nav.chapter_name"></span>
+        (<span x-text="homeData.nav.variations.length"></span>)
       </h3>
       <ol>
         <template x-for="variation in homeData.nav.variations" :key="variation.id">
