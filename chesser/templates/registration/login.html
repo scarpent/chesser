@@ -1,5 +1,18 @@
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+    <link href="{% static 'css/login.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+    <form method="post">
+      <h2>Login</h2>
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">🪵➡️</button>
+    </form>
+  </body>
+</html>
