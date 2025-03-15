@@ -1,2 +1,7 @@
-echo "🐍 python manage.py runserver"
-python manage.py runserver
+echo "👀 watchmedo auto-restart collectstatic runserver 🐍"
+watchmedo auto-restart \
+  --directory=static --directory=templates --directory=chesser \
+  --pattern="*.js;*.css;*.html;*.py" \
+  --recursive \
+  -- bash -c "python manage.py collectstatic --noinput && python manage.py runserver"
+

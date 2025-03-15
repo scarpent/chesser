@@ -33,3 +33,5 @@ isort
 ipdb
 ipython
 pip-tools
+# monitor local static files and restart
+watchdog
