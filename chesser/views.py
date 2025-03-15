@@ -306,7 +306,7 @@ class HomeView:
             ("Now", 0),
             ("1 hour", 1),
             # ("2 hours", 2),
-            # ("4 hours", 4),
+            ("4 hours", 4),
             ("8 hours", 8),
             ("16 hours", 16),
             ("1 day", 1 * 24),
