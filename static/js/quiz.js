@@ -57,7 +57,7 @@ export function quizApp() {
 
     goToStartingPosition() {
       this.status = "🟣🟣";
-      // Go back to so we can play the first opposing move
+      // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {
         for (let i = 0; i <= this.quizMoveIndex; i++) {
@@ -315,6 +315,13 @@ export function quizApp() {
       localStorage.removeItem("review_complete");
 
       this.displayReviewSessionStats();
+    },
+
+    //--------------------------------------------------------------------------------
+    gotoVariationView() {
+      const variationId = this.variationData.variation_id || 1;
+      const idx = this.quizMoveIndex - 1 || 6;
+      window.location.href = `/variation/${variationId}/?idx=${idx}`;
     },
 
     //--------------------------------------------------------------------------------
