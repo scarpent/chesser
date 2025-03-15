@@ -98,7 +98,7 @@ a:hover {
   justify-content: center;
   align-items: center;
   width: 100%;
-  gap: 15px;
+  gap: 5px;
   margin-bottom: 10px;
 }
 
@@ -330,14 +330,6 @@ button:hover {
   list-style-position: inside; /* Keeps numbers inside the grid */
 }
 
-/* When the viewport is smaller than 600px, switch to a single column */
-@media (max-width: 600px) {
-  .chapters-container ol {
-    grid-template-columns: 1fr; /* Switch to a single column */
-    gap: 3px; /* Space between rows */
-  }
-}
-
 .chapters-container ol li,
 .variations-container ol li {
   margin-bottom: 10px;
@@ -401,10 +393,39 @@ td:last-child {
   margin-right: auto;
 }
 
+@media (max-width: 450px) {
+  body {
+    padding-top: 0;
+  }
+
+  #outer-container {
+    width: 100%;
+  }
+
+  #resizable-board {
+    all: unset; /* Resets everything */
+    display: block; /* Optional: Make sure it still shows */
+    width: 100vw;
+    height: 100vw;
+    min-width: 200px;
+    /* min-height: 200px; */
+    flex-shrink: 0;
+  }
+
+  #resize-handle {
+    display: none; /* Hide the resize handle */
+  }
+}
+
 @media (max-width: 600px) {
   .reviews-levels-container {
     flex-direction: column;
     align-items: center;
+  }
+
+  .chapters-container ol {
+    grid-template-columns: 1fr; /* Switch to a single column */
+    gap: 3px; /* Space between rows */
   }
 }
 
@@ -457,9 +478,12 @@ td:last-child {
 
 .admin-link,
 .logout-button {
-  color: red;
   cursor: pointer;
   font-size: 16px; /* Ensures text size is consistent */
+}
+
+.logout-button {
+  color: red;
 }
 
 .logout-form button {

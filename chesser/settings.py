@@ -68,8 +68,6 @@ MIDDLEWARE = [
     "chesser.middleware.LoginRequiredMiddleware",
 ]
 
-MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-
 ROOT_URLCONF = "chesser.urls"
 
 TEMPLATES = [
@@ -150,7 +148,6 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
 # Ensure this line is present to collect static files from apps
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
