@@ -7,6 +7,8 @@ django
 dj-database-url
 # postgres
 psycopg[binary]
+# for serving production
+gunicorn
 
 # https://github.com/niklasf/python-chess/
 chess

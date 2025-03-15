@@ -52,6 +52,8 @@ flake8-commas==4.0.0
     # via -r requirements.in
 flake8-comprehensions==3.16.0
     # via -r requirements.in
+gunicorn==23.0.0
+    # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
 ipdb==0.13.13
@@ -76,6 +78,7 @@ packaging==24.2
     # via
     #   black
     #   build
+    #   gunicorn
     #   pytest
 parso==0.8.4
     # via jedi
