@@ -4,6 +4,7 @@
 # python-dateutil
 # requests
 django
+dj-database-url
 
 # https://github.com/niklasf/python-chess/
 chess
