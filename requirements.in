@@ -9,6 +9,8 @@ dj-database-url
 psycopg[binary]
 # for serving production
 gunicorn
+# for static files
+whitenoise
 
 # https://github.com/niklasf/python-chess/
 chess
