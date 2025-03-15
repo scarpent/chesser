@@ -18,7 +18,9 @@ export function variationApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        this.goToStartingPosition();
+        const displayMoveIndex = this.getDisplayMoveIndex();
+
+        this.goToStartingPosition(displayMoveIndex);
         this.board = window.Chessground(boardElement, {
           viewOnly: true,
           highlight: { lastMove: true, check: true },
@@ -43,12 +45,31 @@ export function variationApp() {
       }
     }, // initVariation()
 
-    goToStartingPosition() {
-      // Show the state before our first move
-      this.mainlineMoveIndex = this.variationData.start_index - 1;
+    getDisplayMoveIndex() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const idxParam = urlParams.get("idx");
+      let moveIndex = idxParam ? parseInt(idxParam, 10) : null;
+
+      if (isNaN(moveIndex)) {
+        return null;
+      } else if (moveIndex < 0) {
+        moveIndex = 0;
+      } else if (moveIndex >= this.variationData.moves.length) {
+        moveIndex = this.variationData.moves.length - 1;
+      }
+      return moveIndex;
+    },
+
+    goToStartingPosition(moveIndex = null) {
+      // Use moveIndex if provided, otherwise fall back to the default start
+      // index minus one, so we can show the state before the first move
+      this.mainlineMoveIndex =
+        moveIndex !== null ? moveIndex : this.variationData.start_index - 1;
+
       if (this.mainlineMoveIndex >= 0) {
-        for (let i = 0; i <= this.mainlineMoveIndex; i++)
+        for (let i = 0; i <= this.mainlineMoveIndex; i++) {
           this.chess.move(this.variationData.moves[i].san);
+        }
       }
     },
 
