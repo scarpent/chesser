@@ -5,6 +5,8 @@
 # requests
 django
 dj-database-url
+# postgres
+psycopg[binary]
 
 # https://github.com/niklasf/python-chess/
 chess

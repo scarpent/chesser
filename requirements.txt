@@ -91,6 +91,10 @@ pluggy==1.5.0
     # via pytest
 prompt-toolkit==3.0.50
     # via ipython
+psycopg[binary]==3.2.6
+    # via -r requirements.in
+psycopg-binary==3.2.6
+    # via psycopg
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
