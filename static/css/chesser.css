@@ -278,7 +278,7 @@ button:hover {
 
 #next-due {
   color: lightgreen;
-  font-size: 20px;
+  font-size: 18px;
   text-align: center;
   padding: 10px 10px 15px;
 }
@@ -474,43 +474,42 @@ td:last-child {
 
 .course-covers {
   display: flex;
-  justify-content: center; /* Centers the images in the available space */
+  justify-content: center; /* Always centers images */
   align-items: center;
   width: 100%; /* Ensures full width */
-  max-width: none; /* Prevents constraints */
-  flex-wrap: nowrap; /* Keeps images on one line */
-  gap: 50px;
+  max-width: none;
+  flex-wrap: nowrap; /* Keeps images on the same row */
+  gap: 50px; /* Space between images */
 }
 
 .course {
   display: flex;
+  justify-content: center; /* Ensures each image centers inside its container */
   align-items: center;
-  flex: 1; /* Allows each image container to expand */
+  flex: 0 1 auto; /* Prevents stretching */
 }
 
-.course-white {
-  justify-content: flex-end; /* Push image to the right */
-}
-
-.course-black {
-  justify-content: flex-start; /* Push image to the left */
-}
-
+/* General image styling */
 .course img {
-  width: 60%; /* Keep image at 60% of its original size */
-  max-width: 250px; /* Optional: Prevents images from getting too large */
-  height: auto; /* Maintains aspect ratio */
-  display: block; /* Avoids inline spacing issues */
+  width: 70%;
+  max-width: 250px;
+  height: auto;
+  display: block;
   border: 8px solid;
   border-radius: 15px;
 }
 
+/* Individual styling for borders */
 .course-white img {
   border-color: white;
-  background-color: black; /* Helps the white border stand out */
+  background-color: black;
 }
 
 .course-black img {
   border-color: black;
-  background-color: white; /* Helps the black border stand out */
+  background-color: white;
+}
+
+[x-cloak] {
+  display: none !important;
 }
