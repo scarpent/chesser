@@ -393,6 +393,76 @@ td:last-child {
   margin-right: auto;
 }
 
+/* Admin and Logout links */
+.links-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 50px;
+}
+
+.admin-link,
+.logout-button {
+  cursor: pointer;
+  font-size: 16px; /* Ensures text size is consistent */
+}
+
+.logout-button {
+  color: red;
+}
+
+.logout-form button {
+  background: none;
+  border: none;
+  padding: 0; /* Removes extra padding for consistency */
+}
+
+.logout-button:hover {
+  text-decoration: underline;
+}
+
+.course-covers {
+  display: flex;
+  justify-content: center; /* Always centers images */
+  align-items: center;
+  width: 100%; /* Ensures full width */
+  max-width: none;
+  flex-wrap: nowrap; /* Keeps images on the same row */
+  gap: 50px; /* Space between images */
+}
+
+.course {
+  display: flex;
+  justify-content: center; /* Ensures each image centers inside its container */
+  align-items: center;
+  flex: 0 1 auto; /* Prevents stretching */
+}
+
+/* General image styling */
+.course img {
+  width: 70%;
+  max-width: 250px;
+  height: auto;
+  display: block;
+  border: 8px solid;
+  border-radius: 15px;
+}
+
+/* Individual styling for borders */
+.course-white img {
+  border-color: white;
+  background-color: black;
+}
+
+.course-black img {
+  border-color: black;
+  background-color: white;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
 @media (max-width: 450px) {
   body {
     padding-top: 0;
@@ -466,74 +536,4 @@ td:last-child {
   .info-container {
     font-size: 16px;
   }
-}
-
-/* Admin and Logout links */
-.links-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 50px;
-}
-
-.admin-link,
-.logout-button {
-  cursor: pointer;
-  font-size: 16px; /* Ensures text size is consistent */
-}
-
-.logout-button {
-  color: red;
-}
-
-.logout-form button {
-  background: none;
-  border: none;
-  padding: 0; /* Removes extra padding for consistency */
-}
-
-.logout-button:hover {
-  text-decoration: underline;
-}
-
-.course-covers {
-  display: flex;
-  justify-content: center; /* Always centers images */
-  align-items: center;
-  width: 100%; /* Ensures full width */
-  max-width: none;
-  flex-wrap: nowrap; /* Keeps images on the same row */
-  gap: 50px; /* Space between images */
-}
-
-.course {
-  display: flex;
-  justify-content: center; /* Ensures each image centers inside its container */
-  align-items: center;
-  flex: 0 1 auto; /* Prevents stretching */
-}
-
-/* General image styling */
-.course img {
-  width: 70%;
-  max-width: 250px;
-  height: auto;
-  display: block;
-  border: 8px solid;
-  border-radius: 15px;
-}
-
-/* Individual styling for borders */
-.course-white img {
-  border-color: white;
-  background-color: black;
-}
-
-.course-black img {
-  border-color: black;
-  background-color: white;
-}
-
-[x-cloak] {
-  display: none !important;
 }
