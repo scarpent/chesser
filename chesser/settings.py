@@ -18,7 +18,10 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-IS_PRODUCTION = os.getenv("RAILWAY_ENV") is not None
+IS_PRODUCTION = (
+    os.getenv("RAILWAY_ENVIRONMENT_NAME") is not None
+    or os.getenv("DATABASE_URL") is not None
+)
 
 
 # Quick-start development settings - unsuitable for production
@@ -83,7 +86,11 @@ WSGI_APPLICATION = "chesser.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 if IS_PRODUCTION:
-    DATABASES = {"default": dj_database_url.config(default=os.getenv("DATABASE_URL"))}
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL is not set in Railway. Check your variables.")
+
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
 else:
     DATABASES = {
         "default": {
