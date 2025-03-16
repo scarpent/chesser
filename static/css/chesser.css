@@ -484,6 +484,10 @@ td:last-child {
 }
 
 @media (max-width: 600px) {
+  body {
+    font-size: 18px;
+  }
+
   .reviews-levels-container {
     flex-direction: column;
     align-items: center;

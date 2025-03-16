@@ -164,7 +164,7 @@ export function quizApp() {
     showQuizMove() {
       if (!this.variationData.moves) return;
       if (this.noMoreMoves()) {
-        this.status = "🤷 no more moves to show 💣️";
+        this.status = "🤷 no move to show 💣️";
         return;
       }
       const san = this.variationData.moves[this.quizMoveIndex].san;
