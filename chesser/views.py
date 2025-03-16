@@ -163,6 +163,8 @@ def variation(request, variation_id=None):
 
 
 def serve_manifest(request):
+    # manifest.json should be in root but couldn't reach it there without this;
+    # we also reference the static location in the html...
     manifest_path = os.path.join(settings.BASE_DIR, "static", "manifest.json")
     try:
         with open(manifest_path, "r") as manifest_file:
