@@ -8,7 +8,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  padding-top: 20px;
+  padding-top: 15px;
 }
 
 a {
@@ -464,10 +464,6 @@ td:last-child {
 }
 
 @media (max-width: 450px) {
-  body {
-    padding-top: 10px;
-  }
-
   #outer-container {
     width: 100%;
   }

@@ -9,15 +9,6 @@
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="homeApp()" x-init="initHome()">
-    <div class="button-container">
-      <button @click="window.location.href='/'" title="Home">🏠️</button>
-      <button @click="window.location.href='/review/'" title="Review">📝</button>
-      <button @click="window.location.href='/import/'" title="Import">📥️</button>
-      <button @click="window.location.href='/edit/'" title="Edit">⚙️</button>
-    </div>
-
-    <div id="next-due" x-text="homeData.next_due"></div>
-
     <div class="course-covers">
       <a
         href="/?course=1"
@@ -35,6 +26,13 @@
       >
         <img src="{% static 'images/castle-black.png' %}" alt="Castle Black" />
       </a>
+    </div>
+
+    <div class="button-container">
+      <button @click="window.location.href='/'" title="Home">🏠️</button>
+      <button @click="window.location.href='/review/'" title="Review">📝</button>
+      <button @click="window.location.href='/import/'" title="Import">📥️</button>
+      <button @click="window.location.href='/edit/'" title="Edit">⚙️</button>
     </div>
 
     <div
@@ -114,6 +112,8 @@
         <p>This chapter lacks variations.</p>
       </template>
     </div>
+
+    <div id="next-due" x-text="homeData.next_due"></div>
 
     <div class="reviews-levels-wrapper">
       <div class="reviews-levels-container">
