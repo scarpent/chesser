@@ -465,7 +465,7 @@ td:last-child {
 
 @media (max-width: 450px) {
   body {
-    padding-top: 0;
+    padding-top: 10px;
   }
 
   #outer-container {
