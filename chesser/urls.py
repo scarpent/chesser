@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("manifest.json", views.serve_manifest),
     path("", views.home, name="home"),
     path("review/", views.review, name="review_default"),
     path("review/<int:variation_id>/", views.review, name="review_with_id"),

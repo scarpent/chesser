@@ -1,5 +1,7 @@
 import json
+import os
 
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -158,6 +160,16 @@ def variation(request, variation_id=None):
     context = {"variation_data": json.dumps(variation_data)}
 
     return render(request, "variation.html", context)
+
+
+def serve_manifest(request):
+    manifest_path = os.path.join(settings.BASE_DIR, "static", "manifest.json")
+    try:
+        with open(manifest_path, "r") as manifest_file:
+            manifest_data = json.load(manifest_file)
+        return JsonResponse(manifest_data)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 class HomeView:
