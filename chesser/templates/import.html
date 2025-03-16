@@ -15,7 +15,16 @@
       <button @click="window.location.href='/edit/'" title="Edit">⚙️</button>
     </div>
 
-    <!-- Pass importData safely to JavaScript -->
+    <form
+      method="POST"
+      enctype="multipart/form-data"
+      action="{% url 'import_dump_data' %}"
+    >
+      {% csrf_token %}
+      <input type="file" name="dump_file" />
+      <button type="submit">Upload</button>
+    </form>
+
     <script>
       window.importData = JSON.parse("{{ import_data|escapejs }}");
       console.log("import data loaded:", window.importData);

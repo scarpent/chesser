@@ -1,5 +1,6 @@
 import json
 
+from django.core.management import call_command
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -79,6 +80,26 @@ def report_result(request):
 def importer(request):
     import_data = {"import_data": json.dumps("Import data!")}
     return render(request, "import.html", import_data)
+
+
+def import_dump_data(request):
+    if request.method == "POST" and request.FILES.get("dump_file"):
+        file = request.FILES["dump_file"]
+        file_content = file.read().decode("utf-8")
+
+        try:
+            json.loads(file_content)  # Check if it's valid JSON
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+
+        with open("/tmp/dump.json", "w") as temp_file:
+            temp_file.write(file_content)
+
+        call_command("loaddata", "/tmp/dump.json")
+
+        return JsonResponse({"message": "Data imported successfully!"}, status=200)
+
+    return render(request, "import_form.html")
 
 
 def edit(request, variation_id=None):
