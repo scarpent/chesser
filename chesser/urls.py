@@ -29,11 +29,11 @@ urlpatterns = [
     path("review/", views.review, name="review_default"),
     path("review/<int:variation_id>/", views.review, name="review_with_id"),
     path("report-result/", views.report_result, name="report_result"),
-    path("import/", views.importer, name="import"),
     path("edit/", views.edit, name="edit_default"),
     path("edit/<int:variation_id>/", views.edit, name="edit_with_id"),
     path("save-variation/", views.save_variation, name="save_variation"),
     path("variation/", views.variation, name="variation_default"),
     path("variation/<int:variation_id>/", views.variation, name="variation"),
+    path("import/", views.importer, name="import"),
     path("save-dump-data/", views.save_dump_data, name="save_dump_data"),
 ]
