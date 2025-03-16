@@ -6,25 +6,18 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
+- scrolling in mobile view
 - toggle show alt moves on board
   - holding down "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
-- set up railway.app account
 - work on django db export/import from sqlite <==> postgres
-- authentication / login
+- version number for variations? (version 1 is overwritable)
 
 ## longer term:
 
 - ways to smooth out upcoming reviews
 - redistribute related openings so they come more regularly
-
-## db import/export
-
-```sh
-./manage.py dumpdata chesser --indent 4 --output temp.json --verbosity 1
-./manage.py loaddata temp.json
-```
 
 ## js libraries
 
@@ -45,9 +38,10 @@ import { Chess } from "../chessjs/chess.js";
 
 ## getGame
 
-getGame endpoint has lastReviewed/lastUpdated info; lastReviewed will be needed along with levels from getReview, in order to set review dates
-
 has most things: mainline moves, text, alt moves, and draws
+
+getGame endpoint has lastReviewed/lastUpdated info, but thankfully
+we can get this in bulk instead from courseExplorerData
 
 ## courseExplorerData
 
