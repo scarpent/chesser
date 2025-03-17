@@ -306,7 +306,7 @@ class HomeView:
         output = ""
         variations = self.get_variations()
         if variations.filter(next_review__lte=self.now).count():
-            output = "Now, then in "
+            output = "Now, and then "
 
         if (
             next_due := variations.filter(next_review__gt=self.now)
@@ -317,7 +317,7 @@ class HomeView:
         else:
             output += "…?"
 
-        return f"Next: {output}"
+        return f"⏰ Next: {output}"
 
     def get_upcoming_time_planner(self):
         ranges = [

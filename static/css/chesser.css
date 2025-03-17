@@ -340,7 +340,7 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)); /* Two columns */
   gap: 10px 20px; /* Space between rows and columns */
-  padding-left: 20px; /* Adjust padding for ordered numbers */
+
   counter-reset: list-counter; /* Ensures numbers remain continuous */
 }
 
