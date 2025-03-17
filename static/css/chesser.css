@@ -226,6 +226,11 @@ button:hover {
   padding-bottom: 50px;
 }
 
+.recently-reviewed,
+#history {
+  line-height: 1.7;
+}
+
 .variation-mainline {
   font-size: 20px;
   margin-bottom: 0px;
