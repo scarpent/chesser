@@ -24,24 +24,18 @@ def format_time_until(now, next_review):
 
     parts = []
     if days:
-        parts.append(pluralize(int(days), "day"))
+        parts.append(f"{int(days)}d")
         if hours and days < 2:
-            parts.append(pluralize(int(hours), "hour"))
+            parts.append(f"{int(hours)}h")
     elif hours:
-        parts.append(pluralize(int(hours), "hour"))
+        parts.append(f"{int(hours)}h")
         if minutes:
-            parts.append(pluralize(int(minutes), "minute"))
+            parts.append(f"{int(minutes)}m")
     elif minutes:
-        parts.append(pluralize(int(minutes), "minute"))
+        parts.append(f"{int(minutes)}m")
         if seconds and minutes < 5:
-            parts.append(pluralize(int(seconds), "second"))
+            parts.append(f"{int(seconds)}s")
     else:
-        parts.append(pluralize(int(seconds), "second"))
+        parts.append(f"{int(seconds)}s")
 
     return " ".join(parts)
-
-
-def pluralize(count, label):
-    if count != 1:
-        label += "s"
-    return f" {count} {label}"

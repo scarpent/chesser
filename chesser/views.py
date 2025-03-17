@@ -306,7 +306,7 @@ class HomeView:
         output = ""
         variations = self.get_variations()
         if variations.filter(next_review__lte=self.now).count():
-            output = "Now, and then "
+            output = "Now, and then in "
 
         if (
             next_due := variations.filter(next_review__gt=self.now)
