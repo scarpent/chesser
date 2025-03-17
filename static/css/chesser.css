@@ -297,8 +297,9 @@ button:hover {
 
 .chapters-container,
 .variations-container {
-  margin-left: 15px;
-  margin-right: 5px;
+  border: cyan 1px solid;
+  padding-left: 15px;
+  padding-right: 5px;
 }
 
 .variations-container {
@@ -340,7 +341,7 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)); /* Two columns */
   gap: 10px 20px; /* Space between rows and columns */
-
+  padding-left: 0;
   counter-reset: list-counter; /* Ensures numbers remain continuous */
 }
 
