@@ -295,6 +295,12 @@ button:hover {
   padding: 10px 10px 15px;
 }
 
+.chapters-container,
+.variations-container {
+  margin-left: 15px;
+  margin-right: 5px;
+}
+
 .variations-container {
   max-width: 600px;
 }
