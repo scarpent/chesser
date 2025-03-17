@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#000000" />
   </head>
   <body x-data="homeApp()" x-init="initHome()">
-    <div class="course-covers">
+    <div class="course-covers" x-transition.opacity>
       <a
         href="/?course=1"
         class="course course-white"
@@ -30,7 +30,7 @@
       </a>
     </div>
 
-    <div class="button-container">
+    <div class="button-container" x-transition.opacity x-cloak>
       <button @click="window.location.href='/'" title="Home">🏠️</button>
       <button @click="window.location.href='/review/'" title="Review">📝</button>
       <button @click="window.location.href='/import/'" title="Import">📥️</button>
@@ -40,6 +40,8 @@
     <div
       x-show="Object.keys(homeData.nav.courses).length > 0"
       class="courses-container"
+      x-transition.opacity
+      x-cloak
     >
       <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
       <ul>
@@ -55,6 +57,8 @@
     <div
       x-show="Object.keys(homeData.nav.chapters).length > 0"
       class="chapters-container"
+      x-transition.opacity
+      x-cloak
     >
       <h3>
         📚️ <a href="/">My Book</a> ➤
@@ -74,7 +78,12 @@
       </ol>
     </div>
 
-    <div x-show="homeData.nav.chapter_id" class="variations-container">
+    <div
+      x-show="homeData.nav.chapter_id"
+      class="variations-container"
+      x-transition.opacity
+      x-cloak
+    >
       <h3>
         📚️ <a href="/">My Book</a> ➤
         <a :href="'/?course=' + homeData.nav.course_id"
@@ -117,7 +126,7 @@
 
     <div id="next-due" x-text="homeData.next_due"></div>
 
-    <div class="reviews-levels-wrapper">
+    <div class="reviews-levels-wrapper" x-transition.opacity x-cloak>
       <div class="reviews-levels-container">
         <div class="reviews-container">
           <h3>Upcoming Reviews</h3>
@@ -164,24 +173,27 @@
       </div>
     </div>
 
-    <h3>Recently Reviewed</h3>
-    <p class="recently-reviewed">
-      <template x-for="review in homeData.recent" :key="review.variation_id">
-        <span>
-          <span x-text="review.passed"></span>
-          <a
-            :href="'/variation/' + review.variation_id"
-            x-text="review.variation_title"
-          ></a>
-          (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span>)
-          <a :href="'/edit/' +review.variation_id">edit</a>
-          <a :href="'/review/' + review.variation_id">review</a><br />
-        </span>
-      </template>
-    </p>
+    <div x-transition.opacity x-cloak>
+      <h3>Recently Reviewed</h3>
+      <p class="recently-reviewed">
+        <template x-for="review in homeData.recent" :key="review.variation_id">
+          <span>
+            <span x-text="review.passed"></span>
+            <a
+              :href="'/variation/' + review.variation_id"
+              x-text="review.variation_title"
+            ></a>
+            (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span
+            >)
+            <a :href="'/edit/' +review.variation_id">edit</a>
+            <a :href="'/review/' + review.variation_id">review</a><br />
+          </span>
+        </template>
+      </p>
+    </div>
 
     <!-- Admin and Logout links side by side -->
-    <div class="links-container">
+    <div class="links-container" x-transition.opacity x-cloak>
       <!-- Admin link -->
       <a href="/admin/" class="admin-link">Admin</a>
 
