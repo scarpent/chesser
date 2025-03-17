@@ -470,7 +470,10 @@ td:last-child {
 }
 
 @media (max-width: 450px) {
-  body {
+  body,
+  #right-column p,
+  .variation-mainline,
+  .info-container {
     font-size: 20px;
   }
 
@@ -535,11 +538,5 @@ td:last-child {
     flex-grow: 1; /* Take the remaining space */
     overflow-y: auto; /* Allow scrolling */
     width: 100%;
-  }
-
-  #right-column p,
-  .variation-mainline,
-  .info-container {
-    font-size: 16px;
   }
 }
