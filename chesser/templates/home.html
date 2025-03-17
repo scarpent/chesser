@@ -11,12 +11,11 @@
     <meta name="theme-color" content="#000000" />
   </head>
   <body x-data="homeApp()" x-init="initHome()">
-    <div class="course-covers" x-transition.opacity>
+    <div class="course-covers" x-cloak>
       <a
         href="/?course=1"
         class="course course-white"
         x-show="!homeData.nav.course_id || homeData.nav.course_id == 1"
-        x-cloak
       >
         <img src="{% static 'images/castle-white.png' %}" alt="Castle White" />
       </a>
@@ -24,13 +23,12 @@
         href="/?course=2"
         class="course course-black"
         x-show="!homeData.nav.course_id || homeData.nav.course_id == 2"
-        x-cloak
       >
         <img src="{% static 'images/castle-black.png' %}" alt="Castle Black" />
       </a>
     </div>
 
-    <div class="button-container" x-transition.opacity x-cloak>
+    <div class="button-container" x-cloak>
       <button @click="window.location.href='/'" title="Home">🏠️</button>
       <button @click="window.location.href='/review/'" title="Review">📝</button>
       <button @click="window.location.href='/import/'" title="Import">📥️</button>
@@ -40,7 +38,6 @@
     <div
       x-show="Object.keys(homeData.nav.courses).length > 0"
       class="courses-container"
-      x-transition.opacity
       x-cloak
     >
       <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
@@ -57,7 +54,6 @@
     <div
       x-show="Object.keys(homeData.nav.chapters).length > 0"
       class="chapters-container"
-      x-transition.opacity
       x-cloak
     >
       <h3>
@@ -78,12 +74,7 @@
       </ol>
     </div>
 
-    <div
-      x-show="homeData.nav.chapter_id"
-      class="variations-container"
-      x-transition.opacity
-      x-cloak
-    >
+    <div x-show="homeData.nav.chapter_id" class="variations-container" x-cloak>
       <h3>
         📚️ <a href="/">My Book</a> ➤
         <a :href="'/?course=' + homeData.nav.course_id"
@@ -126,7 +117,7 @@
 
     <div id="next-due" x-text="homeData.next_due"></div>
 
-    <div class="reviews-levels-wrapper" x-transition.opacity x-cloak>
+    <div class="reviews-levels-wrapper" x-cloak>
       <div class="reviews-levels-container">
         <div class="reviews-container">
           <h3>Upcoming Reviews</h3>
@@ -173,7 +164,7 @@
       </div>
     </div>
 
-    <div x-transition.opacity x-cloak>
+    <div x-cloak>
       <h3>Recently Reviewed</h3>
       <p class="recently-reviewed">
         <template x-for="review in homeData.recent" :key="review.variation_id">
@@ -193,7 +184,7 @@
     </div>
 
     <!-- Admin and Logout links side by side -->
-    <div class="links-container" x-transition.opacity x-cloak>
+    <div class="links-container" x-cloak>
       <!-- Admin link -->
       <a href="/admin/" class="admin-link">Admin</a>
 
