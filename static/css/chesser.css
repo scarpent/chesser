@@ -474,7 +474,7 @@ td:last-child {
   #right-column p,
   .variation-mainline,
   .info-container,
-  .next-due {
+  #next-due {
     font-size: 20px;
   }
 
