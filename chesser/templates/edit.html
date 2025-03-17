@@ -26,8 +26,19 @@
     </div>
 
     <div id="variation-info">
-      <div x-text="variationData.course"></div>
-      <div x-text="variationData.chapter"></div>
+      <div>
+        <a
+          :href="'/?course=' + variationData.course_id + '&chapter=' + variationData.chapter_id"
+          x-text="variationData.chapter"
+        ></a>
+        ➤
+        <a
+          :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
+          target="_blank"
+          x-text="'#' + variationData.variation_id"
+        ></a>
+      </div>
+
       <div>
         <label for="variation-title">Variation Name:</label>
         <input type="text" id="variation-title" x-model="variationData.title" />
