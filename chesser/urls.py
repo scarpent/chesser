@@ -35,5 +35,5 @@ urlpatterns = [
     path("variation/", views.variation, name="variation_default"),
     path("variation/<int:variation_id>/", views.variation, name="variation"),
     path("import/", views.importer, name="import"),
-    path("save-dump-data/", views.save_dump_data, name="save_dump_data"),
+    path("upload-json-data/", views.upload_json_data, name="upload_json_data"),
 ]

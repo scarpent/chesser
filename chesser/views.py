@@ -81,17 +81,17 @@ def importer(request):
     return render(request, "import.html", import_data)
 
 
-def save_dump_data(request):
-    if request.method == "POST" and request.FILES.get("dump_file"):
-        file = request.FILES["dump_file"]
+def upload_json_data(request):
+    file = request.FILES.get("uploaded_file")
+    if file and request.method == "POST":
         file_content = file.read().decode("utf-8")
 
         try:
-            json.loads(file_content)  # Check if it's valid JSON
+            json.loads(file_content)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON format."}, status=400)
 
-        with open("/tmp/dump.json", "w") as temp_file:
+        with open("/tmp/upload.json", "w") as temp_file:
             temp_file.write(file_content)
 
         return JsonResponse({"message": "Data saved successfully"}, status=200)

@@ -18,10 +18,10 @@
     <form
       method="POST"
       enctype="multipart/form-data"
-      action="{% url 'save_dump_data' %}"
+      action="{% url 'upload_json_data' %}"
     >
       {% csrf_token %}
-      <input type="file" name="dump_file" />
+      <input type="file" name="uploaded_file" />
       <button type="submit">Upload</button>
     </form>
 
