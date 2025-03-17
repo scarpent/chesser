@@ -473,7 +473,8 @@ td:last-child {
   body,
   #right-column p,
   .variation-mainline,
-  .info-container {
+  .info-container,
+  .next-due {
     font-size: 20px;
   }
 
@@ -500,6 +501,7 @@ td:last-child {
   .reviews-levels-container {
     flex-direction: column;
     align-items: center;
+    gap: 10px;
   }
 
   .chapters-container ol {
