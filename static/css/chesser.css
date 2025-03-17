@@ -297,7 +297,6 @@ button:hover {
 
 .chapters-container,
 .variations-container {
-  border: cyan 1px solid;
   padding-left: 15px;
   padding-right: 5px;
 }
@@ -349,9 +348,15 @@ button:hover {
   list-style-position: inside; /* Keeps numbers inside the grid */
 }
 
+.variations-container ol {
+  padding-left: 15px;
+  padding-right: 5px;
+}
+
 .chapters-container ol li,
 .variations-container ol li {
   margin-bottom: 10px;
+  padding-left: 0;
 }
 
 table {
