@@ -47,7 +47,6 @@ class Variation(models.Model):
         },
         "original_course": {},  # same as above
     }
-
     """
 
     title = models.CharField(max_length=100)
@@ -56,8 +55,8 @@ class Variation(models.Model):
     start_move = models.IntegerField(
         default=2, help_text="Reviews start at this move number"
     )
-    level = models.IntegerField(default=0)
-    next_review = models.DateTimeField(default=timezone.now)
+    level = models.IntegerField(default=0, db_index=True)
+    next_review = models.DateTimeField(default=timezone.now, db_index=True)
     source = models.JSONField(null=True, blank=True, default=dict)
     mainline_moves_str = models.TextField(null=True, blank=True)
 
@@ -164,7 +163,7 @@ class Variation(models.Model):
 
 class Move(models.Model):
     move_num = models.IntegerField()
-    sequence = models.IntegerField()  # expected to be in order from 0: 0, 1, 2, 3...
+    sequence = models.IntegerField()  # expected to be in order from 0 to n
     variation = models.ForeignKey(
         Variation, on_delete=models.CASCADE, related_name="moves"
     )
@@ -198,6 +197,6 @@ class QuizResult(models.Model):
     variation = models.ForeignKey(
         Variation, on_delete=models.CASCADE, related_name="quiz_results"
     )
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(auto_now_add=True, db_index=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
     passed = models.BooleanField(default=False)
