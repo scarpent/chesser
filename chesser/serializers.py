@@ -29,9 +29,11 @@ annotations = {
 def serialize_variation(variation, all_data=False):
     color = variation.chapter.course.color
 
+    now = timezone.now()
     time_since_last_review = util.get_time_ago(
-        timezone.now(), variation.get_latest_quiz_result_datetime()
+        now, variation.get_latest_quiz_result_datetime()
     )
+    time_until_next_review = util.format_time_until(now, variation.next_review)
     source_html = get_source_html(variation.source) if all_data else None
     html = generate_variation_html(variation) if all_data else None
 
@@ -46,6 +48,7 @@ def serialize_variation(variation, all_data=False):
         "start_move": variation.start_move,
         "level": variation.level,
         "time_since_last_review": time_since_last_review,
+        "time_until_next_review": time_until_next_review,
         "mainline": variation.mainline_moves,
         "source_html": source_html,
         "html": html,

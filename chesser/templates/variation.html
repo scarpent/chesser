@@ -62,12 +62,10 @@
               <span x-text="variationData.title"></span>
             </div>
             <div x-text="variationData.mainline" class="mainline-moves"></div>
-            <div>
-              <span x-text="'Level ➤ ' + variationData.level"></span>&nbsp;&nbsp;&nbsp;
-              <span x-text="'Last ➤ ' + variationData.time_since_last_review"></span
-              >&nbsp;&nbsp;&nbsp;<span
-                x-text="'Start Move ➤ ' + variationData.start_move"
-              ></span>
+            <div class="variation-state-info">
+              <span x-text="'L' + variationData.level"></span>
+              <span x-text="'Next ➤ ' + variationData.time_until_next_review"></span
+              ><span x-text="'Starts @ Move ' + variationData.start_move"></span>
             </div>
           </div>
           <p id="alts"></p>
