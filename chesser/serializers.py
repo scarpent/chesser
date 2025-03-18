@@ -107,17 +107,21 @@ def add_alt_shapes_to_moves(moves_list):
         shapes = []
 
         # Evaluate alts first before applying mainline move
-        # (Waiting to see if/when errors before adding ValueError handling)
-
         if alt_moves := parse_san_moves(move_dict["alt"]):
             for alt_move in alt_moves:
-                alt_move = board.parse_san(alt_move)
-                add_alt_shape(shapes, alt_move, "yellow")
+                try:
+                    alt_move = board.parse_san(alt_move)
+                    add_alt_shape(shapes, alt_move, "yellow")
+                except ValueError:
+                    print(f"Invalid alt move: {alt_move}")
 
         if alt_fail_moves := parse_san_moves(move_dict["alt_fail"]):
             for alt_fail_move in alt_fail_moves:
-                alt_fail_move = board.parse_san(alt_fail_move)
-                add_alt_shape(shapes, alt_fail_move, "red")
+                try:
+                    alt_fail_move = board.parse_san(alt_fail_move)
+                    add_alt_shape(shapes, alt_fail_move, "red")
+                except ValueError:
+                    print(f"Invalid alt fail move: {alt_fail_move}")
 
         move = board.push_san(move_dict["san"])
         if shapes:
