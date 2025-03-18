@@ -1,5 +1,5 @@
 echo "👀 watchmedo auto-restart collectstatic runserver 🐍"
-watchmedo auto-restart \
+DEBUG=True watchmedo auto-restart \
   --directory=static --directory=templates --directory=chesser \
   --pattern="*.js;*.css;*.html;*.py" \
   --recursive \
