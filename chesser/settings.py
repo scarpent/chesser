@@ -175,3 +175,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Set the maximum size for uploaded files (in bytes)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024  # 25 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
+
+DROPBOX_ACCESS_TOKEN = os.getenv("DROPBOX_ACCESS_TOKEN")

@@ -4,6 +4,8 @@
 #
 #    pip-compile
 #
+apscheduler==3.11.0
+    # via -r requirements.in
 asgiref==3.8.1
     # via django
 asttokens==3.0.0
@@ -14,13 +16,17 @@ black==25.1.0
     # via -r requirements.in
 build==1.2.2.post1
     # via pip-tools
+certifi==2025.1.31
+    # via requests
+charset-normalizer==3.4.1
+    # via requests
 chess==1.11.2
     # via -r requirements.in
 click==8.1.8
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.6.12
+coverage[toml]==7.7.0
     # via pytest-cov
 decorator==5.2.1
     # via
@@ -34,6 +40,8 @@ django==5.1.7
     #   dj-database-url
     #   django-extensions
 django-extensions==3.2.3
+    # via -r requirements.in
+dropbox==12.0.2
     # via -r requirements.in
 executing==2.2.0
     # via stack-data
@@ -54,6 +62,8 @@ flake8-comprehensions==3.16.0
     # via -r requirements.in
 gunicorn==23.0.0
     # via -r requirements.in
+idna==3.10
+    # via requests
 iniconfig==2.0.0
     # via pytest
 ipdb==0.13.13
@@ -92,6 +102,8 @@ platformdirs==4.3.6
     # via black
 pluggy==1.5.0
     # via pytest
+ply==3.11
+    # via stone
 prompt-toolkit==3.0.50
     # via ipython
 psycopg[binary]==3.2.6
@@ -123,16 +135,28 @@ pytest-cov==6.0.0
     # via -r requirements.in
 pytest-django==4.10.0
     # via -r requirements.in
+requests==2.32.3
+    # via dropbox
+six==1.17.0
+    # via
+    #   dropbox
+    #   stone
 sqlparse==0.5.3
     # via django
 stack-data==0.6.3
     # via ipython
+stone==3.3.1
+    # via dropbox
 traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
 typing-extensions==4.12.2
     # via dj-database-url
+tzlocal==5.3.1
+    # via apscheduler
+urllib3==2.3.0
+    # via requests
 watchdog==6.0.0
     # via -r requirements.in
 wcwidth==0.2.13

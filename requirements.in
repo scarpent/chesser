@@ -11,6 +11,10 @@ psycopg[binary]
 gunicorn
 # for static files
 whitenoise
+# for backups
+dropbox
+# apscheduler for backups (advanced python scheduler)
+apscheduler
 
 # https://github.com/niklasf/python-chess/
 chess
