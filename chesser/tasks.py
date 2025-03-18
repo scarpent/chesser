@@ -9,7 +9,7 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", minutes=1)
+    scheduler.add_job(backup_and_upload, "interval", minutes=30)
     scheduler.start()
 
 
