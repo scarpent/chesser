@@ -240,7 +240,11 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     restartQuiz() {
       if (!this.variationData.moves) return;
-      if (!this.completed) this.failed = false;
+      if (this.completed) {
+        this.reviewData.extra_study = true;
+      } else {
+        this.failed = false;
+      }
       this.chess.reset();
       this.goToStartingPosition();
       this.board.set({
@@ -248,6 +252,7 @@ export function quizApp() {
         movable: { dests: this.toDests() },
       });
       this.playOpposingMove();
+      this.displayReviewSessionStats();
     },
 
     //--------------------------------------------------------------------------------
@@ -268,13 +273,11 @@ export function quizApp() {
         ? ` (+${this.reviewData.total_due_soon} soon)`
         : "";
 
-      if (this.reviewData.extra_study) {
-        this.reviewStats = "Extra Study";
-      } else {
-        this.reviewStats = `Completed: ${totalCompleted} (${passed}/${totalCompleted}, ${
-          totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
-        }%), Remaining: ${this.reviewData.total_due_now}${dueSoon}`;
-      }
+      const extra = this.reviewData.extra_study ? "(Extra Study) " : "";
+
+      this.reviewStats = `${extra} Done: ${totalCompleted} (${passed}/${totalCompleted}, ${
+        totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
+      }%), Due: ${this.reviewData.total_due_now}${dueSoon}`;
     },
 
     //--------------------------------------------------------------------------------

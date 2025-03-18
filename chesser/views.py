@@ -96,7 +96,7 @@ def upload_json_data(request):
 
         return JsonResponse({"message": "Data saved successfully"}, status=200)
 
-    return render(request, "import_form.html")
+    return render(request, "import.html")
 
 
 def edit(request, variation_id=None):
