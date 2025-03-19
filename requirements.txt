@@ -14,12 +14,14 @@ attrs==25.3.0
     # via flake8-bugbear
 black==25.1.0
     # via -r requirements.in
+boto3==1.37.15
+    # via -r requirements.in
+botocore==1.37.15
+    # via
+    #   boto3
+    #   s3transfer
 build==1.2.2.post1
     # via pip-tools
-certifi==2025.1.31
-    # via requests
-charset-normalizer==3.4.1
-    # via requests
 chess==1.11.2
     # via -r requirements.in
 click==8.1.8
@@ -41,8 +43,6 @@ django==5.1.7
     #   django-extensions
 django-extensions==3.2.3
     # via -r requirements.in
-dropbox==12.0.2
-    # via -r requirements.in
 executing==2.2.0
     # via stack-data
 flake8==7.1.2
@@ -62,8 +62,6 @@ flake8-comprehensions==3.16.0
     # via -r requirements.in
 gunicorn==23.0.0
     # via -r requirements.in
-idna==3.10
-    # via requests
 iniconfig==2.0.0
     # via pytest
 ipdb==0.13.13
@@ -78,6 +76,10 @@ isort==6.0.1
     # via -r requirements.in
 jedi==0.19.2
     # via ipython
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 matplotlib-inline==0.1.7
     # via ipython
 mccabe==0.7.0
@@ -102,8 +104,6 @@ platformdirs==4.3.6
     # via black
 pluggy==1.5.0
     # via pytest
-ply==3.11
-    # via stone
 prompt-toolkit==3.0.50
     # via ipython
 psycopg[binary]==3.2.6
@@ -135,18 +135,16 @@ pytest-cov==6.0.0
     # via -r requirements.in
 pytest-django==4.10.0
     # via -r requirements.in
-requests==2.32.3
-    # via dropbox
+python-dateutil==2.9.0.post0
+    # via botocore
+s3transfer==0.11.4
+    # via boto3
 six==1.17.0
-    # via
-    #   dropbox
-    #   stone
+    # via python-dateutil
 sqlparse==0.5.3
     # via django
 stack-data==0.6.3
     # via ipython
-stone==3.3.1
-    # via dropbox
 traitlets==5.14.3
     # via
     #   ipython
@@ -156,7 +154,7 @@ typing-extensions==4.12.2
 tzlocal==5.3.1
     # via apscheduler
 urllib3==2.3.0
-    # via requests
+    # via botocore
 watchdog==6.0.0
     # via -r requirements.in
 wcwidth==0.2.13

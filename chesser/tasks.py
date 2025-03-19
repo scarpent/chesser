@@ -1,7 +1,7 @@
 import gzip
 from io import StringIO
 
-import dropbox
+import boto3
 from apscheduler.schedulers.background import BackgroundScheduler
 from django.conf import settings
 from django.core.management import call_command
@@ -10,40 +10,43 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", hours=4)
+    scheduler.add_job(backup_and_upload, "interval", minutes=5)
     scheduler.start()
 
 
-def upload_to_dropbox(file_path, dropbox_dest_path):
-    """
-    Upload a file to Dropbox using the Dropbox API.
-    :param file_path: The local file path of the file to upload.
-    :param dropbox_dest_path: The destination path in Dropbox
-
-    dropbox path needs to start with a forward slash? dropps it into Apps/Chesser
-    """
-    if not settings.DROPBOX_ACCESS_TOKEN:
-        print("DROPBOX_ACCESS_TOKEN not set")
+def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
+    if not settings.AWS_ACCESS_KEY_ID:
+        print("AWS access key not set")
         return False
 
-    dbx = dropbox.Dropbox(settings.DROPBOX_ACCESS_TOKEN)
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
 
-    with open(file_path, "rb") as f:
-        try:
-            dbx.files_upload(
-                f.read(), dropbox_dest_path, mode=dropbox.files.WriteMode.overwrite
-            )
-            print(f"File uploaded successfully to {dropbox_dest_path}")
-        except dropbox.exceptions.ApiError as e:
-            print(f"Error uploading file: {e}")
-            return False
+        with open(local_filepath, "rb") as uploaded_file:
+            file_data = uploaded_file.read()
 
+        s3_client.put_object(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Key=s3_object_key,
+            Body=file_data,
+            ContentType=content_type,
+        )
+    except Exception as e:
+        print(f"Error uploading to S3: {e}")
+        return False
+
+    print(f"Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
     return True
 
 
 def backup_and_upload():
-    if not settings.DROPBOX_ACCESS_TOKEN:
-        print("Not running backup for want of a DROPBOX_ACCESS_TOKEN")
+    if not settings.AWS_ACCESS_KEY_ID:
+        print("Not running backup for want of an AWS access key")
         return False
 
     buffer = StringIO()  # Use BytesIO to hold the compressed data
@@ -59,7 +62,7 @@ def backup_and_upload():
         f.write(backup_data_bytes)
 
     datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
-    dropbox_dest_path = f"/chesser_dumpdata_{datestamp}.json.gz"
-    print("Uploading gzipped dumpdata to Dropbox 📦️")
+    s3_object_key = f"chesser_dumpdata_{datestamp}.json.gz"
+    print("Uploading gzipped dumpdata to AWS s3 ☁️")
 
-    return upload_to_dropbox(backup_gzipped_path, dropbox_dest_path)
+    return upload_to_amazon_s3(backup_gzipped_path, s3_object_key, "application/gzip")

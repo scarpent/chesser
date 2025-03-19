@@ -11,8 +11,8 @@ psycopg[binary]
 gunicorn
 # for static files
 whitenoise
-# for backups
-dropbox
+# for backups to amazon s3
+boto3
 # apscheduler for backups (advanced python scheduler)
 apscheduler
 
