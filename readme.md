@@ -11,7 +11,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
   - holding down "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
-- work on django db export/import from sqlite <==> postgres
 - version number for variations? (version 1 is overwritable)
 - bulk import json format
 - start move updates

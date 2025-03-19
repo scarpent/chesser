@@ -63,6 +63,6 @@ def backup_and_upload():
 
     datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
     s3_object_key = f"db_backup_{datestamp}.json.gz"
-    print("Uploading DB backup to AWS s3 ☁️")
+    print("☁️ Uploading DB backup to AWS s3 🪣")
 
     return upload_to_amazon_s3(backup_gzipped_path, s3_object_key, "application/gzip")
