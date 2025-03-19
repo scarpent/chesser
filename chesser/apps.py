@@ -13,9 +13,10 @@ class ChesserConfig(AppConfig):
     def ready(self):
         import chesser.signals  # Ensure signals are loaded  # noqa: F401
 
-        if os.environ.get("RUN_MAIN") == "true":  # Prevent running more than once
-            if settings.DEBUG:
-                print("DEBUG mode is on; not running scheduler 🕐️")
-            else:
-                print("Starting scheduler")
-                start_scheduler()
+        if settings.IS_PRODUCTION:
+            print("Starting scheduler (production)")
+            start_scheduler()
+        elif os.environ.get("RUN_MAIN") == "true":
+            # RUN_MAIN prevents running more than once in dev
+            print("Starting scheduler")
+            start_scheduler()
