@@ -13,7 +13,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - a way to have "shared reference" moves?
 - work on django db export/import from sqlite <==> postgres
 - version number for variations? (version 1 is overwritable)
-- railway => dropbox backups
 - bulk import json format
 - start move updates
 
