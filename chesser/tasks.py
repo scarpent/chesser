@@ -1,3 +1,4 @@
+import gzip
 from io import StringIO
 
 import dropbox
@@ -9,7 +10,7 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", hours=4)
+    scheduler.add_job(backup_and_upload, "interval", minutes=15)
     scheduler.start()
 
 
@@ -45,18 +46,20 @@ def backup_and_upload():
         print("Not running backup for want of a DROPBOX_ACCESS_TOKEN")
         return False
 
-    buffer = StringIO()
-    backup_file_path = "/tmp/chesser_dumpdata.json"
-    print(f"Running chesser app dumpdata ➤ {backup_file_path}")
-    call_command("dumpdata", "chesser", indent=4, stdout=buffer)
+    buffer = StringIO()  # Use BytesIO to hold the compressed data
+    print("Running chesser app dumpdata ➤")
+
+    call_command("dumpdata", "chesser", indent=2, stdout=buffer)
     backup_data = buffer.getvalue()
+    backup_data_bytes = backup_data.encode("utf-8")
 
-    with open(backup_file_path, "w") as backup_file:
-        backup_file.write(backup_data)
+    backup_gzipped_path = "/tmp/chesser_dumpdata.json.gz"
+    print(f"Compressing dumpdata ➤ {backup_gzipped_path}")
+    with gzip.open(backup_gzipped_path, "wb") as f:
+        f.write(backup_data_bytes)
 
-    dropbox_dest_path = (
-        f"/chesser_dumpdata_{timezone.now().strftime('%Y%m%d_%H%M%S')}.json"
-    )
-    print("Uploading dumpdata to Dropbox 📦️")
+    datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
+    dropbox_dest_path = f"/chesser_dumpdata_{datestamp}.json.gz"
+    print("Uploading gzipped dumpdata to Dropbox 📦️")
 
-    return upload_to_dropbox(backup_file_path, dropbox_dest_path)
+    return upload_to_dropbox(backup_gzipped_path, dropbox_dest_path)
