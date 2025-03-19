@@ -10,7 +10,7 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", minutes=5)
+    scheduler.add_job(backup_and_upload, "interval", hours=8)
     scheduler.start()
 
 
@@ -62,7 +62,7 @@ def backup_and_upload():
         f.write(backup_data_bytes)
 
     datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
-    s3_object_key = f"chesser_dumpdata_{datestamp}.json.gz"
-    print("Uploading gzipped dumpdata to AWS s3 ☁️")
+    s3_object_key = f"db_backup_{datestamp}.json.gz"
+    print("Uploading DB backup to AWS s3 ☁️")
 
     return upload_to_amazon_s3(backup_gzipped_path, s3_object_key, "application/gzip")
