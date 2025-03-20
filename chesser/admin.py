@@ -107,7 +107,7 @@ class VariationAdmin(admin.ModelAdmin):
 
 @admin.register(Move)
 class MoveAdmin(admin.ModelAdmin):
-    list_display = ("sequence", "move_num", "variation", "san", "annotation", "text")
+    list_display = ("sequence", "move_num", "variation", "san", "annotation")
     search_fields = ("san",)
     list_filter = ("variation",)
 

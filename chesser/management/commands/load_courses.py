@@ -60,6 +60,11 @@ class Command(BaseCommand):
         black_course = self.create_course("Black", "black")
 
         white_e4_sundry = self.create_chapter("1.e4 Sundry", white_course)
+        white_e4_e5_misc = self.create_chapter("1.e4 e5 Misc", white_course)
+        black_bishops_game = self.create_chapter("Bishop's Game", black_course)
+        black_others = self.create_chapter("Others", black_course)
+        black_italian = self.create_chapter("Italian 4.Ng5", black_course)
+
         moves = [
             {
                 "move_num": 1,
@@ -102,7 +107,6 @@ class Command(BaseCommand):
             mainline_moves_str=mainline_moves,
         )
 
-        white_e4_e5_misc = self.create_chapter("1.e4 e5 Misc", white_course)
         moves = [
             {"move_num": 1, "san": "e4"},
             {"move_num": 1, "san": "e5"},
@@ -123,7 +127,6 @@ class Command(BaseCommand):
             mainline_moves_str=mainline_moves,
         )
 
-        black_bishops_game = self.create_chapter("Bishop's Game", black_course)
         moves = [
             {"move_num": 1, "san": "e4"},
             {"move_num": 1, "san": "e5"},
@@ -143,7 +146,6 @@ class Command(BaseCommand):
             mainline_moves_str=mainline_moves,
         )
 
-        black_others = self.create_chapter("Others", black_course)
         moves = [
             {"move_num": 1, "san": "b4"},
             {
@@ -166,7 +168,6 @@ class Command(BaseCommand):
             mainline_moves_str=mainline_moves,
         )
 
-        black_italian = self.create_chapter("Italian 4.Ng5", black_course)
         moves = [
             {"move_num": 1, "san": "e4"},
             {"move_num": 1, "san": "e5"},

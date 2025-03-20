@@ -169,9 +169,9 @@
       </div>
     </div>
 
-    <div x-cloak>
+    <div class="recently-reviewed" x-cloak>
       <h3>Recently Reviewed</h3>
-      <p class="recently-reviewed">
+      <p>
         <template x-for="review in homeData.recent" :key="review.variation_id">
           <span>
             <span x-text="review.passed"></span>
