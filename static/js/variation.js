@@ -31,9 +31,10 @@ export function variationApp() {
             showDests: false,
           },
         });
-        this.updateBoard();
+
         setTimeout(() => {
           // Wait for alpine.js to process dynamic html
+          this.updateBoard();
           this.highlightMainlineMove();
           this.attachClickHandlers(); // To moves
         }, 100);
