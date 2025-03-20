@@ -20,22 +20,22 @@ class Course(models.Model):
     title = models.CharField(max_length=100)
     color = models.CharField(max_length=5)
 
-    def __str__(self):
-        return self.title
+    # def __str__(self):
+    #     return self.title
 
 
 class Chapter(models.Model):
     title = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
-    def __str__(self):
-        course_title = "(no course?!)"
-        try:
-            course_title = self.course.title
-        except Exception as e:
-            print(f"chapter id {self.id} error accessing course.title", e)
+    # def __str__(self):
+    #     course_title = "(no course?!)"
+    #     try:
+    #         course_title = self.course.title
+    #     except Exception as e:
+    #         print(f"chapter id {self.id} error accessing course.title", e)
 
-        return f"{course_title}: {self.title}"
+    #     return f"{course_title}: {self.title}"
 
 
 class Variation(models.Model):
@@ -74,19 +74,19 @@ class Variation(models.Model):
             ),
         ]
 
-    def __str__(self):
-        course_title = "(no course?!)"
-        try:
-            course_title = self.chapter.course.title
-        except Exception as e:
-            print(f"variation id {self.id} error accessing chapter.course.title", e)
+    # def __str__(self):
+    #     course_title = "(no course?!)"
+    #     try:
+    #         course_title = self.chapter.course.title
+    #     except Exception as e:
+    #         print(f"variation id {self.id} error accessing chapter.course.title", e)
 
-        try:
-            course_title = self.course.title
-        except Exception as e:
-            print(f"variation id {self.id} error accessing course.title", e)
+    #     try:
+    #         course_title = self.course.title
+    #     except Exception as e:
+    #         print(f"variation id {self.id} error accessing course.title", e)
 
-        return f"{course_title}: {self.chapter.title}: {self.title} ({self.id})"
+    #     return f"{course_title}: {self.chapter.title}: {self.title} ({self.id})"
 
     @property
     def mainline_moves(self):  # TODO: maybe don't need this anymore...
@@ -197,11 +197,11 @@ class Move(models.Model):
         unique_together = ("variation", "sequence")
         ordering = ["sequence"]
 
-    def __str__(self):
-        return (
-            f"{self.variation.id}: {self.variation.title}: "
-            f"{self.move_num} {self.san}"
-        )
+    # def __str__(self):
+    #     return (
+    #         f"{self.variation.id}: {self.variation.title}: "
+    #         f"{self.move_num} {self.san}"
+    #     )
 
     @property
     def move_verbose(self):
