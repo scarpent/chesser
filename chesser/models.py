@@ -70,6 +70,11 @@ class Variation(models.Model):
         ]
 
     def __str__(self):
+        # beware: keep this simple -- ran into all kinds of django admin
+        # list issues in prod when trying to reference course/chapter,
+        # probably having to do with lazy loading, yada yada
+        # (dev sqlite more forgiving than prod postgres)
+        # specifically: QuizResult and Move list views were getting 500s
         return f"{self.title} ({self.id})"
 
     @property

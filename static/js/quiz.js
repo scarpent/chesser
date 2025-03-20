@@ -136,9 +136,28 @@ export function quizApp() {
         this.completeQuiz();
         return;
       }
+
+      // e.g. Nge7 => Ne7
+      const reambiguateMove = (san) => {
+        return san.replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3");
+      };
+
       const answer = this.variationData.moves[this.quizMoveIndex];
 
+      let correct = false;
       if (move.san === answer.san) {
+        correct = true;
+      } else {
+        const normalizedMoveSan = reambiguateMove(move.san);
+        const normalizedAnswerSan = reambiguateMove(answer.san);
+
+        console.log(
+          `move.san (${move.san}) !== answer.san (${answer.san}) ➤ we'll use normalized/reambiguated values: ${normalizedMoveSan} and ${normalizedAnswerSan}`
+        );
+        correct = normalizedMoveSan === normalizedAnswerSan;
+      }
+
+      if (correct) {
         // Green indicates that the move was successful, and purple
         // that the outcome of the quiz is still pending
         this.status = "🟢🟣";
