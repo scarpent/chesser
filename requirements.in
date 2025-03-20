@@ -13,7 +13,7 @@ gunicorn
 whitenoise
 # for backups to amazon s3
 boto3
-# apscheduler for backups (advanced python scheduler)
+# advanced python scheduler for backups
 apscheduler
 
 # https://github.com/niklasf/python-chess/

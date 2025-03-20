@@ -202,7 +202,7 @@ def generate_variation_html(variation):
 
         if move.text:
             beginning_of_move_group = True
-            moves_with_fen = extract_moves_with_fen(board.copy(), move.text)
+            moves_with_fen = extract_moves_with_fen(board.copy(), move)
             # from pprint import pprint
 
             # pprint(moves_with_fen)
@@ -269,7 +269,9 @@ def generate_subvariations_html(move, move_fen_map):
     )
 
 
-def extract_moves_with_fen(board, pgn_text):
+def extract_moves_with_fen(board, move):
+    pgn_text = move.text
+
     # Step 1: Remove text inside comment {} brackets
     cleaned_pgn = re.sub(r"\{.*?\}", "", pgn_text)
 
@@ -284,21 +286,27 @@ def extract_moves_with_fen(board, pgn_text):
         board_copy = board.copy()  # Copy board state before applying moves
 
         fen_sequence = []
-        for move in moves:
+        for move_ in moves:
             try:
                 # extract just the valid san part for updating board
                 move_regex = r"^(\d*\.*)(O-O-O|O-O|[A-Za-z0-9]+)"
-                m = re.match(move_regex, move)
+                m = re.match(move_regex, move_)
                 if not m:
                     # e.g. a hanging exclam, Nf6 !
-                    print(f"Skipping invalid move: {move}")
+                    print(
+                        "Bailing out on invalid subvar move non-match "
+                        f"({move.variation.id}, {move.move_verbose}): {move_}"
+                    )
                     break
                 move_san = m.group(2)
                 # print(f"move: {move}")
                 board_copy.push_san(move_san)  # Apply move in SAN format
-                fen_sequence.append((move, board_copy.fen()))  # Store move + FEN
+                fen_sequence.append((move_, board_copy.fen()))  # Store move + FEN
             except ValueError:
-                print(f"Skipping invalid move: {move}")
+                print(
+                    "Bailing out on invalid subvar move ValueError "
+                    f"({move.variation.id}, {move.move_verbose}): {move_}"
+                )
                 break  # Skip broken variations
 
         if fen_sequence:

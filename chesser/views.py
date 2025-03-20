@@ -304,9 +304,11 @@ class HomeView:
 
     def get_next_due(self):
         output = ""
+        emoji = "☀️"
         variations = self.get_variations()
         if variations.filter(next_review__lte=self.now).count():
             output = "Now, and then in "
+            emoji = "⏰"
 
         if (
             next_due := variations.filter(next_review__gt=self.now)
@@ -317,7 +319,7 @@ class HomeView:
         else:
             output += "…?"
 
-        return f"⏰ Next: {output}"
+        return f"{emoji} Next: {output}"
 
     def get_upcoming_time_planner(self):
         ranges = [

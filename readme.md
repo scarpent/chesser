@@ -19,6 +19,8 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 - ways to smooth out upcoming reviews
 - redistribute related openings so they come more regularly
+  - some way to select various openings for this
+- an extra study feature for studying level 1 openings or level 1 & 2, etc
 
 ## js libraries
 
