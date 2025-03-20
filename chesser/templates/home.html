@@ -92,7 +92,7 @@
       <ol>
         <template x-for="variation in homeData.nav.variations" :key="variation.id">
           <li>
-            <a :href="'/variation/' + variation.id" x-text="variation.title"></a>
+            <a :href="'/variation/' + variation.id + '/'" x-text="variation.title"></a>
             (<span
               x-text="'L' + variation.level"
               class="chapter-vars-review-info"
@@ -176,7 +176,7 @@
           <span>
             <span x-text="review.passed"></span>
             <a
-              :href="'/variation/' + review.variation_id"
+              :href="'/variation/' + review.variation_id + '/'"
               x-text="review.variation_title"
             ></a>
             (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span
