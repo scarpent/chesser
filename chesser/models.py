@@ -70,9 +70,7 @@ class Variation(models.Model):
         ]
 
     def __str__(self):
-        course_title = self.course.title if self.course_id else "(no course)"
-        chapter_title = self.chapter.title if self.chapter_id else "(no chapter)"
-        return f"{course_title}: {chapter_title}: {self.title} ({self.id})"
+        return f"{self.title} ({self.id})"
 
     @property
     def mainline_moves(self):  # TODO: maybe don't need this anymore...
