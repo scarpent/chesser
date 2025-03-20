@@ -29,7 +29,13 @@ class Chapter(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.course.title}: {self.title}"
+        course_title = "(no course?!)"
+        try:
+            course_title = self.course.title
+        except Exception as e:
+            print(f"chapter id {self.id} error accessing course.title", e)
+
+        return f"{course_title}: {self.title}"
 
 
 class Variation(models.Model):
@@ -70,16 +76,17 @@ class Variation(models.Model):
 
     def __str__(self):
         course_title = "(no course?!)"
-        if not self.chapter.course:
-            print(f"no chapter.course for variation id {self.id}")
-        else:
+        try:
             course_title = self.chapter.course.title
-        if not self.course:
-            print(f"no course for variation id {self.id}")
-        elif not self.course.title:
-            course_title = self.course.title
+        except Exception as e:
+            print(f"variation id {self.id} error accessing chapter.course.title", e)
 
-        return f"{course_title}: {self.chapter.title}: {self.title}"
+        try:
+            course_title = self.course.title
+        except Exception as e:
+            print(f"variation id {self.id} error accessing course.title", e)
+
+        return f"{course_title}: {self.chapter.title}: {self.title} ({self.id})"
 
     @property
     def mainline_moves(self):  # TODO: maybe don't need this anymore...
