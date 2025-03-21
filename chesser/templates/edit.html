@@ -103,7 +103,6 @@
       </template>
     </div>
 
-    <!-- Pass variationData safely to JavaScript -->
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
       console.log("variation data loaded:", window.variationData); // Debugging
@@ -112,15 +111,12 @@
     <script type="module">
       import { editApp } from "{% static 'js/edit.js' %}";
       window.editApp = editApp;
-      console.log("editApp loaded");
-
       document.addEventListener("alpine:init", () => {
         console.log("alpine.js initializing");
         Alpine.data("editApp", editApp);
       });
     </script>
 
-    <!-- Load Alpine.js last -->
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
 </html>

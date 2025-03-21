@@ -49,7 +49,7 @@ def backup_and_upload():
         print("Not running backup for want of an AWS access key")
         return False
 
-    buffer = StringIO()  # Use BytesIO to hold the compressed data
+    buffer = StringIO()
     print("Running chesser app dumpdata ➤")
 
     call_command("dumpdata", "chesser", indent=2, stdout=buffer)

@@ -89,7 +89,6 @@
       <div id="right-column" x-html="variationData.html"></div>
     </div>
 
-    <!-- Pass variationData safely to JavaScript -->
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
       console.log("variation data loaded:", window.variationData);
@@ -98,16 +97,13 @@
     <script type="module">
       import { variationApp } from "{% static 'js/variation.js' %}";
       window.variationApp = variationApp;
-      console.log("variationApp loaded");
-
       document.addEventListener("alpine:init", () => {
         console.log("alpine.js initializing");
         Alpine.data("variationApp", variationApp);
       });
     </script>
-    <script src="{% static 'js/resize.js' %}"></script>
 
-    <!-- Load alpine.js last -->
+    <script src="{% static 'js/resize.js' %}"></script>
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
 </html>

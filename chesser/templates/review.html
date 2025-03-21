@@ -86,7 +86,6 @@
       </template>
     </div>
 
-    <!-- Pass variationData to JavaScript -->
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
       window.reviewData = JSON.parse("{{ review_data|escapejs }}");
@@ -97,16 +96,13 @@
     <script type="module">
       import { quizApp } from "{% static 'js/quiz.js' %}";
       window.quizApp = quizApp;
-      console.log("quizApp loaded");
-
       document.addEventListener("alpine:init", () => {
         console.log("alpine.js initializing");
         Alpine.data("quizApp", quizApp);
       });
     </script>
-    <script src="{% static 'js/resize.js' %}"></script>
 
-    <!-- Load alpine.js last -->
+    <script src="{% static 'js/resize.js' %}"></script>
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
 </html>

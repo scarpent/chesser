@@ -10,7 +10,7 @@
     <link rel="manifest" href="{% static 'manifest.json' %}" />
     <meta name="theme-color" content="#000000" />
   </head>
-  <body x-data="homeApp()" x-init="initHome()">
+  <body x-data="homeApp()">
     <div class="course-covers" x-cloak>
       <a
         href="/?course=1"
@@ -208,24 +208,19 @@
       </form>
     </div>
 
-    <!-- Pass homeData safely to JavaScript -->
     <script>
       window.homeData = JSON.parse("{{ home_data|escapejs }}");
       console.log("Home data loaded:", window.homeData);
     </script>
 
-    <script type="module">
-      import { homeApp } from "{% static 'js/home.js' %}";
-      window.homeApp = homeApp;
-      console.log("homeApp loaded");
-
+    <script>
       document.addEventListener("alpine:init", () => {
-        console.log("alpine.js initializing");
-        Alpine.data("homeApp", homeApp);
+        Alpine.data("homeApp", () => ({
+          homeData: window.homeData,
+        }));
       });
     </script>
 
-    <!-- Load alpine.js last -->
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
 </html>
