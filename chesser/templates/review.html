@@ -17,7 +17,18 @@
         <div id="board"></div>
         <div id="resize-handle"></div>
       </div>
-      <div x-text="status" class="status"></div>
+      <div class="status-and-next">
+        <div x-text="status" class="status"></div>
+        <div x-show="completed">
+          <button
+            @click="window.location.href='/review/'"
+            title="Next"
+            class="big-button"
+          >
+            ➡️
+          </button>
+        </div>
+      </div>
       <div class="button-container">
         <button @click="window.location.href='/'" title="Home">🏠️</button>
         <button
@@ -36,14 +47,6 @@
           ⚙️
         </button>
         <button @click="gotoVariationView()" title="View">📖</button>
-        <button
-          x-show="completed"
-          @click="window.location.href='/review/'"
-          title="Next"
-          style="font-size: 50px"
-        >
-          ➡️
-        </button>
       </div>
       <p x-text="reviewStats"></p>
       <a

@@ -95,6 +95,12 @@ a:hover {
   font-size: 30px;
 }
 
+.status-and-next {
+  display: flex;
+  align-items: center; /* Vertically aligns the items */
+  gap: 10px; /* Optional: space between the status and the button */
+}
+
 .button-container {
   display: flex;
   justify-content: center;
@@ -111,6 +117,10 @@ button {
   font-size: 30px;
   margin-top: 20px;
   cursor: pointer;
+}
+
+.big-button {
+  font-size: 50px;
 }
 
 button:hover {
