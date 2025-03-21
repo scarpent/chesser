@@ -255,6 +255,7 @@ class HomeView:
                         "id": variation.id,
                         "title": variation.title,
                         "level": variation.level,
+                        "start_move": variation.start_move,
                         "time_since_last_review": time_since_last_review,
                         "time_until_next_review": time_until_next_review,
                         "mainline_moves_str": variation.mainline_moves_str,

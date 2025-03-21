@@ -511,6 +511,12 @@ td:last-child {
   background-color: white;
 }
 
+#dev-indicator {
+  color: red;
+  display: none;
+  padding: 10px;
+}
+
 [x-cloak] {
   display: none !important;
 }

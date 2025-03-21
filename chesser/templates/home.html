@@ -100,21 +100,25 @@
                 ></a>
               </div>
               <div style="text-align: right">
-                (<span
+                <span
+                  x-text="'S' + variation.start_move"
+                  class="chapter-vars-review-info"
+                ></span>
+                •
+                <span
                   x-text="'L' + variation.level"
                   class="chapter-vars-review-info"
-                ></span
-                >, last
+                ></span>
+                •
                 <span
                   x-text="variation.time_since_last_review"
                   class="chapter-vars-review-info"
-                ></span
-                >, next
+                ></span>
+                ➤
                 <span
                   x-text="variation.time_until_next_review"
                   class="chapter-vars-review-info"
-                ></span
-                >)
+                ></span>
               </div>
             </div>
 
