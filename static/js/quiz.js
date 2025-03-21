@@ -356,6 +356,43 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    nextMove() {
+      // can lock this down later to only allow after quiz is completed;
+      // buttons are hidden until after, but maybe we'll add arrow key nav
+      if (this.quizMoveIndex < this.variationData.moves.length) {
+        this.chess.move(this.variationData.moves[this.quizMoveIndex++].san);
+        this.updateBoard();
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    previousMove() {
+      if (this.quizMoveIndex > 0) {
+        this.chess.undo();
+        this.quizMoveIndex--;
+      } else {
+        this.quizMoveIndex = 0; // Ensure forward nav works correctly
+        this.chess.reset();
+      }
+      this.updateBoard();
+    },
+
+    //--------------------------------------------------------------------------------
+    updateBoard() {
+      this.board.set({
+        fen: this.chess.fen(),
+        drawable: {
+          shapes:
+            this.quizMoveIndex > 0
+              ? JSON.parse(
+                  this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]"
+                )
+              : [],
+        },
+      });
+    },
+
+    //--------------------------------------------------------------------------------
     reportResult(passed) {
       const variationId = this.variationData.variation_id;
 

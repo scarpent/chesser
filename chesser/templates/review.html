@@ -18,9 +18,13 @@
         <div id="resize-handle"></div>
       </div>
       <div class="status-and-next">
+        <div x-show="completed" class="big-button">
+          <button @click="previousMove()" title="Mainline Back">⬅️</button>
+          <button @click="nextMove()" title="Mainline Forward">➡️</button>
+        </div>
         <div x-text="status" class="status"></div>
         <div x-show="completed">
-          <button @click="window.location.href='/review/'" title="Next">➡️</button>
+          <button @click="window.location.href='/review/'" title="Next">📝</button>
         </div>
       </div>
       <div class="button-container">
