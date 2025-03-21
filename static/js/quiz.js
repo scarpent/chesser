@@ -137,17 +137,16 @@ export function quizApp() {
         return;
       }
 
-      // e.g. Nge7 => Ne7
-      const reambiguateMove = (san) => {
-        return san.replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3");
-      };
-
       const answer = this.variationData.moves[this.quizMoveIndex];
-
       let correct = false;
+
       if (move.san === answer.san) {
         correct = true;
       } else {
+        // e.g. Nge7 => Ne7
+        const reambiguateMove = (san) => {
+          return san.replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3");
+        };
         const normalizedMoveSan = reambiguateMove(move.san);
         const normalizedAnswerSan = reambiguateMove(answer.san);
         correct = normalizedMoveSan === normalizedAnswerSan;
@@ -164,16 +163,16 @@ export function quizApp() {
         this.status = "🟢🟣";
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
-        // Alt moves are acceptable moves; yellow means we won't fail you for it
+        // Alt moves are playable moves; yellow means we won't fail you for it
         this.status = "🟢🟡";
         this.annotateMissedMove(move.from, move.to, "green", "yellow");
       } else if (answer.alt_fail.includes(move.san)) {
-        // Alt moves are acceptable moves; red means we will fail you for it
+        // Alt moves are playable moves; red means we will fail you for it
         this.status = "🟢🔴";
         this.annotateMissedMove(move.from, move.to, "green", "red");
         this.failed = true;
       } else {
-        // Complete fail (the move might be fine; we just haven't marked it as such)
+        // Complete fail (the move might be playable; but we haven't yet marked it so)
         this.status = "🔴🔴";
         this.annotateMissedMove(move.from, move.to, "red", "red");
         this.failed = true;
