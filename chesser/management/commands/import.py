@@ -77,8 +77,9 @@ class Command(BaseCommand):
         variation.source = import_data["source"]
         variation.title = import_data["variation_title"]
         variation.start_move = import_data["start_move"]
-        variation.level = import_data["level"]
-        variation.next_review = self.get_utc_datetime(import_data["next_review"])
+        if created:
+            variation.level = import_data["level"]
+            variation.next_review = self.get_utc_datetime(import_data["next_review"])
 
         variation.save()
 
@@ -100,8 +101,10 @@ class Command(BaseCommand):
 
             move.save()
 
-        if variation.level < 1:
-            self.stdout.write("Not creating QuizResult for new level 0 variation")
+        if variation.level < 1 or not created:
+            self.stdout.write(
+                "Not creating QuizResult for updated variation or new level 0 variation"
+            )
         elif not variation.quiz_results.first():
             self.stdout.write("Creating QuizResult")
             quiz_result = QuizResult.objects.create(
