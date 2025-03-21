@@ -150,11 +150,12 @@ export function quizApp() {
       } else {
         const normalizedMoveSan = reambiguateMove(move.san);
         const normalizedAnswerSan = reambiguateMove(answer.san);
-
-        console.log(
-          `move.san (${move.san}) !== answer.san (${answer.san}) ➤ we'll use normalized/reambiguated values: ${normalizedMoveSan} and ${normalizedAnswerSan}`
-        );
         correct = normalizedMoveSan === normalizedAnswerSan;
+        if (correct) {
+          console.log(
+            `move.san (${move.san}) !== answer.san (${answer.san}), but normalized/reambiguated values matched! ${normalizedMoveSan} === ${normalizedAnswerSan}`
+          );
+        }
       }
 
       if (correct) {

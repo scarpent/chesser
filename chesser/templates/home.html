@@ -92,22 +92,32 @@
       <ol>
         <template x-for="variation in homeData.nav.variations" :key="variation.id">
           <li>
-            <a :href="'/variation/' + variation.id + '/'" x-text="variation.title"></a>
-            (<span
-              x-text="'L' + variation.level"
-              class="chapter-vars-review-info"
-            ></span
-            >, last
-            <span
-              x-text="variation.time_since_last_review"
-              class="chapter-vars-review-info"
-            ></span
-            >, next
-            <span
-              x-text="variation.time_until_next_review"
-              class="chapter-vars-review-info"
-            ></span
-            >)<br />
+            <div class="variations-list-info">
+              <div>
+                <a
+                  :href="'/variation/' + variation.id + '/'"
+                  x-text="variation.title"
+                ></a>
+              </div>
+              <div style="text-align: right">
+                (<span
+                  x-text="'L' + variation.level"
+                  class="chapter-vars-review-info"
+                ></span
+                >, last
+                <span
+                  x-text="variation.time_since_last_review"
+                  class="chapter-vars-review-info"
+                ></span
+                >, next
+                <span
+                  x-text="variation.time_until_next_review"
+                  class="chapter-vars-review-info"
+                ></span
+                >)
+              </div>
+            </div>
+
             <span
               x-text="variation.mainline_moves_str"
               class="chapter-vars-mainline-moves"

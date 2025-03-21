@@ -354,7 +354,7 @@ button:hover {
 }
 
 .variations-container ol {
-  padding-left: 15px;
+  padding-left: 20px;
   padding-right: 5px;
 }
 
@@ -362,6 +362,19 @@ button:hover {
 .variations-container ol li {
   margin-bottom: 10px;
   padding-left: 0;
+}
+
+.variations-container ol li {
+  margin-bottom: 20px; /* Increase space between list items */
+}
+
+.variations-list-info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: flex-start; /* Ensures no extra vertical space */
+  row-gap: 5px; /* Override any unwanted vertical gap */
+  margin-bottom: 5px;
 }
 
 table {
