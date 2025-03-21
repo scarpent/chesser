@@ -27,8 +27,6 @@
           <button @click="window.location.href='/review/'" title="Review">📝</button>
           <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
           <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
-          <button @click="previousSubvarMove()" title="Subvariation Back">↖️</button>
-          <button @click="nextSubvarMove()" title="Subvariation Forward">↘️</button>
           <button
             @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
             title="Lichess analysis board"

@@ -40,7 +40,7 @@
           x-show="completed"
           @click="window.location.href='/review/'"
           title="Next"
-          style="font-size: 40px"
+          style="font-size: 50px"
         >
           ➡️
         </button>
@@ -60,7 +60,10 @@
             ><span x-text="variationData.chapter"></span
           ></a>
           <span> ➤ </span>
-          <span x-text="variationData.title"></span>
+          <span x-text="variationData.title"></span> (#<span
+            x-text="variationData.variation_id"
+          ></span
+          >)
         </div>
 
         <div
