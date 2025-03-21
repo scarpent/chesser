@@ -428,6 +428,7 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
       console.log("no variation data");
+      console.log("this.chess", this.chess); // temporary
       this.status = "😌";
       this.board = window.Chessground(boardElement, {
         viewOnly: true,
