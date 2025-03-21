@@ -1991,4 +1991,3 @@ export class Chess {
         return this._moveNumber;
     }
 }
-//# sourceMappingURL=chess.js.map
