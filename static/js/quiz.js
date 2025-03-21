@@ -21,13 +21,13 @@ export function quizApp() {
       console.log("initQuiz()");
       const boardElement = document.getElementById("board");
 
-      if (!this.variationData || Object.keys(this.variationData).length === 0) {
-        this.nothingToSeeHere(boardElement);
-        return;
-      }
-
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
+
+        if (!this.variationData || Object.keys(this.variationData).length === 0) {
+          this.nothingToSeeHere(boardElement);
+          return;
+        }
 
         this.goToStartingPosition();
         if (this.reviewSessionIsComplete()) {
@@ -48,12 +48,12 @@ export function quizApp() {
           },
         });
         console.log("Chess board loaded");
+
+        this.playOpposingMove();
+        this.displayReviewSessionStats();
       } else {
         console.error("chessground or chess.js failed to load");
       }
-
-      this.playOpposingMove();
-      this.displayReviewSessionStats();
 
       const isLocal = ["127.0.0.1", "localhost"].includes(window.location.hostname);
       if (isLocal) {
