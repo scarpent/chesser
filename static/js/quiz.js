@@ -357,8 +357,8 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     nextMove() {
-      // can lock this down later to only allow after quiz is completed;
-      // buttons are hidden until after, but maybe we'll add arrow key nav
+      if (!this.completed) return;
+
       if (this.quizMoveIndex < this.variationData.moves.length) {
         this.chess.move(this.variationData.moves[this.quizMoveIndex++].san);
         this.updateBoard();
@@ -367,6 +367,8 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     previousMove() {
+      if (!this.completed) return;
+
       if (this.quizMoveIndex > 0) {
         this.chess.undo();
         this.quizMoveIndex--;
@@ -390,6 +392,15 @@ export function quizApp() {
               : [],
         },
       });
+    },
+
+    //--------------------------------------------------------------------------------
+    handleKeyNavigation(event) {
+      if (event.key === "ArrowRight") {
+        this.nextMove();
+      } else if (event.key === "ArrowLeft") {
+        this.previousMove();
+      }
     },
 
     //--------------------------------------------------------------------------------

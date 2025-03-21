@@ -6,6 +6,8 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
+- preserve board size (during quiz session, at least, but good for variation view too)
+- import new lines (manage re-imports for different sets)
 - scrolling in mobile view
 - toggle show alt moves on board
   - holding down "a" will show them only while holding, then restore other paint or clear
@@ -13,7 +15,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - a way to have "shared reference" moves?
 - version number for variations? (version 1 is overwritable)
 - bulk import json format
-- start move updates
 
 ## longer term:
 
