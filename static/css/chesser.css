@@ -91,7 +91,6 @@ a:hover {
 }
 
 .status {
-  margin-top: 20px;
   font-size: 30px;
 }
 
@@ -99,6 +98,7 @@ a:hover {
   display: flex;
   align-items: center; /* Vertically aligns the items */
   gap: 10px; /* Optional: space between the status and the button */
+  margin-top: 20px;
 }
 
 .button-container {
