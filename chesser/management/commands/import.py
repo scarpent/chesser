@@ -77,9 +77,11 @@ class Command(BaseCommand):
         variation.source = import_data["source"]
         variation.title = import_data["variation_title"]
         variation.start_move = import_data["start_move"]
-        if created:
+        if created and import_data["level"] >= 0:
             variation.level = import_data["level"]
             variation.next_review = self.get_utc_datetime(import_data["next_review"])
+        else:
+            self.stdout.write("Not updating level and next_review")
 
         variation.save()
 
