@@ -14,15 +14,72 @@
       <button @click="window.location.href='/review/'" title="Review">📝</button>
     </div>
 
-    <form
-      method="POST"
-      enctype="multipart/form-data"
-      action="{% url 'upload_json_data' %}"
-    >
-      {% csrf_token %}
-      <input type="file" name="uploaded_file" />
-      <button type="submit">⬆️</button>
-    </form>
+    <div style="width: 50%">
+      <h1>Import</h1>
+      <form method="POST">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 1em">
+          <label for="course">Course:</label>
+          <select name="course_id" id="course">
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1em">
+          <label for="chapter">Chapter:</label>
+          <select name="chapter_id" id="chapter">
+            {% for chapter in chapters %}
+            <option value="{{ chapter.id }}">{{ chapter.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1em">
+          <label for="variation_name">Variation Name:</label>
+          <input type="text" name="variation_name" id="variation_name" required />
+        </div>
+
+        <div style="margin-bottom: 1em">
+          <label for="start_move">Start Move:</label>
+          <input type="number" name="start_move" id="start_move" min="1" value="2" />
+        </div>
+
+        <div style="margin-bottom: 1em">
+          <label for="next_review_date">Next Review Date:</label>
+          <input type="date" name="next_review_date" id="next_review_date" />
+        </div>
+
+        <div style="margin-bottom: 1em">
+          <label for="json_data">Paste JSON:</label><br />
+          <textarea
+            name="json_data"
+            id="json_data"
+            rows="20"
+            style="width: 100%; box-sizing: border-box"
+            placeholder="Paste your JSON here..."
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit">📥️</button>
+      </form>
+    </div>
+
+    <div>
+      <h3>Upload to /tmp/upload.json</h3>
+      <form
+        method="POST"
+        enctype="multipart/form-data"
+        action="{% url 'upload_json_data' %}"
+      >
+        {% csrf_token %}
+        <input type="file" name="uploaded_file" />
+        <button type="submit">↗️</button>
+      </form>
+    </div>
 
     <script>
       window.importData = JSON.parse("{{ import_data|escapejs }}");

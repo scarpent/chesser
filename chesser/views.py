@@ -77,8 +77,17 @@ def report_result(request):
 
 
 def importer(request):
-    import_data = {"import_data": json.dumps("Import data!")}
-    return render(request, "import.html", import_data)
+    course_chapter_data = {}
+    for course in Course.objects.all().order_by("id"):
+        course_chapter_data[course.title] = []
+        for chapter in course.chapter_set.all().order_by("title"):
+            course_chapter_data[course.title].append(chapter.title)
+
+    import_data = {
+        "chapters": course_chapter_data,
+    }
+    context = {"import_data": json.dumps(import_data)}
+    return render(request, "import.html", context)
 
 
 def upload_json_data(request):
