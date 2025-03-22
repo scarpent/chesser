@@ -1,11 +1,9 @@
-const STORAGE_KEY = "resizableBoardWidth-quiz"; // Eventually make this dynamic
-
 document.addEventListener("DOMContentLoaded", () => {
   const boardContainer = document.getElementById("resizable-board");
   const resizeHandle = document.getElementById("resize-handle");
-  const STORAGE_KEY = "resizableBoardWidth-quiz";
+  const boardId = boardContainer?.dataset.boardId || "default";
+  const STORAGE_KEY = `resizableBoardWidth-${boardId}`;
 
-  // Restore saved size
   const savedWidth = localStorage.getItem(STORAGE_KEY);
   if (savedWidth) {
     const savedWidthPx = parseInt(savedWidth.replace("px", ""), 10);
@@ -14,9 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     boardContainer.style.width = `${boardSizeToUse}px`;
     boardContainer.style.height = `${boardSizeToUse}px`;
+
+    // need to figure out how to redraw the board for those cases where
+    // the alignment is slightly off between board/pieces/highlighted
+    // squares; it's proved tricky so far
   }
 
-  // Resize handler
   resizeHandle.addEventListener("mousedown", (e) => {
     e.preventDefault();
 
