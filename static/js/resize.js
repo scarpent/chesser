@@ -1,14 +1,22 @@
+const STORAGE_KEY = "resizableBoardWidth-quiz"; // Eventually make this dynamic
+
 document.addEventListener("DOMContentLoaded", () => {
   const boardContainer = document.getElementById("resizable-board");
   const resizeHandle = document.getElementById("resize-handle");
+  const STORAGE_KEY = "resizableBoardWidth-quiz";
 
   // Restore saved size
-  const savedWidth = localStorage.getItem("resizableBoardWidth");
+  const savedWidth = localStorage.getItem(STORAGE_KEY);
   if (savedWidth) {
-    boardContainer.style.width = savedWidth;
-    boardContainer.style.height = savedWidth; // square
+    const savedWidthPx = parseInt(savedWidth.replace("px", ""), 10);
+    const maxBoardSize = Math.min(window.innerWidth, window.innerHeight) - 50;
+    const boardSizeToUse = Math.min(savedWidthPx, maxBoardSize);
+
+    boardContainer.style.width = `${boardSizeToUse}px`;
+    boardContainer.style.height = `${boardSizeToUse}px`;
   }
 
+  // Resize handler
   resizeHandle.addEventListener("mousedown", (e) => {
     e.preventDefault();
 
@@ -16,16 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const startWidth = boardContainer.offsetWidth;
 
     function resize(e) {
-      const newWidth = Math.max(300, startWidth + (e.clientX - startX)); // Minimum width 300px
-      const newHeight = newWidth; // Keep square shape
+      const newWidth = Math.max(300, startWidth + (e.clientX - startX));
       boardContainer.style.width = `${newWidth}px`;
-      boardContainer.style.height = `${newHeight}px`;
+      boardContainer.style.height = `${newWidth}px`;
 
-      // Save new size to localStorage
-      localStorage.setItem("resizableBoardWidth", `${newWidth}px`);
+      localStorage.setItem(STORAGE_KEY, `${newWidth}px`);
 
-      if (window.chessgroundBoard) {
-        window.chessgroundBoard.redraw();
+      const boardEl = document.getElementById("board");
+      if (boardEl?.cg?.redraw) {
+        boardEl.cg.redraw();
       }
     }
 
