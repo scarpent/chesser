@@ -173,6 +173,8 @@ export function quizApp() {
       const answer = this.variationData.moves[this.quizMoveIndex];
       let correct = false;
 
+      console.log(`move.san: ${move.san}, answer.san: ${answer.san}`);
+
       if (move.san === answer.san) {
         correct = true;
       } else {
