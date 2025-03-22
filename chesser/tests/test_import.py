@@ -18,4 +18,4 @@ def test_import_authenticated(test_user):
 
     response = client.get(reverse("import"))
     assert response.status_code == 200
-    assert "⬆️" in response.content.decode()
+    assert "📥️" in response.content.decode()

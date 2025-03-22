@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils import timezone
@@ -68,6 +69,12 @@ class Variation(models.Model):
                 name="unique_moves_string_per_course",
             ),
         ]
+
+    def clean(self):
+        if self.chapter.course != self.course:
+            raise ValidationError(
+                "Variation's denormalized course must match its chapter's course."
+            )
 
     def __str__(self):
         # beware: keep this simple -- ran into all kinds of django admin
