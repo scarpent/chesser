@@ -461,6 +461,7 @@ td:last-child {
 
 .logout-button {
   color: red;
+  margin-top: 15px;
 }
 
 .logout-form button {
