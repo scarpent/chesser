@@ -169,16 +169,16 @@ export function quizApp() {
       if (correct) {
         // Green indicates that the move was successful, and purple
         // that the outcome of the quiz is still pending
-        this.status = "🟢🟣";
+        this.status = "🟢🟢";
         this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
         // Alt moves are playable moves; yellow means we won't fail you for it
-        this.status = "🟢🟡";
-        this.annotateMissedMove(move.from, move.to, "green", "yellow");
+        this.status = "🟡🟢";
+        this.annotateMissedMove(move.from, move.to, "yellow", "green");
       } else if (answer.alt_fail.includes(move.san)) {
         // Alt moves are playable moves; red means we will fail you for it
-        this.status = "🟢🔴";
-        this.annotateMissedMove(move.from, move.to, "green", "red");
+        this.status = "🔴🟢";
+        this.annotateMissedMove(move.from, move.to, "red", "green");
         this.failed = true;
       } else {
         // Complete fail (the move might be playable; but we haven't yet marked it so)

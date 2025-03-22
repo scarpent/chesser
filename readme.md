@@ -6,7 +6,10 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- preserve board size (during quiz session, at least, but good for variation view too)
+- update PWA icon
+- style form components
+- use reambiguated moves to check alts, too?
+- refactor import mgmt command -- move import logic into another file
 - import new lines (manage re-imports for different sets)
 - scrolling in mobile view
 - toggle show alt moves on board
@@ -15,6 +18,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - a way to have "shared reference" moves?
 - version number for variations? (version 1 is overwritable)
 - bulk import json format
+- link to source variation from quiz info? Just one link to the original source var.
 
 ## longer term:
 
