@@ -102,14 +102,38 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
-    handleMove(orig, dest) {
-      const move = this.chess.move({ from: orig, to: dest });
+    async handleMove(orig, dest) {
+      const piece = this.chess.get(orig);
+      const isPromotion =
+        piece && piece.type === "p" && (dest.endsWith("8") || dest.endsWith("1"));
+
+      let move;
+      if (isPromotion) {
+        const promotion = await this.showPromotionModal();
+        move = this.chess.move({ from: orig, to: dest, promotion });
+      } else {
+        move = this.chess.move({ from: orig, to: dest });
+      }
+
+      if (!move) {
+        console.error(`Illegal move: ${orig} to ${dest}`);
+        return;
+      }
 
       this.board.set({
         fen: this.chess.fen(),
         movable: { dests: this.toDests() },
       });
+
       this.checkQuizMove(move);
+    },
+
+    //--------------------------------------------------------------------------------
+    showPromotionModal() {
+      return new Promise((resolve) => {
+        const modal = document.getElementById("promotion-modal");
+        modal.dispatchEvent(new CustomEvent("promotion", { detail: resolve }));
+      });
     },
 
     //--------------------------------------------------------------------------------
@@ -171,6 +195,7 @@ export function quizApp() {
         // that the outcome of the quiz is still pending
         this.status = "🟢🟢";
         this.playOpposingMove();
+        this.annotateCircle(move.to, "green");
       } else if (answer.alt.includes(move.san)) {
         // Alt moves are playable moves; yellow means we won't fail you for it
         this.status = "🟡🟢";
@@ -201,6 +226,15 @@ export function quizApp() {
       this.failed = true;
       this.annotateMove(move.from, move.to, "blue", "blue");
       this.chess.undo();
+    },
+
+    //--------------------------------------------------------------------------------
+    annotateCircle(square, color) {
+      this.board.set({
+        drawable: {
+          shapes: [{ orig: square, brush: color }],
+        },
+      });
     },
 
     //--------------------------------------------------------------------------------

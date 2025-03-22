@@ -95,6 +95,25 @@
       </template>
     </div>
 
+    <div
+      x-data="{ show: false, resolve: null }"
+      x-show="show"
+      x-cloak
+      id="promotion-modal"
+      class="modal-overlay"
+      @promotion="(e) => { show = true; resolve = e.detail }"
+    >
+      <div class="modal-box">
+        <h3>Select promotion piece:</h3>
+        <div class="promotion-options">
+          <button @click="resolve('q'); show = false">Queen</button>
+          <button @click="resolve('r'); show = false">Rook</button>
+          <button @click="resolve('b'); show = false">Bishop</button>
+          <button @click="resolve('n'); show = false">Knight</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
       window.reviewData = JSON.parse("{{ review_data|escapejs }}");
