@@ -98,12 +98,12 @@ def upload_json_data(request):
         try:
             json.loads(file_content)
         except json.JSONDecodeError:
-            return redirect("/import/?status=Invalid+JSON+format+❌")
+            return redirect("/import/?status=❌+Invalid+JSON+format")
 
         with open("/tmp/upload.json", "w") as temp_file:
             temp_file.write(file_content)
 
-        return redirect("/import/?status=File+Uploaded+✅")
+        return redirect("/import/?status=✅+File+Uploaded")
 
     return render(request, "import.html")
 

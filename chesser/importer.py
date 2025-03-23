@@ -22,6 +22,7 @@ def import_variation(import_data):
         course=course, title=import_data["chapter_title"]
     )
     label = "Creating" if created else "Getting"
+    print("➤ " * 32)
     print(f"{label} chapter: {chapter}")
     variation, created = Variation.objects.get_or_create(
         course=course,
