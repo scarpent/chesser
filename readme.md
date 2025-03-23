@@ -6,7 +6,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- use nicer urls on home, e.g.: /course/1/chapter/3
+- importer: look for changes to text/alt/shapes/start/etc, report on if changed or not and what things changed
 - fix import for alts -- once moves diverge, don't go back!
   - variation 1204 ➤ 48113084 ➤ 15995372 demonstrates problem 8...e6 has wrong alts because of pseudo-transposition
 - bulk import json format
