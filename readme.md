@@ -6,12 +6,13 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
+- refactor import mgmt command -- move import logic into another file
+
 - fix import for alts -- once moves diverge, don't go back!
   - variation 1204 ➤ 48113084 ➤ 15995372 demonstrates problem 8...e6 has wrong alts because of pseudo-transposition
-- update PWA icon
-- style form components
+- bulk import json format
+- responsive edit form
 - use reambiguated moves to check alts, too?
-- refactor import mgmt command -- move import logic into another file
 - import new lines (manage re-imports for different sets)
 - scrolling in mobile view
 - toggle show alt moves on board
@@ -19,9 +20,9 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
 - version number for variations? (version 1 is overwritable)
-- bulk import json format
 - link to source variation from quiz info? Just one link to the original source var.
 - enhance promotion dialog with pieces instead of text (owen's defense #1065 example)
+- style form components
 
 ## longer term:
 

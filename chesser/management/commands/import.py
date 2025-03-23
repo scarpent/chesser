@@ -1,18 +1,9 @@
 import json
 import os
-from datetime import timezone
 
 from django.core.management.base import BaseCommand
-from django.utils.dateparse import parse_datetime
 
-from chesser.models import Course, Move, QuizResult, Variation
-
-"""
-23124550 (source + text), 21090319, 17709033 EG
-33933185 (alapin, lots of shapes but no alts)
-17682568 (center game with alts, and "extra header" text)
-16607398 (scandi with just source header, shapes, alts)
-"""
+from chesser import importer
 
 
 class Command(BaseCommand):
@@ -41,76 +32,4 @@ class Command(BaseCommand):
         with open(file_path, "r") as file:
             import_data = json.load(file)
 
-        self.import_variation(import_data)
-
-    def get_utc_datetime(self, date_string):
-        # chessable is in UTC but we expect an ISO8601 date with no Z,
-        # e.g. "2025-03-09T04:19:46" (that's how we build the import file)
-        if parsed_datetime := parse_datetime(date_string):
-            utc_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
-            return utc_datetime
-        else:
-            self.stderr.write(f"Invalid format for date_string: {date_string}")
-
-    def import_variation(self, import_data):
-        course = Course.objects.get(color=import_data["color"])
-        chapter, created = course.chapter_set.get_or_create(
-            course=course, title=import_data["chapter_title"]
-        )
-        label = "Creating" if created else "Getting"
-        self.stdout.write(f"{label} chapter: {chapter}")
-        variation, created = Variation.objects.get_or_create(
-            course=course,
-            chapter=chapter,
-            mainline_moves_str=import_data["mainline"],
-        )
-        label = "Creating" if created else "Updating"
-        self.stdout.write(
-            f"{label} variation #{variation.id}: {variation.mainline_moves}"
-        )
-
-        # TODO: eventually we'll have more options for re-imports; once
-        # we're reviewing on chesser, we won't want to update level and
-        # next_review anymore. Also will have a flag for if a variation's
-        # text/shapes/alts can be overwritten or not.
-
-        variation.source = import_data["source"]
-        variation.title = import_data["variation_title"]
-        variation.start_move = import_data["start_move"]
-        if created and import_data["level"] >= 0:
-            variation.level = import_data["level"]
-            variation.next_review = self.get_utc_datetime(import_data["next_review"])
-        else:
-            self.stdout.write("Not updating level and next_review")
-
-        variation.save()
-
-        for idx, move_import in enumerate(import_data["moves"]):
-            move, created = Move.objects.get_or_create(
-                variation=variation,
-                move_num=move_import["move_num"],
-                sequence=idx,
-            )
-            move.move_num = move_import["move_num"]
-            move.san = move_import["san"]
-            move.annotation = move_import["annotation"]
-            move.text = move_import["text"]
-            move.alt = move_import.get("alt", "")
-            move.alt_fail = move_import.get("alt_fail", "")
-            move.shapes = (
-                json.dumps(move_import["shapes"]) if move_import["shapes"] else ""
-            )
-
-            move.save()
-
-        if variation.level < 1 or not created:
-            self.stdout.write(
-                "Not creating QuizResult for updated variation or new level 0 variation"
-            )
-        elif not variation.quiz_results.first():
-            self.stdout.write("Creating QuizResult")
-            quiz_result = QuizResult.objects.create(
-                variation=variation, passed=True, level=variation.level
-            )
-            quiz_result.datetime = self.get_utc_datetime(import_data["last_review"])
-            quiz_result.save()
+        importer.import_variation(import_data)
