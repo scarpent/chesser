@@ -16,6 +16,49 @@ def get_utc_datetime(date_string):
         print(f"Invalid format for date_string: {date_string}")
 
 
+def get_changes(variation, import_data):
+    changes = set()
+
+    if variation.source != import_data["source"]:
+        changes.add("source")
+    if variation.title != import_data["variation_title"]:
+        changes.add("title")
+    if variation.start_move != import_data["start_move"]:
+        changes.add("start_move")
+
+    for idx, move_import in enumerate(import_data["moves"]):
+        try:
+            move = Move.objects.get(
+                variation=variation,
+                move_num=move_import["move_num"],
+                sequence=idx,
+            )
+        except Move.DoesNotExist:
+            changes.add("new moves")
+            continue
+
+        if move.move_num != move_import["move_num"]:
+            changes.add(f"move_num {move.move_num}, seq {idx}")
+        if move.san != move_import["san"]:
+            changes.add("san")
+        if move.annotation != move_import["annotation"]:
+            changes.add("annotation")
+        if move.text != move_import["text"]:
+            changes.add("text")
+        if move.alt != move_import.get("alt", ""):
+            changes.add("alt")
+        if move.alt_fail != move_import.get("alt_fail", ""):
+            changes.add("alt_fail")
+
+        incoming_shapes = (
+            json.dumps(move_import["shapes"]) if move_import["shapes"] else ""
+        )
+        if move.shapes != incoming_shapes:
+            changes.add("shapes")
+
+    return changes
+
+
 def import_variation(import_data):
     course = Course.objects.get(color=import_data["color"])
     chapter, created = course.chapter_set.get_or_create(
@@ -31,6 +74,13 @@ def import_variation(import_data):
     )
     label = "Creating" if created else "Updating"
     print(f"{label} variation #{variation.id}: {variation.mainline_moves}")
+
+    if not created:
+        changes = get_changes(variation, import_data)
+        if changes:
+            print(f"💥 Changes: {','.join(changes)}")
+        else:
+            print("🔒️ No changes")
 
     variation.source = import_data["source"]
     variation.title = import_data["variation_title"]
