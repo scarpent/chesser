@@ -1,7 +1,7 @@
 import json
 
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
@@ -98,12 +98,12 @@ def upload_json_data(request):
         try:
             json.loads(file_content)
         except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+            return redirect("/import/?status=Upload+Failed:+Invalid+JSON+format")
 
         with open("/tmp/upload.json", "w") as temp_file:
             temp_file.write(file_content)
 
-        return JsonResponse({"message": "Data saved successfully"}, status=200)
+        return redirect("/import/?status=Upload+Successful!")
 
     return render(request, "import.html")
 

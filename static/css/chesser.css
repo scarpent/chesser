@@ -101,6 +101,12 @@ a:hover {
   margin-top: 20px;
 }
 
+.import-status {
+  font-size: 20px;
+  margin-top: 10px;
+  color: orange;
+}
+
 .button-container {
   display: flex;
   justify-content: center;

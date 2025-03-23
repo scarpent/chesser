@@ -4,8 +4,9 @@ export function importApp() {
     quizMoveIndex: 0,
 
     initImport() {
-      console.log("initImport()");
-      console.log("importer loaded");
+      const urlParams = new URLSearchParams(window.location.search);
+      console.log("urlParams", urlParams);
+      this.statusMessage = urlParams.get("status") || "";
     },
   }; // return { ... }
 }

@@ -6,8 +6,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- refactor import mgmt command -- move import logic into another file
-
+- use nicer urls on home, e.g.: /course/1/chapter/3
 - fix import for alts -- once moves diverge, don't go back!
   - variation 1204 ➤ 48113084 ➤ 15995372 demonstrates problem 8...e6 has wrong alts because of pseudo-transposition
 - bulk import json format
