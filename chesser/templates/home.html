@@ -7,20 +7,20 @@
     <title>Chesser</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
-    <link rel="manifest" href="{% static 'manifest.json' %}?v=2" />
+    <link rel="manifest" href="{% static 'manifest.json' %}" />
     <meta name="theme-color" content="#000000" />
   </head>
   <body x-data="homeApp()">
     <div class="course-covers" x-cloak>
       <a
-        href="/?course=1"
+        href="/course/1/"
         class="course course-white"
         x-show="!homeData.nav.course_id || homeData.nav.course_id == 1"
       >
         <img src="{% static 'images/castle-white.png' %}" alt="Castle White" />
       </a>
       <a
-        href="/?course=2"
+        href="/course/2/"
         class="course course-black"
         x-show="!homeData.nav.course_id || homeData.nav.course_id == 2"
       >
@@ -49,7 +49,7 @@
       <ul>
         <template x-for="course in homeData.nav.courses" :key="course.id">
           <li>
-            <a :href="'/?course=' + course.id" x-text="course.title"></a>
+            <a :href="'/course/' + course.id + '/'" x-text="course.title"></a>
             (<span x-text="course.variation_count"></span>)
           </li>
         </template>
@@ -70,7 +70,7 @@
         <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
           <li>
             <a
-              :href="'/?course=' + homeData.nav.course_id + '&chapter=' + chapter.id"
+              :href="'/course/' + homeData.nav.course_id + '/chapter/' + chapter.id + '/'"
               x-text="chapter.title"
             ></a>
             (<span x-text="chapter.variation_count"></span>)
@@ -82,7 +82,7 @@
     <div x-show="homeData.nav.chapter_id" class="variations-container" x-cloak>
       <h3>
         📚️ <a href="/">My Book</a> ➤
-        <a :href="'/?course=' + homeData.nav.course_id"
+        <a :href="'/course/' + homeData.nav.course_id + '/'"
           ><span x-text="homeData.nav.course_name"></span
         ></a>
         ➤

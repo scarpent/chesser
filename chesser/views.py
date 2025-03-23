@@ -10,8 +10,8 @@ from chesser.models import Chapter, Course, QuizResult, Variation
 from chesser.serializers import serialize_variation
 
 
-def home(request):
-    home_view = HomeView(request)
+def home(request, course_id=None, chapter_id=None):
+    home_view = HomeView(course_id=course_id, chapter_id=chapter_id)
     return render(request, "home.html", home_view.data)
 
 
@@ -98,12 +98,12 @@ def upload_json_data(request):
         try:
             json.loads(file_content)
         except json.JSONDecodeError:
-            return redirect("/import/?status=Upload+Failed:+Invalid+JSON+format")
+            return redirect("/import/?status=Invalid+JSON+format+❌")
 
         with open("/tmp/upload.json", "w") as temp_file:
             temp_file.write(file_content)
 
-        return redirect("/import/?status=Upload+Successful!")
+        return redirect("/import/?status=File+Uploaded+✅")
 
     return render(request, "import.html")
 
@@ -170,15 +170,14 @@ def variation(request, variation_id=None):
 
 
 class HomeView:
-    def __init__(self, request):
+    def __init__(self, course_id=None, chapter_id=None):
         self.now = timezone.now()
 
-        nav = self.get_course_links(request)
-        self.course_id = nav["course_id"]
-        self.chapter_id = nav["chapter_id"]
+        self.course_id = course_id
+        self.chapter_id = chapter_id
 
         home_stuff = {
-            "nav": nav,
+            "nav": self.get_course_links(),
             "recent": self.get_recently_reviewed(),
             "next_due": self.get_next_due(),
             "upcoming": self.get_upcoming_time_planner(),
@@ -201,7 +200,7 @@ class HomeView:
             )
         return variations
 
-    def get_course_links(self, request):
+    def get_course_links(self):
         nav = {
             "course_id": "",
             "course_name": "",
@@ -213,9 +212,7 @@ class HomeView:
             "courses_var_count": 0,  # total white + black variations
             "chapters_var_count": 0,  # total white or black variations
         }
-        course_id = request.GET.get("course")
-        chapter_id = request.GET.get("chapter")
-        if not course_id:
+        if not self.course_id:
             for course in Course.objects.all():
                 variation_count = Variation.objects.filter(
                     chapter__course=course
@@ -228,17 +225,17 @@ class HomeView:
                         "variation_count": variation_count,
                     }
                 )
-        elif not chapter_id:
-            course = Course.objects.get(id=course_id)
-            for chapter_id in (
+        elif not self.chapter_id:
+            course = Course.objects.get(id=self.course_id)
+            for chapter in (
                 Chapter.objects.filter(course=course).order_by("title").iterator()
             ):
-                variation_count = Variation.objects.filter(chapter=chapter_id).count()
+                variation_count = Variation.objects.filter(chapter=chapter).count()
                 nav["chapters_var_count"] += variation_count
                 nav["chapters"].append(
                     {
-                        "id": chapter_id.id,
-                        "title": chapter_id.title,
+                        "id": chapter.id,
+                        "title": chapter.title,
                         "variation_count": variation_count,
                     }
                 )
@@ -247,7 +244,7 @@ class HomeView:
             nav["course_name"] = course.title
         else:
             for variation in (
-                Variation.objects.filter(chapter=chapter_id)
+                Variation.objects.filter(chapter=self.chapter_id)
                 .order_by("mainline_moves_str")
                 .iterator()
             ):
@@ -271,10 +268,10 @@ class HomeView:
                     }
                 )
 
-            nav["course_id"] = course_id
-            nav["course_name"] = Course.objects.get(id=course_id).title
-            nav["chapter_id"] = chapter_id
-            nav["chapter_name"] = Chapter.objects.get(id=chapter_id).title
+            nav["course_id"] = self.course_id
+            nav["course_name"] = Course.objects.get(id=self.course_id).title
+            nav["chapter_id"] = self.chapter_id
+            nav["chapter_name"] = Chapter.objects.get(id=self.chapter_id).title
 
         return nav
 

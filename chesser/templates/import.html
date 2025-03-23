@@ -14,8 +14,6 @@
       <button @click="window.location.href='/review/'" title="Review">📝</button>
     </div>
 
-    <div x-show="statusMessage" x-text="statusMessage" class="import-status"></div>
-
     <div style="width: 50%">
       <h1>Import</h1>
       <form method="POST">
@@ -80,6 +78,7 @@
         {% csrf_token %}
         <input type="file" name="uploaded_file" />
         <button type="submit">⤴️</button>
+        <div x-show="statusMessage" x-text="statusMessage" class="import-status"></div>
       </form>
     </div>
 

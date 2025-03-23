@@ -26,6 +26,12 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("", views.home, name="home"),
+    path("course/<int:course_id>/", views.home, name="course_view"),
+    path(
+        "course/<int:course_id>/chapter/<int:chapter_id>/",
+        views.home,
+        name="chapter_view",
+    ),
     path("review/", views.review, name="review_default"),
     path("review/<int:variation_id>/", views.review, name="review_with_id"),
     path("report-result/", views.report_result, name="report_result"),
