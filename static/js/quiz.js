@@ -65,7 +65,7 @@ export function quizApp() {
     }, // initQuiz()
 
     goToStartingPosition() {
-      this.status = "🟣🟣";
+      this.status = "🟤🟤";
       // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {

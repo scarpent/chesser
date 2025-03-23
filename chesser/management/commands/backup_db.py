@@ -9,6 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         success = backup_and_upload()
         if success:
-            self.stdout.write(self.style.SUCCESS("✅ Backup uploaded successfully"))
+            self.stdout.write(self.style.SUCCESS("✅ Backup succeeded"))
         else:
             self.stderr.write(self.style.ERROR("❌ Backup failed"))
