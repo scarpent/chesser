@@ -71,7 +71,6 @@ a:hover {
 #right-column {
   max-width: 700px;
   max-height: 95vh;
-  overflow-x: hidden;
   overflow-y: auto;
   box-sizing: border-box;
   padding: 10px 15px 15px;
@@ -543,6 +542,9 @@ td:last-child {
 
   #resizable-board {
     all: unset; /* Resets everything */
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: block; /* Optional: Make sure it still shows */
     width: 100vw;
     height: 100vw;
