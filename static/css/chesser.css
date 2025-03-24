@@ -9,6 +9,7 @@ body {
   height: 100vh;
   margin: 0;
   padding-top: 15px;
+  overflow-x: hidden;
 }
 
 a {
@@ -659,14 +660,17 @@ td:last-child {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+    overflow-x: hidden;
+    max-width: 100%;
     padding: 0 10px;
     box-sizing: border-box;
-    overflow-x: hidden;
   }
 
   .move-text-container,
   .move-other-container {
     width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     box-sizing: border-box;
   }
 
@@ -678,6 +682,13 @@ td:last-child {
 
   #edit-variation-info {
     margin-bottom: 20px;
+  }
+
+  .move-fen a {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
   }
   /* end edit page */
 }
