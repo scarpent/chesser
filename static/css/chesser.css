@@ -69,8 +69,7 @@ a:hover {
   padding: 0 15px 15px;
 }
 
-/* variation-text */
-#right-column {
+#variation-text {
   max-width: 700px;
   max-height: 95vh;
   overflow-y: auto;
@@ -85,7 +84,7 @@ a:hover {
   word-wrap: break-word; /* Prevent overflow */
 }
 
-#right-column p {
+#variation-text p {
   font-size: 18px;
   color: #eeeeee;
   line-height: 1.5;
@@ -531,7 +530,7 @@ td:last-child {
 
 @media (max-width: 450px) {
   body,
-  #right-column p,
+  #variation-text p,
   .variation-mainline,
   .info-container,
   #next-due {
@@ -626,10 +625,10 @@ td:last-child {
 /* variation view */
 @media (max-width: 900px) {
   #outer-container {
-    flex-direction: column; /* Stack left and right columns vertically */
-    height: 100vh; /* Make the container take full viewport height */
-    padding-left: 0; /* Remove left padding */
-    gap: 10px; /* Space between the columns */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
   }
 
   #left-column {
@@ -643,15 +642,10 @@ td:last-child {
     flex-shrink: 0; /* Prevent the board from shrinking */
   }
 
-  #underboard {
-    max-height: 75px; /* Max height for the underboard */
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    width: 100%;
-  }
-
-  #right-column {
-    flex-grow: 1; /* Take the remaining space */
-    overflow-y: auto; /* Allow scrolling */
+  #underboard,
+  #variation-text {
+    flex: 1;
+    overflow-y: auto;
     width: 100%;
   }
 
