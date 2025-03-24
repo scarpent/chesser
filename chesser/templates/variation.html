@@ -17,72 +17,74 @@
     @keydown.window="handleKeyNavigation($event)"
   >
     <div id="outer-container" x-cloak>
-      <div id="resizable-board" data-board-id="variation">
-        <div id="board"></div>
-        <div id="resize-handle"></div>
-      </div>
-      <div id="underboard">
-        <div class="button-container">
-          <button @click="window.location.href='/'" title="Home">🏠️</button>
-          <button
-            @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
-            title="Lichess analysis board"
-          >
-            🔍️
-          </button>
-          <button @click="window.location.href='/review/'" title="Review">📝</button>
-          <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
-          <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
-          <button
-            @click="window.location.href='/edit/' + variationData.variation_id + '/'"
-            title="Edit"
-          >
-            ⚙️
-          </button>
+      <div id="left-column">
+        <div id="resizable-board" data-board-id="variation">
+          <div id="board"></div>
+          <div id="resize-handle"></div>
         </div>
-        <div
-          class="review-variation"
-          x-data="{ variation_id: variationData.variation_id }"
-        >
-          <a
-            x-bind:href="'/review/' + variation_id + '/'"
-            x-text="'extra study #' + variation_id"
-          ></a>
-        </div>
-        <div class="info-container">
-          <div class="chapter-title">
+        <div id="underboard">
+          <div class="button-container">
+            <button @click="window.location.href='/'" title="Home">🏠️</button>
+            <button
+              @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+              title="Lichess analysis board"
+            >
+              🔍️
+            </button>
+            <button @click="window.location.href='/review/'" title="Review">📝</button>
+            <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
+            <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
+            <button
+              @click="window.location.href='/edit/' + variationData.variation_id + '/'"
+              title="Edit"
+            >
+              ⚙️
+            </button>
+          </div>
+          <div
+            class="review-variation"
+            x-data="{ variation_id: variationData.variation_id }"
+          >
             <a
-              :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
-              ><span x-text="variationData.chapter"></span
+              x-bind:href="'/review/' + variation_id + '/'"
+              x-text="'extra study #' + variation_id"
             ></a>
-            <span class="sep"> ➤ </span>
-            <span x-text="variationData.title"></span>
           </div>
-          <div x-text="variationData.mainline" class="mainline-moves"></div>
-          <div class="variation-state-info">
-            <span x-text="'L' + variationData.level"></span>
-            <span x-text="'Next ➤ ' + variationData.time_until_next_review"></span
-            ><span x-text="'Starts @ Move ' + variationData.start_move"></span>
+          <div class="info-container">
+            <div class="chapter-title">
+              <a
+                :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
+                ><span x-text="variationData.chapter"></span
+              ></a>
+              <span class="sep"> ➤ </span>
+              <span x-text="variationData.title"></span>
+            </div>
+            <div x-text="variationData.mainline" class="mainline-moves"></div>
+            <div class="variation-state-info">
+              <span x-text="'L' + variationData.level"></span>
+              <span x-text="'Next ➤ ' + variationData.time_until_next_review"></span
+              ><span x-text="'Starts @ Move ' + variationData.start_move"></span>
+            </div>
           </div>
-        </div>
-        <p id="alts"></p>
-        <div id="source" x-html="variationData.source_html"></div>
-        <div id="history">
-          <h3>History</h3>
-          <table class="history-table">
-            <tbody>
-              <template x-for="(entry, index) in variationData.history" :key="index">
-                <tr>
-                  <td x-text="entry.passed"></td>
-                  <td><span x-text="'L' + entry.level"></span></td>
-                  <td x-text="entry.datetime"></td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
+          <p id="alts"></p>
+          <div id="source" x-html="variationData.source_html"></div>
+          <div id="history">
+            <h3>History</h3>
+            <table class="history-table">
+              <tbody>
+                <template x-for="(entry, index) in variationData.history" :key="index">
+                  <tr>
+                    <td x-text="entry.passed"></td>
+                    <td><span x-text="'L' + entry.level"></span></td>
+                    <td x-text="entry.datetime"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <div id="variation-text" x-html="variationData.html"></div>
+      <div id="right-column" x-html="variationData.html"></div>
     </div>
 
     <script>
