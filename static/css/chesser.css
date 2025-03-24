@@ -699,7 +699,7 @@ td:last-child {
   z-index: 9999;
 }
 
-@media screen and (orientation: landscape) {
+@media screen and (orientation: landscape) and (max-width: 450px) {
   .landscape-overlay {
     display: flex;
   }
