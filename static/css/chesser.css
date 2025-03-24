@@ -659,24 +659,25 @@ td:last-child {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    padding: 0 10px; /* prevent content touching screen edge */
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
-  #edit-variation-info {
-    margin-bottom: 20px;
-  }
-
-  .move-text-container {
+  .move-text-container,
+  .move-other-container {
     width: 100%;
+    box-sizing: border-box;
   }
 
   .move-text {
     width: 100%;
-    box-sizing: border-box; /* ensures padding/border doesn't exceed 100% */
+    box-sizing: border-box;
+    resize: vertical; /* allow vertical resizing only */
   }
 
-  .move-other-container {
-    width: 100%;
+  #edit-variation-info {
+    margin-bottom: 20px;
   }
   /* end edit page */
 }

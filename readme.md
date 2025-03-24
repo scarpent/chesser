@@ -6,7 +6,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- responsive edit form
 - use reambiguated moves to check alts, too?
 - import new lines (manage re-imports for different sets)
 - sort dumpdata output for git check in and diff checking?
