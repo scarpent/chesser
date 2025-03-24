@@ -1,6 +1,6 @@
 import json
 
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -109,49 +109,57 @@ def upload_json_data(request):
 
 
 def variations_tsv(request):
-    variations = Variation.objects.all().order_by(
-        "course_id", "chapter__title", "mainline_moves_str"
-    )
-    var_list = []
-
-    # course	chapter	var_name	moves	link
-    for variation in variations.iterator():
-        var_list.append(
-            [
-                variation.course.title,
-                variation.chapter.title,
-                variation.title,
-                variation.mainline_moves,
-                f"https://chesser-production.up.railway.app/variation/{variation.id}/",
-            ]
+    def row_generator():
+        yield "course\tchapter\tvar_name\tmoves\tlink\n"
+        qs = (
+            Variation.objects.select_related("course", "chapter")
+            .order_by("course_id", "chapter__title", "mainline_moves_str")
+            .iterator()
         )
 
-    html = (
-        "<pre>" + "\n".join(["\t".join(map(str, item)) for item in var_list]) + "</pre>"
-    )
+        for v in qs:
+            yield (
+                f"{v.course.title}\t"
+                f"{v.chapter.title}\t"
+                f"{v.title}\t"
+                f"{v.mainline_moves}\t"
+                f"https://chesser-production.up.railway.app/variation/{v.id}/\n"
+            )
 
-    return HttpResponse(html, content_type="text/html")
+    return StreamingHttpResponse(row_generator(), content_type="text/plain")
 
 
 def variations_table(request):
-    variations = Variation.objects.all().order_by(
-        "course_id", "chapter__title", "mainline_moves_str"
-    )
-    html = (
-        "<html><body><table><tr><th>Start</th><th>Course</th><th>Chapter</th>"
-        f"<th>Link</th><th>Variation ({variations.count()})</th><th>Moves</th></tr\n>"
-    )
-
-    URL_BASE = "https://chesser-production.up.railway.app/variation"
-    for variation in variations.iterator():
-        html += (
-            f"<tr><td>{variation.start_move}</td><td>{variation.course.title}</td>"
-            f"<td>{variation.chapter.title}</td>"
-            f'<td><a href="{URL_BASE}/{variation.id}/">{variation.id}</a></td>'
-            f"<td>{variation.title}</td><td>{variation.mainline_moves}</td></tr>\n"
+    def row_generator():
+        variations = (
+            Variation.objects.select_related("course", "chapter")
+            .order_by("course_id", "chapter__title", "mainline_moves_str")
+            .iterator()
         )
 
-    return HttpResponse(f"{html}</table></body></html>", content_type="text/html")
+        URL_BASE = "https://chesser-production.up.railway.app/variation"
+        yield "<html><body><table>\n"
+        yield (
+            "<tr><th>Start</th><th>Course</th><th>Chapter</th>"
+            "<th>Link</th><th>Variation</th><th>Moves</th></tr>\n"
+        )
+
+        count = 0
+        for v in variations:
+            count += 1
+            yield (
+                f"<tr><td>{v.start_move}</td>"
+                f"<td>{v.course.title}</td>"
+                f"<td>{v.chapter.title}</td>"
+                f'<td><a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
+                f"<td>{v.title}</td>"
+                f"<td>{v.mainline_moves}</td></tr>\n"
+            )
+
+        yield f"<tr><td colspan='6'>Total variations: {count}</td></tr>\n"
+        yield "</table></body></html>"
+
+    return StreamingHttpResponse(row_generator(), content_type="text/html")
 
 
 def edit(request, variation_id=None):
