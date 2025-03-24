@@ -115,7 +115,7 @@ def variations_tsv(request):
     var_list = []
 
     # course	chapter	var_name	moves	link
-    for variation in variations:
+    for variation in variations.iterator():
         var_list.append(
             [
                 variation.course.title,
@@ -143,7 +143,7 @@ def variations_table(request):
     )
 
     URL_BASE = "https://chesser-production.up.railway.app/variation"
-    for variation in variations:
+    for variation in variations.iterator():
         html += (
             f"<tr><td>{variation.start_move}</td><td>{variation.course.title}</td>"
             f"<td>{variation.chapter.title}</td>"
