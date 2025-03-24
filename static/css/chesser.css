@@ -653,4 +653,13 @@ td:last-child {
     overflow-y: auto; /* Allow scrolling */
     width: 100%;
   }
+
+  .move-block {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #edit-variation-info {
+    margin-bottom: 20px;
+  }
 }

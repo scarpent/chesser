@@ -6,13 +6,10 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- importer: look for changes to text/alt/shapes/start/etc, report on if changed or not and what things changed
-- fix import for alts -- once moves diverge, don't go back!
-  - variation 1204 ➤ 48113084 ➤ 15995372 demonstrates problem 8...e6 has wrong alts because of pseudo-transposition
-- bulk import json format
 - responsive edit form
 - use reambiguated moves to check alts, too?
 - import new lines (manage re-imports for different sets)
+- sort dumpdata output for git check in and diff checking?
 - scrolling in mobile view
 - toggle show alt moves on board
   - holding down "a" will show them only while holding, then restore other paint or clear
