@@ -325,17 +325,14 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     scrollIntoView(element) {
-      if (element) {
-        const container = document.getElementById("right-column");
-        const offset = 20; // Margin from the top
-        const elementTop =
-          element.getBoundingClientRect().top + container.scrollTop - offset;
+      if (!element) return;
 
-        container.scrollTo({
-          top: elementTop,
-          behavior: "smooth",
-        });
-      }
+      const useSmooth = true;
+
+      element.scrollIntoView({
+        behavior: useSmooth ? "smooth" : "auto",
+        block: "start",
+      });
     },
   }; // return { ... }
 }
