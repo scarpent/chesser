@@ -686,3 +686,25 @@ td:last-child {
   }
   /* end edit page */
 }
+
+.landscape-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  color: white;
+  font-size: 100px;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+@media screen and (orientation: landscape) {
+  .landscape-overlay {
+    display: flex;
+  }
+
+  body > *:not(.landscape-overlay) {
+    display: none !important;
+  }
+}
