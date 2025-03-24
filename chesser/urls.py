@@ -42,4 +42,6 @@ urlpatterns = [
     path("variation/<int:variation_id>/", views.variation, name="variation"),
     path("import/", views.importer, name="import"),
     path("upload-json-data/", views.upload_json_data, name="upload_json_data"),
+    path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
+    path("variations-table/", views.variations_table, name="variations_table"),
 ]
