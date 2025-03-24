@@ -50,15 +50,13 @@ a:hover {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  /* align-items: center;
-  position: sticky; */
-  /* top: 0; /* Stick the board to the top */
+  align-items: center;
   background-color: #222222; /* Ensure background matches */
   z-index: 10;
   box-sizing: border-box;
   max-width: 600px;
   max-height: 95vh;
-  padding-left: 15px;
+  padding-left: 0;
   padding-right: 15px;
 }
 
