@@ -654,12 +654,29 @@ td:last-child {
     width: 100%;
   }
 
+  /* edit page */
   .move-block {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    padding: 0 10px; /* prevent content touching screen edge */
   }
 
   #edit-variation-info {
     margin-bottom: 20px;
   }
+
+  .move-text-container {
+    width: 100%;
+  }
+
+  .move-text {
+    width: 100%;
+    box-sizing: border-box; /* ensures padding/border doesn't exceed 100% */
+  }
+
+  .move-other-container {
+    width: 100%;
+  }
+  /* end edit page */
 }
