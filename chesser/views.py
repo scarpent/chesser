@@ -110,7 +110,6 @@ def upload_json_data(request):
 
 def variations_tsv(request):
     def row_generator():
-        yield "course\tchapter\tvar_name\tmoves\tlink\n"
         qs = (
             Variation.objects.select_related("course", "chapter")
             .order_by("course_id", "chapter__title", "mainline_moves_str")
