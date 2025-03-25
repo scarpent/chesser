@@ -103,18 +103,6 @@
       });
     </script>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const board = document.getElementById("resizable-board");
-        if (board) {
-          // Force a reflow to ensure proper layout
-          board.style.display = "none";
-          board.offsetHeight; // Trigger reflow
-          board.style.display = "block";
-        }
-      });
-    </script>
-
     <script src="{% static 'js/resize.js' %}"></script>
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
   </body>
