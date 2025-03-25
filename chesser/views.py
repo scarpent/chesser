@@ -139,16 +139,17 @@ def variations_table(request):
 
         yield "<html><body><table>\n"
         yield (
-            "<tr><th>Start</th><th>Course</th><th>Chapter</th>"
-            "<th>Link</th><th>Variation</th><th>Moves</th></tr>\n"
+            '<tr style="background-color: lightblue;"><th>Start</th><th>Course</th>'
+            "<th>Chapter</th><th>Link</th><th>Variation</th><th>Moves</th></tr>\n"
         )
 
         URL_BASE = f"{settings.CHESSER_URL}/variation"
         count = 0
-        for v in variations:
+        for count, v in enumerate(variations):
             count += 1
+            highlight = ' style="background-color: #f0f0f0;"' if count % 2 == 0 else ""
             yield (
-                f"<tr><td>{v.start_move}</td>"
+                f"<tr{highlight}><td>{v.start_move}</td>"
                 f"<td>{v.course.title}</td>"
                 f"<td>{v.chapter.title}</td>"
                 f'<td><a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
