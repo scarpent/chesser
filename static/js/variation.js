@@ -37,14 +37,12 @@ export function variationApp() {
           this.updateBoard();
           this.highlightMainlineMove();
           this.attachClickHandlers(); // To moves
-          if (window.innerWidth <= 900) {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                window.scrollTo({ top: 0, behavior: "auto" });
-              });
-            });
-          }
         }, 100);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }, 700); // after everything settles
         console.log("Chess board loaded");
       } else {
         console.error("chessground or chess.js failed to load");
