@@ -103,7 +103,7 @@
       </template>
     </div>
 
-    <div class="landscape-overlay">☸️</div>
+    {% include "includes/landscape_overlay.html" %}
 
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");

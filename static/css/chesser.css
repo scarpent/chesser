@@ -533,6 +533,18 @@ td:last-child {
   background-color: white;
 }
 
+.chesser-logo img {
+  border-color: #613613;
+}
+
+.course-white,
+.course-black,
+.chesser-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #dev-indicator {
   color: red;
   display: none;
@@ -723,7 +735,7 @@ td:last-child {
   display: none;
   position: fixed;
   inset: 0;
-  background: #000000;
+  background: #333333;
   color: white;
   font-size: 100px;
   justify-content: center;

@@ -37,7 +37,7 @@
           @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
           title="Lichess analysis board"
         >
-          🔍️
+          🧮
         </button>
         <button @click="restartQuiz()" title="Restart">🔄</button>
         <button @click="showInfo = !showInfo" title="Info">👁️</button>
@@ -114,7 +114,7 @@
       </div>
     </div>
 
-    <div class="landscape-overlay">☸️</div>
+    {% include "includes/landscape_overlay.html" %}
 
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
