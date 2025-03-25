@@ -145,7 +145,23 @@ def variations_table(request):
 
         URL_BASE = f"{settings.CHESSER_URL}/variation"
         count = 0
+        var_count = 0
+        last_chapter = ""
         for count, v in enumerate(variations):
+            var_count += 1
+            if v.chapter.title != last_chapter:
+                chapter_count = var_count
+                chapter_title = last_chapter
+                var_count = 0
+                last_chapter = v.chapter.title
+                if count == 0:
+                    continue
+
+                yield (
+                    f'<tr style="background-color: lightblue; text-align: center;">'
+                    f'<td colspan="6">{chapter_title}: {chapter_count}</td></tr>\n'
+                )
+
             count += 1
             highlight = ' style="background-color: #f0f0f0;"' if count % 2 == 0 else ""
             yield (
@@ -157,7 +173,7 @@ def variations_table(request):
                 f"<td>{v.mainline_moves}</td></tr>\n"
             )
 
-        yield f"<tr><td colspan='6'>Total variations: {count}</td></tr>\n"
+        yield f'<tr><td colspan="6">Total variations: {count}</td></tr>\n'
         yield "</table></body></html>"
 
     return StreamingHttpResponse(row_generator(), content_type="text/html")
