@@ -556,7 +556,6 @@ td:last-child {
     width: 100vw;
     height: 100vw;
     min-width: 200px;
-    /* min-height: 200px; */
     flex-shrink: 0;
   }
 
