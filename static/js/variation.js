@@ -328,7 +328,7 @@ export function variationApp() {
     scrollIntoView(element) {
       if (!element) return;
 
-      const useSmooth = true;
+      const useSmooth = false;
 
       element.scrollIntoView({
         behavior: useSmooth ? "smooth" : "auto",
