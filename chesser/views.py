@@ -1,4 +1,5 @@
 import json
+from itertools import groupby
 
 from django.conf import settings
 from django.http import JsonResponse, StreamingHttpResponse
@@ -131,7 +132,7 @@ def variations_tsv(request):
 
 def variations_table(request):
     def row_generator():
-        variations = (
+        qs = (
             Variation.objects.select_related("course", "chapter")
             .order_by("course_id", "chapter__title", "mainline_moves_str")
             .iterator()
@@ -139,42 +140,42 @@ def variations_table(request):
 
         yield "<html><body><table>\n"
         yield (
-            '<tr style="background-color: lightblue;"><th>Start</th><th>Course</th>'
-            "<th>Chapter</th><th>Link</th><th>Variation</th><th>Moves</th></tr>\n"
+            '<tr style="background-color: lightblue; text-align: left"><th>Start</th>'
+            "<th>C</th><th>#</th><th>Variation</th><th>Moves</th></tr>\n"
         )
 
         URL_BASE = f"{settings.CHESSER_URL}/variation"
-        count = 0
-        var_count = 0
-        last_chapter = ""
-        for count, v in enumerate(variations):
-            var_count += 1
-            if v.chapter.title != last_chapter:
-                chapter_count = var_count
-                chapter_title = last_chapter
-                var_count = 0
-                last_chapter = v.chapter.title
-                if count == 0:
-                    continue
+        total = 0
+        for chapter_title, group in groupby(qs, key=lambda v: v.chapter.title):
+            group_list = list(group)
+            count_in_chapter = len(group_list)
 
-                yield (
-                    f'<tr style="background-color: lightblue; text-align: center;">'
-                    f'<td colspan="6">{chapter_title}: {chapter_count}</td></tr>\n'
-                )
-
-            count += 1
-            highlight = ' style="background-color: #f0f0f0;"' if count % 2 == 0 else ""
             yield (
-                f"<tr{highlight}><td>{v.start_move}</td>"
-                f"<td>{v.course.title}</td>"
-                f"<td>{v.chapter.title}</td>"
-                f'<td><a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
-                f"<td>{v.title}</td>"
-                f"<td>{v.mainline_moves}</td></tr>\n"
+                f'<tr style="background-color: lightblue; font-weight: bold;">'
+                f'<td colspan="5">{chapter_title}: {count_in_chapter}</td></tr>\n'
             )
 
-        yield f'<tr><td colspan="6">Total variations: {count}</td></tr>\n'
-        yield "</table></body></html>"
+            for idx, v in enumerate(group_list, start=1):
+                total += 1
+                highlight = (
+                    ' style="background-color: #f0f0f0;"' if idx % 2 == 0 else ""
+                )
+                yield (
+                    f"<tr{highlight}>"
+                    f"<td>{v.start_move}</td>"
+                    f"<td>{v.course.title[0]}</td>"
+                    f'<td style="text-align: right">'
+                    f'<a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
+                    f'<td style="white-space: nowrap;">{v.title}</td>'
+                    f'<td style="white-space: nowrap;">{v.mainline_moves}</td>'
+                    "</tr>\n"
+                )
+
+        yield (
+            f'<tr style="background-color: lightblue; font-weight: bold;">'
+            f'<td colspan="5">Total variations: {total}</td></tr>\n'
+            f"</table></body></html>"
+        )
 
     return StreamingHttpResponse(row_generator(), content_type="text/html")
 
