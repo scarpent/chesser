@@ -38,11 +38,6 @@ export function variationApp() {
           this.highlightMainlineMove();
           this.attachClickHandlers(); // To moves
         }, 100);
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          document.documentElement.scrollTop = 0;
-          document.body.scrollTop = 0;
-        }, 700); // after everything settles
         console.log("Chess board loaded");
       } else {
         console.error("chessground or chess.js failed to load");

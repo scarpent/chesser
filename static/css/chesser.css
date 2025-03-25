@@ -528,6 +528,13 @@ td:last-child {
 }
 
 @media (max-width: 450px) {
+  html,
+  body {
+    width: 100vw;
+    height: 98vh;
+    overflow-x: hidden;
+  }
+
   body,
   #right-column p,
   .variation-mainline,
@@ -629,6 +636,7 @@ td:last-child {
   html,
   body {
     width: 100vw;
+    height: 98vh;
     overflow-x: hidden;
   }
 
