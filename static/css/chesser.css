@@ -394,7 +394,7 @@ button:hover {
 
 .recently-reviewed-info {
   display: flex;
-  flex-wrap: wrap; /* Allows wrapping when space is tight */
+  flex-wrap: wrap;
   gap: 0 10px; /* Vertical and horizontal spacing */
 }
 
