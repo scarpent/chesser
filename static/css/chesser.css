@@ -627,8 +627,7 @@ td:last-child {
 /* variation view */
 @media (max-width: 900px) {
   body {
-    height: 100vh;
-    overflow: hidden;
+    height: 98vh;
   }
 
   #outer-container {
