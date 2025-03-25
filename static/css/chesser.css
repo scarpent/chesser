@@ -626,6 +626,11 @@ td:last-child {
 
 /* variation view */
 @media (max-width: 900px) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
+
   #outer-container {
     display: flex;
     flex-direction: column;
