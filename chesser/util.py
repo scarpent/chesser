@@ -1,4 +1,9 @@
+from datetime import datetime, timezone
+
 from django.utils.timesince import timesince
+
+BEGINNING_OF_TIME = 0  # 1970-01-01T00:00:00
+END_OF_TIME = 253402300799  # 9999-12-31T23:59:59
 
 
 def get_time_ago(now, result_datetime):
@@ -16,6 +21,8 @@ def get_time_ago(now, result_datetime):
 def format_time_until(now, next_review):
     if now > next_review:
         return "right now"
+    elif next_review == datetime.fromtimestamp(END_OF_TIME, timezone.utc):
+        return "The End of Time"
 
     time_until = next_review - now
     days, remainder = divmod(time_until.total_seconds(), 24 * 60 * 60)  # a day
