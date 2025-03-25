@@ -402,6 +402,12 @@ button:hover {
   list-style: none;
 }
 
+.recently-reviewed ul,
+.recently-reviewed ol {
+  padding-left: 0;
+  margin-left: 0;
+}
+
 table {
   border-collapse: collapse;
 }
