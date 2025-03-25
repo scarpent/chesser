@@ -6,17 +6,19 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
+- hide scrolling in mobile
+- bug: during quiz session, visiting lichess analysis board after completing one, it might restart when you return
 - use reambiguated moves to check alts, too?
 - import new lines (manage re-imports for different sets)
 - sort dumpdata output for git check in and diff checking?
-- scrolling in mobile view
+- scrolling in mobile view (better now but still that slight shift on first page load)
 - toggle show alt moves on board
   - holding down "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves?
 - version number for variations? (version 1 is overwritable)
 - link to source variation from quiz info? Just one link to the original source var.
-- enhance promotion dialog with pieces instead of text (owen's defense #1065 example)
+- enhance promotion dialog with pieces instead of text? (owen's defense #1065 example)
 - style form components
 
 ## longer term:

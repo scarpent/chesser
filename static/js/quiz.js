@@ -24,8 +24,7 @@ export function quizApp() {
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
 
-        if (!this.variationData || Object.keys(this.variationData).length === 0) {
-          this.nothingToSeeHere(boardElement);
+        if (this.nothingToSeeHere(boardElement) || this.alreadyCompleted()) {
           return;
         }
 
@@ -289,6 +288,9 @@ export function quizApp() {
         console.log("extra study: not reporting result");
       } else {
         this.reportResult(!this.failed);
+        // saw some issues with quiz "restarting" when returning from
+        // lichess analysis board; we'll try to avoid that...
+        localStorage.setItem(`quiz_completed_${this.variationData.variation_id}`, "1");
       }
 
       if (this.failed && !this.reviewData.extra_study) {
@@ -380,6 +382,12 @@ export function quizApp() {
       localStorage.removeItem("review_pass");
       localStorage.removeItem("review_fail");
       localStorage.removeItem("review_complete");
+
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("quiz_completed_")) {
+          localStorage.removeItem(key);
+        }
+      });
 
       this.displayReviewSessionStats();
     },
@@ -473,17 +481,41 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    alreadyCompleted() {
+      const variationId = this.variationData.variation_id;
+      const completedKey = `quiz_completed_${variationId}`;
+
+      let completedCount = parseInt(localStorage.getItem(completedKey) || "0", 10);
+      completedCount += 1;
+      localStorage.setItem(completedKey, completedCount.toString());
+
+      // safety check -- if for some reason *not* completed, we won't get stuck in a loop
+      if (completedCount === 2) {
+        console.log(`Quiz ${variationId} already completed — skipping and redirecting`);
+        window.location.href = "/review/";
+        return true;
+      }
+
+      return false;
+    },
+
+    //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
-      console.log("no variation data");
-      this.status = "😌";
-      this.board = window.Chessground(boardElement, {
-        viewOnly: true,
-        orientation: "white",
-        fen: this.chess.fen(),
-        coordinates: false,
-      });
-      this.completeReviewSession();
-      this.displayReviewSessionStats();
+      if (!this.variationData || Object.keys(this.variationData).length === 0) {
+        console.log("no variation data");
+        this.status = "😌";
+        this.board = window.Chessground(boardElement, {
+          viewOnly: true,
+          orientation: "white",
+          fen: this.chess.fen(),
+          coordinates: false,
+        });
+        this.completeReviewSession();
+        this.displayReviewSessionStats();
+        return true;
+      } else {
+        return false;
+      }
     },
   }; // return { ... }
 }
