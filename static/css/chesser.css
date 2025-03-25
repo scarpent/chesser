@@ -392,6 +392,16 @@ button:hover {
   margin-bottom: 5px;
 }
 
+.recently-reviewed-info {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping when space is tight */
+  gap: 0 10px; /* Vertical and horizontal spacing */
+}
+
+.recently-reviewed li {
+  list-style: none;
+}
+
 table {
   border-collapse: collapse;
 }

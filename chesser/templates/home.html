@@ -185,19 +185,27 @@
 
     <div class="recently-reviewed" x-cloak>
       <h3>Recently Reviewed</h3>
-      <p>
+      <ul>
         <template x-for="review in homeData.recent" :key="review.variation_id">
-          <span>
-            <span x-text="review.passed"></span>
-            <a
-              :href="'/variation/' + review.variation_id + '/'"
-              x-text="review.variation_title"
-            ></a>
-            (<span x-text="review.datetime"></span>, L<span x-text="review.level"></span
-            >)<br />
-          </span>
+          <li>
+            <div class="recently-reviewed-info">
+              <div>
+                <span x-text="review.passed"></span>
+                <a
+                  :href="'/variation/' + review.variation_id + '/'"
+                  x-text="review.variation_title"
+                ></a>
+              </div>
+              <div>
+                (<span x-text="review.datetime"></span>, L<span
+                  x-text="review.level"
+                ></span
+                >)
+              </div>
+            </div>
+          </li>
         </template>
-      </p>
+      </ul>
     </div>
 
     <div class="landscape-overlay">☸️</div>
