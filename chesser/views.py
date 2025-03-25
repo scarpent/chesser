@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -122,7 +123,7 @@ def variations_tsv(request):
                 f"{v.chapter.title}\t"
                 f"{v.title}\t"
                 f"{v.mainline_moves}\t"
-                f"https://chesser-production.up.railway.app/variation/{v.id}/\n"
+                f"{settings.CHESSER_URL}/variation/{v.id}/\n"
             )
 
     return StreamingHttpResponse(row_generator(), content_type="text/plain")
@@ -136,13 +137,13 @@ def variations_table(request):
             .iterator()
         )
 
-        URL_BASE = "https://chesser-production.up.railway.app/variation"
         yield "<html><body><table>\n"
         yield (
             "<tr><th>Start</th><th>Course</th><th>Chapter</th>"
             "<th>Link</th><th>Variation</th><th>Moves</th></tr>\n"
         )
 
+        URL_BASE = f"{settings.CHESSER_URL}/variation"
         count = 0
         for v in variations:
             count += 1

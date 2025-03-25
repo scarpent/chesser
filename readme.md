@@ -6,8 +6,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- hide scrolling in mobile
-- bug: during quiz session, visiting lichess analysis board after completing one, it might restart when you return
 - use reambiguated moves to check alts, too?
 - import new lines (manage re-imports for different sets)
 - sort dumpdata output for git check in and diff checking?
