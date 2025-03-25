@@ -291,6 +291,7 @@ export function quizApp() {
         // saw some issues with quiz "restarting" when returning from
         // lichess analysis board; we'll try to avoid that...
         localStorage.setItem(`quiz_completed_${this.variationData.variation_id}`, "1");
+        localStorage.setItem("last_completed_time", new Date().toISOString());
       }
 
       if (this.failed && !this.reviewData.extra_study) {
@@ -374,7 +375,22 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     reviewSessionIsComplete() {
-      return localStorage.getItem("review_session_complete") === "true";
+      if (localStorage.getItem("review_session_complete") === "true") {
+        return true;
+      }
+
+      const lastCompleted = localStorage.getItem("last_completed_time");
+      if (lastCompleted) {
+        const lastTime = new Date(lastCompleted);
+        const now = new Date();
+        const diffMillis = now - lastTime;
+        const diffMinutes = diffMillis / (1000 * 60);
+        if (diffMinutes >= 30) {
+          return true;
+        }
+      }
+
+      return false;
     },
 
     //--------------------------------------------------------------------------------
@@ -382,6 +398,7 @@ export function quizApp() {
       localStorage.removeItem("review_pass");
       localStorage.removeItem("review_fail");
       localStorage.removeItem("review_complete");
+      localStorage.removeItem("last_completed_time");
 
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith("quiz_completed_")) {
