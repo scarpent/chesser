@@ -37,9 +37,12 @@ export function variationApp() {
           this.updateBoard();
           this.highlightMainlineMove();
           this.attachClickHandlers(); // To moves
-          // ✅ Force scroll to top in mobile to prevent board clipping
           if (window.innerWidth <= 900) {
-            window.scrollTo({ top: 0, behavior: "auto" });
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: 0, behavior: "auto" });
+              });
+            });
           }
         }, 100);
         console.log("Chess board loaded");
