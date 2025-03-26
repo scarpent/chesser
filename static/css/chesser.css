@@ -551,55 +551,6 @@ td:last-child {
   padding: 10px;
 }
 
-[x-cloak] {
-  display: none !important;
-}
-
-@media (max-width: 450px) {
-  html,
-  body {
-    width: 100vw;
-    height: 98vh;
-    overflow-x: hidden;
-  }
-
-  body,
-  #right-column p,
-  .variation-mainline,
-  .info-container,
-  #next-due {
-    font-size: 20px;
-  }
-
-  #outer-container {
-    width: 100%;
-  }
-
-  #resizable-board {
-    all: unset; /* Resets everything */
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: block; /* Optional: Make sure it still shows */
-    width: 100vw;
-    height: 100vw;
-    min-width: 200px;
-    flex-shrink: 0;
-  }
-
-  #resize-handle {
-    display: none; /* Hide the resize handle */
-  }
-
-  .button-container {
-    gap: 2px;
-  }
-
-  button {
-    font-size: 35px;
-  }
-}
-
 /* Pawn Promotion */
 .modal-overlay {
   position: fixed;
@@ -631,7 +582,7 @@ td:last-child {
 }
 
 .promotion-options button {
-  font-size: 20px;
+  font-size: 24px;
   padding: 8px 16px;
   background-color: #111;
   color: #eee;
@@ -645,17 +596,20 @@ td:last-child {
 }
 /* End Pawn Promotion */
 
-@media (max-width: 600px) {
-  .reviews-levels-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
+.landscape-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #222222;
+  color: white;
+  font-size: 100px;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
 
-  .chapters-container ol {
-    grid-template-columns: 1fr; /* Switch to a single column */
-    gap: 3px; /* Space between rows */
-  }
+[x-cloak] {
+  display: none !important;
 }
 
 /* variation view */
@@ -731,16 +685,66 @@ td:last-child {
   /* end edit page */
 }
 
-.landscape-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #222222;
-  color: white;
-  font-size: 100px;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+@media (max-width: 600px) {
+  .reviews-levels-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chapters-container ol {
+    grid-template-columns: 1fr; /* Switch to a single column */
+    gap: 3px; /* Space between rows */
+  }
+}
+
+@media (max-width: 450px) {
+  html,
+  body {
+    width: 100vw;
+    height: 98vh;
+    overflow-x: hidden;
+  }
+
+  body,
+  #right-column p,
+  .variation-mainline,
+  .info-container,
+  #next-due {
+    font-size: 20px;
+  }
+
+  #outer-container {
+    width: 100%;
+  }
+
+  #resizable-board {
+    all: unset; /* Resets everything */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: block; /* Optional: Make sure it still shows */
+    width: 100vw;
+    height: 100vw;
+    min-width: 200px;
+    flex-shrink: 0;
+  }
+
+  #resize-handle {
+    display: none; /* Hide the resize handle */
+  }
+
+  .button-container {
+    gap: 2px;
+  }
+
+  button {
+    font-size: 35px;
+  }
+
+  .promotion-options button {
+    font-size: 30px;
+  }
 }
 
 @media screen and (orientation: landscape) and (max-width: 900px) {
