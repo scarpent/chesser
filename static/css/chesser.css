@@ -6,7 +6,7 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  height: 100vh;
+  /* height: 100vh; */
   margin: 0;
   /* padding-top: 15px; */ /* see if this might help with scroll problem on mobile */
   overflow-x: hidden;
@@ -40,7 +40,7 @@ a:hover {
   align-items: flex-start;
   justify-content: center; /* Keeps both sections centered */
   width: 95%;
-  height: 95vh;
+  /* height: 95vh; */
   overflow: hidden;
   gap: 20px; /* Maintains space between board and variation text */
   padding-left: 20px; /* Ensures board doesn't touch the left edge */
@@ -55,7 +55,7 @@ a:hover {
   z-index: 10;
   box-sizing: border-box;
   max-width: 500px;
-  max-height: 95vh;
+  max-height: 98vh;
   padding-left: 0;
   padding-right: 15px;
 }
@@ -70,7 +70,7 @@ a:hover {
 
 #right-column {
   max-width: 700px;
-  max-height: 95vh;
+  max-height: 98vh;
   overflow-y: auto;
   box-sizing: border-box;
   padding: 10px 15px 15px;
@@ -635,15 +635,15 @@ td:last-child {
 @media (max-width: 900px) {
   html,
   body {
-    width: 100vw;
-    height: 98vh;
+    /* width: 100vw; */
+    /* height: 98vh; */
     overflow-x: hidden;
   }
 
   #outer-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    /* height: 100vh; */
     overflow: hidden;
   }
 
@@ -722,8 +722,8 @@ td:last-child {
 @media (max-width: 450px) {
   html,
   body {
-    width: 100vw;
-    height: 98vh;
+    /* width: 100vw; */
+    /* height: 98vh; */
     overflow-x: hidden;
   }
 
