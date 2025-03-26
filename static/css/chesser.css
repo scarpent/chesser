@@ -570,7 +570,7 @@ td:last-child {
   background-color: rgba(165, 42, 42, 0.7); /* Brown */
 }
 
-/* Pawn Promotion */
+/* --------------------------------------------------------- Pawn Promotion */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -613,7 +613,7 @@ td:last-child {
 .promotion-options button:hover {
   background-color: #444;
 }
-/* End Pawn Promotion */
+/* ----------------------------------------------------- End Pawn Promotion */
 
 .landscape-overlay {
   display: none;
@@ -631,7 +631,7 @@ td:last-child {
   display: none !important;
 }
 
-/* variation view */
+/* ----------------------------------------------------------- @media 900px */
 @media (max-width: 900px) {
   html,
   body {
@@ -704,6 +704,7 @@ td:last-child {
   /* end edit page */
 }
 
+/* ----------------------------------------------------------- @media 600px */
 @media (max-width: 600px) {
   .reviews-levels-container {
     flex-direction: column;
@@ -717,6 +718,7 @@ td:last-child {
   }
 }
 
+/* ----------------------------------------------------------- @media 450px */
 @media (max-width: 450px) {
   html,
   body {
@@ -766,6 +768,7 @@ td:last-child {
   }
 }
 
+/* ------------------------------------------------------- @media landscape */
 @media screen and (orientation: landscape) and (max-width: 900px) {
   .landscape-overlay {
     display: flex;
