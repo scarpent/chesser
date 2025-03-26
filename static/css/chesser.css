@@ -1,3 +1,7 @@
+:root {
+  --vh: 100%; /* trying a js solution for mobile vh; this is a fallback */
+}
+
 body {
   background-color: #222222;
   color: #eeeeee;
@@ -724,7 +728,8 @@ td:last-child {
     on refresh, it takes away too much space at bottom, but we
     won't typically be refreshing after loading the page; another
     approach might be to use js to dynamically calculate vh, etc */
-    height: 92vh;
+    /* height: 92vh; */
+    height: 100%; /* trying js solution instead... */
     overflow-x: hidden;
   }
 
@@ -737,6 +742,7 @@ td:last-child {
   }
 
   #outer-container {
+    height: calc(var(--vh, 1vh) * 100);
     width: 100%;
   }
 

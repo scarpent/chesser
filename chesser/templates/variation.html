@@ -91,7 +91,16 @@
 
     <script>
       window.variationData = JSON.parse("{{ variation_data|escapejs }}");
-      console.log("variation data loaded:", window.variationData);
+      console.log("variationData:", window.variationData);
+
+      // Set --vh custom property on initial load and resize
+      window.addEventListener("resize", () => {
+        document.documentElement.style.setProperty(
+          "--vh",
+          `${window.innerHeight * 0.01}px`
+        );
+      });
+      window.dispatchEvent(new Event("resize"));
     </script>
 
     <script type="module">
