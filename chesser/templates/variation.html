@@ -45,7 +45,10 @@
             class="review-variation"
             x-data="{ variation_id: variationData.variation_id }"
           >
-            <a x-bind:href="'/review/' + variation_id + '/'">extra study</a> ✏️
+            <a x-bind:href="'/review/' + variationData.variation_id + '/'"
+              >extra study</a
+            >
+            ✏️
           </div>
           <div class="info-container">
             <div class="chapter-title">

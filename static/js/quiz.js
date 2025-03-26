@@ -502,8 +502,9 @@ export function quizApp() {
       completedCount += 1;
       localStorage.setItem(completedKey, completedCount.toString());
 
-      // safety check -- if for some reason *not* completed, we won't get stuck in a loop
-      if (completedCount === 2) {
+      // safety check -- if for some reason *not* completed, we won't get stuck in a
+      // loop; also be mindful of extra study mode!
+      if (completedCount === 2 && !this.reviewData.extra_study) {
         console.log(`Quiz ${variationId} already completed — skipping and redirecting`);
         window.location.href = "/review/";
         return true;
