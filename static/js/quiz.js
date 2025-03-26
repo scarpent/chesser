@@ -62,7 +62,8 @@ export function quizApp() {
     }, // initQuiz()
 
     goToStartingPosition() {
-      this.status = "🟤🟤";
+      // Give some indication when we're extra studying after a fail 🔴
+      this.status = this.failed ? "🔴🟤" : "🟤🟤";
       // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {
@@ -295,6 +296,7 @@ export function quizApp() {
         this.showInfo = false;
         this.restartQuiz();
       } else {
+        // reveal arrows/circles for the last move
         const shapes = this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]";
         this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
       }
