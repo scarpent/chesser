@@ -26,12 +26,12 @@
           <button @click="previousMove()" title="Mainline Back">⬅️</button>
           <button @click="nextMove()" title="Mainline Forward">➡️</button>
         </div>
-        <div x-text="status" class="status"></div>
+        <div x-html="status" class="status"></div>
         <div x-show="completed">
           <button @click="window.location.href='/review/'" title="Next">📝</button>
         </div>
       </div>
-      <div class="button-container">
+      <div class="button-container" x-show="hasVariationData()">
         <button @click="window.location.href='/'" title="Home">🏠️</button>
         <button
           @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"

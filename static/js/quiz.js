@@ -513,10 +513,14 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    hasVariationData() {
+      return this.variationData && Object.keys(this.variationData).length > 0;
+    },
+
+    //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
-      if (!this.variationData || Object.keys(this.variationData).length === 0) {
-        console.log("no variation data");
-        this.status = "😌";
+      if (!this.hasVariationData()) {
+        this.status = '<a href="/" style="text-decoration: none;">😌</a>';
         this.board = window.Chessground(boardElement, {
           viewOnly: true,
           orientation: "white",
