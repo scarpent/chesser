@@ -551,6 +551,25 @@ td:last-child {
   padding: 10px;
 }
 
+.board-overlay-home {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  cursor: pointer;
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  user-select: none;
+}
+
+.board-overlay-home:hover {
+  background-color: rgba(165, 42, 42, 0.7); /* Brown */
+}
+
 /* Pawn Promotion */
 .modal-overlay {
   position: fixed;

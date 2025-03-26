@@ -520,7 +520,7 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
       if (!this.hasVariationData()) {
-        this.status = '<a href="/" style="text-decoration: none;">😌</a>';
+        this.status = "😌";
         this.board = window.Chessground(boardElement, {
           viewOnly: true,
           orientation: "white",

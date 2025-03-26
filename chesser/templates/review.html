@@ -19,6 +19,13 @@
     <div id="quiz-container" x-cloak>
       <div id="resizable-board" data-board-id="quiz">
         <div id="board"></div>
+        <div
+          x-show="!hasVariationData()"
+          class="board-overlay-home"
+          @click="window.location.href='/'"
+        >
+          🏡
+        </div>
         <div id="resize-handle"></div>
       </div>
       <div class="status-and-next">
@@ -50,6 +57,7 @@
         </button>
         <button @click="gotoVariationView()" title="View">📖</button>
       </div>
+
       <p x-text="reviewStats"></p>
       <a
         href="#"
