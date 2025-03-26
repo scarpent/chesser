@@ -644,7 +644,7 @@ td:last-child {
   #outer-container {
     display: flex;
     flex-direction: column;
-    /* height: 100vh; */
+    height: 100vh; /* important for giving room to all elements in left column? */
     overflow: hidden;
   }
 
