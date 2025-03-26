@@ -135,7 +135,8 @@ button:hover {
 
 .variation-state-info {
   color: #c3db9c;
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   gap: 30px;
 }
 
@@ -238,10 +239,6 @@ button:hover {
   font-size: 18px;
   max-width: 600px;
   margin-top: 10px;
-}
-
-.review-variation {
-  text-align: right;
 }
 
 .recently-reviewed {
