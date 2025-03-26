@@ -137,7 +137,7 @@ button:hover {
   color: #c3db9c;
   display: inline-flex;
   align-items: center;
-  gap: 30px;
+  justify-content: space-between; /* Distributes items equally */
 }
 
 #edit-variation-info {
