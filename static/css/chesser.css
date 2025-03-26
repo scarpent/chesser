@@ -6,9 +6,7 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  /* height: 100vh; */
   margin: 0;
-  /* padding-top: 15px; */ /* see if this might help with scroll problem on mobile */
   overflow-x: hidden;
 }
 
@@ -40,7 +38,6 @@ a:hover {
   align-items: flex-start;
   justify-content: center; /* Keeps both sections centered */
   width: 95%;
-  /* height: 95vh; */
   overflow: hidden;
   gap: 20px; /* Maintains space between board and variation text */
   padding-left: 20px; /* Ensures board doesn't touch the left edge */
@@ -636,8 +633,6 @@ td:last-child {
 @media (max-width: 900px) {
   html,
   body {
-    /* width: 100vw; */
-    /* height: 98vh; */
     overflow-x: hidden;
   }
 
@@ -667,7 +662,7 @@ td:last-child {
     width: 100%;
   }
 
-  /* edit page */
+  /* --------------------------- edit page 900px */
   .move-block {
     flex-direction: column;
     align-items: stretch;
@@ -702,7 +697,7 @@ td:last-child {
     word-break: break-word;
     max-width: 100%;
   }
-  /* end edit page */
+  /* ------------------------ end edit page 900px */
 }
 
 /* ----------------------------------------------------------- @media 600px */
@@ -723,7 +718,10 @@ td:last-child {
 @media (max-width: 450px) {
   html,
   body {
-    /* width: 100vw; */
+    /* 92vh works well for mobile on first variation view load;
+    on refresh, it takes away too much space at bottom, but we
+    won't typically be refreshing after loading the page; another
+    approach might be to use js to dynamically calculate vh, etc */
     height: 92vh;
     overflow-x: hidden;
   }
