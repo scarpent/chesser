@@ -8,7 +8,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  padding-top: 15px;
+  /* padding-top: 15px; */ /* see if this might help with scroll problem on mobile */
   overflow-x: hidden;
 }
 
