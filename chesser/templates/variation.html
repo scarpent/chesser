@@ -25,20 +25,20 @@
         <div id="underboard">
           <div class="button-container">
             <button @click="window.location.href='/'" title="Home">🏠️</button>
+            <button @click="window.location.href='/review/'" title="Review">📝</button>
             <button
               @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
               title="Lichess analysis board"
             >
               🧮
             </button>
-            <button @click="window.location.href='/review/'" title="Review">📝</button>
             <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
             <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
             <button
               @click="window.location.href='/edit/' + variationData.variation_id + '/'"
               title="Edit"
             >
-              ⚙️
+              🛠️
             </button>
           </div>
           <div class="info-container">

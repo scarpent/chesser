@@ -274,7 +274,6 @@ export function variationApp() {
       const altShapes = this.variationData.moves[this.mainlineMoveIndex].alt_shapes;
       if (!altShapes || this.isInSubvariation()) return;
 
-      console.log("altMoveShapes:", altShapes);
       this.board.set({ drawable: { shapes: JSON.parse(altShapes) } });
     },
 
