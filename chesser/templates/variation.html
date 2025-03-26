@@ -98,7 +98,6 @@
       import { variationApp } from "{% static 'js/variation.js' %}";
       window.variationApp = variationApp;
       document.addEventListener("alpine:init", () => {
-        console.log("alpine.js initializing");
         Alpine.data("variationApp", variationApp);
       });
     </script>

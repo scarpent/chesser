@@ -18,7 +18,6 @@ export function quizApp() {
     completed: false,
 
     initQuiz() {
-      console.log("initQuiz()");
       const boardElement = document.getElementById("board");
 
       if (boardElement && window.Chessground && window.Chess) {
@@ -46,7 +45,6 @@ export function quizApp() {
             events: { after: this.handleMove.bind(this) },
           },
         });
-        console.log("Chess board loaded");
 
         this.playOpposingMove();
         this.displayReviewSessionStats();
@@ -171,8 +169,6 @@ export function quizApp() {
 
       const answer = this.variationData.moves[this.quizMoveIndex];
       let correct = false;
-
-      console.log(`move.san: ${move.san}, answer.san: ${answer.san}`);
 
       if (move.san === answer.san) {
         correct = true;

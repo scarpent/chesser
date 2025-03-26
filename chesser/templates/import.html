@@ -101,7 +101,6 @@
       import { importApp } from "{% static 'js/import.js' %}";
       window.importApp = importApp;
       document.addEventListener("alpine:init", () => {
-        console.log("alpine.js initializing");
         Alpine.data("importApp", importApp);
       });
     </script>

@@ -13,7 +13,6 @@ export function variationApp() {
     subvarMoveIndex: -1,
 
     initVariation() {
-      console.log("initVariation()");
       const boardElement = document.getElementById("board");
       if (boardElement && window.Chessground && window.Chess) {
         this.chess = new window.Chess();
@@ -38,8 +37,6 @@ export function variationApp() {
           this.highlightMainlineMove();
           this.attachClickHandlers(); // To moves
         }, 100);
-
-        console.log("Chess board loaded");
       } else {
         console.error("chessground or chess.js failed to load");
       }

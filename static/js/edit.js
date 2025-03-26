@@ -11,9 +11,7 @@ export function editApp() {
     variationData: variationData,
 
     initEditor() {
-      console.log("initEditor()");
       document.addEventListener("alpine:initialized", () => {
-        console.log("Alpine initialized");
         const chess = new window.Chess();
 
         this.$nextTick(() => {
@@ -39,7 +37,6 @@ export function editApp() {
             } else {
               console.error(`Board element edit-board-${index} not found`);
             }
-            console.log("All boards initialized");
           });
         });
       });

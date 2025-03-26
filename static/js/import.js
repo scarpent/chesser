@@ -5,7 +5,6 @@ export function importApp() {
 
     initImport() {
       const urlParams = new URLSearchParams(window.location.search);
-      console.log("urlParams", urlParams);
       this.statusMessage = urlParams.get("status") || "";
     },
   }; // return { ... }

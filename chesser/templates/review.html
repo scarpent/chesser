@@ -104,9 +104,8 @@
       @promotion="(e) => { show = true; resolve = e.detail }"
     >
       <div class="modal-box">
-        <h3>Select promotion piece:</h3>
         <div class="promotion-options">
-          <button @click="resolve('q'); show = false">Queen</button>
+          <button @click="resolve('q'); show = false">Queen ♛</button>
           <button @click="resolve('r'); show = false">Rook</button>
           <button @click="resolve('b'); show = false">Bishop</button>
           <button @click="resolve('n'); show = false">Knight</button>
@@ -127,7 +126,6 @@
       import { quizApp } from "{% static 'js/quiz.js' %}";
       window.quizApp = quizApp;
       document.addEventListener("alpine:init", () => {
-        console.log("alpine.js initializing");
         Alpine.data("quizApp", quizApp);
       });
     </script>

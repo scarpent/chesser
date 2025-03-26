@@ -114,7 +114,6 @@
       import { editApp } from "{% static 'js/edit.js' %}";
       window.editApp = editApp;
       document.addEventListener("alpine:init", () => {
-        console.log("alpine.js initializing");
         Alpine.data("editApp", editApp);
       });
     </script>
