@@ -130,7 +130,7 @@ button:hover {
 }
 
 .variation-state-info {
-  color: rgb(175, 196, 142);
+  color: #c3db9c;
   display: flex;
   gap: 30px;
 }

@@ -6,6 +6,9 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
+- fix button/click subvar nav
+  - left/right buttons not navigating when in subvar?
+  - clicking on subvar moves causes the board to first show mainline move and then the subvar, which is jarring
 - use reambiguated moves to check alts, too?
 - import new lines (manage re-imports for different sets)
 - sort dumpdata output for git check in and diff checking?
