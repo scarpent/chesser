@@ -282,32 +282,6 @@ button:hover {
   max-width: 600px;
 }
 
-/* Webkit browsers (Chrome, Edge, Safari) */
-::-webkit-scrollbar {
-  width: 8px; /* Thinner scrollbar */
-  height: 8px; /* For horizontal scrollbars */
-}
-
-::-webkit-scrollbar-track {
-  background: #222222; /* Matches background */
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #444444; /* Darker thumb */
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #666666; /* Slightly lighter on hover */
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #444444 #222222;
-}
-
 #next-due {
   color: lightgreen;
   font-size: 20px;
@@ -551,6 +525,38 @@ td:last-child {
   padding: 10px;
 }
 
+[x-cloak] {
+  display: none !important;
+}
+
+/* ------------------------------------------------------ Scrollbar Styling */
+/* Webkit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px; /* Thinner scrollbar */
+  height: 8px; /* For horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+  background: #222222; /* Matches background */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444444; /* Darker thumb */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666666; /* Slightly lighter on hover */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444444 #222222;
+}
+
+/* ----------------------------------------- Landscape & Board Home Overlay */
 .board-overlay-home {
   position: absolute;
   top: 50%;
@@ -568,6 +574,18 @@ td:last-child {
 
 .board-overlay-home:hover {
   background-color: rgba(165, 42, 42, 0.7); /* Brown */
+}
+
+.landscape-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #222222;
+  color: white;
+  font-size: 100px;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
 /* --------------------------------------------------------- Pawn Promotion */
@@ -612,23 +630,6 @@ td:last-child {
 
 .promotion-options button:hover {
   background-color: #444;
-}
-/* ----------------------------------------------------- End Pawn Promotion */
-
-.landscape-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #222222;
-  color: white;
-  font-size: 100px;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-[x-cloak] {
-  display: none !important;
 }
 
 /* ----------------------------------------------------------- @media 900px */
