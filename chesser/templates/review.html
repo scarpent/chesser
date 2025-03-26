@@ -79,12 +79,6 @@
           ></span
           >)
         </div>
-
-        <div
-          x-show="completed"
-          x-text="variationData.mainline"
-          class="mainline-moves"
-        ></div>
         <div>
           <span x-show="completed" x-text="'Level ➤ ' + variationData.level"></span
           >&nbsp;&nbsp;&nbsp;
@@ -93,6 +87,11 @@
             x-text="'Last ➤ ' + variationData.time_since_last_review"
           ></span>
         </div>
+        <div
+          x-show="completed"
+          x-text="variationData.mainline"
+          class="mainline-moves"
+        ></div>
       </div>
 
       <template x-if="showInfo && completed && finalMove().text">

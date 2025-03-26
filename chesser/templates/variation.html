@@ -59,12 +59,12 @@
               <span class="sep"> ➤ </span>
               <span x-text="variationData.title"></span>
             </div>
-            <div x-text="variationData.mainline" class="mainline-moves"></div>
             <div class="variation-state-info">
               <span x-text="'L' + variationData.level"></span>
               <span x-text="'Next ➤ ' + variationData.time_until_next_review"></span
               ><span x-text="'Starts @ Move ' + variationData.start_move"></span>
             </div>
+            <div x-text="variationData.mainline" class="mainline-moves"></div>
           </div>
           <p id="alts"></p>
           <div id="source" x-html="variationData.source_html"></div>
