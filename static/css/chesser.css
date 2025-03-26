@@ -1,5 +1,5 @@
 :root {
-  --vh: 100%; /* trying a js solution for mobile vh; this is a fallback */
+  --vh: 100%; /* trying a js solution for mobile vh; this is the fallback */
 }
 
 body {
@@ -724,10 +724,11 @@ td:last-child {
 @media (max-width: 450px) {
   html,
   body {
-    /* 92vh works well for mobile on first variation view load;
-    on refresh, it takes away too much space at bottom, but we
-    won't typically be refreshing after loading the page; another
-    approach might be to use js to dynamically calculate vh, etc */
+    /* previously tried 92vh which worked well for mobile on first
+    variation view load; but on refresh, it takes away too much space
+    at bottom, and we do get refreshes e.g. when returning from lichess
+    analysis board; so a better approach is using js to dynamically
+    calculate vh, etc */
     /* height: 92vh; */
     height: 100%; /* trying js solution instead... */
     overflow-x: hidden;
@@ -742,7 +743,7 @@ td:last-child {
   }
 
   #outer-container {
-    height: calc(var(--vh, 1vh) * 100);
+    height: calc(var(--vh, 1vh) * 100); /* this is it! 🎉 */
     width: 100%;
   }
 

@@ -31,12 +31,14 @@
           :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
           x-text="variationData.chapter"
         ></a>
-        ➤
+        •
         <a
           :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
           target="_blank"
           x-text="'#' + variationData.variation_id"
         ></a>
+        •
+        <a :href="'/review/' + variationData.variation_id + '/'">extra study</a>
       </div>
 
       <div>

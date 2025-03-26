@@ -45,10 +45,7 @@
             class="review-variation"
             x-data="{ variation_id: variationData.variation_id }"
           >
-            <a
-              x-bind:href="'/review/' + variation_id + '/'"
-              x-text="'extra study #' + variation_id"
-            ></a>
+            <a x-bind:href="'/review/' + variation_id + '/'">extra study</a> ✏️
           </div>
           <div class="info-container">
             <div class="chapter-title">
@@ -63,6 +60,7 @@
               <span x-text="'L' + variationData.level"></span>
               <span x-text="'Next ➤ ' + variationData.time_until_next_review"></span
               ><span x-text="'Starts @ Move ' + variationData.start_move"></span>
+              <span x-text="'#' + variationData.variation_id"></span>
             </div>
             <div x-text="variationData.mainline" class="mainline-moves"></div>
           </div>
