@@ -134,7 +134,12 @@
       </template>
     </div>
 
-    <div id="next-due" x-text="homeData.next_due"></div>
+    <div
+      id="next-due"
+      x-data="nextDueTimer()"
+      x-init="initCountdown()"
+      x-text="label"
+    ></div>
 
     <div class="reviews-levels-wrapper" x-cloak>
       <div class="reviews-levels-container">
@@ -233,6 +238,33 @@
           homeData: window.homeData,
         }));
       });
+    </script>
+
+    <script>
+      function nextDueTimer() {
+        return {
+          originalText: window.homeData.next_due,
+          label: window.homeData.next_due,
+
+          initCountdown() {
+            const match = this.originalText.match(/Next: (\d+)s/);
+            if (!match) return;
+
+            let value = parseInt(match[1], 10);
+
+            const tick = () => {
+              if (value-- > 1) {
+                this.label = `⏰ Next: ${value} 🧨`;
+                setTimeout(tick, 1000);
+              } else {
+                this.label = "⏰ Next: Now! 💥";
+              }
+            };
+
+            tick();
+          },
+        };
+      }
     </script>
 
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
