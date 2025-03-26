@@ -724,7 +724,7 @@ td:last-child {
   html,
   body {
     /* width: 100vw; */
-    /* height: 98vh; */
+    height: 92vh;
     overflow-x: hidden;
   }
 
