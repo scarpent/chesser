@@ -398,6 +398,8 @@ class HomeView:
         else:
             output += "…?"
 
+        # There is a next due js timer that expects this format when
+        # less than one minute: "Next: 59s"
         return f"{emoji} Next: {output}"
 
     def get_upcoming_time_planner(self):

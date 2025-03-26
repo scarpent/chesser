@@ -735,7 +735,7 @@ td:last-child {
   display: none;
   position: fixed;
   inset: 0;
-  background: #333333;
+  background: #222222;
   color: white;
   font-size: 100px;
   justify-content: center;
