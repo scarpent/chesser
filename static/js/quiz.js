@@ -63,7 +63,8 @@ export function quizApp() {
 
     goToStartingPosition() {
       // Give some indication when we're extra studying after a fail 🔴
-      this.status = this.failed ? "🔴🟤" : "🟤🟤";
+      // Put red in second position to match the "failed" state
+      this.status = this.failed ? "🟤🔴" : "🟤🟤";
       // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {
