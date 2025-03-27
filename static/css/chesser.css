@@ -574,7 +574,7 @@ td:last-child {
 }
 
 .board-overlay-home:hover {
-  background-color: rgba(165, 42, 42, 0.7); /* Brown */
+  background-color: rgba(6, 110, 101, 0.7);
 }
 
 .landscape-overlay {
