@@ -115,6 +115,7 @@ def importer(request):
 @csrf_protect
 def upload_json_data(request):
     file = request.FILES.get("uploaded_file")
+
     if file and request.method == "POST":
         file_content = file.read().decode("utf-8")
 
@@ -142,7 +143,14 @@ def upload_json_data(request):
             ),
         )
 
-    return render(request, "import.html")
+    return render(
+        request,
+        "import.html",
+        get_import_context(
+            status_message="❌ No file selected",
+            form_defaults=request.POST.dict(),
+        ),
+    )
 
 
 @csrf_protect
