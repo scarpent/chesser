@@ -98,7 +98,8 @@ a:hover {
   display: flex;
   align-items: center; /* Vertically aligns the items */
   gap: 10px; /* Optional: space between the status and the button */
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .import-status {
