@@ -3,7 +3,7 @@ from itertools import groupby
 
 from django.conf import settings
 from django.http import JsonResponse, StreamingHttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
@@ -121,12 +121,26 @@ def upload_json_data(request):
         try:
             json.loads(file_content)
         except json.JSONDecodeError:
-            return redirect("/import/?status=❌+Invalid+JSON+format")
+            return render(
+                request,
+                "import.html",
+                get_import_context(
+                    status_message="❌ Invalid JSON format",
+                    form_defaults=request.POST.dict(),
+                ),
+            )
 
         with open("/tmp/upload.json", "w") as temp_file:
             temp_file.write(file_content)
 
-        return redirect("/import/?status=✅+File+Uploaded")
+        return render(
+            request,
+            "import.html",
+            get_import_context(
+                status_message="✅ File Uploaded",
+                form_defaults=request.POST.dict(),
+            ),
+        )
 
     return render(request, "import.html")
 

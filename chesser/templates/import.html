@@ -14,11 +14,10 @@
       <button @click="window.location.href='/review/'" title="Review">📝</button>
     </div>
 
+    <div x-show="statusMessage" x-text="statusMessage" class="import-status"></div>
+
     <div style="width: 50%">
       <h1>Import</h1>
-      <div x-show="statusMessage" class="import-status">
-        <span x-text="statusMessage"></span>
-      </div>
       <form method="POST" action="{% url 'import_chesser_json' %}">
         {% csrf_token %}
 
@@ -82,7 +81,6 @@
         {% csrf_token %}
         <input type="file" name="uploaded_file" />
         <button type="submit">⤴️</button>
-        <div x-show="statusMessage" x-text="statusMessage" class="import-status"></div>
       </form>
     </div>
 
