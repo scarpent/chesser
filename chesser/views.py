@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 from chesser import util
 from chesser.models import Chapter, Course, QuizResult, Variation
@@ -78,20 +78,41 @@ def report_result(request):
     )
 
 
-def importer(request):
-    course_chapter_data = {}
-    for course in Course.objects.all().order_by("id"):
-        course_chapter_data[course.title] = []
-        for chapter in course.chapter_set.all().order_by("title"):
-            course_chapter_data[course.title].append(chapter.title)
+def get_import_context(status_message=None, form_defaults=None):
+    form_defaults = form_defaults or {}
 
-    import_data = {
-        "chapters": course_chapter_data,
+    # Fetch courses as a lookup: {id: title}
+    courses = {c["id"]: c["title"] for c in Course.objects.all().values("id", "title")}
+
+    # Build chapter list with label "Course: Chapter"
+    chapters = [
+        {
+            "id": str(chapter.id),
+            "label": f"{courses.get(chapter.course_id, 'Unknown')}: {chapter.title}",
+        }
+        for chapter in Chapter.objects.select_related("course").order_by(
+            "course_id", "title"
+        )
+    ]
+    if chapters:
+        form_defaults.setdefault("chapter_id", chapters[0]["id"])
+
+    return {
+        "import_data": json.dumps(
+            {
+                "chapters": chapters,
+                "form_defaults": form_defaults,
+                "statusMessage": status_message or "",
+            }
+        )
     }
-    context = {"import_data": json.dumps(import_data)}
-    return render(request, "import.html", context)
 
 
+def importer(request):
+    return render(request, "import.html", get_import_context())
+
+
+@csrf_protect
 def upload_json_data(request):
     file = request.FILES.get("uploaded_file")
     if file and request.method == "POST":
@@ -108,6 +129,41 @@ def upload_json_data(request):
         return redirect("/import/?status=✅+File+Uploaded")
 
     return render(request, "import.html")
+
+
+@csrf_protect
+def import_chesser_json(request):
+    if request.method == "POST":
+        try:
+            data = request.POST
+            raw_json = data.get("json_data")
+            parsed_json = json.loads(raw_json)
+
+            # inject metadata from the form
+            parsed_json["variation_title"] = data.get("variation_name")
+            parsed_json["start_move"] = int(data.get("start_move", 2))
+
+            if next_review := data.get("next_review_date"):
+                parsed_json["next_review"] = f"{next_review}T12:00:00"
+            else:
+                parsed_json["next_review"] = util.END_OF_TIME
+
+            # look up course color + chapter
+            chapter = Chapter.objects.select_related("course").get(
+                pk=int(data.get("chapter_id"))
+            )
+            parsed_json["color"] = chapter.course.color
+            parsed_json["chapter_title"] = chapter.title
+
+        except Exception as e:
+            return render(
+                request,
+                "import.html",
+                get_import_context(
+                    status_message=f"❌ Error: {e}",
+                    form_defaults=request.POST.dict(),
+                ),
+            )
 
 
 def variations_tsv(request):
@@ -398,8 +454,9 @@ class HomeView:
         else:
             output += "…?"
 
-        # There is a next due js timer that expects this format when
-        # less than one minute: "Next: 59s"
+        # There is a next due js timer that expects this format
+        # when less than one minute: "Next: 59s" (doesn't matter
+        # what comes before or after)
         return f"{emoji} Next: {output}"
 
     def get_upcoming_time_planner(self):

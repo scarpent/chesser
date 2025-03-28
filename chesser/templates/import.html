@@ -8,7 +8,7 @@
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
-  <body x-data="importApp()" x-init="initImport()">
+  <body x-data="importApp()" x-init="init()" x-cloak>
     <div class="button-container">
       <button @click="window.location.href='/'" title="Home">🏠️</button>
       <button @click="window.location.href='/review/'" title="Review">📝</button>
@@ -16,40 +16,43 @@
 
     <div style="width: 50%">
       <h1>Import</h1>
-      <form method="POST">
+      <div x-show="statusMessage" class="import-status">
+        <span x-text="statusMessage"></span>
+      </div>
+      <form method="POST" action="{% url 'import_chesser_json' %}">
         {% csrf_token %}
-
-        <div style="margin-bottom: 1em">
-          <label for="course">Course:</label>
-          <select name="course_id" id="course">
-            {% for course in courses %}
-            <option value="{{ course.id }}">{{ course.title }}</option>
-            {% endfor %}
-          </select>
-        </div>
 
         <div style="margin-bottom: 1em">
           <label for="chapter">Chapter:</label>
           <select name="chapter_id" id="chapter">
-            {% for chapter in chapters %}
-            <option value="{{ chapter.id }}">{{ chapter.title }}</option>
-            {% endfor %}
+            <template x-for="chapter in chapters" :key="chapter.id">
+              <option :value="chapter.id" x-text="chapter.label"></option>
+            </template>
           </select>
         </div>
 
         <div style="margin-bottom: 1em">
           <label for="variation_name">Variation Name:</label>
-          <input type="text" name="variation_name" id="variation_name" required />
+          <input
+            type="text"
+            name="variation_name"
+            x-model="formDefaults.variation_name"
+          />
         </div>
 
         <div style="margin-bottom: 1em">
           <label for="start_move">Start Move:</label>
-          <input type="number" name="start_move" id="start_move" min="1" value="2" />
+          <input type="text" name="start_move" x-model="formDefaults.start_move" />
         </div>
 
         <div style="margin-bottom: 1em">
           <label for="next_review_date">Next Review Date:</label>
-          <input type="date" name="next_review_date" id="next_review_date" />
+          <input
+            type="date"
+            name="next_review_date"
+            id="next_review_date"
+            x-model="formDefaults.next_review_date"
+          />
         </div>
 
         <div style="margin-bottom: 1em">
@@ -57,6 +60,7 @@
           <textarea
             name="json_data"
             id="json_data"
+            x-model="formDefaults.json_data"
             rows="20"
             style="width: 100%; box-sizing: border-box"
             placeholder="Paste your JSON here..."
