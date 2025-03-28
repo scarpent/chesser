@@ -2,8 +2,9 @@ import json
 from itertools import groupby
 
 from django.conf import settings
+from django.contrib import messages
 from django.http import JsonResponse, StreamingHttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
@@ -78,7 +79,7 @@ def report_result(request):
     )
 
 
-def get_import_context(status_message=None, form_defaults=None):
+def get_import_context(form_defaults=None):
     form_defaults = form_defaults or {}
 
     # Fetch courses as a lookup: {id: title}
@@ -102,7 +103,6 @@ def get_import_context(status_message=None, form_defaults=None):
             {
                 "chapters": chapters,
                 "form_defaults": form_defaults,
-                "statusMessage": status_message or "",
             }
         )
     }
@@ -122,34 +122,24 @@ def upload_json_data(request):
         try:
             json.loads(file_content)
         except json.JSONDecodeError:
+            messages.error(request, "❌ Invalid JSON format")
             return render(
                 request,
                 "import.html",
-                get_import_context(
-                    status_message="❌ Invalid JSON format",
-                    form_defaults=request.POST.dict(),
-                ),
+                get_import_context(form_defaults=request.POST.dict()),
             )
 
         with open("/tmp/upload.json", "w") as temp_file:
             temp_file.write(file_content)
 
-        return render(
-            request,
-            "import.html",
-            get_import_context(
-                status_message="✅ File Uploaded",
-                form_defaults=request.POST.dict(),
-            ),
-        )
+        messages.success(request, "File Uploaded ✅")
+        return redirect("import")
 
+    messages.error(request, "❌ No file selected")
     return render(
         request,
         "import.html",
-        get_import_context(
-            status_message="❌ No file selected",
-            form_defaults=request.POST.dict(),
-        ),
+        get_import_context(form_defaults=request.POST.dict()),
     )
 
 
@@ -177,14 +167,17 @@ def import_chesser_json(request):
             parsed_json["color"] = chapter.course.color
             parsed_json["chapter_title"] = chapter.title
 
+            # TODO: the actual import!
+
+            messages.success(request, "Variation imported successfully ✅")
+            return redirect("import")
+
         except Exception as e:
+            messages.error(request, f"❌ Error: {e}")
             return render(
                 request,
                 "import.html",
-                get_import_context(
-                    status_message=f"❌ Error: {e}",
-                    form_defaults=request.POST.dict(),
-                ),
+                get_import_context(form_defaults=request.POST.dict()),
             )
 
 

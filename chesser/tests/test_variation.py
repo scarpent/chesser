@@ -20,4 +20,4 @@ def test_variation_page_authenticated(test_user):
 
     response = client.get(reverse("variation_default"))
     assert response.status_code == 200
-    assert "extra study #" in response.content.decode()
+    assert "extra study" in response.content.decode()

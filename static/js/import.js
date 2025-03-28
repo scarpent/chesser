@@ -7,7 +7,6 @@ export function importApp() {
         window.importData?.form_defaults?.next_review_date ||
         new Date().toISOString().split("T")[0],
     },
-    statusMessage: window.importData?.statusMessage || "",
 
     // ran into all kinds of issues restoring dropdown
     // values on errors; this reliably does the job

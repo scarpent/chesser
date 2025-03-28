@@ -14,7 +14,13 @@
       <button @click="window.location.href='/review/'" title="Review">📝</button>
     </div>
 
-    <div x-show="statusMessage" x-text="statusMessage" class="import-status"></div>
+    {% if messages %}
+    <ul class="import-status">
+      {% for message in messages %}
+      <li class="message {{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
     <div style="width: 50%">
       <h1>Import</h1>
