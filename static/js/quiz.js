@@ -216,7 +216,7 @@ export function quizApp() {
     showQuizMove() {
       if (!this.variationData.moves) return;
       if (this.noMoreMoves()) {
-        this.status = "🤷 no move to show 💣️";
+        this.status = "💣️🤷";
         return;
       }
       const san = this.variationData.moves[this.quizMoveIndex].san;
