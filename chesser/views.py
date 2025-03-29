@@ -114,71 +114,67 @@ def importer(request):
 
 @csrf_protect
 def upload_json_data(request):
-    file = request.FILES.get("uploaded_file")
-
-    if file and request.method == "POST":
-        file_content = file.read().decode("utf-8")
-
-        try:
-            json.loads(file_content)
-        except json.JSONDecodeError:
-            messages.error(request, "❌ Invalid JSON format")
-            return render(
-                request,
-                "import.html",
-                get_import_context(form_defaults=request.POST.dict()),
-            )
-
-        with open("/tmp/upload.json", "w") as temp_file:
-            temp_file.write(file_content)
-
-        messages.success(request, "File Uploaded ✅")
+    if request.method != "POST":
+        messages.error(request, "❌ Invalid request method")
         return redirect("import")
 
-    messages.error(request, "❌ No file selected")
-    return render(
-        request,
-        "import.html",
-        get_import_context(form_defaults=request.POST.dict()),
-    )
+    file = request.FILES.get("uploaded_file")
+    if not file:
+        messages.error(request, "❌ No file selected")
+        return redirect("import")
+
+    file_content = file.read().decode("utf-8")
+    try:
+        json.loads(file_content)
+    except json.JSONDecodeError:
+        messages.error(request, "❌ Invalid JSON format")
+        return redirect("import")
+
+    with open("/tmp/upload.json", "w") as temp_file:
+        temp_file.write(file_content)
+
+    messages.success(request, "File Uploaded ✅")
+    return redirect("import")
 
 
 @csrf_protect
 def import_chesser_json(request):
-    if request.method == "POST":
-        try:
-            data = request.POST
-            raw_json = data.get("json_data")
-            parsed_json = json.loads(raw_json)
+    if request.method != "POST":
+        return redirect("import")
 
-            # inject metadata from the form
-            parsed_json["variation_title"] = data.get("variation_name")
-            parsed_json["start_move"] = int(data.get("start_move", 2))
+    try:
+        data = request.POST
+        raw_json = data.get("json_data")
+        parsed_json = json.loads(raw_json)
 
-            if next_review := data.get("next_review_date"):
-                parsed_json["next_review"] = f"{next_review}T12:00:00"
-            else:
-                parsed_json["next_review"] = util.END_OF_TIME
+        # inject metadata from the form
+        parsed_json["variation_title"] = data.get("variation_name")
+        parsed_json["start_move"] = int(data.get("start_move", 2))
 
-            # look up course color + chapter
-            chapter = Chapter.objects.select_related("course").get(
-                pk=int(data.get("chapter_id"))
-            )
-            parsed_json["color"] = chapter.course.color
-            parsed_json["chapter_title"] = chapter.title
+        if next_review := data.get("next_review_date"):
+            parsed_json["next_review"] = f"{next_review}T12:00:00"
+        else:
+            parsed_json["next_review"] = util.END_OF_TIME
 
-            # TODO: the actual import!
+        # look up course color + chapter
+        chapter = Chapter.objects.select_related("course").get(
+            pk=int(data.get("chapter_id"))
+        )
+        parsed_json["color"] = chapter.course.color
+        parsed_json["chapter_title"] = chapter.title
 
-            messages.success(request, "Variation imported successfully ✅")
-            return redirect("import")
+        # TODO: the actual import!
 
-        except Exception as e:
-            messages.error(request, f"❌ Error: {e}")
-            return render(
-                request,
-                "import.html",
-                get_import_context(form_defaults=request.POST.dict()),
-            )
+        messages.success(request, "Variation imported successfully ✅")
+        return redirect("import")
+
+    except Exception as e:
+        messages.error(request, f"❌ Error: {e}")
+        return render(
+            request,
+            "import.html",
+            get_import_context(form_defaults=request.POST.dict()),
+        )
 
 
 def variations_tsv(request):
