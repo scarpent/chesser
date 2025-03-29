@@ -218,11 +218,11 @@ a:hover {
 .info-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   color: #f7b14f;
   font-size: 18px;
   max-width: 600px;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .recently-reviewed {
@@ -528,19 +528,6 @@ button {
 button:hover {
   background-color: #444444;
 }
-
-/* .icon-button {
-    width: 48px;
-    height: 48px;
-    padding: 5px;
-    background-color: #111;
-    border: 1px solid #444;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 5px;
-  } */
 
 .icon-button {
   width: 52px;
