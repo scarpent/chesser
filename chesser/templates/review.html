@@ -21,41 +21,69 @@
         <div id="board"></div>
         <div
           x-show="!hasVariationData()"
-          class="board-overlay-home"
+          class="icon-home board-overlay-home"
           @click="window.location.href='/'"
-        >
-          🏡
-        </div>
+        ></div>
         <div id="resize-handle"></div>
       </div>
       <div class="status-and-next">
-        <div x-show="completed">
-          <button @click="previousMove()" title="Mainline Back">⬅️</button>
-          <button @click="nextMove()" title="Mainline Forward">➡️</button>
+        <div x-show="completed" class="button-container">
+          <button
+            title="Mainline Back"
+            @click="previousMove()"
+            class="icon-back icon-button"
+          ></button>
+          <button
+            title="Mainline Forward"
+            @click="nextMove()"
+            class="icon-forward icon-button"
+          ></button>
         </div>
         <div x-html="status" class="status"></div>
         <div x-show="completed">
-          <button @click="window.location.href='/review/'" title="Next">📝</button>
+          <button
+            title="Next"
+            @click="window.location.href='/review/'"
+            class="icon-review icon-button"
+          ></button>
         </div>
       </div>
       <div class="button-container" x-show="hasVariationData()">
-        <button @click="window.location.href='/'" title="Home">🏠️</button>
         <button
-          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+          title="Home"
+          class="icon-home icon-button"
+          @click="window.location.href='/'"
+        ></button>
+        <button
           title="Lichess analysis board"
-        >
-          🧮
-        </button>
-        <button @click="restartQuiz()" title="Restart">🔄</button>
-        <button @click="showInfo = !showInfo" title="Info">👁️</button>
-        <button @click="showQuizMove()" title="Show move">💣️</button>
+          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+          class="icon-analysis icon-button"
+        ></button>
         <button
-          @click="window.location.href='/edit/' + (variationData.variation_id || 1)"
+          title="Restart"
+          @click="restartQuiz()"
+          class="icon-restart icon-button"
+        ></button>
+        <button
+          title="Info"
+          @click="showInfo = !showInfo"
+          class="icon-info icon-button"
+        ></button>
+        <button
+          title="Show move"
+          @click="showQuizMove()"
+          class="icon-showmove icon-button"
+        ></button>
+        <button
           title="Edit"
-        >
-          🛠️
-        </button>
-        <button @click="gotoVariationView()" title="View">📚️</button>
+          @click="window.location.href='/edit/' + (variationData.variation_id || 1)"
+          class="icon-edit icon-button"
+        ></button>
+        <button
+          title="View"
+          @click="gotoVariationView()"
+          class="icon-variation icon-button"
+        ></button>
       </div>
 
       <p x-html="reviewStats"></p>

@@ -24,22 +24,36 @@
         </div>
         <div id="underboard">
           <div class="button-container">
-            <button @click="window.location.href='/'" title="Home">🏠️</button>
-            <button @click="window.location.href='/review/'" title="Review">📝</button>
             <button
-              @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+              title="Home"
+              @click="window.location.href='/'"
+              class="icon-home icon-button"
+            ></button>
+            <button
+              title="Review"
+              @click="window.location.href='/review/'"
+              class="icon-review icon-button"
+            ></button>
+            <button
               title="Lichess analysis board"
-            >
-              🧮
-            </button>
-            <button @click="previousMainlineMove()" title="Mainline Back">⬅️</button>
-            <button @click="nextMainlineMove()" title="Mainline Forward">➡️</button>
+              @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+              class="icon-analysis icon-button"
+            ></button>
             <button
-              @click="window.location.href='/edit/' + variationData.variation_id + '/'"
+              title="Mainline Back"
+              @click="previousMainlineMove()"
+              class="icon-back icon-button"
+            ></button>
+            <button
+              title="Mainline Forward"
+              @click="nextMainlineMove()"
+              class="icon-forward icon-button"
+            ></button>
+            <button
               title="Edit"
-            >
-              🛠️
-            </button>
+              @click="window.location.href='/edit/' + variationData.variation_id + '/'"
+              class="icon-edit icon-button"
+            ></button>
           </div>
           <div class="info-container">
             <div class="chapter-title">

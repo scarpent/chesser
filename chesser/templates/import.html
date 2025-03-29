@@ -10,8 +10,16 @@
   </head>
   <body x-data="importApp()" x-init="init()" x-cloak>
     <div class="button-container">
-      <button @click="window.location.href='/'" title="Home">🏠️</button>
-      <button @click="window.location.href='/review/'" title="Review">📝</button>
+      <button
+        title="Home"
+        @click="window.location.href='/'"
+        class="icon-home icon-button"
+      ></button>
+      <button
+        title="Review"
+        @click="window.location.href='/review/'"
+        class="icon-review icon-button"
+      ></button>
     </div>
 
     {% if messages %}
@@ -73,7 +81,7 @@
           ></textarea>
         </div>
 
-        <button type="submit">📥️</button>
+        <button type="submit" class="icon-import icon-button"></button>
       </form>
     </div>
 
@@ -86,7 +94,7 @@
       >
         {% csrf_token %}
         <input type="file" name="uploaded_file" />
-        <button type="submit">⤴️</button>
+        <button type="submit" class="icon-upload icon-button"></button>
       </form>
     </div>
 

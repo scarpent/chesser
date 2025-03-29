@@ -9,7 +9,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - python/django
 - chessground and other chess libraries
 - alpine
-- openmoji (if used)
+- emoji/images/fonts/etc
 
 ## todo
 
