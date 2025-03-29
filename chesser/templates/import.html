@@ -23,7 +23,7 @@
     {% endif %}
 
     <div style="width: 50%">
-      <h2>Import Variation JSON</h2>
+      <h2 style="color: orange">Import Variation JSON</h2>
       <form method="POST" action="{% url 'import_chesser_json' %}">
         {% csrf_token %}
 
@@ -91,7 +91,7 @@
     </div>
 
     <div>
-      <h3>Variations Listing</h3>
+      <h3>Variations Export</h3>
       <ul>
         <li><a href="/variations.tsv/" target="_blank">variations.tsv</a></li>
         <li><a href="/variations-table/" target="_blank">table</a></li>

@@ -34,6 +34,7 @@ a:hover {
   align-items: center;
   width: 100%;
   max-width: 90vw;
+  margin-bottom: 40px;
 }
 
 #outer-container {
@@ -524,12 +525,6 @@ td:last-child {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-#dev-indicator {
-  color: red;
-  display: none;
-  padding: 10px;
 }
 
 [x-cloak] {
