@@ -51,14 +51,6 @@ export function quizApp() {
       } else {
         console.error("chessground or chess.js failed to load");
       }
-
-      const isLocal = ["127.0.0.1", "localhost"].includes(window.location.hostname);
-      if (isLocal) {
-        const devIndicator = document.getElementById("dev-indicator");
-        if (devIndicator) {
-          devIndicator.style.display = "block";
-        }
-      }
     }, // initQuiz()
 
     goToStartingPosition() {

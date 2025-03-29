@@ -20,6 +20,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - version number for variations? (version 1 is overwritable)
 - link to source variation from quiz info? Just one link to the original source var.
 - style form components
+- turn apple emoji into button graphics?
 - a way to send move string to lichess?
 
 ## longer term:
