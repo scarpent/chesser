@@ -29,15 +29,23 @@
     </div>
 
     <div class="button-container" x-cloak>
-      <button @click="window.location.href='/'" title="Home">🏠️</button>
-      <button
-        @click="window.location.href='/review/'"
-        title="Review"
-        class="big-button"
-      >
-        📝
+      <button title="Home" class="icon-button" @click="window.location.href='/'">
+        <img src="{% static 'icons/openmoji/home.svg' %}" alt="Home icon" />
       </button>
-      <button @click="window.location.href='/import/'" title="Import">📥️</button>
+      <button
+        title="Review"
+        @click="window.location.href='/review/'"
+        class="big-icon-button"
+      >
+        <img src="{% static 'icons/openmoji/review.svg' %}" alt="Review icon" />
+      </button>
+      <button
+        title="Import"
+        @click="window.location.href='/import/'"
+        class="icon-button"
+      >
+        <img src="{% static 'icons/openmoji/import.svg' %}" alt="Import icon" />
+      </button>
     </div>
 
     <div

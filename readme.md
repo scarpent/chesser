@@ -4,6 +4,13 @@ pgn-safe parens
 @@StartBracket@@ @@EndBracket@@
 This ⸨is⸩ a test. ⸨This might be best?⸩
 
+## future credit/attributions if open-sourced
+
+- python/django
+- chessground and other chess libraries
+- alpine
+- openmoji (if used)
+
 ## todo
 
 - fix button/click subvar nav
