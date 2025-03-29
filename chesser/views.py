@@ -108,8 +108,11 @@ def get_import_context(form_defaults=None):
     }
 
 
-def importer(request):
-    return render(request, "import.html", get_import_context())
+def import_view(request):
+    form_defaults = request.session.pop("import_form_defaults", {})
+    return render(
+        request, "import.html", get_import_context(form_defaults=form_defaults)
+    )
 
 
 @csrf_protect
@@ -170,11 +173,8 @@ def import_chesser_json(request):
 
     except Exception as e:
         messages.error(request, f"❌ Error: {e}")
-        return render(
-            request,
-            "import.html",
-            get_import_context(form_defaults=request.POST.dict()),
-        )
+        request.session["import_form_defaults"] = request.POST.dict()
+        return redirect("import")
 
 
 def variations_tsv(request):

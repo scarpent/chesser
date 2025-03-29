@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Import</title>
+    <title>Import/Export</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
@@ -23,7 +23,7 @@
     {% endif %}
 
     <div style="width: 50%">
-      <h1>Import</h1>
+      <h2>Import Variation JSON</h2>
       <form method="POST" action="{% url 'import_chesser_json' %}">
         {% csrf_token %}
 

@@ -132,11 +132,8 @@ class Variation(models.Model):
             level=previous_level,
         )
 
-    def get_latest_quiz_result(self):
-        return self.quiz_results.order_by("-datetime").first()
-
     def get_latest_quiz_result_datetime(self):
-        latest_result = self.get_latest_quiz_result()
+        latest_result = self.quiz_results.order_by("-datetime").first()
         return latest_result.datetime if latest_result else None
 
     @classmethod
@@ -149,10 +146,10 @@ class Variation(models.Model):
         """Returns a tuple of (total due now, total due soon)
 
         Soon will vary depending on the number due now, e.g. if
-        only 1 review is due now, very soon might be 1 minute, since
-        it will come up as we finish the current review. Reviews can
-        vary quite a bit in how long to do, say 10 seconds to 5 minutes,
-        depending on length/lookups/analysis.
+        only 1 review is due now, soon might be 1 minute since
+        it will come up as we finish the current review. Reviews
+        can vary quite a bit in how long to do, say 15 seconds to
+        5 minutes, depending on length/lookups/analysis.
 
         We'll not look too far ahead, we want this to be fairly immediate.
         """
@@ -164,7 +161,7 @@ class Variation(models.Model):
         if total_due_now < 10:
             relatively_soon = 5
         else:
-            relatively_soon = 10
+            relatively_soon = 8
 
         soon = now + timezone.timedelta(minutes=relatively_soon)
         total_due_soon = cls.objects.filter(
@@ -211,5 +208,5 @@ class QuizResult(models.Model):
         Variation, on_delete=models.CASCADE, related_name="quiz_results"
     )
     datetime = models.DateTimeField(auto_now_add=True, db_index=True)
-    level = models.IntegerField()  # 0 unlearned, 1 first rep (4 hours)
+    level = models.IntegerField()  # 0 unlearned, 1 first rep. interval, etc
     passed = models.BooleanField(default=False)

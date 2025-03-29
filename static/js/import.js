@@ -8,13 +8,14 @@ export function importApp() {
         new Date().toISOString().split("T")[0],
     },
 
-    // ran into all kinds of issues restoring dropdown
-    // values on errors; this reliably does the job
+    // Alpine's x-model struggles to restore select values
+    // on repop due to mismatch in value types (string vs number)
+    // This ensures the correct option is selected after render
     init() {
       const id = window.importData?.form_defaults?.chapter_id;
       this.$nextTick(() => {
         const el = document.getElementById("chapter");
-        if (el && id && el.querySelector(`option[value="${id}"]`)) {
+        if (el && id !== undefined && id !== null) {
           el.value = id;
         }
       });

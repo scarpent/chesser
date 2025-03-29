@@ -45,7 +45,9 @@
       class="courses-container"
       x-cloak
     >
-      <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
+      <h3 style="color: orange">
+        📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤
+      </h3>
       <ul>
         <template x-for="course in homeData.nav.courses" :key="course.id">
           <li>
