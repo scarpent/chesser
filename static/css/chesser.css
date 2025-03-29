@@ -719,6 +719,32 @@ button:hover {
   background-color: #444;
 }
 
+/* ------------------------------------------------------------ Import Page */
+.import-page-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.import-page-container form {
+  width: 100%;
+}
+
+.import-page-container form div {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#import-json-text-area {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 300px;
+  display: block;
+}
+
 /* ----------------------------------------------------------- @media 900px */
 @media (max-width: 900px) {
   html,

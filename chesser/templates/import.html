@@ -30,12 +30,12 @@
     </ul>
     {% endif %}
 
-    <div style="width: 50%">
+    <div class="import-page-container">
       <h2 style="color: orange">Import Variation JSON</h2>
       <form method="POST" action="{% url 'import_chesser_json' %}">
         {% csrf_token %}
 
-        <div style="margin-bottom: 1em">
+        <div>
           <label for="chapter">Chapter:</label>
           <select name="chapter_id" id="chapter">
             <template x-for="chapter in chapters" :key="chapter.id">
@@ -44,21 +44,27 @@
           </select>
         </div>
 
-        <div style="margin-bottom: 1em">
+        <div>
           <label for="variation_name">Variation Name:</label>
           <input
             type="text"
             name="variation_name"
             x-model="formDefaults.variation_name"
+            style="width: 250px"
           />
         </div>
 
-        <div style="margin-bottom: 1em">
+        <div>
           <label for="start_move">Start Move:</label>
-          <input type="text" name="start_move" x-model="formDefaults.start_move" />
+          <input
+            type="text"
+            name="start_move"
+            x-model="formDefaults.start_move"
+            style="width: 30px"
+          />
         </div>
 
-        <div style="margin-bottom: 1em">
+        <div>
           <label for="next_review_date">Next Review Date:</label>
           <input
             type="date"
@@ -68,14 +74,13 @@
           />
         </div>
 
-        <div style="margin-bottom: 1em">
+        <div>
           <label for="json_data">Paste JSON:</label><br />
           <textarea
             name="json_data"
-            id="json_data"
+            id="import-json-text-area"
             x-model="formDefaults.json_data"
             rows="20"
-            style="width: 100%; box-sizing: border-box"
             placeholder="Paste your JSON here..."
             required
           ></textarea>
@@ -85,7 +90,7 @@
       </form>
     </div>
 
-    <div>
+    <div class="import-page-container">
       <h3>Upload to /tmp/upload.json</h3>
       <form
         method="POST"
@@ -93,12 +98,12 @@
         action="{% url 'upload_json_data' %}"
       >
         {% csrf_token %}
-        <input type="file" name="uploaded_file" />
+        <input type="file" name="uploaded_file" /><br />
         <button type="submit" class="icon-upload icon-button"></button>
       </form>
     </div>
 
-    <div>
+    <div class="import-page-container">
       <h3>Variations Export</h3>
       <ul>
         <li><a href="/variations.tsv/" target="_blank">variations.tsv</a></li>
