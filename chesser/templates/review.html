@@ -58,7 +58,7 @@
         <button @click="gotoVariationView()" title="View">📚️</button>
       </div>
 
-      <p x-text="reviewStats"></p>
+      <p x-html="reviewStats"></p>
       <a
         href="#"
         x-show="reviewData.total_due_now && ! reviewData.extra_study"

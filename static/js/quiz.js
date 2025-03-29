@@ -331,7 +331,10 @@ export function quizApp() {
         ? ` (+${this.reviewData.total_due_soon} soon)`
         : "";
 
-      const extra = this.reviewData.extra_study ? "(Extra Study) " : "";
+      const extra_color = this.failed ? "red" : "lightgreen";
+      const extra = this.reviewData.extra_study
+        ? `<span style="color: ${extra_color}">(Extra Study)</span> `
+        : "";
 
       this.reviewStats = `${extra} Done: ${totalCompleted} (${passed}/${totalCompleted}, ${
         totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
