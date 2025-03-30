@@ -40,7 +40,7 @@
       ></button>
     </div>
 
-    <div id="edit-variation-info">
+    <div id="edit-variation-info" class="form-standard">
       <div>
         <a
           :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
@@ -58,12 +58,17 @@
 
       <div>
         <label for="variation-title">Variation Name:</label>
-        <input type="text" id="variation-title" x-model="variationData.title" />
+        <input
+          type="text"
+          id="variation-title"
+          x-model="variationData.title"
+          class="variation-name-input"
+        />
       </div>
       <div>
         <label for="start-move">Start Move:</label>
         <input
-          type="number"
+          type="text"
           id="start-move"
           x-model="variationData.start_move"
           class="start-move-input"
@@ -73,7 +78,7 @@
     </div>
 
     <!-- Generate multiple boards dynamically -->
-    <div id="boards-container">
+    <div id="boards-container" class="form-standard">
       <template x-for="(move, index) in variationData.moves" :key="index">
         <!-- move.fen is set in js; make sure it is initialized here -->
         <div class="move-block" x-init="move.fen = move.fen || ''">

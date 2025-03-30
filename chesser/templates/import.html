@@ -30,8 +30,8 @@
     </ul>
     {% endif %}
 
-    <div class="import-page-container">
-      <h2 style="color: orange">Import Variation JSON</h2>
+    <div class="import-page-container form-standard">
+      <h2 style="color: orange">Import Variation</h2>
       <form method="POST" action="{% url 'import_chesser_json' %}">
         {% csrf_token %}
 
@@ -50,7 +50,7 @@
             type="text"
             name="variation_name"
             x-model="formDefaults.variation_name"
-            style="width: 250px"
+            class="variation-name-input"
           />
         </div>
 

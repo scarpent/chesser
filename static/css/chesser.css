@@ -109,16 +109,6 @@ a:hover {
   margin-bottom: 10px;
 }
 
-.import-status {
-  font-size: 20px;
-  margin-top: 10px;
-  margin-bottom: 0;
-}
-
-.import-status li {
-  list-style: none;
-}
-
 .variation-state-info {
   color: #c3db9c;
   display: inline-flex;
@@ -178,7 +168,8 @@ a:hover {
 }
 
 .move-text-container,
-.move-other-container {
+.move-other-container,
+#edit-variation-info {
   display: flex;
   flex-direction: column !important; /* Force vertical stacking */
   gap: 10px;
@@ -450,21 +441,6 @@ td:last-child {
   font-size: 16px; /* Ensures text size is consistent */
 }
 
-.logout-button {
-  color: red;
-  margin-top: 15px;
-}
-
-.logout-form button {
-  background: none;
-  border: none;
-  padding: 0; /* Removes extra padding for consistency */
-}
-
-.logout-button:hover {
-  text-decoration: underline;
-}
-
 .course-covers {
   display: flex;
   justify-content: center; /* Always centers images */
@@ -553,7 +529,7 @@ external monitor to avoid display isses... */
   background-position: center;
   background-size: 70%; /* Padding */
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 6px;
   transform: translateZ(0); /* try to smooth rendering */
   will-change: background-image, transform; /* prioritize for paint */
 }
@@ -626,6 +602,16 @@ external monitor to avoid display isses... */
   padding: 7px 20px;
   margin-bottom: 0;
   border-radius: 5px;
+}
+
+.import-status {
+  font-size: 20px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.import-status li {
+  list-style: none;
 }
 
 /* ------------------------------------------------------ Scrollbar Styling */
@@ -736,7 +722,29 @@ external monitor to avoid display isses... */
   background-color: #444;
 }
 
-/* ------------------------------------------------------------ Import Page */
+/* ---------------------------------------------------------- Standard Form */
+.form-standard input,
+.form-standard select,
+.form-standard textarea {
+  background-color: #111111;
+  color: #eeeeee;
+  border: 1px solid #555;
+  padding: 6px;
+  font-size: 16px;
+  font-family: inherit;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+
+.form-standard input:focus,
+.form-standard select:focus,
+.form-standard textarea:focus {
+  outline: none;
+  border-color: #999;
+  background-color: #1a1a1a;
+}
+
+/* ------------------------------------------------------------ Other Form */
 .import-page-container {
   width: 100%;
   max-width: 800px;
@@ -763,7 +771,27 @@ external monitor to avoid display isses... */
 }
 
 .start-move-input {
-  width: 30px;
+  width: 40px;
+}
+
+.variation-name-input {
+  width: 450px;
+  max-width: 100%;
+}
+
+.logout-button {
+  color: red;
+  margin-top: 15px;
+}
+
+.logout-form button {
+  background: none;
+  border: none;
+  padding: 0; /* Removes extra padding for consistency */
+}
+
+.logout-button:hover {
+  text-decoration: underline;
 }
 
 /* ----------------------------------------------------------- @media 900px */
