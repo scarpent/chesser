@@ -13,21 +13,25 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- fix button/click subvar nav
-  - left/right buttons not navigating when in subvar?
-  - clicking on subvar moves causes the board to first show mainline move and then the subvar, which is jarring
-- when going from review/variation to edit, scroll to edit board for that move? maybe if it's later than move 4, so most variations will start at the top
-- use reambiguated moves to check alts, too?
 - import new lines (manage re-imports for different sets?)
-  - maybe try to fix data in place with scripts rather than re-import...
-- sort dumpdata output for git check in and diff checking?
+  ~ maybe try to fix data in place with scripts rather than re-import...
+- created datetime for variation?
+  ~ nullable at first
+  ~ could look at file create dates of json downloads to backfill original 1215
+- sort dumpdata output for git check in and diff checking
+- stats: simple stats page with past week and all time (since 3/20) numbers
+- fix button/click subvar nav
+  ~ left/right buttons not navigating when in subvar?
+  ~ clicking on subvar moves causes the board to first show mainline move and then the subvar, which is jarring
+- when going from review/variation to edit, scroll to edit board for that move? maybe if it's later than move 4, so most variations will start at the top
+
+- use reambiguated moves to check alts, too?
 - toggle show alt moves on board with a key, say "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves? (share shapes, alts, etc)
 - version number for variations? (version 1 is overwritable)
 - link to source variation from quiz info? Just one link to the original source var.
-- style form components
-- turn apple emoji into button graphics?
+
 - a way to send move string to lichess?
 
 ## longer term:

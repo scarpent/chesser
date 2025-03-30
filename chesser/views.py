@@ -1,8 +1,10 @@
 import json
+import random
 from itertools import groupby
 
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import OuterRef, Subquery
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -53,6 +55,40 @@ def review(request, variation_id=None):
         "review_data": json.dumps(review_data),
     }
     return render(request, "review.html", context)
+
+
+def review_random(request):
+    """Select a random variation for review (extra study)
+    We'll look for higher level variations that we haven't
+    seen and won't see for a while."""
+
+    now = timezone.now()
+    two_months_later = now + timezone.timedelta(days=60)
+    one_month_ago = now - timezone.timedelta(days=30)
+
+    latest_qr = QuizResult.objects.filter(variation=OuterRef("pk")).order_by(
+        "-datetime"
+    )
+
+    candidates = (
+        Variation.objects.annotate(
+            last_review=Subquery(latest_qr.values("datetime")[:1])
+        )
+        .filter(
+            level__gte=8,
+            next_review__gte=two_months_later,
+            last_review__lte=one_month_ago,
+        )
+        .select_related("chapter__course")
+        .prefetch_related("moves", "quiz_results")
+    )
+
+    if candidates.exists():
+        variation = random.choice(list(candidates))
+    else:
+        variation = random.choice(list(Variation.objects.all()))
+
+    return redirect("review_with_id", variation_id=variation.id)
 
 
 @csrf_exempt

@@ -34,6 +34,7 @@ urlpatterns = [
     ),
     path("review/", views.review, name="review_default"),
     path("review/<int:variation_id>/", views.review, name="review_with_id"),
+    path("review/random/", views.review_random, name="review_random"),
     path("report-result/", views.report_result, name="report_result"),
     path("edit/", views.edit, name="edit_default"),
     path("edit/<int:variation_id>/", views.edit, name="edit_with_id"),
