@@ -93,7 +93,7 @@
             ></textarea>
             <div class="move-fen">
               <a
-                :href="'https://lichess.org/analysis/standard/' + move.fen.replace(/ /g, '_') + '?color=' + variationData.color"
+                :href="variationData.analysis_url + (index + 1)"
                 target="_blank"
                 x-text="move.fen"
               ></a>

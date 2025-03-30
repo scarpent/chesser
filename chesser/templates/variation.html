@@ -51,7 +51,7 @@
             ></button>
             <button
               title="Lichess analysis board"
-              @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+              @click="window.open(variationData.analysis_url + (mainlineMoveIndex + 1), '_blank')"
               class="icon-analysis icon-button"
             ></button>
           </div>
