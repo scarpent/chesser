@@ -343,7 +343,6 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     saveQuizResult(passed) {
-      console.log("saveQuizResult", passed);
       if (this.reviewSessionIsComplete()) {
         localStorage.removeItem("review_session_complete");
         localStorage.setItem("review_pass", 0);
@@ -476,7 +475,6 @@ export function quizApp() {
         .then((data) => {
           if (data.status === "success") {
             const text = passed ? "Passed" : "Failed";
-            console.log(`Result reported successfully: ${text} ${variationId}`);
             this.reviewData.total_due_now = data.total_due_now;
             this.reviewData.total_due_soon = data.total_due_soon;
             this.saveQuizResult(passed);

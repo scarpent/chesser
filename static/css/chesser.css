@@ -14,6 +14,10 @@ body {
   overflow-x: hidden;
 }
 
+h3 {
+  color: orange;
+}
+
 a {
   text-decoration: none;
   color: cyan;
@@ -233,6 +237,14 @@ a:hover {
 .recently-reviewed,
 #history {
   line-height: 1.8;
+}
+
+.recently-reviewed h3 {
+  margin-bottom: 7px;
+}
+
+.recently-reviewed ul {
+  margin-top: 0px;
 }
 
 .variation-mainline {
@@ -529,6 +541,9 @@ button:hover {
   background-color: #444444;
 }
 
+/* trying transform and will-change but the rendering
+problem may be that I turned off some GPU stuff on
+external monitor to avoid display isses... */
 .icon-button {
   width: 52px;
   height: 52px;
@@ -539,6 +554,8 @@ button:hover {
   background-size: 70%; /* Padding */
   cursor: pointer;
   border-radius: 5px;
+  transform: translateZ(0); /* try to smooth rendering */
+  will-change: background-image, transform; /* prioritize for paint */
 }
 
 .icon-button img {
@@ -743,6 +760,10 @@ button:hover {
   resize: vertical;
   min-height: 300px;
   display: block;
+}
+
+.start-move-input {
+  width: 30px;
 }
 
 /* ----------------------------------------------------------- @media 900px */
