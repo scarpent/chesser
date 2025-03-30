@@ -1,7 +1,22 @@
 import os
+import socket
 from pathlib import Path
 
 import dj_database_url
+
+
+def get_local_ip():
+    """Returns the LAN IP address, e.g., 192.168.x.x"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Doesn't send any data
+        s.connect(("8.8.8.8", 80))  # Connect to any public IP (doesn't send packets)
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception as e:
+        print(f"Could not determine local IP: {e}")
+        return None
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,6 +33,11 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "chesser-production.up.railway.app",
 ]
+
+if not IS_PRODUCTION and os.environ.get("RUN_MAIN") == "true":
+    if local_ip := get_local_ip():
+        print(f"Local IP: {local_ip}")
+        ALLOWED_HOSTS.append(local_ip)  # Allow LAN IP for local development
 
 INSTALLED_APPS = [
     "django.contrib.admin",
