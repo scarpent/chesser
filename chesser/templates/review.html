@@ -55,19 +55,9 @@
           @click="window.location.href='/'"
         ></button>
         <button
-          title="Lichess analysis board"
-          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
-          class="icon-analysis icon-button"
-        ></button>
-        <button
           title="Restart"
           @click="restartQuiz()"
           class="icon-restart icon-button"
-        ></button>
-        <button
-          title="Info"
-          @click="showInfo = !showInfo"
-          class="icon-info icon-button"
         ></button>
         <button
           title="Show move"
@@ -75,14 +65,24 @@
           class="icon-showmove icon-button"
         ></button>
         <button
-          title="Edit"
-          @click="window.location.href='/edit/' + (variationData.variation_id || 1)"
-          class="icon-edit icon-button"
+          title="Info"
+          @click="showInfo = !showInfo"
+          class="icon-info icon-button"
         ></button>
         <button
           title="View"
           @click="gotoVariationView()"
           class="icon-variation icon-button"
+        ></button>
+        <button
+          title="Edit"
+          @click="window.location.href='/edit/' + (variationData.variation_id || 1)"
+          class="icon-edit icon-button"
+        ></button>
+        <button
+          title="Lichess analysis board"
+          @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+          class="icon-analysis icon-button"
         ></button>
       </div>
 
