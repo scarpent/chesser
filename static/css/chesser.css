@@ -877,6 +877,10 @@ external monitor to avoid display isses... */
     grid-template-columns: 1fr; /* Switch to a single column */
     gap: 3px; /* Space between rows */
   }
+
+  .variation-name-input {
+    width: 100%;
+  }
 }
 
 /* ----------------------------------------------------------- @media 450px */

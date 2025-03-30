@@ -1,9 +1,8 @@
 import os
+import socket
 
 from django.apps import AppConfig
 from django.conf import settings
-
-from chesser.tasks import start_scheduler
 
 
 class ChesserConfig(AppConfig):
@@ -13,10 +12,16 @@ class ChesserConfig(AppConfig):
     def ready(self):
         import chesser.signals  # Ensure signals are loaded  # noqa: F401
 
-        if settings.IS_PRODUCTION:
-            print("🕐️ Starting scheduler (production)")
+        # Avoid duplicate scheduler starts in dev autoreloader subprocesses
+        if not settings.IS_PRODUCTION and os.environ.get("RUN_MAIN") != "true":
+            return
+
+        try:
+            sock = socket.socket()
+            sock.bind(("127.0.0.1", 65432))  # Use a high-numbered loopback port
+            print("🕐️ Starting scheduler (acquired socket lock)")
+            from chesser.tasks import start_scheduler
+
             start_scheduler()
-        elif os.environ.get("RUN_MAIN") == "true":
-            # RUN_MAIN prevents running more than once in dev
-            print("Starting scheduler")
-            start_scheduler()
+        except OSError:
+            print("🚫 Scheduler already running in another process (socket lock)")
