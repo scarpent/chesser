@@ -4,6 +4,8 @@ import socket
 from django.apps import AppConfig
 from django.conf import settings
 
+_scheduler_socket = None  # global socket handle
+
 
 class ChesserConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
@@ -19,6 +21,7 @@ class ChesserConfig(AppConfig):
         try:
             sock = socket.socket()
             sock.bind(("127.0.0.1", 65432))  # Use a high-numbered loopback port
+            _scheduler_socket = sock  # noqa: F841 # Keep socket open to prevent dupes
             print("🕐️ Starting scheduler (acquired socket lock)")
             from chesser.tasks import start_scheduler
 
