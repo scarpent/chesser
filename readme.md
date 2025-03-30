@@ -13,7 +13,8 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- access local dev with phone?
+⭐️ ...
+
 - import new lines (manage re-imports for different sets?)
   ~ maybe try to fix data in place with scripts rather than re-import...
 - created datetime for variation?

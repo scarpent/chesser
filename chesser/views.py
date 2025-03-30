@@ -70,10 +70,17 @@ def review_random(request):
         "-datetime"
     )
 
+    course_id = request.GET.get("course_id")
+    chapter_id = request.GET.get("chapter_id")
+
+    qs = Variation.objects.all()
+    if course_id:
+        qs = qs.filter(chapter__course_id=course_id)
+    if chapter_id:
+        qs = qs.filter(chapter_id=chapter_id)
+
     candidates = (
-        Variation.objects.annotate(
-            last_review=Subquery(latest_qr.values("datetime")[:1])
-        )
+        qs.annotate(last_review=Subquery(latest_qr.values("datetime")[:1]))
         .filter(
             level__gte=8,
             next_review__gte=two_months_later,
@@ -86,6 +93,7 @@ def review_random(request):
     if candidates.exists():
         variation = random.choice(list(candidates))
     else:
+        print("🎲 Couldn't limit random choice; choosing from all")
         variation = random.choice(list(Variation.objects.all()))
 
     return redirect("review_with_id", variation_id=variation.id)

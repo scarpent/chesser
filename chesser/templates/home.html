@@ -151,7 +151,7 @@
     <div class="button-container">
       <button
         title="Random Extra Study"
-        @click="window.location.href='/review/random/'"
+        @click="goToRandomReview()"
         class="icon-random icon-button"
       ></button>
     </div>
@@ -251,6 +251,19 @@
       document.addEventListener("alpine:init", () => {
         Alpine.data("homeApp", () => ({
           homeData: window.homeData,
+
+          goToRandomReview() {
+            const course = this.homeData.nav.course_id;
+            const chapter = this.homeData.nav.chapter_id;
+            let url = "/review/random/";
+
+            const params = [];
+            if (course) params.push(`course_id=${course}`);
+            if (chapter) params.push(`chapter_id=${chapter}`);
+            if (params.length) url += "?" + params.join("&");
+
+            window.location.href = url;
+          },
         }));
       });
     </script>
