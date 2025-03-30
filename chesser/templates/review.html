@@ -128,6 +128,15 @@
           <p x-text="finalMove().text"></p>
         </div>
       </template>
+
+      <div class="button-container">
+        <button
+          title="Random Extra Study"
+          x-show="!reviewData.total_due_now && (completed || !hasVariationData())"
+          @click="window.location.href='/review/random/'"
+          class="icon-random icon-button"
+        ></button>
+      </div>
     </div>
 
     <div

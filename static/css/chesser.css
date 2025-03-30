@@ -117,6 +117,7 @@ a:hover {
 }
 
 #edit-variation-info {
+  color: orange;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -773,7 +774,7 @@ external monitor to avoid display isses... */
 }
 
 .start-move-input {
-  width: 40px;
+  width: 55px;
 }
 
 .variation-name-input {
