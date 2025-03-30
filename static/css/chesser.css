@@ -176,11 +176,6 @@ a:hover {
   align-self: flex-start;
 }
 
-.move-verbose {
-  font-size: 18px;
-  color: #eeeeee;
-}
-
 .edit-board canvas {
   width: 100% !important;
   height: 100% !important;
@@ -203,11 +198,11 @@ a:hover {
 
 .move-fen a {
   text-decoration: none;
-  color: #eeeeee;
+  color: #c5c2f4;
 }
 
 .move-fen a:visited {
-  color: #eeeeee;
+  color: #c5c2f4;
 }
 
 .info-container {
@@ -242,6 +237,10 @@ a:hover {
   font-size: 20px;
   margin-bottom: 0px;
   margin-top: 0px;
+}
+
+.move-verbose-edit {
+  margin: 0;
 }
 
 .mainline-move {
@@ -884,6 +883,10 @@ external monitor to avoid display isses... */
   .variation-name-input {
     width: 100%;
   }
+
+  .move-fen {
+    font-size: 16px;
+  }
 }
 
 /* ----------------------------------------------------------- @media 450px */
@@ -906,6 +909,14 @@ external monitor to avoid display isses... */
   .info-container,
   #next-due {
     font-size: 20px;
+  }
+
+  button {
+    font-size: 35px;
+  }
+
+  .promotion-options button {
+    font-size: 30px;
   }
 
   #outer-container {
@@ -931,14 +942,6 @@ external monitor to avoid display isses... */
 
   .button-container {
     gap: 2px;
-  }
-
-  button {
-    font-size: 35px;
-  }
-
-  .promotion-options button {
-    font-size: 30px;
   }
 }
 
