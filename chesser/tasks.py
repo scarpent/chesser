@@ -51,7 +51,7 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
         print(f"Error uploading to S3: {e}")
         return False
 
-    print(f"✌️ Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
+    print(f"✌️  Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
     return True
 
 
