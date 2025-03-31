@@ -10,7 +10,11 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", hours=6)
+    scheduler.add_job(
+        backup_and_upload,
+        "interval",
+        hours=6,
+    )
     scheduler.add_job(
         lambda: print("💓 Scheduler heartbeat"),
         "interval",
@@ -47,29 +51,34 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
         print(f"Error uploading to S3: {e}")
         return False
 
-    print(f"Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
+    print(f"✌️ Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
     return True
 
 
-def backup_and_upload():
-    if not settings.AWS_ACCESS_KEY_ID:
-        print("Not running backup for want of an AWS access key")
-        return False
-
+def backup():
     buffer = StringIO()
-    print("Running chesser app dumpdata ➤")
-
-    call_command("dumpdata", "chesser", indent=2, stdout=buffer)
+    print("➡️  Running export_db ➤")
+    call_command("export_db", stdout=buffer)
     backup_data = buffer.getvalue()
     backup_data_bytes = backup_data.encode("utf-8")
 
     backup_gzipped_path = "/tmp/chesser_dumpdata.json.gz"
-    print(f"Compressing dumpdata ➤ {backup_gzipped_path}")
+    print(f"💾 Compressing dumpdata ➤ {backup_gzipped_path}")
     with gzip.open(backup_gzipped_path, "wb") as f:
         f.write(backup_data_bytes)
+
+    return backup_gzipped_path, "application/gzip"
+
+
+def backup_and_upload():
+    path_to_backup, content_type = backup()
+
+    if not settings.AWS_ACCESS_KEY_ID:
+        print("⛔️ Not uploading to s3 for want of an AWS access key")
+        return False
 
     datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
     s3_object_key = f"db_backup_{datestamp}.json.gz"
     print("☁️  Uploading DB backup to AWS s3 🪣")
 
-    return upload_to_amazon_s3(backup_gzipped_path, s3_object_key, "application/gzip")
+    return upload_to_amazon_s3(path_to_backup, s3_object_key, content_type)
