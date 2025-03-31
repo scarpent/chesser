@@ -56,14 +56,7 @@
             ></button>
           </div>
           <div class="info-container">
-            <div>
-              <a
-                :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
-                :title="'Go to chapter: ' + variationData.chapter"
-                >📂</a
-              >
-              <span x-text="variationData.title"></span>
-            </div>
+            <div x-text="variationData.title"></div>
             <div class="variation-state-info">
               <span x-text="'L' + variationData.level"></span>
               <span x-text="'S' + variationData.start_move"></span>
