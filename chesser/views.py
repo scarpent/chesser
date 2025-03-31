@@ -5,6 +5,7 @@ from itertools import groupby
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Lower
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -245,7 +246,8 @@ def variations_table(request):
     def row_generator():
         qs = (
             Variation.objects.select_related("course", "chapter")
-            .order_by("course_id", "chapter__title", "mainline_moves_str")
+            .annotate(sort_key=Lower("mainline_moves_str"))
+            .order_by("course_id", "chapter__title", "sort_key")
             .iterator()
         )
 
@@ -426,12 +428,12 @@ class HomeView:
             nav["course_id"] = course.id
             nav["course_name"] = course.title
         else:
-            for variation in (
-                Variation.objects.filter(chapter=self.chapter_id)
-                .order_by("mainline_moves_str")
-                .iterator()
-            ):
-
+            qs = (
+                Variation.objects.filter(chapter_id=self.chapter_id)
+                .annotate(sort_key=Lower("mainline_moves_str"))
+                .order_by("sort_key")
+            )
+            for variation in qs.iterator():
                 time_since_last_review = util.get_time_ago(
                     self.now, variation.get_latest_quiz_result_datetime()
                 )
