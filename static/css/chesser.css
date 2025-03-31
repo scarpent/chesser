@@ -253,6 +253,7 @@ td:last-child {
   font-size: 20px;
   margin-bottom: 0px;
   margin-top: 0px;
+  line-height: 1.4;
 }
 
 .move-verbose-edit {
