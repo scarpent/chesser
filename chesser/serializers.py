@@ -36,7 +36,6 @@ def serialize_variation(variation, all_data=False):
     time_until_next_review = util.format_time_until(now, variation.next_review)
     source_html = get_source_html(variation.source) if all_data else None
     html = generate_variation_html(variation) if all_data else None
-    # TODO: encoding for +#, etc?
     url_moves = "_".join([move.san for move in variation.moves.all()])
     # we'll add current fen/index in UI
     lichess_url = f"https://lichess.org/analysis/pgn/{url_moves}?color={color}&#"
