@@ -19,11 +19,13 @@
     <div id="quiz-container">
       <div id="resizable-board" data-board-id="quiz">
         <div id="board"></div>
-        <div
-          x-show="!hasVariationData()"
-          class="icon-home board-overlay-home"
-          @click="window.location.href='/'"
-        ></div>
+        <template x-if="!hasVariationData()">
+          <div
+            class="icon-home board-overlay-home"
+            @click="window.location.href='/'"
+          ></div>
+        </template>
+
         <div id="resize-handle"></div>
       </div>
       <div class="status-and-next">
