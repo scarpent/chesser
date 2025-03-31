@@ -289,25 +289,33 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
+    navigate(dir) {
+      if (this.isInSubvariation()) {
+        if (dir === "forward") {
+          this.nextSubvarMove();
+        } else {
+          this.previousSubvarMove();
+        }
+      } else {
+        if (dir === "forward") {
+          this.nextMainlineMove();
+        } else {
+          this.previousMainlineMove();
+        }
+      }
+    },
+
+    //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
       if (event.key === "ArrowRight") {
         if (event.shiftKey) {
           // Shift + Right → Enter subvariation if available
           this.enterSubvariation();
         } else {
-          // Regular Right → Advance mainline or exit subvar at the end
-          if (this.isInSubvariation()) {
-            this.nextSubvarMove();
-          } else {
-            this.nextMainlineMove();
-          }
+          this.navigate("forward");
         }
       } else if (event.key === "ArrowLeft") {
-        if (this.isInSubvariation()) {
-          this.previousSubvarMove();
-        } else {
-          this.previousMainlineMove();
-        }
+        this.navigate("back");
       }
     },
 

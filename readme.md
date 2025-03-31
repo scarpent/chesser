@@ -20,7 +20,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - created datetime for variation?
   ~ nullable at first
   ~ could look at file create dates of json downloads to backfill original 1215
-- sort dumpdata output for git check in and diff checking
 - stats: simple stats page with past week and all time (since 3/20) numbers
 - fix button/click subvar nav
   ~ left/right buttons not navigating when in subvar?
