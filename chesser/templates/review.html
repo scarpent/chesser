@@ -93,14 +93,11 @@
       </div>
 
       <p x-html="reviewStats"></p>
-      <a
-        href="#"
-        x-show="reviewData.total_due_now && !reviewData.extra_study"
-        @click.prevent="resetReviewSession()"
-        style="margin-bottom: 5px"
-      >
-        reset counter
-      </a>
+      <template x-if="reviewData.total_due_now && !reviewData.extra_study">
+        <a href="#" @click.prevent="resetReviewSession()" style="margin-bottom: 5px">
+          reset counter
+        </a>
+      </template>
       <template x-if="showInfo && variationData.title">
         <div class="info-container">
           <div class="chapter-title">
