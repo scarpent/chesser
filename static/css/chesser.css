@@ -383,9 +383,20 @@ td:last-child {
   margin-left: 0;
 }
 
+#source-variation {
+  margin: 7px 0 0;
+  padding: 0;
+}
+
+#original-variation {
+  margin: 7px 0;
+  padding: 0;
+}
+
 #alts {
-  margin-top: 10px;
-  padding-bottom: 0;
+  color: #c3db9c;
+  margin-top: 5px;
+  padding-bottom: 15px;
   margin-bottom: 0;
 }
 

@@ -189,7 +189,7 @@ export function variationApp() {
         this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
         // Alts don't really make sense in subvariations
         const altsElement = document.getElementById("alts");
-        if (altsElement) altsElement.innerHTML = `<b>Alts:</b>`;
+        if (altsElement) altsElement.innerHTML = `<b>Alts ➤</b>`;
       }
     },
 
@@ -256,10 +256,10 @@ export function variationApp() {
       }
 
       if (!combinedAlts) {
-        altsElement.innerHTML = `<b>Alts:</b> ${combinedAlts}`;
+        altsElement.innerHTML = `<b>Alts ➤</b> ${combinedAlts}`;
       } else {
         // Clear previous event listener to prevent duplication
-        altsElement.innerHTML = `<a href="#" id="altLink"><b>Alts:</b></a> ${combinedAlts}`;
+        altsElement.innerHTML = `<a href="#" id="altLink"><b>Alts ➤</b></a> ${combinedAlts}`;
 
         const altLink = document.getElementById("altLink");
         if (altLink) {

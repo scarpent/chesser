@@ -56,12 +56,12 @@
             ></button>
           </div>
           <div class="info-container">
-            <div class="chapter-title">
+            <div>
               <a
                 :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
-                ><span x-text="variationData.chapter"></span
-              ></a>
-              <span class="sep"> ➤ </span>
+                :title="'Go to chapter: ' + variationData.chapter"
+                >📂</a
+              >
               <span x-text="variationData.title"></span>
             </div>
             <div class="variation-state-info">
@@ -79,6 +79,13 @@
             <div x-text="variationData.mainline" class="mainline-moves"></div>
           </div>
           <p id="alts"></p>
+          <div id="chapter-name">
+            Chapter:
+            <a
+              :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"
+              ><span x-text="variationData.chapter"></span
+            ></a>
+          </div>
           <div id="source" x-html="variationData.source_html"></div>
           <div id="history">
             <h3>History</h3>
