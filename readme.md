@@ -43,6 +43,40 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
   - some way to select various openings for this
 - an extra study feature for studying level 1 openings or level 1 & 2, etc
 
+## lichess analysis FEN links
+
+### variation.html
+
+```html
+<button
+  title="Lichess analysis board"
+  @click="window.open('https://lichess.org/analysis/standard/' + board.state.fen.replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+  class="icon-analysis icon-button"
+></button>
+```
+
+### review.html
+
+```html
+<button
+  title="Lichess analysis board"
+  @click="window.open('https://lichess.org/analysis/standard/' + chess.fen().replace(/ /g, '_') + '?color=' + variationData.color, '_blank')"
+  class="icon-analysis icon-button"
+></button>
+```
+
+### edit.html
+
+```html
+<div class="move-fen">
+  <a
+    :href="'https://lichess.org/analysis/standard/' + move.fen.replace(/ /g, '_') + '?color=' + variationData.color"
+    target="_blank"
+    x-text="move.fen"
+  ></a>
+</div>
+```
+
 ## js libraries
 
 ```js
