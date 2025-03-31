@@ -89,11 +89,11 @@
       <p x-html="reviewStats"></p>
       <a
         href="#"
-        x-show="reviewData.total_due_now && ! reviewData.extra_study"
+        x-show="reviewData.total_due_now && !reviewData.extra_study"
         @click.prevent="resetReviewSession()"
         style="margin-bottom: 5px"
       >
-        reset session
+        reset counter
       </a>
       <div x-show="showInfo && variationData.title" class="info-container">
         <div class="chapter-title">

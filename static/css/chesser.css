@@ -32,6 +32,20 @@ a:hover {
   text-decoration: underline;
 }
 
+table {
+  border-collapse: collapse;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th:last-child,
+td:last-child {
+  text-align: right;
+}
+
 #quiz-container {
   display: flex;
   flex-direction: column;
@@ -214,6 +228,7 @@ a:hover {
   font-size: 18px;
   max-width: 600px;
   margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .recently-reviewed {
@@ -368,18 +383,16 @@ a:hover {
   margin-left: 0;
 }
 
-table {
-  border-collapse: collapse;
+#alts {
+  margin-top: 10px;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
-th:first-child,
-td:first-child {
-  text-align: left;
-}
-
-th:last-child,
-td:last-child {
-  text-align: right;
+#history h3,
+#source {
+  margin: 0;
+  padding: 0;
 }
 
 .chapter-vars-review-info {
