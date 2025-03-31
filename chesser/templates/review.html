@@ -29,26 +29,30 @@
         <div id="resize-handle"></div>
       </div>
       <div class="status-and-next">
-        <div x-show="completed" class="button-container">
-          <button
-            title="Mainline Back"
-            @click="previousMove()"
-            class="icon-back icon-button"
-          ></button>
-          <button
-            title="Mainline Forward"
-            @click="nextMove()"
-            class="icon-forward icon-button"
-          ></button>
-        </div>
+        <template x-if="completed">
+          <div class="button-container">
+            <button
+              title="Mainline Back"
+              @click="previousMove()"
+              class="icon-back icon-button"
+            ></button>
+            <button
+              title="Mainline Forward"
+              @click="nextMove()"
+              class="icon-forward icon-button"
+            ></button>
+          </div>
+        </template>
         <div x-html="status" class="status"></div>
-        <div x-show="completed" class="button-container">
-          <button
-            title="Next"
-            @click="window.location.href='/review/'"
-            class="icon-review icon-button"
-          ></button>
-        </div>
+        <template x-if="completed">
+          <div class="button-container">
+            <button
+              title="Next"
+              @click="window.location.href='/review/'"
+              class="icon-review icon-button"
+            ></button>
+          </div>
+        </template>
       </div>
       <div class="button-container" x-show="hasVariationData()">
         <button
