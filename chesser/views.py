@@ -169,17 +169,17 @@ def handle_upload_errors(request, error_message):
 @csrf_protect
 def upload_json_data(request):
     if request.method != "POST":
-        handle_upload_errors(request, "Invalid request method")
+        return handle_upload_errors(request, "Invalid request method")
 
     file = request.FILES.get("uploaded_file")
     if not file:
-        handle_upload_errors(request, "No file selected")
+        return handle_upload_errors(request, "No file selected")
 
     file_content = file.read().decode("utf-8")
     try:
         json.loads(file_content)
-    except json.JSONDecodeError:
-        handle_upload_errors(request, "Invalid JSON: {e}")
+    except json.JSONDecodeError as e:
+        return handle_upload_errors(request, f"Invalid JSON: {e}")
 
     with open("/tmp/upload.json", "w") as temp_file:
         temp_file.write(file_content)
