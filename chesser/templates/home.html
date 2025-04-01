@@ -71,7 +71,7 @@
     >
       <h3>
         📚️ <a href="/">My Book</a> ➤
-        <span x-text="homeData.nav.course_name"></span>
+        <span x-text="homeData.nav.course_title"></span>
         (<span x-text="homeData.nav.chapters_var_count"></span>)
       </h3>
       <ol>
@@ -91,10 +91,10 @@
       <h3>
         📚️ <a href="/">My Book</a> ➤
         <a :href="'/course/' + homeData.nav.course_id + '/'"
-          ><span x-text="homeData.nav.course_name"></span
+          ><span x-text="homeData.nav.course_title"></span
         ></a>
         ➤
-        <span x-text="homeData.nav.chapter_name"></span>
+        <span x-text="homeData.nav.chapter_title"></span>
         (<span x-text="homeData.nav.variations.length"></span>)
       </h3>
       <ol>

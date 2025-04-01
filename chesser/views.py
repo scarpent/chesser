@@ -436,9 +436,9 @@ class HomeView:
     def get_course_links(self):
         nav = {
             "course_id": "",
-            "course_name": "",
+            "course_title": "",
             "chapter_id": "",
-            "chapter_name": "",
+            "chapter_title": "",
             "courses": [],
             "chapters": [],
             "variations": [],
@@ -474,7 +474,7 @@ class HomeView:
                 )
 
             nav["course_id"] = course.id
-            nav["course_name"] = course.title
+            nav["course_title"] = course.title
         else:
             qs = (
                 Variation.objects.filter(chapter_id=self.chapter_id)
@@ -502,9 +502,9 @@ class HomeView:
                 )
 
             nav["course_id"] = self.course_id
-            nav["course_name"] = Course.objects.get(id=self.course_id).title
+            nav["course_title"] = Course.objects.get(id=self.course_id).title
             nav["chapter_id"] = self.chapter_id
-            nav["chapter_name"] = Chapter.objects.get(id=self.chapter_id).title
+            nav["chapter_title"] = Chapter.objects.get(id=self.chapter_id).title
 
         return nav
 
