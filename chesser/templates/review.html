@@ -92,7 +92,7 @@
         ></button>
       </div>
 
-      <p x-html="reviewStats"></p>
+      <div id="review-stats" x-html="reviewStats"></div>
       <template x-if="reviewData.total_due_now && !reviewData.extra_study">
         <a href="#" @click.prevent="resetReviewSession()" style="margin-bottom: 5px">
           reset counter

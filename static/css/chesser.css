@@ -241,6 +241,16 @@ td:last-child {
   margin-bottom: 5px;
 }
 
+#review-stats {
+  color: orange;
+  margin: 15px 0;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  text-align: center;
+  justify-content: center; /* centers after wrapping */
+}
+
 .recently-reviewed {
   margin: 0 0 0 15px;
   padding-bottom: 50px;

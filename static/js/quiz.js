@@ -333,12 +333,15 @@ export function quizApp() {
 
       const extra_color = this.failed ? "red" : "lightgreen";
       const extra = this.reviewData.extra_study
-        ? `<span style="color: ${extra_color}">(Extra Study)</span> `
+        ? `<span style="color: ${extra_color}">extra study</span> `
         : "";
 
-      this.reviewStats = `${extra} Done: ${totalCompleted} (${passed}/${totalCompleted}, ${
-        totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
-      }%), Due: ${this.reviewData.total_due_now}${dueSoon}`;
+      this.reviewStats = `${extra}<span>✏️</span>
+        <span>${passed}/${totalCompleted}</span>
+        <span>${
+          totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
+        }%</span>
+        <span>📉 ${this.reviewData.total_due_now}${dueSoon}</span>`;
     },
 
     //--------------------------------------------------------------------------------
