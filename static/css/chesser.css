@@ -153,6 +153,18 @@ td:last-child {
   max-width: 800px;
 }
 
+.edit-mainline-move-list {
+  color: #c5c2f4;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.edit-mainline-move-list:hover {
+  background-color: #c5c2f4;
+  color: #222;
+  border-radius: 4px;
+}
+
 #boards-container {
   display: flex;
   flex-direction: column;

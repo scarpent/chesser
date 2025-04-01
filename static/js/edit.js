@@ -39,6 +39,16 @@ export function editApp() {
             }
           });
           this.scrollToMoveBlockFromURL();
+
+          const mainline = document.getElementById("edit-mainline-moves");
+          if (mainline) {
+            mainline.addEventListener("click", (e) => {
+              if (e.target.classList.contains("edit-mainline-move-list")) {
+                const idx = parseInt(e.target.dataset.idx, 10);
+                if (!isNaN(idx)) this.scrollToMoveBlock(idx);
+              }
+            });
+          }
         });
       });
     },
@@ -161,6 +171,16 @@ export function editApp() {
           moveBlock.scrollIntoView({ behavior: behavior, block: "start" });
         }
       }, 100); // Tweak as needed based on render speed
+    },
+
+    //--------------------------------------------------------------------------------
+    renderMainlineMoveLinks() {
+      const moves = this.variationData.mainline.split(" ");
+      return moves
+        .map((san, idx) => {
+          return `<span class="edit-mainline-move-list" data-idx="${idx}">${san}</span>`;
+        })
+        .join(" ");
     },
   }; // return { ... }
 }
