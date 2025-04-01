@@ -632,6 +632,15 @@ external monitor to avoid display isses... */
   border-radius: 5px;
 }
 
+.message.warning {
+  color: #856404;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 7px 20px;
+  margin-bottom: 0;
+  border-radius: 5px;
+}
+
 .import-status {
   font-size: 20px;
   margin-top: 10px;
@@ -802,7 +811,7 @@ external monitor to avoid display isses... */
   width: 55px;
 }
 
-.variation-name-input {
+.variation-title-input {
   width: 350px;
   max-width: 100%;
 }
@@ -906,7 +915,7 @@ external monitor to avoid display isses... */
     gap: 3px; /* Space between rows */
   }
 
-  .variation-name-input {
+  .variation-title-input {
     width: 100%;
   }
 

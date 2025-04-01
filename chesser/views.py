@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
-from chesser import util
+from chesser import importer, util
 from chesser.models import Chapter, Course, QuizResult, Variation
 from chesser.serializers import serialize_variation
 
@@ -160,23 +160,26 @@ def import_view(request):
     )
 
 
+def handle_upload_errors(request, error_message):
+    messages.error(request, f"❌ {error_message}")
+    request.session["import_form_defaults"] = request.POST.dict()
+    return redirect("import")
+
+
 @csrf_protect
 def upload_json_data(request):
     if request.method != "POST":
-        messages.error(request, "❌ Invalid request method")
-        return redirect("import")
+        handle_upload_errors(request, "Invalid request method")
 
     file = request.FILES.get("uploaded_file")
     if not file:
-        messages.error(request, "❌ No file selected")
-        return redirect("import")
+        handle_upload_errors(request, "No file selected")
 
     file_content = file.read().decode("utf-8")
     try:
         json.loads(file_content)
     except json.JSONDecodeError:
-        messages.error(request, "❌ Invalid JSON format")
-        return redirect("import")
+        handle_upload_errors(request, "Invalid JSON: {e}")
 
     with open("/tmp/upload.json", "w") as temp_file:
         temp_file.write(file_content)
@@ -185,41 +188,66 @@ def upload_json_data(request):
     return redirect("import")
 
 
+def handle_import_errors(request, error_message):
+    messages.error(request, f"❌ {error_message}")
+    request.session["import_form_defaults"] = request.POST.dict()
+    return redirect("import")
+
+
 @csrf_protect
 def import_chesser_json(request):
     if request.method != "POST":
         return redirect("import")
 
+    data = request.POST
+    raw_json = data.get("json_data")
+
     try:
-        data = request.POST
-        raw_json = data.get("json_data")
         parsed_json = json.loads(raw_json)
+    except json.JSONDecodeError as e:
+        return handle_import_errors(request, f"Invalid JSON: {e}")
 
-        # inject metadata from the form
-        parsed_json["variation_title"] = data.get("variation_name")
-        parsed_json["start_move"] = int(data.get("start_move", 2))
-
-        if next_review := data.get("next_review_date"):
-            parsed_json["next_review"] = f"{next_review}T12:00:00"
-        else:
-            parsed_json["next_review"] = util.END_OF_TIME
-
-        # look up course color + chapter
-        chapter = Chapter.objects.select_related("course").get(
-            pk=int(data.get("chapter_id"))
+    form_variation_title = (
+        data.get("variation_title", "").strip()
+        or parsed_json.get("variation_title", "").strip()
+    )
+    if not form_variation_title:
+        return handle_import_errors(
+            request, "Variation title not given and not in JSON"
         )
-        parsed_json["color"] = chapter.course.color
-        parsed_json["chapter_title"] = chapter.title
+    parsed_json["variation_title"] = form_variation_title
+    messages.success(request, f"➡️  Variation Title: {form_variation_title}")
 
-        # TODO: the actual import!
+    try:
+        start_move = int(data.get("start_move", 2))
+        parsed_json["start_move"] = start_move
+        messages.success(request, f"➡️  Start Move: {start_move}")
+    except ValueError:
+        messages.warning(request, "⚠️ Invalid or missing start move; defaulting to 2")
+        parsed_json["start_move"] = 2
 
-        messages.success(request, "Variation imported successfully ✅")
-        return redirect("import")
+    if next_review := data.get("next_review_date"):
+        time_ = timezone.now().strftime("%H:%M:%S")
+        dt_str = f"{next_review}T{time_}"
+        parsed_json["next_review"] = importer.get_utc_datetime(dt_str)
+    else:
+        parsed_json["next_review"] = util.END_OF_TIME
 
-    except Exception as e:
-        messages.error(request, f"❌ Error: {e}")
-        request.session["import_form_defaults"] = request.POST.dict()
-        return redirect("import")
+    local = timezone.localtime(parsed_json["next_review"])
+    messages.success(request, f"➡️  Next Review: {local}")
+
+    # look up course color + chapter
+    chapter = Chapter.objects.select_related("course").get(
+        pk=int(data.get("chapter_id"))
+    )
+    messages.success(request, f"➡️  {chapter.course.title} ➤ {chapter.title}")
+    parsed_json["color"] = chapter.course.color
+    parsed_json["chapter_title"] = chapter.title
+
+    # TODO: the actual import!
+
+    messages.success(request, "Variation imported successfully ✅")
+    return redirect("import")
 
 
 def variations_tsv(request):

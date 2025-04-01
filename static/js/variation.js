@@ -289,15 +289,15 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
-    navigate(dir) {
+    navigate(direction) {
       if (this.isInSubvariation()) {
-        if (dir === "forward") {
+        if (direction === "forward") {
           this.nextSubvarMove();
         } else {
           this.previousSubvarMove();
         }
       } else {
-        if (dir === "forward") {
+        if (direction === "forward") {
           this.nextMainlineMove();
         } else {
           this.previousMainlineMove();

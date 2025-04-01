@@ -18,4 +18,4 @@ def test_edit_authenticated(test_user):
 
     response = client.get(reverse("edit_default"))
     assert response.status_code == 200
-    assert "Variation Name:" in response.content.decode()
+    assert "Variation Title:" in response.content.decode()
