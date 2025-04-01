@@ -9,6 +9,7 @@ export function editApp() {
     boards: [],
     chess: null,
     variationData: variationData,
+    currentMoveIndex: 0,
 
     initEditor() {
       document.addEventListener("alpine:initialized", () => {
@@ -153,10 +154,46 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
+    renderMainlineMoveLinks() {
+      const moves = this.variationData.mainline.split(" ");
+      const pairs = [];
+
+      for (let i = 0; i < moves.length; i += 2) {
+        const white = moves[i];
+        const black = moves[i + 1] || "";
+
+        const pairHtml = `
+              <span class="edit-mainline-move-pair">
+                <span class="edit-mainline-move-item" data-idx="${i}">${white}</span>
+                ${
+                  black
+                    ? `<span class="edit-mainline-move-item" data-idx="${
+                        i + 1
+                      }">${black}</span>`
+                    : ""
+                }
+              </span>
+            `;
+
+        pairs.push(pairHtml);
+      }
+
+      return pairs.join(" ");
+    },
+
+    //--------------------------------------------------------------------------------
     scrollToMoveBlockFromURL() {
       const params = new URLSearchParams(window.location.search);
       const idx = parseInt(params.get("idx"), 10);
-      if (!isNaN(idx)) this.scrollToMoveBlock(idx);
+      if (!isNaN(idx)) {
+        this.scrollToMoveBlock(idx);
+
+        // Remove idx from URL
+        params.delete("idx");
+        const newUrl =
+          window.location.pathname + (params.toString() ? "?" + params.toString() : "");
+        window.history.replaceState({}, "", newUrl);
+      }
     },
 
     //--------------------------------------------------------------------------------
@@ -169,36 +206,39 @@ export function editApp() {
           const useSmooth = false;
           const behavior = useSmooth ? "smooth" : "auto";
           moveBlock.scrollIntoView({ behavior: behavior, block: "start" });
+          this.currentMoveIndex = idx;
         }
       }, 100); // Tweak as needed based on render speed
     },
 
     //--------------------------------------------------------------------------------
-    renderMainlineMoveLinks() {
-      const moves = this.variationData.mainline.split(" ");
-      const pairs = [];
-
-      for (let i = 0; i < moves.length; i += 2) {
-        const white = moves[i];
-        const black = moves[i + 1] || "";
-
-        const pairHtml = `
-          <span class="edit-mainline-move-pair">
-            <span class="edit-mainline-move-item" data-idx="${i}">${white}</span>
-            ${
-              black
-                ? `<span class="edit-mainline-move-item" data-idx="${
-                    i + 1
-                  }">${black}</span>`
-                : ""
-            }
-          </span>
-        `;
-
-        pairs.push(pairHtml);
+    handleKeyNavigation(event) {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        this.gotoNextMove();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        this.gotoPreviousMove();
       }
+    },
 
-      return pairs.join(" ");
+    //--------------------------------------------------------------------------------
+    gotoNextMove() {
+      const next = (this.currentMoveIndex ?? -1) + 1;
+      if (next < this.variationData.moves.length) {
+        this.scrollToMoveBlock(next);
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    gotoPreviousMove() {
+      const prev = (this.currentMoveIndex ?? 1) - 1;
+      if (prev >= 0) {
+        this.scrollToMoveBlock(prev);
+      } else {
+        // Already at first move — scroll to top of page
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     },
   }; // return { ... }
 }

@@ -47,13 +47,21 @@ export function variationApp() {
       const idxParam = urlParams.get("idx");
       let moveIndex = idxParam ? parseInt(idxParam, 10) : null;
 
-      if (isNaN(moveIndex)) {
-        return null;
-      } else if (moveIndex < 0) {
+      if (isNaN(moveIndex)) return null;
+
+      if (moveIndex < 0) {
         moveIndex = 0;
       } else if (moveIndex >= this.variationData.moves.length) {
         moveIndex = this.variationData.moves.length - 1;
       }
+
+      // Remove idx from URL
+      urlParams.delete("idx");
+      const newUrl =
+        window.location.pathname +
+        (urlParams.toString() ? "?" + urlParams.toString() : "");
+      window.history.replaceState({}, "", newUrl);
+
       return moveIndex;
     },
 
