@@ -3,6 +3,7 @@ export function importApp() {
     chapters: window.importData?.chapters || [],
     formDefaults: {
       ...window.importData?.form_defaults,
+      start_move: 2,
       next_review_date:
         window.importData?.form_defaults?.next_review_date ||
         new Date().toISOString().split("T")[0],
