@@ -336,12 +336,17 @@ export function quizApp() {
         ? `<span style="color: ${extra_color}">extra study</span> `
         : "";
 
+      const emoji =
+        this.reviewData.total_due_now + this.reviewData.total_due_soon === 0
+          ? "☀️"
+          : "📉";
+
       this.reviewStats = `${extra}<span>✏️</span>
         <span>${passed}/${totalCompleted}</span>
         <span>${
           totalCompleted ? Math.round((passed / totalCompleted) * 100) : 0
         }%</span>
-        <span>📉 ${this.reviewData.total_due_now}${dueSoon}</span>`;
+        <span>${emoji} ${this.reviewData.total_due_now}${dueSoon}</span>`;
     },
 
     //--------------------------------------------------------------------------------
