@@ -109,6 +109,31 @@ td:last-child {
   line-height: 1.5;
 }
 
+#boards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+#board {
+  width: 100%;
+  height: 100%;
+}
+
+#resizable-board {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
+  min-width: 300px; /* Prevents it from shrinking too much */
+  min-height: 300px;
+  flex-shrink: 0; /* Prevents shrinking */
+  overflow: hidden;
+}
+
 .status {
   font-size: 30px;
   white-space: nowrap;
@@ -153,41 +178,21 @@ td:last-child {
   max-width: 800px;
 }
 
-.edit-mainline-move-list {
+.edit-mainline-move-item {
   color: #c5c2f4;
-  padding: 2px 4px;
+  padding: 2px 1px;
   cursor: pointer;
 }
 
-.edit-mainline-move-list:hover {
+.edit-mainline-move-item:hover {
   background-color: #c5c2f4;
   color: #222;
   border-radius: 4px;
 }
 
-#boards-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: flex-start;
-  margin-bottom: 30px;
-}
-
-#board {
-  width: 100%;
-  height: 100%;
-}
-
-#resizable-board {
-  position: relative;
-  width: 400px;
-  height: 400px;
-  max-width: 90vw;
-  max-height: 90vh;
-  min-width: 300px; /* Prevents it from shrinking too much */
-  min-height: 300px;
-  flex-shrink: 0; /* Prevents shrinking */
-  overflow: hidden;
+.edit-mainline-move-pair {
+  white-space: nowrap;
+  margin-right: 6px;
 }
 
 .edit-board {

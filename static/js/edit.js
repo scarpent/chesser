@@ -43,7 +43,7 @@ export function editApp() {
           const mainline = document.getElementById("edit-mainline-moves");
           if (mainline) {
             mainline.addEventListener("click", (e) => {
-              if (e.target.classList.contains("edit-mainline-move-list")) {
+              if (e.target.classList.contains("edit-mainline-move-item")) {
                 const idx = parseInt(e.target.dataset.idx, 10);
                 if (!isNaN(idx)) this.scrollToMoveBlock(idx);
               }
@@ -176,11 +176,29 @@ export function editApp() {
     //--------------------------------------------------------------------------------
     renderMainlineMoveLinks() {
       const moves = this.variationData.mainline.split(" ");
-      return moves
-        .map((san, idx) => {
-          return `<span class="edit-mainline-move-list" data-idx="${idx}">${san}</span>`;
-        })
-        .join(" ");
+      const pairs = [];
+
+      for (let i = 0; i < moves.length; i += 2) {
+        const white = moves[i];
+        const black = moves[i + 1] || "";
+
+        const pairHtml = `
+          <span class="edit-mainline-move-pair">
+            <span class="edit-mainline-move-item" data-idx="${i}">${white}</span>
+            ${
+              black
+                ? `<span class="edit-mainline-move-item" data-idx="${
+                    i + 1
+                  }">${black}</span>`
+                : ""
+            }
+          </span>
+        `;
+
+        pairs.push(pairHtml);
+      }
+
+      return pairs.join(" ");
     },
   }; // return { ... }
 }
