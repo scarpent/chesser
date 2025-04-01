@@ -76,17 +76,25 @@
 
         <div>
           <label for="json_data">JSON:</label><br />
-          <textarea
-            name="json_data"
-            id="import-json-text-area"
-            x-model="formDefaults.json_data"
-            rows="20"
-            placeholder="Paste your JSON here..."
-            required
-          ></textarea>
-        </div>
 
-        <button type="submit" class="icon-import icon-button"></button>
+          <div style="position: relative">
+            <button
+              type="submit"
+              class="icon-import icon-button big-icon"
+              style="position: absolute; top: 6px; right: 10px; z-index: 10"
+              title="Import"
+            ></button>
+
+            <textarea
+              name="json_data"
+              id="import-json-text-area"
+              x-model="formDefaults.json_data"
+              rows="20"
+              placeholder="Paste your JSON here..."
+              required
+            ></textarea>
+          </div>
+        </div>
       </form>
     </div>
 
