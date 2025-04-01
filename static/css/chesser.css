@@ -249,6 +249,7 @@ td:last-child {
   flex-wrap: wrap;
   text-align: center;
   justify-content: center; /* centers after wrapping */
+  align-items: center; /* vertical alignment helps with emoji */
 }
 
 .recently-reviewed {
