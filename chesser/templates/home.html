@@ -35,6 +35,11 @@
         class="icon-home icon-button"
       ></button>
       <button
+        title="Stats"
+        @click="alert('Stats TBD')"
+        class="icon-stats icon-button"
+      ></button>
+      <button
         title="Review"
         @click="window.location.href='/review/'"
         class="icon-review icon-button big-icon"
@@ -43,6 +48,11 @@
         title="Import"
         @click="window.location.href='/import/'"
         class="icon-import icon-button"
+      ></button>
+      <button
+        title="Random Extra Study"
+        @click="goToRandomReview()"
+        class="icon-random icon-button"
       ></button>
     </div>
 
@@ -147,14 +157,6 @@
       x-init="initCountdown()"
       x-text="label"
     ></div>
-
-    <div class="button-container">
-      <button
-        title="Random Extra Study"
-        @click="goToRandomReview()"
-        class="icon-random icon-button"
-      ></button>
-    </div>
 
     <div class="reviews-levels-wrapper" x-cloak>
       <div class="reviews-levels-container">

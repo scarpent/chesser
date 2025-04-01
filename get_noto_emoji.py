@@ -22,6 +22,7 @@ emoji_buttons = {
     "forward": "➡️",
     "upload": "⤴️",
     "random": "🎲",
+    "stats": "🔢",
 }
 
 

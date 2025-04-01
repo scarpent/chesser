@@ -639,6 +639,9 @@ external monitor to avoid display isses... */
 .icon-random {
   background-image: url("/static/icons/noto-emoji/random.svg");
 }
+.icon-stats {
+  background-image: url("/static/icons/noto-emoji/stats.svg");
+}
 
 /* ---------------------------------------------- Django Messages Framework */
 .message.success {
