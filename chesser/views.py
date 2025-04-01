@@ -200,10 +200,11 @@ def import_chesser_json(request):
         return redirect("import")
 
     form_data = request.POST
-    raw_json = form_data.get("json_data")
+    form_json = form_data.get("json_data")
 
-    incoming_json = _parse_json(raw_json, request)
-    if incoming_json is None:
+    try:
+        incoming_json = json.loads(form_json)
+    except json.JSONDecodeError:
         return handle_import_errors(request, "Invalid JSON")
 
     # TODO: use a class to avoid passing things around so much?
@@ -222,14 +223,6 @@ def import_chesser_json(request):
     return redirect("import")
 
 
-def _parse_json(raw_json, request):
-    try:
-        return json.loads(raw_json)
-    except json.JSONDecodeError as e:
-        messages.error(request, f"❌ Invalid JSON: {e}")
-        return None
-
-
 def _set_variation_title(data, parsed_json, request):
     title = (
         data.get("variation_title", "").strip()
@@ -238,14 +231,14 @@ def _set_variation_title(data, parsed_json, request):
     if not title:
         raise ValueError("Variation Title not given and not in JSON")
     parsed_json["variation_title"] = title
-    messages.success(request, f"➡️  Variation Title: {title}")
+    messages.success(request, f"➡️  Title: {title}")
 
 
 def _set_start_move(data, parsed_json, request):
     try:
         start = int(data.get("start_move", 2))
         parsed_json["start_move"] = start
-        messages.success(request, f"➡️  Start Move: {start}")
+        messages.success(request, f"➡️  Starts @ {start}")
     except ValueError:
         messages.warning(request, "⚠️ Invalid or missing start move; defaulting to 2")
         parsed_json["start_move"] = 2
