@@ -81,7 +81,11 @@
     <div id="boards-container" class="form-standard">
       <template x-for="(move, index) in variationData.moves" :key="index">
         <!-- move.fen is set in js; make sure it is initialized here -->
-        <div class="move-block" x-init="move.fen = move.fen || ''">
+        <div
+          class="move-block"
+          x-init="move.fen = move.fen || ''"
+          :id="'move-block-' + index"
+        >
           <div class="edit-board" :id="'edit-board-' + index"></div>
           <div class="move-text-container">
             <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>

@@ -327,7 +327,6 @@ export function quizApp() {
       const passed = parseInt(localStorage.getItem("review_pass") || "0", 10);
       const failed = parseInt(localStorage.getItem("review_fail") || "0", 10);
       this.showCounterReset = passed + failed !== 0;
-      console.log("showCounterReset: ", this.showCounterReset);
 
       const totalCompleted = passed + failed;
       const dueSoon = this.reviewData.total_due_soon
@@ -418,6 +417,13 @@ export function quizApp() {
       const variationId = this.variationData.variation_id || 1;
       const idx = this.quizMoveIndex - 1 || 6;
       window.location.href = `/variation/${variationId}/?idx=${idx}`;
+    },
+
+    //--------------------------------------------------------------------------------
+    gotoEditView() {
+      const variationId = this.variationData.variation_id || 1;
+      const idxParam = this.quizMoveIndex > 6 ? `?idx=${this.quizMoveIndex - 1}` : "";
+      window.location.href = `/edit/${variationId}/${idxParam}`;
     },
 
     //--------------------------------------------------------------------------------

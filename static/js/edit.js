@@ -38,6 +38,7 @@ export function editApp() {
               console.error(`Board element edit-board-${index} not found`);
             }
           });
+          this.scrollToMoveBlockFromURL();
         });
       });
     },
@@ -139,6 +140,27 @@ export function editApp() {
 
       // Update input with only valid moves
       this.variationData.moves[index][field] = good.join(", ");
+    },
+
+    //--------------------------------------------------------------------------------
+    scrollToMoveBlockFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const idx = parseInt(params.get("idx"), 10);
+      if (!isNaN(idx)) this.scrollToMoveBlock(idx);
+    },
+
+    //--------------------------------------------------------------------------------
+    scrollToMoveBlock(idx) {
+      if (typeof idx !== "number" || isNaN(idx)) return;
+      // Small delay to ensure the DOM is rendered
+      setTimeout(() => {
+        const moveBlock = document.querySelectorAll(".move-block")[idx];
+        if (moveBlock) {
+          const useSmooth = false;
+          const behavior = useSmooth ? "smooth" : "auto";
+          moveBlock.scrollIntoView({ behavior: behavior, block: "start" });
+        }
+      }, 100); // Tweak as needed based on render speed
     },
   }; // return { ... }
 }
