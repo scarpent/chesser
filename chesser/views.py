@@ -199,21 +199,22 @@ def import_chesser_json(request):
     if request.method != "POST":
         return redirect("import")
 
-    data = request.POST
-    raw_json = data.get("json_data")
+    form_data = request.POST
+    raw_json = form_data.get("json_data")
 
-    parsed_json = _parse_json(raw_json, request)
-    if parsed_json is None:
+    incoming_json = _parse_json(raw_json, request)
+    if incoming_json is None:
         return handle_import_errors(request, "Invalid JSON")
 
+    # TODO: use a class to avoid passing things around so much?
     try:
-        _set_variation_title(data, parsed_json, request)
+        _set_variation_title(form_data, incoming_json, request)
     except ValueError as e:
         return handle_import_errors(request, str(e))
 
-    _set_start_move(data, parsed_json, request)
-    _set_next_review(data, parsed_json, request)
-    _set_chapter_info(data, parsed_json, request)
+    _set_start_move(form_data, incoming_json, request)
+    _set_next_review(form_data, incoming_json, request)
+    _set_chapter_info(form_data, incoming_json, request)
 
     # TODO: the actual import!
 
@@ -235,7 +236,7 @@ def _set_variation_title(data, parsed_json, request):
         or parsed_json.get("variation_title", "").strip()
     )
     if not title:
-        raise ValueError("Variation title not given and not in JSON")
+        raise ValueError("Variation Title not given and not in JSON")
     parsed_json["variation_title"] = title
     messages.success(request, f"➡️  Variation Title: {title}")
 
