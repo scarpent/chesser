@@ -135,6 +135,13 @@
       </template>
 
       <div class="button-container">
+        <template x-if="!hasVariationData()">
+          <button
+            title="Home"
+            class="icon-home icon-button"
+            @click="window.location.href='/'"
+          ></button>
+        </template>
         <template
           x-if="!reviewData.total_due_now && (completed || !hasVariationData())"
         >
@@ -142,13 +149,6 @@
             title="Random Extra Study"
             @click="window.location.href='/review/random/'"
             class="icon-random icon-button"
-          ></button>
-        </template>
-        <template x-if="!hasVariationData()">
-          <button
-            title="Home"
-            class="icon-home icon-button"
-            @click="window.location.href='/'"
           ></button>
         </template>
       </div>
