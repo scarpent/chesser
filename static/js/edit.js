@@ -213,12 +213,48 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        this.gotoNextMove();
-      } else if (event.key === "ArrowUp") {
-        event.preventDefault();
-        this.gotoPreviousMove();
+      const isUp = event.key === "ArrowUp";
+      const isDown = event.key === "ArrowDown";
+
+      if (!isUp && !isDown) return;
+
+      event.preventDefault();
+
+      if (event.shiftKey) {
+        if (isUp) {
+          this.scrollToTop();
+        } else if (isDown) {
+          this.scrollToBottom();
+        }
+        return;
+      }
+
+      if (isUp) {
+        if (this.currentMoveIndex > 0) {
+          this.gotoPreviousMove();
+        } else {
+          this.scrollToTop(); // extra fallback
+        }
+      } else if (isDown) {
+        if (this.currentMoveIndex < this.variationData.moves.length - 1) {
+          this.gotoNextMove();
+        }
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      this.currentMoveIndex = 0;
+    },
+
+    //--------------------------------------------------------------------------------
+    scrollToBottom() {
+      const moveBlocks = document.querySelectorAll(".move-block");
+      const lastIndex = moveBlocks.length - 1;
+      if (lastIndex >= 0) {
+        moveBlocks[lastIndex].scrollIntoView({ behavior: "auto", block: "start" });
+        this.currentMoveIndex = lastIndex;
       }
     },
 
