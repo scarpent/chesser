@@ -74,6 +74,16 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
+    gotoEditView() {
+      const variationId = this.variationData.variation_id;
+      const idxParam =
+        this.mainlineMoveIndex > 6 ? `?idx=${this.mainlineMoveIndex}` : "";
+      console.log("idxParam", idxParam);
+      console.log("variationId", variationId);
+      window.location.href = `/edit/${variationId}/${idxParam}`;
+    },
+
+    //--------------------------------------------------------------------------------
     nextMainlineMove() {
       if (this.mainlineMoveIndex < this.variationData.moves.length - 1) {
         this.exitSubvariation();

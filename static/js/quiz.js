@@ -414,14 +414,14 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     gotoVariationView() {
-      const variationId = this.variationData.variation_id || 1;
+      const variationId = this.variationData.variation_id;
       const idx = this.quizMoveIndex - 1 || 6;
       window.location.href = `/variation/${variationId}/?idx=${idx}`;
     },
 
     //--------------------------------------------------------------------------------
     gotoEditView() {
-      const variationId = this.variationData.variation_id || 1;
+      const variationId = this.variationData.variation_id;
       const idxParam = this.quizMoveIndex > 6 ? `?idx=${this.quizMoveIndex - 1}` : "";
       window.location.href = `/edit/${variationId}/${idxParam}`;
     },
