@@ -13,9 +13,10 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-⭐️ add move string to top of edit page (eventually clickable to jump to moves)
+⭐️ clickable move strings in edit and maybe variation
 
-- when going from review/variation to edit, scroll to edit board for that move? maybe if it's later than move 4, so most variations will start at the top
+- on mobile, hide part of move string if a long one?
+- when going from review/variation to edit, scroll to edit board for that move - maybe if it's later than move 4, so most variations will start at the top
 
 - import new lines (manage re-imports for different sets?)
   ~ maybe try to fix data in place with scripts rather than re-import...
