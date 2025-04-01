@@ -231,7 +231,8 @@ td:last-child {
   color: #c5c2f4;
 }
 
-.info-container {
+.review-info-container,
+.variation-info-container {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -240,6 +241,10 @@ td:last-child {
   max-width: 600px;
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+.review-info-container {
+  margin-top: 10px;
 }
 
 #review-stats {
@@ -971,6 +976,8 @@ about 500, but also covers our ultimate mobile 450 view */
   #right-column p,
   .variation-mainline,
   .info-container,
+  .review-info-container,
+  .variation-info-container,
   #next-due {
     font-size: 20px;
   }

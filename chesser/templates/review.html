@@ -93,13 +93,13 @@
       </div>
 
       <div id="review-stats" x-html="reviewStats"></div>
-      <template x-if="reviewData.total_due_now && !reviewData.extra_study">
+      <template x-if="showCounterReset">
         <a href="#" @click.prevent="resetReviewSession()" style="margin-bottom: 5px">
           reset counter
         </a>
       </template>
       <template x-if="showInfo && variationData.title">
-        <div class="info-container">
+        <div class="review-info-container">
           <div class="chapter-title">
             <a
               :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/'"

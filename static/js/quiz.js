@@ -13,6 +13,7 @@ export function quizApp() {
     variationData: variationData,
     reviewData: reviewData,
     showInfo: false,
+    showCounterReset: false,
     quizMoveIndex: 0,
     failed: false,
     completed: false,
@@ -325,6 +326,8 @@ export function quizApp() {
 
       const passed = parseInt(localStorage.getItem("review_pass") || "0", 10);
       const failed = parseInt(localStorage.getItem("review_fail") || "0", 10);
+      this.showCounterReset = passed + failed !== 0;
+      console.log("showCounterReset: ", this.showCounterReset);
 
       const totalCompleted = passed + failed;
       const dueSoon = this.reviewData.total_due_soon
