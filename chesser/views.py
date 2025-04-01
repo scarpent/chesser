@@ -202,30 +202,55 @@ def import_chesser_json(request):
     data = request.POST
     raw_json = data.get("json_data")
 
-    try:
-        parsed_json = json.loads(raw_json)
-    except json.JSONDecodeError as e:
-        return handle_import_errors(request, f"Invalid JSON: {e}")
+    parsed_json = _parse_json(raw_json, request)
+    if parsed_json is None:
+        return handle_import_errors(request, "Invalid JSON")
 
-    form_variation_title = (
+    try:
+        _set_variation_title(data, parsed_json, request)
+    except ValueError as e:
+        return handle_import_errors(request, str(e))
+
+    _set_start_move(data, parsed_json, request)
+    _set_next_review(data, parsed_json, request)
+    _set_chapter_info(data, parsed_json, request)
+
+    # TODO: the actual import!
+
+    messages.success(request, "Variation imported successfully ✅")
+    return redirect("import")
+
+
+def _parse_json(raw_json, request):
+    try:
+        return json.loads(raw_json)
+    except json.JSONDecodeError as e:
+        messages.error(request, f"❌ Invalid JSON: {e}")
+        return None
+
+
+def _set_variation_title(data, parsed_json, request):
+    title = (
         data.get("variation_title", "").strip()
         or parsed_json.get("variation_title", "").strip()
     )
-    if not form_variation_title:
-        return handle_import_errors(
-            request, "Variation title not given and not in JSON"
-        )
-    parsed_json["variation_title"] = form_variation_title
-    messages.success(request, f"➡️  Variation Title: {form_variation_title}")
+    if not title:
+        raise ValueError("Variation title not given and not in JSON")
+    parsed_json["variation_title"] = title
+    messages.success(request, f"➡️  Variation Title: {title}")
 
+
+def _set_start_move(data, parsed_json, request):
     try:
-        start_move = int(data.get("start_move", 2))
-        parsed_json["start_move"] = start_move
-        messages.success(request, f"➡️  Start Move: {start_move}")
+        start = int(data.get("start_move", 2))
+        parsed_json["start_move"] = start
+        messages.success(request, f"➡️  Start Move: {start}")
     except ValueError:
         messages.warning(request, "⚠️ Invalid or missing start move; defaulting to 2")
         parsed_json["start_move"] = 2
 
+
+def _set_next_review(data, parsed_json, request):
     if next_review := data.get("next_review_date"):
         time_ = timezone.now().strftime("%H:%M:%S")
         dt_str = f"{next_review}T{time_}"
@@ -236,29 +261,28 @@ def import_chesser_json(request):
     local = timezone.localtime(parsed_json["next_review"])
     messages.success(request, f"➡️  Next Review: {local}")
 
-    # look up course color + chapter
+
+def _set_chapter_info(data, parsed_json, request):
     chapter = Chapter.objects.select_related("course").get(
         pk=int(data.get("chapter_id"))
     )
-    messages.success(request, f"➡️  {chapter.course.title} ➤ {chapter.title}")
     parsed_json["color"] = chapter.course.color
     parsed_json["chapter_title"] = chapter.title
+    messages.success(request, f"➡️  {chapter.course.title} ➤ {chapter.title}")
 
-    # TODO: the actual import!
 
-    messages.success(request, "Variation imported successfully ✅")
-    return redirect("import")
+def get_sorted_variations():
+    return (
+        Variation.objects.select_related("course", "chapter")
+        .annotate(sort_key=Lower("mainline_moves_str"))
+        .order_by("course_id", "chapter__title", "sort_key")
+        .iterator()
+    )
 
 
 def variations_tsv(request):
     def row_generator():
-        qs = (
-            Variation.objects.select_related("course", "chapter")
-            .order_by("course_id", "chapter__title", "mainline_moves_str")
-            .iterator()
-        )
-
-        for v in qs:
+        for v in get_sorted_variations():
             yield (
                 f"{v.course.title}\t"
                 f"{v.chapter.title}\t"
@@ -272,12 +296,7 @@ def variations_tsv(request):
 
 def variations_table(request):
     def row_generator():
-        qs = (
-            Variation.objects.select_related("course", "chapter")
-            .annotate(sort_key=Lower("mainline_moves_str"))
-            .order_by("course_id", "chapter__title", "sort_key")
-            .iterator()
-        )
+        qs = get_sorted_variations()
 
         yield "<html><body><table>\n"
         yield (
