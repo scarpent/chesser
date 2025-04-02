@@ -242,7 +242,7 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     attachClickHandlers() {
       document
-        .querySelectorAll(".mainline-move, .subvar-move, .edit-mainline-move-item")
+        .querySelectorAll(".mainline-move, .subvar-move, .variation-mainline-move-item")
         .forEach((move) => {
           move.style.cursor = "pointer";
           move.addEventListener("click", this.handleMoveClick.bind(this));
@@ -304,7 +304,7 @@ export function variationApp() {
       const moveElement = event.target;
       if (
         moveElement.classList.contains("mainline-move") ||
-        moveElement.classList.contains("edit-mainline-move-item")
+        moveElement.classList.contains("variation-mainline-move-item")
       ) {
         console.log("Clicked mainline move:", parseInt(moveElement.dataset.index, 10));
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
@@ -375,11 +375,11 @@ export function variationApp() {
         const black = moves[i + 1] || "";
 
         const pairHtml = `
-              <span class="edit-mainline-move-pair">
-                <span class="edit-mainline-move-item" data-index="${i}">${white}</span>
+              <span class="variation-mainline-move-pair">
+                <span class="variation-mainline-move-item" data-index="${i}">${white}</span>
                 ${
                   black
-                    ? `<span class="edit-mainline-move-item" data-index="${
+                    ? `<span class="variation-mainline-move-item" data-index="${
                         i + 1
                       }">${black}</span>`
                     : ""

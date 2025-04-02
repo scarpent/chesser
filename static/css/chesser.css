@@ -165,7 +165,8 @@ td:last-child {
   margin-top: 20px;
 }
 
-#edit-mainline-moves {
+#edit-mainline-moves,
+#variation-mainline-moves {
   color: #c5c2f4;
   font-size: 18px;
   font-weight: bold;
@@ -176,13 +177,20 @@ td:last-child {
   max-width: 800px;
 }
 
-.edit-mainline-move-item {
+#variation-mainline-moves {
+  padding: 0;
+  margin: 0;
+}
+
+.edit-mainline-move-item,
+.variation-mainline-move-item {
   color: #c5c2f4;
   padding: 2px 1px;
   cursor: pointer;
 }
 
-.edit-mainline-move-item:hover {
+.edit-mainline-move-item:hover,
+.variation-mainline-move-item:hover {
   background-color: #c5c2f4;
   color: #222;
   border-radius: 4px;
@@ -191,6 +199,11 @@ td:last-child {
 .edit-mainline-move-pair {
   white-space: nowrap;
   margin-right: 6px;
+}
+
+.variation-mainline-move-pair {
+  white-space: wrap;
+  margin-right: 4px;
 }
 
 .edit-board {
@@ -1028,6 +1041,7 @@ about 500, but also covers our ultimate mobile 450 view */
     font-size: 16px;
   }
 
+  #variation-mainline-moves,
   #edit-mainline-moves {
     font-size: 22px;
     margin-bottom: 0;
