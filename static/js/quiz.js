@@ -422,7 +422,10 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     gotoEditView() {
       const variationId = this.variationData.variation_id;
-      const idxParam = this.quizMoveIndex > 6 ? `?idx=${this.quizMoveIndex - 1}` : "";
+      const idxParam =
+        this.quizMoveIndex > this.variationData.start_index
+          ? `?idx=${this.quizMoveIndex - 1}`
+          : "";
       window.location.href = `/edit/${variationId}/${idxParam}`;
     },
 

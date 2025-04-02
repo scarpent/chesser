@@ -85,7 +85,9 @@ export function variationApp() {
     gotoEditView() {
       const variationId = this.variationData.variation_id;
       const idxParam =
-        this.mainlineMoveIndex > 6 ? `?idx=${this.mainlineMoveIndex}` : "";
+        this.mainlineMoveIndex + 1 > this.variationData.start_index
+          ? `?idx=${this.mainlineMoveIndex}`
+          : "";
       console.log("idxParam", idxParam);
       console.log("variationId", variationId);
       window.location.href = `/edit/${variationId}/${idxParam}`;

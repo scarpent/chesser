@@ -13,19 +13,17 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-⭐️ clickable move strings in edit and maybe variation
-
-- on mobile, hide part of move string if a long one?
-- when going from review/variation to edit, scroll to edit board for that move - maybe if it's later than move 4, so most variations will start at the top
+⭐️
 
 - import new lines (manage re-imports for different sets?)
   ~ maybe try to fix data in place with scripts rather than re-import...
 - created datetime for variation?
   ~ nullable at first
-  ~ could look at file create dates of json downloads to backfill original 1215
+  ~ use get_variation_git_history.sh to find earliest record locally
 - stats: simple stats page with past week and all time (since 3/20) numbers
 
 - use reambiguated moves to check alts, too?
+- on mobile edit view, hide part of move string if a long one?
 - toggle show alt moves on board with a key, say "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves? (share shapes, alts, etc)
