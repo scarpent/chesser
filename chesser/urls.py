@@ -42,7 +42,11 @@ urlpatterns = [
     path("variation/", views.variation, name="variation_default"),
     path("variation/<int:variation_id>/", views.variation, name="variation"),
     path("import/", views.import_view, name="import"),
-    path("import-chesser-json/", views.import_chesser_json, name="import_chesser_json"),
+    path(
+        "import-json/",
+        views.ImportVariationView.as_view(),
+        name="import_json",
+    ),
     path("upload-json-data/", views.upload_json_data, name="upload_json_data"),
     path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
     path("variations-table/", views.variations_table, name="variations_table"),

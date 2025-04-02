@@ -9,6 +9,8 @@ from django.db.models.functions import Lower
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 from chesser import importer, util
@@ -188,82 +190,82 @@ def upload_json_data(request):
     return redirect("import")
 
 
-def handle_import_errors(request, error_message):
-    messages.error(request, f"🔴 {error_message}")
-    request.session["import_form_defaults"] = request.POST.dict()
-    return redirect("import")
+@method_decorator(csrf_protect, name="dispatch")
+class ImportVariationView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect("import")
+        return super().dispatch(request, *args, **kwargs)
 
-
-@csrf_protect
-def import_chesser_json(request):
-    if request.method != "POST":
+    def handle_import_errors(self, error_message):
+        messages.error(self.request, f"🔴 {error_message}")
+        self.request.session["import_form_defaults"] = self.form_data.dict()
         return redirect("import")
 
-    form_data = request.POST
-    form_json = form_data.get("json_data")
+    def post(self, request):
+        self.request = request
+        self.form_data = request.POST
+        form_json = request.POST.get("json_data")
 
-    try:
-        incoming_json = json.loads(form_json)
-    except json.JSONDecodeError:
-        return handle_import_errors(request, "Invalid JSON")
+        try:
+            self.incoming_json = json.loads(form_json)
+        except json.JSONDecodeError:
+            return self.handle_import_errors("Invalid JSON")
 
-    # TODO: use a class to avoid passing things around so much?
-    try:
-        _set_variation_title(form_data, incoming_json, request)
-    except ValueError as e:
-        return handle_import_errors(request, str(e))
+        try:
+            self.set_variation_title()
+        except ValueError as e:
+            return self.handle_import_errors(str(e))
 
-    _set_start_move(form_data, incoming_json, request)
-    _set_next_review(form_data, incoming_json, request)
-    _set_chapter_info(form_data, incoming_json, request)
+        self.set_start_move()
+        self.set_next_review()
+        self.set_chapter_info()
 
-    # TODO: the actual import!
+        # TODO: the actual import!
 
-    messages.success(request, "Variation imported successfully ✅")
-    return redirect("import")
+        messages.success(request, "Variation imported successfully ✅")
+        return redirect("import")
 
+    def set_variation_title(self):
+        title = (
+            self.form_data.get("variation_title", "").strip()
+            or self.incoming_json.get("variation_title", "").strip()
+        )
+        if not title:
+            raise ValueError("Variation Title not given and not in JSON")
+        self.incoming_json["variation_title"] = title
+        messages.success(self.request, f"🟢 Title: {title}")
 
-def _set_variation_title(data, parsed_json, request):
-    title = (
-        data.get("variation_title", "").strip()
-        or parsed_json.get("variation_title", "").strip()
-    )
-    if not title:
-        raise ValueError("Variation Title not given and not in JSON")
-    parsed_json["variation_title"] = title
-    messages.success(request, f"🟢 Title: {title}")
+    def set_start_move(self):
+        try:
+            start = int(self.form_data.get("start_move", 2))
+            self.incoming_json["start_move"] = start
+            messages.success(self.request, f"🟢 Starts @ {start}")
+        except ValueError:
+            messages.warning(
+                self.request, "🟡 Invalid or missing start move; defaulting to 2"
+            )
+            self.incoming_json["start_move"] = 2
 
+    def set_next_review(self):
+        if next_review := self.form_data.get("next_review_date"):
+            time_ = timezone.now().strftime("%H:%M:%S")
+            dt_str = f"{next_review}T{time_}"
+        else:
+            dt_str = util.END_OF_TIME_STR
 
-def _set_start_move(data, parsed_json, request):
-    try:
-        start = int(data.get("start_move", 2))
-        parsed_json["start_move"] = start
-        messages.success(request, f"🟢 Starts @ {start}")
-    except ValueError:
-        messages.warning(request, "🟡 Invalid or missing start move; defaulting to 2")
-        parsed_json["start_move"] = 2
+        self.incoming_json["next_review"] = importer.get_utc_datetime(dt_str)
 
+        local = timezone.localtime(self.incoming_json["next_review"])
+        messages.success(self.request, f"🟢 Next Review: {local}")
 
-def _set_next_review(data, parsed_json, request):
-    if next_review := data.get("next_review_date"):
-        time_ = timezone.now().strftime("%H:%M:%S")
-        dt_str = f"{next_review}T{time_}"
-    else:
-        dt_str = util.END_OF_TIME_STR
-
-    parsed_json["next_review"] = importer.get_utc_datetime(dt_str)
-
-    local = timezone.localtime(parsed_json["next_review"])
-    messages.success(request, f"🟢 Next Review: {local}")
-
-
-def _set_chapter_info(data, parsed_json, request):
-    chapter = Chapter.objects.select_related("course").get(
-        pk=int(data.get("chapter_id"))
-    )
-    parsed_json["color"] = chapter.course.color
-    parsed_json["chapter_title"] = chapter.title
-    messages.success(request, f"🟢 {chapter.course.title} ➤ {chapter.title}")
+    def set_chapter_info(self):
+        chapter = Chapter.objects.select_related("course").get(
+            pk=int(self.form_data.get("chapter_id"))
+        )
+        self.incoming_json["color"] = chapter.course.color
+        self.incoming_json["chapter_title"] = chapter.title
+        messages.success(self.request, f"🟢 {chapter.course.title} ➤ {chapter.title}")
 
 
 def get_sorted_variations():
