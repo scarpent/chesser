@@ -248,9 +248,10 @@ def _set_next_review(data, parsed_json, request):
     if next_review := data.get("next_review_date"):
         time_ = timezone.now().strftime("%H:%M:%S")
         dt_str = f"{next_review}T{time_}"
-        parsed_json["next_review"] = importer.get_utc_datetime(dt_str)
     else:
-        parsed_json["next_review"] = util.END_OF_TIME
+        dt_str = util.END_OF_TIME_STR
+
+    parsed_json["next_review"] = importer.get_utc_datetime(dt_str)
 
     local = timezone.localtime(parsed_json["next_review"])
     messages.success(request, f"➡️  Next Review: {local}")
