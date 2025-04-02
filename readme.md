@@ -15,8 +15,8 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ⭐️ add created_datetime (or some name) to variation model (does autonow work with null, and can we backfill later...)
 
-- make variation mainline moves string be clickable like in edit...
-- import new lines
+- import/clone lines
+- have "recently added" section on homepage!
 - for original/early lines, maybe try to fix data in place with scripts later rather than re-import...
 - stats: simple stats page with past week and all time (since 3/20) numbers
 - created datetime for variation?
@@ -25,6 +25,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - clone existing lines ("import/export" button on edit page brings up import page with input to modify mainline moves?
 - export json
 
+- 404 page that has buttons...
 - use reambiguated moves to check alts, too?
 - on mobile edit view, hide part of move string if a long one?
 - toggle show alt moves on board with a key, say "a" will show them only while holding, then restore other paint or clear

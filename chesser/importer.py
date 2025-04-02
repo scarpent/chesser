@@ -1,6 +1,7 @@
 import json
 from datetime import timezone
 
+from django.db import transaction
 from django.utils.dateparse import parse_datetime
 
 from chesser.models import Course, Move, QuizResult, Variation
@@ -13,7 +14,9 @@ def get_utc_datetime(date_string):
         utc_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
         return utc_datetime
     else:
-        print(f"Invalid format for date_string: {date_string}")
+        raise ValueError(
+            f"Invalid date_string format: {date_string}, expected YYYY-MM-DDTHH:MM:SS"
+        )
 
 
 def get_changes(variation, import_data):
@@ -59,6 +62,7 @@ def get_changes(variation, import_data):
     return changes
 
 
+@transaction.atomic
 def import_variation(import_data):
     course = Course.objects.get(color=import_data["color"])
     chapter, created = course.chapter_set.get_or_create(
@@ -81,6 +85,10 @@ def import_variation(import_data):
             print(f"💥 Changes: {','.join(changes)}")
         else:
             print("🔒️ No changes")
+        # later we might re-import in some cases
+        message = f"Mainline already exists in this course, #{variation.id}"
+        print(message)
+        return False, message
 
     variation.source = import_data["source"]
     variation.title = import_data["variation_title"]
@@ -118,3 +126,5 @@ def import_variation(import_data):
         )
         quiz_result.datetime = get_utc_datetime(import_data["last_review"])
         quiz_result.save()
+
+    return True, f"#{variation.id} (L{variation.level})"

@@ -217,16 +217,17 @@ class ImportVariationView(View):
 
         try:
             self.set_variation_title()
+            self.set_start_move()
+            self.set_next_review()
+            self.set_chapter_info()
         except ValueError as e:
             return self.handle_import_errors(str(e))
 
-        self.set_start_move()
-        self.set_next_review()
-        self.set_chapter_info()
+        imported, message = importer.import_variation(self.incoming_json)
+        if not imported:
+            return self.handle_import_errors(message)
 
-        # TODO: the actual import!
-
-        messages.success(request, "Variation imported successfully ✅")
+        messages.success(request, f"Variation {message} imported successfully ✅")
         return redirect("import")
 
     def set_variation_title(self):
@@ -254,12 +255,21 @@ class ImportVariationView(View):
         if next_review := self.form_data.get("next_review_date"):
             time_ = timezone.now().strftime("%H:%M:%S")
             dt_str = f"{next_review}T{time_}"
+        elif next_review := self.incoming_json.get("next_review"):
+            dt_str = next_review
         else:
             dt_str = util.END_OF_TIME_STR
 
-        self.incoming_json["next_review"] = importer.get_utc_datetime(dt_str)
+        self.incoming_json["next_review"] = dt_str
 
-        local = timezone.localtime(self.incoming_json["next_review"])
+        try:
+            # importer will also run get_utc_datetime on next_review;
+            # let's validate along with other things we can catch up front
+            local_datetime = importer.get_utc_datetime(dt_str)
+        except ValueError:
+            raise ValueError("Invalid date format for next review")
+
+        local = timezone.localtime(local_datetime)
         messages.success(self.request, f"🟢 Next Review: {local}")
 
     def set_chapter_info(self):
