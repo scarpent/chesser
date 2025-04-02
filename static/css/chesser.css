@@ -687,7 +687,7 @@ external monitor to avoid display isses... */
 /* ---------------------------------------------- Django Messages Framework */
 .message {
   padding: 10px 20px;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
   border-radius: 8px;
   font-size: 18px;
   background-color: #2a2a2a; /* Dark but lighter than body */

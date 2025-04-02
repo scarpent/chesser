@@ -73,9 +73,16 @@ def import_variation(import_data):
     print(f"{label} chapter: {chapter}")
     variation, created = Variation.objects.get_or_create(
         course=course,
-        chapter=chapter,
         mainline_moves_str=import_data["mainline"],
+        defaults={"chapter": chapter},
     )
+
+    if not created and variation.chapter != chapter:
+        print(
+            f"⚠️ Variation exists in a different chapter: "
+            f"'{variation.chapter.title}' vs '{chapter.title}'"
+        )
+
     label = "Creating" if created else "Updating"
     print(f"{label} variation #{variation.id}: {variation.mainline_moves}")
 
