@@ -215,7 +215,7 @@ export function editApp() {
     handleKeyNavigation(event) {
       const isUp = event.key === "ArrowUp";
       const isDown = event.key === "ArrowDown";
-      const modifier = event.ctrlKey || event.metaKey;
+      const modifier = event.metaKey || event.ctrlKey || event.shiftKey;
 
       if (!isUp && !isDown) return;
 

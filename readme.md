@@ -15,18 +15,24 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ⭐️ add created_datetime (or some name) to variation model (does autonow work with null, and can we backfill later...)
 
+- make variation mainline moves string be clickable like in edit...
 - import new lines
 - for original/early lines, maybe try to fix data in place with scripts later rather than re-import...
+- stats: simple stats page with past week and all time (since 3/20) numbers
 - created datetime for variation?
   ~ nullable at first
   ~ use get_variation_git_history.sh to find earliest record locally
-- stats: simple stats page with past week and all time (since 3/20) numbers
+- clone existing lines ("import/export" button on edit page brings up import page with input to modify mainline moves?
+- export json
 
 - use reambiguated moves to check alts, too?
 - on mobile edit view, hide part of move string if a long one?
 - toggle show alt moves on board with a key, say "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves? (share shapes, alts, etc)
+  ~ perhaps a checkbox next to the large move number, "use standard ref"
+  ~ if clicked and there isn't one, it will use the current text/shapes/alt to create it
+  ~ if there is an existing one, show all of its info instead (old move should be untouched, can toggle back to it)
 - version number for variations? (version 1 is overwritable)
 - link to source variation from quiz info? Just one link to the original source var.
 

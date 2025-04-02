@@ -114,7 +114,7 @@ td:last-child {
   flex-direction: column;
   gap: 20px;
   align-items: flex-start;
-  margin-bottom: 30px;
+  margin-bottom: 1000px; /* more likely to scroll the final move to the top */
 }
 
 #board {
