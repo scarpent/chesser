@@ -241,10 +241,12 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     attachClickHandlers() {
-      document.querySelectorAll(".mainline-move, .subvar-move").forEach((move) => {
-        move.style.cursor = "pointer";
-        move.addEventListener("click", this.handleMoveClick.bind(this));
-      });
+      document
+        .querySelectorAll(".mainline-move, .subvar-move, .edit-mainline-move-item")
+        .forEach((move) => {
+          move.style.cursor = "pointer";
+          move.addEventListener("click", this.handleMoveClick.bind(this));
+        });
     },
 
     //--------------------------------------------------------------------------------
@@ -300,8 +302,11 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     handleMoveClick(event) {
       const moveElement = event.target;
-
-      if (moveElement.classList.contains("mainline-move")) {
+      if (
+        moveElement.classList.contains("mainline-move") ||
+        moveElement.classList.contains("edit-mainline-move-item")
+      ) {
+        console.log("Clicked mainline move:", parseInt(moveElement.dataset.index, 10));
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
       } else if (moveElement.classList.contains("subvar-move")) {
         this.selectClickedSubvarMove(moveElement);
@@ -358,6 +363,34 @@ export function variationApp() {
         behavior: useSmooth ? "smooth" : "auto",
         block: "start",
       });
+    },
+
+    //--------------------------------------------------------------------------------
+    renderMainlineMoveLinks() {
+      const moves = this.variationData.mainline.split(" ");
+      const pairs = [];
+
+      for (let i = 0; i < moves.length; i += 2) {
+        const white = moves[i];
+        const black = moves[i + 1] || "";
+
+        const pairHtml = `
+              <span class="edit-mainline-move-pair">
+                <span class="edit-mainline-move-item" data-index="${i}">${white}</span>
+                ${
+                  black
+                    ? `<span class="edit-mainline-move-item" data-index="${
+                        i + 1
+                      }">${black}</span>`
+                    : ""
+                }
+              </span>
+            `;
+
+        pairs.push(pairHtml);
+      }
+
+      return pairs.join(" ");
     },
   }; // return { ... }
 }

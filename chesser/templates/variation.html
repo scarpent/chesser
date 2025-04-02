@@ -69,7 +69,11 @@
                 ✏️
               </span>
             </div>
-            <div x-text="variationData.mainline" class="mainline-moves"></div>
+            <div
+              id="edit-mainline-moves"
+              x-html="renderMainlineMoveLinks()"
+              class="mainline-moves"
+            ></div>
           </div>
           <p id="alts"></p>
           <div id="chapter-title">
