@@ -3,8 +3,8 @@
 }
 
 body {
-  background-color: #222222;
-  color: #eeeeee;
+  background-color: #222;
+  color: #ccc;
   font-family: "Helvetica", sans-serif;
   display: flex;
   flex-direction: column;
@@ -95,7 +95,6 @@ td:last-child {
   box-sizing: border-box;
   padding: 10px 15px 15px;
   background-color: #333333;
-  color: #eeeeee;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -105,7 +104,6 @@ td:last-child {
 
 #right-column p {
   font-size: 18px;
-  color: #eeeeee;
   line-height: 1.5;
 }
 
@@ -434,7 +432,6 @@ td:last-child {
 }
 
 #original-variation {
-  color: #b1b1b1;
   margin: 7px 0;
   padding: 0;
 }
@@ -591,7 +588,6 @@ td:last-child {
 
 button {
   background-color: #111111;
-  color: #eeeeee;
   border: 1px solid #444444;
   font-size: 30px;
   cursor: pointer;
@@ -676,31 +672,24 @@ external monitor to avoid display isses... */
 }
 
 /* ---------------------------------------------- Django Messages Framework */
+.message {
+  padding: 10px 20px;
+  margin-bottom: -1px;
+  border-radius: 8px;
+  font-size: 18px;
+  background-color: #2a2a2a; /* Dark but lighter than body */
+}
+
 .message.success {
-  color: #155724;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  padding: 7px 20px;
-  margin-bottom: 0;
-  border-radius: 5px;
+  border: 2px solid #00ff00;
 }
 
 .message.error {
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 7px 20px;
-  margin-bottom: 0;
-  border-radius: 5px;
+  border: 2px solid #ff4d4d;
 }
 
 .message.warning {
-  color: #856404;
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  padding: 7px 20px;
-  margin-bottom: 0;
-  border-radius: 5px;
+  border: 2px solid #ffff33;
 }
 
 .import-status {
@@ -811,7 +800,6 @@ external monitor to avoid display isses... */
   font-size: 24px;
   padding: 8px 16px;
   background-color: #111;
-  color: #eee;
   border: 1px solid #555;
   border-radius: 5px;
   cursor: pointer;
@@ -826,7 +814,7 @@ external monitor to avoid display isses... */
 .form-standard select,
 .form-standard textarea {
   background-color: #111111;
-  color: #eeeeee;
+  color: #ccc;
   border: 1px solid #555;
   padding: 6px;
   font-size: 16px;
@@ -912,7 +900,6 @@ external monitor to avoid display isses... */
 
 .file-upload-form input[type="file"] {
   background-color: #111;
-  color: #eee;
   border: 1px solid #555;
   padding: 6px 12px;
   border-radius: 6px;
@@ -927,7 +914,7 @@ external monitor to avoid display isses... */
   background-color: #333;
   border: none;
   padding: 6px 12px;
-  color: #eee;
+  color: #ccc;
   cursor: pointer;
   border-radius: 4px;
   margin-right: 10px;
