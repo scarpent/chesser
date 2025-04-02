@@ -45,7 +45,7 @@ export function editApp() {
           if (mainline) {
             mainline.addEventListener("click", (e) => {
               if (e.target.classList.contains("edit-mainline-move-item")) {
-                const idx = parseInt(e.target.dataset.idx, 10);
+                const idx = parseInt(e.target.dataset.index, 10);
                 if (!isNaN(idx)) this.scrollToMoveBlock(idx);
               }
             });
@@ -164,10 +164,10 @@ export function editApp() {
 
         const pairHtml = `
               <span class="edit-mainline-move-pair">
-                <span class="edit-mainline-move-item" data-idx="${i}">${white}</span>
+                <span class="edit-mainline-move-item" data-index="${i}">${white}</span>
                 ${
                   black
-                    ? `<span class="edit-mainline-move-item" data-idx="${
+                    ? `<span class="edit-mainline-move-item" data-index="${
                         i + 1
                       }">${black}</span>`
                     : ""
