@@ -696,6 +696,16 @@ external monitor to avoid display isses... */
   font-size: 20px;
   margin-top: 10px;
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers children horizontally */
+  padding: 0;
+}
+
+.import-status li.message {
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 }
 
 .import-status li {
