@@ -156,6 +156,9 @@ def get_import_context(form_defaults=None):
 
 
 def import_view(request):
+    # Clear any leftover messages to avoid duplicates
+    list(messages.get_messages(request))
+
     form_defaults = request.session.pop("import_form_defaults", {})
     return render(
         request, "import.html", get_import_context(form_defaults=form_defaults)
