@@ -178,8 +178,8 @@ def upload_json_data(request):
     file_content = file.read().decode("utf-8")
     try:
         json.loads(file_content)
-    except json.JSONDecodeError as e:
-        return handle_upload_errors(request, f"Invalid JSON: {e}")
+    except json.JSONDecodeError:
+        return handle_upload_errors(request, "Invalid JSON")
 
     with open("/tmp/upload.json", "w") as temp_file:
         temp_file.write(file_content)

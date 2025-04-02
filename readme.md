@@ -13,10 +13,10 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-⭐️
+⭐️ add created_datetime (or some name) to variation model (does autonow work with null, and can we backfill later...)
 
-- import new lines (manage re-imports for different sets?)
-  ~ maybe try to fix data in place with scripts rather than re-import...
+- import new lines
+- for original/early lines, maybe try to fix data in place with scripts later rather than re-import...
 - created datetime for variation?
   ~ nullable at first
   ~ use get_variation_git_history.sh to find earliest record locally

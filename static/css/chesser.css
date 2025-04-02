@@ -561,6 +561,20 @@ td:last-child {
   align-items: center;
 }
 
+.export-list h3 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.export-list ul {
+  list-style: none;
+  padding-left: 20px;
+  font-size: 20px;
+  line-height: 1.8;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
 [x-cloak] {
   display: none !important;
 }
@@ -877,6 +891,50 @@ external monitor to avoid display isses... */
 
 .logout-button:hover {
   text-decoration: underline;
+}
+
+/* ------------------------------------------------------- File Upload Form */
+
+.file-upload-form h3 {
+  color: #f7b14f;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.file-upload-form form {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.file-upload-form input[type="file"] {
+  background-color: #111;
+  color: #eee;
+  border: 1px solid #555;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 1;
+  max-width: 450px;
+}
+
+.file-upload-form input[type="file"]::file-selector-button,
+.file-upload-form input[type="file"]::-webkit-file-upload-button {
+  background-color: #333;
+  border: none;
+  padding: 6px 12px;
+  color: #eee;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.file-upload-form .icon-button {
+  flex-shrink: 0;
 }
 
 /* ----------------------------------------------------------- @media 900px */
