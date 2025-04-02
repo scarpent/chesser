@@ -213,30 +213,30 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
-      const isUp = event.key === "ArrowUp";
-      const isDown = event.key === "ArrowDown";
+      const isBackward = event.key === "ArrowUp" || event.key === "ArrowLeft";
+      const isForward = event.key === "ArrowDown" || event.key === "ArrowRight";
       const modifier = event.metaKey || event.ctrlKey || event.shiftKey;
 
-      if (!isUp && !isDown) return;
+      if (!isBackward && !isForward) return;
 
       event.preventDefault();
 
       if (modifier) {
-        if (isUp) {
+        if (isBackward) {
           this.scrollToTop();
-        } else if (isDown) {
+        } else if (isForward) {
           this.scrollToBottom();
         }
         return;
       }
 
-      if (isUp) {
+      if (isBackward) {
         if (this.currentMoveIndex > 0) {
           this.gotoPreviousMove();
         } else {
           this.scrollToTop(); // extra fallback
         }
-      } else if (isDown) {
+      } else if (isForward) {
         if (this.currentMoveIndex < this.variationData.moves.length - 1) {
           this.gotoNextMove();
         }

@@ -161,7 +161,7 @@ def import_view(request):
 
 
 def handle_upload_errors(request, error_message):
-    messages.error(request, f"❌ {error_message}")
+    messages.error(request, f"🔴 {error_message}")
     request.session["import_form_defaults"] = request.POST.dict()
     return redirect("import")
 
@@ -189,7 +189,7 @@ def upload_json_data(request):
 
 
 def handle_import_errors(request, error_message):
-    messages.error(request, f"❌ {error_message}")
+    messages.error(request, f"🔴 {error_message}")
     request.session["import_form_defaults"] = request.POST.dict()
     return redirect("import")
 
@@ -231,16 +231,16 @@ def _set_variation_title(data, parsed_json, request):
     if not title:
         raise ValueError("Variation Title not given and not in JSON")
     parsed_json["variation_title"] = title
-    messages.success(request, f"➡️  Title: {title}")
+    messages.success(request, f"🟢 Title: {title}")
 
 
 def _set_start_move(data, parsed_json, request):
     try:
         start = int(data.get("start_move", 2))
         parsed_json["start_move"] = start
-        messages.success(request, f"➡️  Starts @ {start}")
+        messages.success(request, f"🟢 Starts @ {start}")
     except ValueError:
-        messages.warning(request, "⚠️ Invalid or missing start move; defaulting to 2")
+        messages.warning(request, "🟡 Invalid or missing start move; defaulting to 2")
         parsed_json["start_move"] = 2
 
 
@@ -254,7 +254,7 @@ def _set_next_review(data, parsed_json, request):
     parsed_json["next_review"] = importer.get_utc_datetime(dt_str)
 
     local = timezone.localtime(parsed_json["next_review"])
-    messages.success(request, f"➡️  Next Review: {local}")
+    messages.success(request, f"🟢 Next Review: {local}")
 
 
 def _set_chapter_info(data, parsed_json, request):
@@ -263,7 +263,7 @@ def _set_chapter_info(data, parsed_json, request):
     )
     parsed_json["color"] = chapter.course.color
     parsed_json["chapter_title"] = chapter.title
-    messages.success(request, f"➡️  {chapter.course.title} ➤ {chapter.title}")
+    messages.success(request, f"🟢 {chapter.course.title} ➤ {chapter.title}")
 
 
 def get_sorted_variations():
