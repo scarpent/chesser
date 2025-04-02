@@ -215,12 +215,13 @@ export function editApp() {
     handleKeyNavigation(event) {
       const isUp = event.key === "ArrowUp";
       const isDown = event.key === "ArrowDown";
+      const modifier = event.shiftKey || event.ctrlKey || event.metaKey;
 
       if (!isUp && !isDown) return;
 
       event.preventDefault();
 
-      if (event.shiftKey) {
+      if (modifier) {
         if (isUp) {
           this.scrollToTop();
         } else if (isDown) {
