@@ -13,14 +13,14 @@
   <body x-data="homeApp()">
     <div class="course-covers" x-cloak>
       <a
-        href="/course/1/"
+        :href="homeData.nav.course_id == 1 ? '/course/2/' : '/course/1/'"
         class="course course-white"
         x-show="!homeData.nav.course_id || homeData.nav.course_id == 1"
       >
         <img src="{% static 'images/castle-white.png' %}" alt="Castle White" />
       </a>
       <a
-        href="/course/2/"
+        :href="homeData.nav.course_id == 2 ? '/course/1/' : '/course/2/'"
         class="course course-black"
         x-show="!homeData.nav.course_id || homeData.nav.course_id == 2"
       >
