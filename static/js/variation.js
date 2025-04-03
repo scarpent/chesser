@@ -182,7 +182,10 @@ export function variationApp() {
       if (!subvarContainer) return;
 
       const parentMainlineIndex = parseInt(subvarContainer.dataset.mainlineIndex, 10);
-      if (!isNaN(parentMainlineIndex)) {
+      if (
+        !isNaN(parentMainlineIndex) &&
+        this.mainlineMoveIndex !== parentMainlineIndex
+      ) {
         this.jumpToMainlineMove(parentMainlineIndex);
       }
 
