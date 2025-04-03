@@ -4,13 +4,6 @@ pgn-safe parens
 @@StartBracket@@ @@EndBracket@@
 This ⸨is⸩ a test. ⸨This might be best?⸩
 
-## future credit/attributions if open-sourced
-
-- python/django
-- chessground and other chess libraries
-- alpine
-- emoji/images/fonts/etc
-
 ## todo
 
 ⭐️ add created_datetime (or some name) to variation model (does autonow work with null, and can we backfill later...)
@@ -43,6 +36,13 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 - redistribute related openings so they come more regularly
   - some way to select various openings for this
 - an extra study feature for studying level 1 openings or level 1 & 2, etc
+
+## future credit/attributions if open-sourced
+
+- python/django
+- chessground and other chess libraries
+- alpine
+- emoji/images/fonts/etc
 
 ## lichess analysis FEN links
 

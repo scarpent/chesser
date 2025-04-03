@@ -59,6 +59,7 @@ class Variation(models.Model):
     )
     level = models.IntegerField(default=0, db_index=True)
     next_review = models.DateTimeField(default=timezone.now, db_index=True)
+    created_at = models.DateTimeField(null=True, blank=True, default=None)
     source = models.JSONField(null=True, blank=True, default=dict)
     mainline_moves_str = models.TextField(null=True, blank=True)
 

@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from chesser.models import Chapter, Course, Move, Variation
 
@@ -23,11 +24,14 @@ class Command(BaseCommand):
         self, title, chapter, start_move, moves=None, mainline_moves_str=None
     ):
         variation, _ = Variation.objects.get_or_create(
-            title=title,
-            chapter=chapter,
-            course=chapter.course,
             mainline_moves_str=mainline_moves_str,
-            start_move=start_move,
+            course=chapter.course,
+            defaults={
+                "title": title,
+                "chapter": chapter,
+                "start_move": start_move,
+                "created_at": timezone.now(),
+            },
         )
         self.print_object_info(variation)
         if moves:

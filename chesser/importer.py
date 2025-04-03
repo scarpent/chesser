@@ -1,17 +1,23 @@
 import json
-from datetime import timezone
+from datetime import timezone as dt_timezone
 
 from django.db import transaction
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from chesser.models import Course, Move, QuizResult, Variation
 
 
 def get_utc_datetime(date_string):
-    # chessable is in UTC but we expect an ISO8601 date with no Z,
-    # e.g. "2025-03-09T04:19:46" (that's how we build the import file)
+    """
+    chessable is in UTC but we expect an ISO8601 date with no Z,
+    e.g. "2025-03-09T04:19:46" (that's how we build the import file)"
+
+    using `from datetime import timezone` instead of django's;
+    we're doing a timezone-aware conversion from a known format
+    """
     if parsed_datetime := parse_datetime(date_string):
-        utc_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
+        utc_datetime = parsed_datetime.replace(tzinfo=dt_timezone.utc)
         return utc_datetime
     else:
         raise ValueError(
@@ -74,7 +80,10 @@ def import_variation(import_data):
     variation, created = Variation.objects.get_or_create(
         course=course,
         mainline_moves_str=import_data["mainline"],
-        defaults={"chapter": chapter},
+        defaults={
+            "chapter": chapter,
+            "created_at": timezone.now(),
+        },
     )
 
     if not created and variation.chapter != chapter:
