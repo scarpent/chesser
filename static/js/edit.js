@@ -213,9 +213,18 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
+      const tag = event.target.tagName.toLowerCase();
+      const isFormInput =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        event.target.isContentEditable;
+
+      if (isFormInput) return; // skip navigation inside form elements
+
       const isBackward = event.key === "ArrowUp" || event.key === "ArrowLeft";
       const isForward = event.key === "ArrowDown" || event.key === "ArrowRight";
-      const modifier = event.metaKey || event.ctrlKey;
+      const modifier = event.metaKey || event.ctrlKey || event.shiftKey;
 
       if (!isBackward && !isForward) return;
 
