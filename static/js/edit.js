@@ -215,7 +215,7 @@ export function editApp() {
     handleKeyNavigation(event) {
       const isBackward = event.key === "ArrowUp" || event.key === "ArrowLeft";
       const isForward = event.key === "ArrowDown" || event.key === "ArrowRight";
-      const modifier = event.metaKey || event.ctrlKey || event.shiftKey;
+      const modifier = event.metaKey || event.ctrlKey;
 
       if (!isBackward && !isForward) return;
 
