@@ -220,10 +220,14 @@ class ImportVariationView(View):
             self.set_start_move()
             self.set_next_review()
             self.set_chapter_info()
+            end_move = self.get_end_move()  # must come after set_start_move
         except ValueError as e:
             return self.handle_import_errors(str(e))
 
-        imported, message = importer.import_variation(self.incoming_json)
+        imported, message = importer.import_variation(
+            self.incoming_json,
+            end_move=end_move,
+        )
         if not imported:
             return self.handle_import_errors(message)
 
@@ -250,6 +254,21 @@ class ImportVariationView(View):
                 self.request, "🟡 Invalid or missing start move; defaulting to 2"
             )
             self.incoming_json["start_move"] = 2
+
+    def get_end_move(self):
+        end_move = self.form_data.get("end_move", "").strip()
+        if not end_move:
+            return None
+
+        try:
+            end_move = int(end_move)
+            if end_move <= self.incoming_json["start_move"]:
+                raise ValueError("End move must be greater than start move")
+        except ValueError as e:
+            raise ValueError(f"Invalid end move: {e}")
+
+        messages.warning(self.request, f"🟡 Discarding moves after {end_move}")
+        return end_move
 
     def set_next_review(self):
         if next_review := self.form_data.get("next_review_date"):

@@ -69,7 +69,7 @@ def get_changes(variation, import_data):
 
 
 @transaction.atomic
-def import_variation(import_data):
+def import_variation(import_data, end_move=None):
     course = Course.objects.get(color=import_data["color"])
     chapter, created = course.chapter_set.get_or_create(
         course=course, title=import_data["chapter_title"]

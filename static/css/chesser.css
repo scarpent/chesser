@@ -877,8 +877,20 @@ external monitor to avoid display isses... */
   display: block;
 }
 
-.start-move-input {
+.form-start-and-end {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.form-start-and-end input {
   width: 55px;
+  margin-right: 10px;
+}
+
+.form-start-and-end > div {
+  flex: 0 0 auto;
 }
 
 .variation-title-input {
