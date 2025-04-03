@@ -77,9 +77,19 @@ def import_variation(import_data, end_move=None):
     label = "Creating" if created else "Getting"
     print("➤ " * 32)
     print(f"{label} chapter: {chapter}")
+
+    mainline = import_data["mainline"].strip()
+    end_index = 1000
+    if end_move:
+        # 1.e4 e5 2.Nf3 Nc6
+        #            3   4
+        end_index = end_move * 2 - (1 if course.color == "white" else 0)
+        mainline = " ".join(mainline.split()[:end_index])
+        print(f"Shortening mainline to: {mainline}")
+
     variation, created = Variation.objects.get_or_create(
         course=course,
-        mainline_moves_str=import_data["mainline"],
+        mainline_moves_str=mainline,
         defaults={
             "chapter": chapter,
             "created_at": timezone.now(),
@@ -118,6 +128,11 @@ def import_variation(import_data, end_move=None):
     variation.save()
 
     for idx, move_import in enumerate(import_data["moves"]):
+
+        if end_move and idx >= end_index:
+            print(f'Skipping moves from {move_import["move_num"]}-{move_import["san"]}')
+            break
+
         move, created = Move.objects.get_or_create(
             variation=variation,
             move_num=move_import["move_num"],
