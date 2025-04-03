@@ -158,4 +158,5 @@ def import_variation(import_data, end_move=None):
         quiz_result.datetime = get_utc_datetime(import_data["last_review"])
         quiz_result.save()
 
-    return True, f"#{variation.id} (L{variation.level})"
+    variation_link = f'<a href="/variation/{variation.id}/">#{variation.id}</a>'
+    return (True, f"{variation_link} (L{variation.level})")

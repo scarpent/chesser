@@ -10,6 +10,7 @@ from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
@@ -231,7 +232,9 @@ class ImportVariationView(View):
         if not imported:
             return self.handle_import_errors(message)
 
-        messages.success(request, f"Variation {message} imported successfully ✅")
+        messages.success(
+            request, mark_safe(f"Variation {message} imported successfully ✅")
+        )
         return redirect("import")
 
     def set_variation_title(self):
