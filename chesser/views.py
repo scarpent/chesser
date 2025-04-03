@@ -235,7 +235,7 @@ class ImportVariationView(View):
             self.form_data.get("variation_title", "").strip()
             or self.incoming_json.get("variation_title", "").strip()
         )
-        if not title:
+        if not title or title == "TBD":
             raise ValueError("Variation Title not given and not in JSON")
         self.incoming_json["variation_title"] = title
         messages.success(self.request, f"🟢 Title: {title}")
