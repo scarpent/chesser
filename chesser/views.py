@@ -443,6 +443,7 @@ class HomeView:
         home_stuff = {
             "nav": self.get_course_links(),
             "recent": self.get_recently_reviewed(),
+            "recently_added": self.get_recently_added(),
             "next_due": self.get_next_due(),
             "upcoming": self.get_upcoming_time_planner(),
             "levels": self.get_level_report(),
@@ -658,6 +659,25 @@ class HomeView:
                     }
                 )
 
-                if len(seen) > 15:
+                if len(seen) > 20:
                     break
         return reviewed
+
+    def get_recently_added(self):
+        one_week_ago = timezone.now() - timezone.timedelta(days=7)
+
+        recently_added = Variation.objects.filter(
+            created_at__gte=one_week_ago
+        ).order_by("-created_at")[:20]
+        added = []
+        for result in recently_added:
+            added.append(
+                {
+                    "variation_id": result.id,
+                    "variation_title": result.title,
+                    "created_at": util.get_time_ago(self.now, result.created_at),
+                    "next_review": util.format_time_until(self.now, result.next_review),
+                }
+            )
+
+        return added

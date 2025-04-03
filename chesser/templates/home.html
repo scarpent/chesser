@@ -205,29 +205,59 @@
       </div>
     </div>
 
-    <div class="recently-reviewed" x-cloak>
-      <h3>Recently Reviewed</h3>
-      <ul>
-        <template x-for="review in homeData.recent" :key="review.variation_id">
-          <li>
-            <div class="recently-reviewed-info">
-              <div>
-                <span x-text="review.passed"></span>
-                <a
-                  :href="'/variation/' + review.variation_id + '/'"
-                  x-text="review.variation_title"
-                ></a>
+    <div class="home-recently-wrapper">
+      <div class="home-recently" x-cloak>
+        <h3>Recently Reviewed</h3>
+        <ul>
+          <template x-for="review in homeData.recent" :key="review.variation_id">
+            <li>
+              <div class="home-recently-info">
+                <div>
+                  <span x-text="review.passed"></span>
+                  <a
+                    :href="'/variation/' + review.variation_id + '/'"
+                    x-text="review.variation_title"
+                  ></a>
+                </div>
+                <div>
+                  (<span x-text="review.datetime"></span>, L<span
+                    x-text="review.level"
+                  ></span
+                  >)
+                </div>
               </div>
-              <div>
-                (<span x-text="review.datetime"></span>, L<span
-                  x-text="review.level"
-                ></span
-                >)
-              </div>
-            </div>
-          </li>
-        </template>
-      </ul>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <template x-if="homeData.recently_added.length !== 0">
+        <div class="home-recently" x-cloak>
+          <h3>Recently Added</h3>
+          <ul>
+            <template
+              x-for="review in homeData.recently_added"
+              :key="review.variation_id"
+            >
+              <li>
+                <div class="home-recently-info">
+                  <div>
+                    ➡️
+                    <a
+                      :href="'/variation/' + review.variation_id + '/'"
+                      x-text="review.variation_title"
+                    ></a>
+                  </div>
+                  <div>
+                    <span x-text="review.created_at"></span> ➤
+                    <span x-text="review.next_review"></span>
+                  </div>
+                </div>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </template>
     </div>
 
     {% include "includes/landscape_overlay.html" %}
