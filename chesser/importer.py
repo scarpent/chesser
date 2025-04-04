@@ -1,6 +1,8 @@
 import json
+import re
 from datetime import timezone as dt_timezone
 
+import chess
 from django.db import transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -158,6 +160,11 @@ def import_variation(import_data, end_move=None):
 
         move.save()
 
+    validate_mainline_string(
+        [m["san"] for m in import_data["moves"]],
+        mainline,
+    )
+
     if variation.level < 1 or not created:
         print("Not creating QuizResult for updated variation or new level 0 variation")
     elif not variation.quiz_results.first():
@@ -170,3 +177,34 @@ def import_variation(import_data, end_move=None):
 
     variation_link = f'<a href="/variation/{variation.id}/">#{variation.id}</a>'
     return f"{variation_link} (L{variation.level})"
+
+
+def strip_move_numbers(move_str):
+    return re.sub(r"\d+\.(\.\.)?", "", move_str).strip()
+
+
+def validate_mainline_string(sans, mainline_str):
+    board = chess.Board()
+
+    for i, san in enumerate(sans):
+        try:
+            move = board.parse_san(san)
+            board.push(move)
+        except ValueError as e:
+            raise ValueError(f"Invalid move '{san}' at index {i}: {e}")
+
+    mainline_sans = strip_move_numbers(mainline_str).split()
+
+    for i, (a, b) in enumerate(zip(sans, mainline_sans)):
+        if a != b:
+            raise ValueError(
+                f"Mainline mismatch at index {i}:\n  sans:      {a},\n  mainline:  {b}"
+            )
+
+    if len(sans) != len(mainline_sans):
+        raise ValueError(
+            f"Move count mismatch:\n  sans length: {len(sans)},\n "
+            f" mainline length: {len(mainline_sans)}"
+        )
+
+    return True
