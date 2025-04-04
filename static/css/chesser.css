@@ -257,10 +257,10 @@ td:last-child {
 
 #resize-handle {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 25px;
-  height: 25px;
+  bottom: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
   cursor: nwse-resize;
   z-index: 10;
   background: transparent; /* invisible */
@@ -268,7 +268,7 @@ td:last-child {
 }
 
 #resize-handle:hover {
-  outline: 1px dashed rgba(255, 255, 255, 0.4);
+  outline: 2px dashed rgba(164, 247, 172, 0.7);
   border-radius: 4px;
 }
 
