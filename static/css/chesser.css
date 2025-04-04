@@ -214,6 +214,20 @@ td:last-child {
   align-self: flex-start; /* Align to top */
 }
 
+.edit-sundry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 30px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.edit-sundry > div {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
 .move-block {
   display: flex;
   flex-direction: row;

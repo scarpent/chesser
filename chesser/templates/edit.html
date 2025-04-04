@@ -56,9 +56,6 @@
           target="_blank"
           x-text="'#' + variationData.variation_id"
         ></a>
-        •
-        <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
-        <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
       </div>
 
       <div>
@@ -70,15 +67,21 @@
           class="variation-title-input"
         />
       </div>
-      <div>
-        <label for="start-move">Start Move:</label>
-        <input
-          type="text"
-          id="start-move"
-          x-model="variationData.start_move"
-          class="start-move-input"
-        />
+
+      <div class="edit-sundry">
+        <div class="form-start-and-end">
+          <label for="start-move">Start Move:</label>
+          <input type="text" id="start-move" x-model="variationData.start_move" />
+        </div>
+
+        <div>
+          <a :href="'/export/' + variationData.variation_id + '/'">export</a>
+          •
+          <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
+          <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
+        </div>
       </div>
+
       <div id="edit-mainline-moves" x-html="renderMainlineMoveLinks()"></div>
     </div>
 
