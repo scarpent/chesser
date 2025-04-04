@@ -131,6 +131,8 @@ td:last-child {
   min-height: 300px;
   flex-shrink: 0; /* Prevents shrinking */
   overflow: hidden;
+  background-size: contain;
+  background-position: top left;
 }
 
 .status {
@@ -257,11 +259,17 @@ td:last-child {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 15px;
-  height: 15px;
-  background: rgba(255, 255, 255, 0.5);
+  width: 25px;
+  height: 25px;
   cursor: nwse-resize;
-  border-radius: 3px;
+  z-index: 10;
+  background: transparent; /* invisible */
+  pointer-events: auto;
+}
+
+#resize-handle:hover {
+  outline: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
 }
 
 .move-fen a {

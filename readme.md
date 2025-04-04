@@ -6,21 +6,20 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-⭐️ add created_datetime (or some name) to variation model (does autonow work with null, and can we backfill later...)
+⭐️
 
-- import/clone lines
-- have "recently added" section on homepage!
-- for original/early lines, maybe try to fix data in place with scripts later rather than re-import...
+- export feature (just outputs the json) (to be used with clone feature, too)
+- clone lines
+
 - stats: simple stats page with past week and all time (since 3/20) numbers
-- created datetime for variation?
-  ~ nullable at first
-  ~ use get_variation_git_history.sh to find earliest record locally
-- clone existing lines ("import/export" button on edit page brings up import page with input to modify mainline moves?
-- export json
+  ~ week ahead counts for levels
+
+- created_at variations
+  ~ backfill using get_variation_git_history.sh
+  ~ change to autonowadd
 
 - 404 page that has buttons...
 - use reambiguated moves to check alts, too?
-- on mobile edit view, hide part of move string if a long one?
 - toggle show alt moves on board with a key, say "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves? (share shapes, alts, etc)

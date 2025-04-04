@@ -49,6 +49,13 @@ export function quizApp() {
 
         this.playOpposingMove();
         this.displayReviewSessionStats();
+
+        setTimeout(() => {
+          this.board?.cg?.redraw?.();
+          this.board.set({}); // triggers re-layout
+        }, 0);
+
+        console.log("initQuiz: board initialized");
       } else {
         console.error("chessground or chess.js failed to load");
       }
