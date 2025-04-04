@@ -344,6 +344,8 @@ export function variationApp() {
         }
       } else if (event.key === "ArrowLeft") {
         this.navigate("back");
+      } else if (event.key === "a") {
+        this.showAltMoveArrows(event);
       }
     },
 

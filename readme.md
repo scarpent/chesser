@@ -20,7 +20,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 - 404 page that has buttons...
 - use reambiguated moves to check alts, too?
-- toggle show alt moves on board with a key, say "a" will show them only while holding, then restore other paint or clear
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
 - a way to have "shared reference" moves? (share shapes, alts, etc)
   ~ perhaps a checkbox next to the large move number, "use standard ref"
