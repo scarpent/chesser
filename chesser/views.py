@@ -16,7 +16,10 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 from chesser import importer, util
 from chesser.models import Chapter, Course, QuizResult, Variation
-from chesser.serializers import serialize_variation
+from chesser.serializers import (
+    serialize_variation,
+    serialize_variation_to_import_format,
+)
 
 
 def home(request, course_id=None, chapter_id=None):
@@ -222,18 +225,15 @@ class ImportVariationView(View):
             self.set_next_review()
             self.set_chapter_info()
             end_move = self.get_end_move()  # must come after set_start_move
+            variation_info = importer.import_variation(
+                self.incoming_json,
+                end_move=end_move,
+            )
         except ValueError as e:
             return self.handle_import_errors(str(e))
 
-        imported, message = importer.import_variation(
-            self.incoming_json,
-            end_move=end_move,
-        )
-        if not imported:
-            return self.handle_import_errors(message)
-
         messages.success(
-            request, mark_safe(f"Variation {message} imported successfully ✅")
+            request, mark_safe(f"Variation {variation_info} imported successfully ✅")
         )
         return redirect("import")
 
@@ -314,6 +314,14 @@ def get_sorted_variations():
 
 def clone(request):
     return redirect("import")
+
+
+def export(request, variation_id=None):
+    variation = get_object_or_404(
+        Variation.objects.prefetch_related("moves", "chapter__course"), pk=variation_id
+    )
+    export_data = serialize_variation_to_import_format(variation)
+    return JsonResponse(export_data, json_dumps_params={"indent": 4})
 
 
 def variations_tsv(request):

@@ -70,6 +70,16 @@ def get_changes(variation, import_data):
 
 @transaction.atomic
 def import_variation(import_data, end_move=None):
+
+    if variation_id := import_data.get("variation_id"):
+        try:
+            Variation.objects.get(pk=variation_id)
+            raise ValueError(
+                f"Variation ID {variation_id} already exists; not importing"
+            )
+        except Variation.DoesNotExist:
+            pass  # good to go; note that we'll not reuse the ID
+
     course = Course.objects.get(color=import_data["color"])
     chapter, created = course.chapter_set.get_or_create(
         course=course, title=import_data["chapter_title"]
@@ -114,7 +124,7 @@ def import_variation(import_data, end_move=None):
         # later we might re-import in some cases
         message = f"Mainline already exists in this course, #{variation.id}"
         print(message)
-        return False, message
+        raise ValueError(message)
 
     variation.source = import_data["source"]
     variation.title = import_data["variation_title"]
@@ -159,4 +169,4 @@ def import_variation(import_data, end_move=None):
         quiz_result.save()
 
     variation_link = f'<a href="/variation/{variation.id}/">#{variation.id}</a>'
-    return (True, f"{variation_link} (L{variation.level})")
+    return f"{variation_link} (L{variation.level})"

@@ -364,3 +364,37 @@ def flatten_move_fen_map(nested_list):
         else:
             flat_list.append(item)  # Add move-FEN pair
     return flat_list
+
+
+def serialize_variation_to_import_format(variation):
+    # TODO: export quiz history, too? perhaps optionally...
+    return {
+        "variation_id": variation.id,
+        "source": variation.source,
+        "color": variation.course.color,
+        "chapter_title": variation.chapter.title,
+        "variation_title": variation.title,
+        "level": variation.level,
+        "next_review": variation.next_review.replace(microsecond=0).isoformat(),
+        "last_review": (
+            variation.get_latest_quiz_result_datetime()
+            .replace(microsecond=0)
+            .isoformat()
+            if variation.quiz_results.exists()
+            else util.END_OF_TIME_STR
+        ),
+        "start_move": variation.start_move,
+        "moves": [
+            {
+                "move_num": m.move_num,
+                "san": m.san,
+                "annotation": m.annotation or "",
+                "text": m.text or "",
+                "alt": m.alt or "",
+                "alt_fail": m.alt_fail or "",
+                "shapes": json.loads(m.shapes or "[]"),
+            }
+            for m in variation.moves.all().order_by("sequence")
+        ],
+        "mainline": variation.mainline_moves,
+    }
