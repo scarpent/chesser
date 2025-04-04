@@ -1096,6 +1096,14 @@ about 500, but also covers our ultimate mobile 450 view */
   .home-recently-wrapper {
     gap: 15px;
   }
+
+  .icon-button.icon-upload {
+    width: 80px; /* mimic big-icon */
+    height: 80px; /* mimic big-icon */
+    display: block;
+    margin-left: auto; /* center */
+    margin-right: auto;
+  }
 }
 
 /* ----------------------------------------------------------- @media 450px */
