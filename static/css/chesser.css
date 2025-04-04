@@ -268,8 +268,9 @@ td:last-child {
 }
 
 #resize-handle:hover {
-  outline: 2px dashed rgba(164, 247, 172, 0.7);
-  border-radius: 4px;
+  border: 2px solid rgba(164, 247, 172, 0.7);
+  border-radius: 50%;
+  background-color: rgba(164, 247, 172, 0.5);
 }
 
 .move-fen a {
