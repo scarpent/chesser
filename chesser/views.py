@@ -312,6 +312,10 @@ def get_sorted_variations():
     )
 
 
+def clone(request):
+    return redirect("import")
+
+
 def variations_tsv(request):
     def row_generator():
         for v in get_sorted_variations():

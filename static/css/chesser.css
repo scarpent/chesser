@@ -15,6 +15,7 @@ body {
   overflow-x: hidden;
 }
 
+h2,
 h3 {
   color: orange;
 }
@@ -686,6 +687,9 @@ external monitor to avoid display isses... */
 }
 .icon-stats {
   background-image: url("/static/icons/noto-emoji/stats.svg");
+}
+.icon-clone {
+  background-image: url("/static/icons/noto-emoji/clone.svg");
 }
 
 /* ---------------------------------------------- Django Messages Framework */

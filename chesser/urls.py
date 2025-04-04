@@ -47,6 +47,7 @@ urlpatterns = [
         views.ImportVariationView.as_view(),
         name="import_json",
     ),
+    path("clone/", views.clone, name="clone"),
     path("upload-json-data/", views.upload_json_data, name="upload_json_data"),
     path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
     path("variations-table/", views.variations_table, name="variations_table"),

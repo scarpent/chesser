@@ -23,6 +23,7 @@ emoji_buttons = {
     "upload": "⤴️",
     "random": "🎲",
     "stats": "🔢",
+    "clone": "🧬",
 }
 
 

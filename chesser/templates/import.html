@@ -31,10 +31,40 @@
     {% endif %}
 
     <div class="import-page-container form-standard">
-      <h2 style="color: orange">Import Variation</h2>
+      <h2>Clone Variation</h2>
+      <form method="POST" action="{% url 'clone' %}">
+        {% csrf_token %}
+        <div>
+          <label for="clone_variation_title">New Title:</label>
+          <input
+            type="text"
+            name="clone_variation_title"
+            x-model="formDefaults.clone_variation_title"
+            class="variation-title-input"
+          />
+        </div>
+        <div class="form-clone-mainline">
+          <label for="clone_mainline">New Variation:</label>
+          <input
+            type="text"
+            name="clone_mainline"
+            x-model="formDefaults.clone_mainline"
+            class="variation-title-input"
+          />
+        </div>
+        <div>Original Variation: 1.e4 e5 2.Nf3 Nc6</div>
+        <button
+          type="submit"
+          class="icon-clone icon-button big-icon"
+          title="Clone"
+        ></button>
+      </form>
+    </div>
+
+    <div class="import-page-container form-standard">
+      <h2>Import Variation</h2>
       <form method="POST" action="{% url 'import_json' %}">
         {% csrf_token %}
-
         <div>
           <label for="chapter">Chapter:</label>
           <select name="chapter_id" id="chapter">
