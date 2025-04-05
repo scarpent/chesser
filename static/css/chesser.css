@@ -1112,6 +1112,14 @@ about 500, but also covers our ultimate mobile 450 view */
     margin-left: auto; /* center */
     margin-right: auto;
   }
+
+  .export-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+    text-align: center;
+  }
 }
 
 /* ----------------------------------------------------------- @media 450px */
