@@ -19,6 +19,7 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
   ~ change to autonowadd
 
 - board png placeholder not doing anything much or at all ➤ improve or remove
+- add next review date form input for clone? Or continue using end of time...
 
 - add move normalizer from schess (regex version?) - use it on clone moves string
 - 404 page that has buttons...
