@@ -1,5 +1,6 @@
 import json
 import random
+import re
 from itertools import groupby
 
 from django.conf import settings
@@ -160,10 +161,17 @@ def get_import_context(form_defaults=None):
 
 
 def import_view(request):
-    # Clear any leftover messages to avoid duplicates
-    list(messages.get_messages(request))
-
     form_defaults = request.session.pop("import_form_defaults", {})
+
+    if variation_id := request.GET.get("clone"):
+        try:
+            variation = Variation.objects.get(pk=variation_id)
+            form_defaults["original_variation_id"] = variation.id
+            form_defaults["clone_variation_title"] = variation.title
+            form_defaults["original_variation_moves"] = variation.mainline_moves
+        except Variation.DoesNotExist:
+            messages.error(request, f"❌ Could not find variation #{variation_id}")
+
     return render(
         request, "import.html", get_import_context(form_defaults=form_defaults)
     )
@@ -312,7 +320,86 @@ def get_sorted_variations():
     )
 
 
+def handle_clone_errors(request, form_data, error_message):
+    messages.error(request, f"🔴 {error_message}")
+    request.session["import_form_defaults"] = form_data.dict()
+    return redirect("import")
+
+
 def clone(request):
+    form_data = request.POST
+    variation_id = int(form_data.get("original_variation_id"))
+    variation_title = form_data.get("clone_variation_title", "").strip()
+    # TODO: normalize the move string, make sure no spaces between # and SAN
+    new_variation = form_data.get("clone_mainline", "").strip()
+    if not variation_title or not new_variation:
+        return handle_clone_errors(
+            request, form_data, "New variation title or moves not given"
+        )
+    new_variation = re.sub(r"\s+", " ", new_variation)  # get rid of extra spaces
+
+    variation_link = f'<a href="/variation/{variation_id}/">#{variation_id}</a>'
+    messages.success(request, mark_safe(f"🧬 Cloning Variation {variation_link}"))
+    messages.success(request, f"🧬 Title: {variation_title}")
+    messages.success(request, f"🧬 Moves: {new_variation}")
+
+    variation = get_object_or_404(Variation, pk=variation_id)
+    import_data = serialize_variation_to_import_format(variation)
+    original_sans = [m["san"] for m in import_data["moves"]]
+    new_sans = util.strip_move_numbers(new_variation).split(" ")
+
+    if original_sans == new_sans:
+        return handle_clone_errors(
+            request, form_data, "New moves are identical to original moves"
+        )
+
+    diverged_at = None
+    for i, (orig, new) in enumerate(zip(original_sans, new_sans)):
+        if orig != new:
+            diverged_at = i
+            break
+    if diverged_at is None:
+        diverged_at = len(original_sans)
+
+    new_moves = []
+    for index, san in enumerate(new_sans[diverged_at:], start=diverged_at):
+        move_number = index // 2 + 1
+        new_moves.append(
+            {
+                "move_num": move_number,
+                "san": san,
+                "annotation": "",
+                "text": "",
+                "shapes": [],
+            }
+        )
+
+    if not new_moves:
+        return handle_clone_errors(
+            request,
+            form_data,
+            "There is nothing new under the sun, nor in the cloned moves... ☀️",
+        )
+
+    new_moves_str = " ".join([f'{m["move_num"]}-{m["san"]}' for m in new_moves])
+    messages.success(
+        request, f"🧬 Diverged at index: {diverged_at}, new moves: {new_moves_str}"
+    )
+
+    import_data.pop("variation_id")  # so we don't hit the dupe check on import
+    import_data["variation_title"] = variation_title
+    import_data["moves"] = import_data["moves"][:diverged_at] + new_moves
+    import_data["mainline"] = new_variation
+    import_data["level"] = 0
+    import_data["next_review"] = util.END_OF_TIME_STR
+    try:
+        variation_info = importer.import_variation(import_data)
+    except ValueError as e:
+        return handle_clone_errors(request, form_data, str(e))
+
+    messages.success(
+        request, mark_safe(f"🧬 Variation cloned successfully ➤ {variation_info} ✅")
+    )
     return redirect("import")
 
 

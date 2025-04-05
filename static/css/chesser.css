@@ -915,6 +915,10 @@ external monitor to avoid display isses... */
   background-color: #1a1a1a;
 }
 
+.wide-textarea {
+  width: 100%;
+}
+
 /* ------------------------------------------------------------ Other Form */
 .import-page-container {
   width: 100%;

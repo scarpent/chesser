@@ -18,6 +18,9 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
   ~ backfill using get_variation_git_history.sh
   ~ change to autonowadd
 
+- board png placeholder not doing anything much or at all ➤ improve or remove
+
+- add move normalizer from schess (regex version?) - use it on clone moves string
 - 404 page that has buttons...
 - use reambiguated moves to check alts, too?
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)

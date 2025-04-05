@@ -36,36 +36,56 @@
     </ul>
     {% endif %}
 
-    <div class="import-page-container form-standard">
-      <h2>Clone Variation</h2>
-      <form method="POST" action="{% url 'clone' %}">
-        {% csrf_token %}
-        <div>
-          <label for="clone_variation_title">New Title:</label>
+    <template x-if="formDefaults.original_variation_id">
+      <div class="import-page-container form-standard">
+        <h2 x-text="'Clone Variation #' + formDefaults.original_variation_id"></h2>
+        <form method="POST" action="{% url 'clone' %}">
+          {% csrf_token %}
+          <div class="form-standard">
+            <label for="clone_variation_title">New Title:</label>
+            <input
+              type="text"
+              name="clone_variation_title"
+              x-model="formDefaults.clone_variation_title"
+              class="variation-title-input"
+            />
+          </div>
+          <div class="form-clone-mainline">
+            <label for="clone_mainline">New Moves:</label>
+            <input
+              type="text"
+              name="clone_mainline"
+              x-model="formDefaults.clone_mainline"
+              class="variation-title-input"
+            />
+          </div>
+          <div>
+            <label for="original-variation-moves" class="form-label"
+              >Original Moves:</label
+            >
+            <textarea
+              id="original-variation-moves"
+              name="original_variation_moves"
+              readonly
+              rows="3"
+              class="wide-textarea"
+              x-text="importData.form_defaults.original_variation_moves"
+            ></textarea>
+          </div>
           <input
-            type="text"
-            name="clone_variation_title"
-            x-model="formDefaults.clone_variation_title"
-            class="variation-title-input"
+            id="original-variation-id"
+            name="original_variation_id"
+            type="hidden"
+            :value="importData.form_defaults.original_variation_id"
           />
-        </div>
-        <div class="form-clone-mainline">
-          <label for="clone_mainline">New Variation:</label>
-          <input
-            type="text"
-            name="clone_mainline"
-            x-model="formDefaults.clone_mainline"
-            class="variation-title-input"
-          />
-        </div>
-        <div>Original Variation: 1.e4 e5 2.Nf3 Nc6</div>
-        <button
-          type="submit"
-          class="icon-clone icon-button big-icon"
-          title="Clone"
-        ></button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            class="icon-clone icon-button big-icon"
+            title="Clone"
+          ></button>
+        </form>
+      </div>
+    </template>
 
     <div class="import-page-container form-standard">
       <h2>Import Variation</h2>
