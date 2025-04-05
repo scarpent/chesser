@@ -28,7 +28,7 @@ def format_time_until(now, next_review):
     if now > next_review:
         return "right now"
     elif next_review == datetime.fromtimestamp(END_OF_TIME, timezone.utc):
-        return "The End of Time"
+        return "end of time"
 
     time_until = next_review - now
     days, remainder = divmod(time_until.total_seconds(), 24 * 60 * 60)  # a day
