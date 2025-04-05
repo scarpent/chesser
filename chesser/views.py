@@ -422,7 +422,9 @@ def variations_tsv(request):
                 f"{settings.CHESSER_URL}/variation/{v.id}/\n"
             )
 
-    return StreamingHttpResponse(row_generator(), content_type="text/plain")
+    return StreamingHttpResponse(
+        row_generator(), content_type="text/plain; charset=utf-8"
+    )
 
 
 def variations_table(request):
@@ -468,7 +470,9 @@ def variations_table(request):
             f"</table></body></html>"
         )
 
-    return StreamingHttpResponse(row_generator(), content_type="text/html")
+    return StreamingHttpResponse(
+        row_generator(), content_type="text/html; charset=utf-8"
+    )
 
 
 def edit(request, variation_id=None):
