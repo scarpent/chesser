@@ -661,6 +661,14 @@ external monitor to avoid display isses... */
   object-fit: contain;
 }
 
+.icon-button.course-white img,
+.icon-button.course-black img {
+  width: 80%;
+  height: 80%;
+  border-radius: 6px; /* match .icon-button */
+  object-fit: contain;
+}
+
 .big-icon {
   width: 80px;
   height: 80px;

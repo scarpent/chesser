@@ -57,7 +57,7 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
 
 def backup():
     buffer = StringIO()
-    print("➡️  Running export_db ➤")
+    print("➡️  Running export_db")
     call_command("export_db", stdout=buffer)
     backup_data = buffer.getvalue()
     backup_data_bytes = backup_data.encode("utf-8")
