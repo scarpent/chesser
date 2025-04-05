@@ -54,27 +54,52 @@ export function editApp() {
       });
     },
 
-    //--------------------------------------------------------------------------------
-    saveVariation() {
-      console.log("Saving variation data...", this.variationData);
-      this.saveErrors = [];
+    //---------------------------------------------------------------------------------
+    buildPayload() {
       const payload = {
         variation_id: this.variationData.variation_id,
         title: this.variationData.title,
         start_move: this.variationData.start_move, // TODO: validation
+        moves: [],
       };
 
-      payload.moves = this.variationData.moves.map((move, index) => ({
-        san: move.san,
-        annotation: move.annotation === "none" ? "" : move.annotation,
-        text: move.text,
-        alt: move.alt,
-        alt_fail: move.alt_fail,
-        shapes:
-          this.boards[index].state.drawable.shapes.length > 0
-            ? JSON.stringify(this.boards[index].state.drawable.shapes)
-            : "",
-      }));
+      payload.moves = this.variationData.moves.map((move, index) => {
+        const boardShapes = this.boards[index].state.drawable.shapes;
+        return {
+          san: move.san,
+          annotation: move.annotation === "none" ? "" : move.annotation,
+          text: move.text,
+          alt: move.alt,
+          alt_fail: move.alt_fail,
+          shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
+        };
+      });
+
+      return payload;
+    },
+
+    //--------------------------------------------------------------------------------
+    handleSaveResult(status) {
+      const btn = document.querySelector(".icon-save");
+      if (btn) {
+        const className = `save-${status}`;
+        btn.classList.add(className);
+        if (status === "success") {
+          btn.classList.remove("save-error");
+          setTimeout(() => {
+            window.location.reload();
+          }, 750);
+        }
+      } else if (status === "success") {
+        console.error("Save button not found");
+        window.location.reload();
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    saveVariation() {
+      console.log("Saving variation data...", this.variationData);
+      const payload = this.buildPayload();
 
       fetch("/save-variation/", {
         method: "POST",
@@ -83,17 +108,18 @@ export function editApp() {
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.errors) {
-            this.saveErrors = data.errors;
-            console.error("Save errors:", this.saveErrors);
+          console.log("data:", data);
+          if (data.status === "error") {
+            console.error("Save error:", data.message);
+            this.handleSaveResult("error");
           } else {
             console.log("Variation saved successfully");
-            window.location.reload(); // Reload page to reflect backend changes
+            this.handleSaveResult("success");
           }
         })
         .catch((error) => {
           console.error("Error saving variation:", error);
-          this.saveErrors.push("An unexpected error occurred.");
+          this.handleSaveResult("error");
         });
     },
 

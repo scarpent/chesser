@@ -679,6 +679,18 @@ external monitor to avoid display isses... */
   filter: brightness(1.4) contrast(1.1);
 }
 
+.icon-button.save-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.icon-button.save-error {
+  background-color: #c0392b !important;
+  border-color: #c0392b !important;
+  transition: background-color 0.3s ease;
+}
+
 .big-icon {
   width: 80px;
   height: 80px;

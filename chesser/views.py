@@ -406,7 +406,7 @@ def save_variation(request):
     if request.method == "POST":
         data = json.loads(request.body)
         variation_id = data.get("variation_id")
-        print(f"saving variation {variation_id}")
+        print(f"💾 Saving variation {variation_id}")
         variation = get_object_or_404(Variation, pk=variation_id)
         variation.title = data["title"]
         variation.start_move = data["start_move"]
