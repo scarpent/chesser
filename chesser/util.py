@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timezone
 
 from django.utils.timesince import timesince
@@ -5,6 +6,10 @@ from django.utils.timesince import timesince
 BEGINNING_OF_TIME = 0  # 1970-01-01T00:00:00
 END_OF_TIME = 253402300799
 END_OF_TIME_STR = "9999-12-31T23:59:59"
+
+
+def strip_move_numbers(move_str):
+    return re.sub(r"\d+\.(\.\.)?", "", move_str).strip()
 
 
 def get_time_ago(now, result_datetime):

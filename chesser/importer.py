@@ -1,5 +1,4 @@
 import json
-import re
 from datetime import timezone as dt_timezone
 
 import chess
@@ -7,6 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from chesser import util
 from chesser.models import Course, Move, QuizResult, Variation
 
 
@@ -179,10 +179,6 @@ def import_variation(import_data, end_move=None):
     return f"{variation_link} (L{variation.level})"
 
 
-def strip_move_numbers(move_str):
-    return re.sub(r"\d+\.(\.\.)?", "", move_str).strip()
-
-
 def validate_mainline_string(sans, mainline_str):
     board = chess.Board()
 
@@ -193,7 +189,7 @@ def validate_mainline_string(sans, mainline_str):
         except ValueError as e:
             raise ValueError(f"Invalid move '{san}' at index {i}: {e}")
 
-    mainline_sans = strip_move_numbers(mainline_str).split()
+    mainline_sans = util.strip_move_numbers(mainline_str).split()
 
     for i, (a, b) in enumerate(zip(sans, mainline_sans)):
         if a != b:
