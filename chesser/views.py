@@ -676,13 +676,14 @@ class HomeView:
         return reviewed
 
     def get_recently_added(self):
-        one_week_ago = timezone.now() - timezone.timedelta(days=7)
-
-        recently_added = Variation.objects.filter(
-            created_at__gte=one_week_ago
-        ).order_by("-created_at")[:20]
+        one_week_ago = self.now - timezone.timedelta(days=7)
+        variations = (
+            self.get_variations()
+            .filter(created_at__gte=one_week_ago)
+            .order_by("-created_at")[:20]
+        )
         added = []
-        for result in recently_added:
+        for result in variations:
             added.append(
                 {
                     "variation_id": result.id,
