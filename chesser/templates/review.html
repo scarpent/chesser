@@ -130,7 +130,7 @@
 
       <template x-if="showInfo && completed && finalMove().text">
         <div class="final-move">
-          <p x-text="finalMove().text"></p>
+          <p x-text="finalMove().move_verbose + ' ' + finalMove().text"></p>
         </div>
       </template>
 
@@ -148,6 +148,8 @@
           ></button>
         </div>
       </template>
+
+      <template x-if="completed"> {% include "includes/history.html" %} </template>
     </div>
 
     <div

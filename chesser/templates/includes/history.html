@@ -1,0 +1,14 @@
+<div id="history" x-show="variationData.history && variationData.history.length">
+  <h3>History</h3>
+  <table class="history-table">
+    <tbody>
+      <template x-for="(entry, index) in variationData.history" :key="index">
+        <tr>
+          <td x-text="entry.passed"></td>
+          <td><span x-text="'L' + entry.level"></span></td>
+          <td x-text="entry.datetime"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+</div>

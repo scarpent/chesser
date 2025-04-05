@@ -18,10 +18,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
   ~ backfill using get_variation_git_history.sh
   ~ change to autonowadd
 
-- add ajax lookup for history after quiz
-  ~ triggered by text link?
-  ~ in general should go to variation view for comprehensive info, but we're often curious about the history...
-
 - 404 page that has buttons...
 - use reambiguated moves to check alts, too?
 - decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)

@@ -149,6 +149,10 @@ td:last-child {
   margin-bottom: 10px;
 }
 
+#quiz-container #history h3 {
+  text-align: center;
+}
+
 .variation-state-info {
   color: #c3db9c;
   display: inline-flex;

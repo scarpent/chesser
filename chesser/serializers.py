@@ -85,22 +85,27 @@ def serialize_variation(variation, all_data=False):
 
     variation_data["moves"] = moves
     variation_data["annotations"] = temp_annotations
-
-    history = []
-    if all_data:
-        now = timezone.now()
-        for quiz_result in variation.quiz_results.all().order_by("-datetime"):
-            history.append(
-                {
-                    "datetime": util.get_time_ago(now, quiz_result.datetime),
-                    "level": quiz_result.level,
-                    "passed": "✅" if quiz_result.passed else "❌",
-                }
-            )
-
-    variation_data["history"] = history
+    variation_data["history"] = get_history(variation)
 
     return variation_data
+
+
+def get_history(variation):
+    """
+    Returns a list of dictionaries with quiz history for the variation.
+    Each dictionary contains the datetime, level, and passed status.
+    """
+    history = []
+    now = timezone.now()
+    for quiz_result in variation.quiz_results.all().order_by("-datetime"):
+        history.append(
+            {
+                "datetime": util.get_time_ago(now, quiz_result.datetime),
+                "level": quiz_result.level,
+                "passed": "✅" if quiz_result.passed else "❌",
+            }
+        )
+    return history
 
 
 def parse_san_moves(alt_moves):

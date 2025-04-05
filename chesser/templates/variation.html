@@ -85,20 +85,7 @@
             ></a>
           </div>
           <div id="source" x-html="variationData.source_html"></div>
-          <div id="history">
-            <h3>History</h3>
-            <table class="history-table">
-              <tbody>
-                <template x-for="(entry, index) in variationData.history" :key="index">
-                  <tr>
-                    <td x-text="entry.passed"></td>
-                    <td><span x-text="'L' + entry.level"></span></td>
-                    <td x-text="entry.datetime"></td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
+          {% include "includes/history.html" %}
         </div>
       </div>
       <div id="right-column" x-html="variationData.html"></div>
