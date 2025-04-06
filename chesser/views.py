@@ -1,11 +1,13 @@
 import json
 import random
 import re
+from collections import defaultdict
+from datetime import datetime
 from itertools import groupby
 
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import OuterRef, Subquery
+from django.db.models import Count, OuterRef, Q, Subquery
 from django.db.models.functions import Lower
 from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -785,3 +787,205 @@ class HomeView:
             )
 
         return added
+
+
+def stats(request):
+    def row_generator():
+        start = timezone.make_aware(datetime(2025, 3, 20))
+        qs = QuizResult.objects.filter(datetime__gte=start)
+        total = qs.count()
+        passed = qs.filter(passed=True).count()
+        percent = int((passed / total) * 100) if total else 0
+
+        yield "<html><body><div class='reviews-levels-wrapper'><h1>Stats!</h1>"
+
+        # Overall
+        yield "<div class='reviews-container'><h2>All Quiz Results</h2>"
+        yield (
+            "<table><tr>"
+            "<th style='padding: 4px; text-align: right'>Passed</th>"
+            "<th style='padding: 4px; text-align: right'>Total</th>"
+            "<th style='padding: 4px; text-align: right'>Percent</th>"
+            "</tr>"
+        )
+        yield (
+            f"<tr><td style='padding: 4px; text-align: right'>{passed}</td>"
+            f"<td style='padding: 4px; text-align: right'>{total}</td>"
+            f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr></table></div>"  # noqa: E501
+        )
+
+        # By Level
+        yield "<div class='levels-container'><h2>Results by Level</h2>"
+        yield "<table><tr>"
+        yield "<th style='padding: 4px; text-align: right'>Level</th>"
+        yield "<th style='padding: 4px; text-align: right'>Passed</th>"
+        yield "<th style='padding: 4px; text-align: right'>Total</th>"
+        yield "<th style='padding: 4px; text-align: right'>Percent</th></tr>"
+
+        level_data = (
+            qs.values("level")
+            .annotate(
+                total_count=Count("id"), passed_count=Count("id", filter=Q(passed=True))
+            )
+            .order_by("level")
+        )
+        for row in level_data:
+            level = row["level"]
+            total = row["total_count"]
+            passed = row["passed_count"]
+            percent = int((passed / total) * 100) if total else 0
+            yield (
+                f"<tr><td style='padding: 4px; text-align: right'>L{level}</td>"
+                f"<td style='padding: 4px; text-align: right'>{passed}</td>"
+                f"<td style='padding: 4px; text-align: right'>{total}</td>"
+                f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr>"
+            )
+        yield "</table></div>"
+
+        # Weekly Summary
+        yield "<div class='reviews-container'><h2>Weekly Summary</h2>"
+        level_labels = [f"L{n}" for n in range(0, 10)] + ["L10+"]
+        yield "<table><tr>"
+        yield "<th style='padding: 4px; text-align: right'>Week Starting</th>"
+        yield "<th style='padding: 4px; text-align: right'>Result</th>"
+        for label in level_labels:
+            yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
+        yield "</tr>"
+
+        current = start
+        one_week = timezone.timedelta(days=7)
+        while current <= timezone.now():
+            week_end = current + one_week
+            week_qs = qs.filter(datetime__gte=current, datetime__lt=week_end)
+            week_total = week_qs.count()
+            week_passed = week_qs.filter(passed=True).count()
+            week_percent = int((week_passed / week_total) * 100) if week_total else 0
+            result_cell = (
+                f"{week_passed}/{week_total} ({week_percent}%)" if week_total else "–"
+            )
+
+            level_counts = defaultdict(lambda: {"passed": 0, "total": 0})
+            levels = week_qs.values("level").annotate(
+                total_count=Count("id"),
+                passed_count=Count("id", filter=Q(passed=True)),
+            )
+            for row in levels:
+                lvl = row["level"]
+                key = f"L{lvl}" if lvl < 10 else "L10+"
+                level_counts[key]["total"] += row["total_count"]
+                level_counts[key]["passed"] += row["passed_count"]
+
+            yield f"<tr><td style='padding: 4px; text-align: right'>{current.date()}</td><td style='padding: 4px; text-align: right'>{result_cell}</td>"  # noqa: E501
+            for label in level_labels:
+                data = level_counts.get(label)
+                if data:
+                    pct = (
+                        int((data["passed"] / data["total"]) * 100)
+                        if data["total"]
+                        else 0
+                    )
+                    val = f"{data['passed']}/{data['total']} ({pct}%)"
+                else:
+                    val = "–"
+                align = (
+                    "right"
+                    if str(val)
+                    .replace("/", "")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace("%", "")
+                    .replace(" ", "")
+                    .isdigit()
+                    is False
+                    else "right"
+                )
+                yield f"<td style='padding: 4px; text-align: {align}'>{val}</td>"
+            yield "</tr>"
+
+            current = week_end
+
+        yield "</table></div>"
+
+        # Daily Summary (last 14 days)
+        yield "<div class='levels-container'><h2>Daily Summary (Last 14 Days)</h2>"
+        yield "<table><tr>"
+        yield "<th style='padding: 4px; text-align: right'>Date</th><th style='padding: 4px; text-align: right'>Result</th>"  # noqa: E501
+        for label in level_labels:
+            yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
+        yield "</tr>"
+
+        days = 14
+        for delta in range(days - 1, -1, -1):
+            day = timezone.localtime(timezone.now()) - timezone.timedelta(days=delta)
+            start = timezone.make_aware(
+                datetime.combine(day.date(), datetime.min.time())
+            )
+            end = start + timezone.timedelta(days=1)
+
+            day_qs = qs.filter(datetime__gte=start, datetime__lt=end)
+            day_total = day_qs.count()
+            day_passed = day_qs.filter(passed=True).count()
+            day_percent = int((day_passed / day_total) * 100) if day_total else 0
+            result_cell = (
+                f"{day_passed}/{day_total} ({day_percent}%)" if day_total else "–"
+            )
+
+            level_counts = defaultdict(lambda: {"passed": 0, "total": 0})
+            levels = day_qs.values("level").annotate(
+                total_count=Count("id"),
+                passed_count=Count("id", filter=Q(passed=True)),
+            )
+            for row in levels:
+                lvl = row["level"]
+                key = f"L{lvl}" if lvl < 10 else "L10+"
+                level_counts[key]["total"] += row["total_count"]
+
+            yield f"<tr><td style='padding: 4px; text-align: right'>{day.date()}</td><td style='padding: 4px; text-align: right'>{result_cell}</td>"  # noqa: E501
+            for label in level_labels:
+                data = level_counts.get(label)
+                if data and day_total:
+                    val = f"{data['total']}"
+                else:
+                    val = "–"
+                yield f"<td style='padding: 4px; text-align: right'>{val}</td>"
+            yield "</tr>"
+
+        yield "</table></div>"
+
+        # Upcoming Reviews (next 14 days)
+        yield "<div class='reviews-container'><h2>Upcoming Reviews (Next 14 Days)</h2>"
+        yield "<table><tr><th style='padding: 4px; text-align: right'>Date</th>"
+        for label in level_labels:
+            yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
+        yield "</tr>"
+
+        now = timezone.localtime()
+        for offset in range(14):
+            day_start = now + timezone.timedelta(days=offset)
+            day_end = day_start + timezone.timedelta(days=1)
+
+            day_qs = (
+                Variation.objects.filter(
+                    next_review__gte=day_start, next_review__lt=day_end
+                )
+                .values("level")
+                .annotate(count=Count("id"))
+            )
+
+            level_counts = defaultdict(int)
+            for row in day_qs:
+                lvl = row["level"]
+                key = f"L{lvl}" if lvl < 10 else "L10+"
+                level_counts[key] += row["count"]
+
+            yield f"<tr><td style='padding: 4px; text-align: right'>{day_start.date()}</td>"  # noqa: E501
+            for label in level_labels:
+                val = level_counts.get(label) or "–"
+                yield f"<td style='padding: 4px; text-align: right'>{val}</td>"
+            yield "</tr>"
+
+        yield "</table></div></div></body></html>"
+
+    return StreamingHttpResponse(
+        row_generator(), content_type="text/html; charset=utf-8"
+    )
