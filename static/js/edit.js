@@ -79,26 +79,32 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    handleSaveResult(status) {
+    handleSaveResult(status, index = null) {
       const btn = document.querySelector(".icon-save");
       if (btn) {
         const className = `save-${status}`;
         btn.classList.add(className);
-        if (status === "success") {
-          btn.classList.remove("save-error");
-          setTimeout(() => {
+      }
+
+      if (status === "success") {
+        const isMobile = window.innerWidth < 700;
+
+        setTimeout(() => {
+          if (isMobile && index !== null) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("idx", index);
+            window.location.href = url.toString(); // mobile redirect to current move with idx
+          } else {
+            // desktop reload will automatically restore our place on the page
             window.location.reload();
-          }, 750);
-        }
-      } else if (status === "success") {
-        console.error("Save button not found");
-        window.location.reload();
+          }
+        }, 750);
       }
     },
 
     //--------------------------------------------------------------------------------
     saveFromMove(index) {
-      this.saveVariation().then((success) => {
+      this.saveVariation(index).then((success) => {
         this.variationData.moves[index].saved = success ? "success" : "error";
         // clear after short delay only if sucessuful (leave red background if error)
         if (success) {
@@ -110,7 +116,7 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    async saveVariation() {
+    async saveVariation(index) {
       console.log("Saving variation data...", this.variationData);
       const payload = this.buildPayload();
 
@@ -130,7 +136,7 @@ export function editApp() {
           return false;
         } else {
           console.log("Variation saved successfully");
-          this.handleSaveResult("success");
+          this.handleSaveResult("success", index);
           return true;
         }
       } catch (error) {
