@@ -140,7 +140,8 @@ class Variation(models.Model):
     @classmethod
     def due_for_review(cls):
         now = timezone.now()
-        return cls.objects.filter(next_review__lte=now).order_by("next_review").first()
+        soon = now + timezone.timedelta(minutes=5)
+        return cls.objects.filter(next_review__lte=soon).order_by("next_review").first()
 
     @classmethod
     def due_counts(cls):
@@ -159,7 +160,7 @@ class Variation(models.Model):
 
         if total_due_now < 5:
             relatively_soon = 2
-        if total_due_now < 10:
+        elif total_due_now < 10:
             relatively_soon = 5
         else:
             relatively_soon = 8
