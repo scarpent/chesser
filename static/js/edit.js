@@ -97,30 +97,47 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    saveVariation() {
+    saveFromMove(index) {
+      this.saveVariation().then((success) => {
+        this.variationData.moves[index].saved = success ? "success" : "error";
+        // clear after short delay only if sucessuful (leave red background if error)
+        if (success) {
+          setTimeout(() => {
+            this.variationData.moves[index].saved = null;
+          }, 750);
+        }
+      });
+    },
+
+    //--------------------------------------------------------------------------------
+    async saveVariation() {
       console.log("Saving variation data...", this.variationData);
       const payload = this.buildPayload();
 
-      fetch("/save-variation/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("data:", data);
-          if (data.status === "error") {
-            console.error("Save error:", data.message);
-            this.handleSaveResult("error");
-          } else {
-            console.log("Variation saved successfully");
-            this.handleSaveResult("success");
-          }
-        })
-        .catch((error) => {
-          console.error("Error saving variation:", error);
-          this.handleSaveResult("error");
+      try {
+        const response = await fetch("/save-variation/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         });
+
+        const data = await response.json();
+        console.log("data:", data);
+
+        if (data.status === "error") {
+          console.error("Save error:", data.message);
+          this.handleSaveResult("error");
+          return false;
+        } else {
+          console.log("Variation saved successfully");
+          this.handleSaveResult("success");
+          return true;
+        }
+      } catch (error) {
+        console.error("Error saving variation:", error);
+        this.handleSaveResult("error");
+        return false;
+      }
     },
 
     //--------------------------------------------------------------------------------
