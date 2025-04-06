@@ -307,14 +307,23 @@
           label: window.homeData.next_due,
 
           initCountdown() {
-            const match = this.originalText.match(/Next: (\d+)s/);
+            const match = this.originalText.match(/Next: (?:(\d+)m)? ?(?:(\d+)s)?/);
             if (!match) return;
 
-            let value = parseInt(match[1], 10);
+            const minutes = match[1] ? parseInt(match[1], 10) : 0;
+            const seconds = match[2] ? parseInt(match[2], 10) : 0;
+
+            if (minutes > 4) return;
+
+            let value = minutes * 60 + seconds;
+            if (value === 0) return;
 
             const tick = () => {
               if (value-- > 1) {
-                this.label = `⏰ Next: ${value} 🧨`;
+                const m = Math.floor(value / 60);
+                const s = value % 60;
+                const timeLabel = m > 0 ? `${m}m ${s}s` : `${s}  🧨`;
+                this.label = `⏰ Next: ${timeLabel}`;
                 setTimeout(tick, 1000);
               } else {
                 this.label = "⏰ Next: 💥 Now!";
