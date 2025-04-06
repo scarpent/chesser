@@ -170,6 +170,14 @@ class Variation(models.Model):
             next_review__gte=now, next_review__lte=soon
         ).count()
 
+        # This is a bit hacky, but we want to account for feature that we
+        # can start quizzes five minutes before due; if relatively soon is
+        # 2 minutes, we haven't counted it yet. It's okay if some are due
+        # now and we're not counting one as due soon. This just prevents us
+        # from completing the quiz session when there are doable reviews...
+        if total_due_now == 0 and cls.due_for_review() and relatively_soon == 2:
+            total_due_soon += 1
+
         return total_due_now, total_due_soon
 
 
