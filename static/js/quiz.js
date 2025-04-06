@@ -478,37 +478,34 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
-    reportResult(passed) {
+    async reportResult(passed) {
       const variationId = this.variationData.variation_id;
 
-      fetch("/report-result/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          variation_id: variationId,
-          passed: passed,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            const text = passed ? "Passed" : "Failed";
-            this.reviewData.total_due_now = data.total_due_now;
-            this.reviewData.total_due_soon = data.total_due_soon;
-            this.saveQuizResult(passed);
-            if (data.total_due_now === 0 && data.total_due_soon === 0)
-              this.completeReviewSession();
-          } else {
-            console.error("Failed to report result:", data.message);
-          }
-        })
-        .catch((error) => {
-          console.error("Error reporting result:", error);
+      try {
+        const response = await fetch("/report-result/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ variation_id: variationId, passed }),
         });
-    },
 
+        const data = await response.json();
+
+        if (data.status === "success") {
+          const text = passed ? "Passed" : "Failed";
+          this.reviewData.total_due_now = data.total_due_now;
+          this.reviewData.total_due_soon = data.total_due_soon;
+          this.saveQuizResult(passed);
+
+          if (data.total_due_now === 0 && data.total_due_soon === 0) {
+            this.completeReviewSession();
+          }
+        } else {
+          console.error("Failed to report result:", data.message);
+        }
+      } catch (error) {
+        console.error("Error reporting result:", error);
+      }
+    },
     //--------------------------------------------------------------------------------
     alreadyCompleted() {
       const variationId = this.variationData.variation_id;
