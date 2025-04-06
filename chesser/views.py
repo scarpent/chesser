@@ -924,6 +924,10 @@ def stats(request):
         yield "</tr>"
 
         days = 14
+        level_totals = defaultdict(int)
+        total_passed_all_days = 0
+        total_reviewed_all_days = 0
+
         for delta in range(days - 1, -1, -1):
             day = timezone.localtime(timezone.now()) - timezone.timedelta(days=delta)
             start = timezone.make_aware(
@@ -934,6 +938,9 @@ def stats(request):
             day_qs = qs.filter(datetime__gte=start, datetime__lt=end)
             day_total = day_qs.count()
             day_passed = day_qs.filter(passed=True).count()
+            total_passed_all_days += day_passed
+            total_reviewed_all_days += day_total
+
             day_percent = int((day_passed / day_total) * 100) if day_total else 0
             result_cell = (
                 f"{day_passed}/{day_total} ({day_percent}%)" if day_total else "–"
@@ -948,6 +955,7 @@ def stats(request):
                 lvl = row["level"]
                 key = f"L{lvl}" if lvl < 10 else "L10+"
                 level_counts[key]["total"] += row["total_count"]
+                level_totals[key] += row["total_count"]
 
             yield f"<tr><td style='padding: 4px; text-align: right'>{day.date()}</td><td style='padding: 4px; text-align: right'>{result_cell}</td>"  # noqa: E501
             for label in level_labels:
@@ -958,6 +966,24 @@ def stats(request):
                     val = "–"
                 yield f"<td style='padding: 4px; text-align: right'>{val}</td>"
             yield "</tr>"
+
+        # Final Avg row
+        avg_percent = (
+            int((total_passed_all_days / total_reviewed_all_days) * 100)
+            if total_reviewed_all_days
+            else 0
+        )
+        avg_passed = round(total_passed_all_days / days)
+        avg_total = round(total_reviewed_all_days / days)
+        avg_percent = int((avg_passed / avg_total) * 100) if avg_total else 0
+        result_avg_cell = f"{avg_passed}/{avg_total} ({avg_percent}%)"
+
+        yield f"<tr><td style='padding: 4px; text-align: right'><b>Avg</b></td><td style='padding: 4px; text-align: right'><b>{result_avg_cell}</b></td>"  # noqa: E501
+        for label in level_labels:
+            total = level_totals.get(label, 0)
+            avg = round(total / days) if days else 0
+            yield f"<td style='padding: 4px; text-align: right'><b>{avg}</b></td>"
+        yield "</tr>"
 
         yield "</table></div>"
 
