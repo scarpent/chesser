@@ -782,13 +782,16 @@ class HomeView:
             .order_by("-created_at")[:20]
         )
         added = []
-        for result in variations:
+        for variation in variations:
             added.append(
                 {
-                    "variation_id": result.id,
-                    "variation_title": result.title,
-                    "created_at": util.get_time_ago(self.now, result.created_at),
-                    "next_review": util.format_time_until(self.now, result.next_review),
+                    "variation_id": variation.id,
+                    "variation_title": variation.title,
+                    "level": variation.level,
+                    "created_at": util.get_time_ago(self.now, variation.created_at),
+                    "next_review": util.format_time_until(
+                        self.now, variation.next_review
+                    ),
                 }
             )
 

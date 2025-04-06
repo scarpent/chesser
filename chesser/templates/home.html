@@ -236,21 +236,23 @@
           <h3>Recently Added</h3>
           <ul>
             <template
-              x-for="review in homeData.recently_added"
-              :key="review.variation_id"
+              x-for="variation in homeData.recently_added"
+              :key="variation.variation_id"
             >
               <li>
                 <div class="home-recently-info">
                   <div>
                     ➡️
                     <a
-                      :href="'/variation/' + review.variation_id + '/'"
-                      x-text="review.variation_title"
+                      :href="'/variation/' + variation.variation_id + '/'"
+                      x-text="variation.variation_title"
                     ></a>
                   </div>
                   <div>
-                    <span x-text="review.created_at"></span> ➤
-                    <span x-text="review.next_review"></span>
+                    <span x-text="variation.created_at"></span> ➤
+                    <span x-text="variation.next_review"></span>, L<span
+                      x-text="variation.level"
+                    ></span>
                   </div>
                 </div>
               </li>
