@@ -241,6 +241,15 @@ td:last-child {
   gap: 15px;
 }
 
+.move-block:nth-child(even) {
+  background-color: #444;
+}
+
+.move-block {
+  padding: 15px;
+  border-radius: 8px;
+}
+
 .move-text-container,
 .move-other-container,
 #edit-variation-info {
@@ -1110,6 +1119,11 @@ external monitor to avoid display isses... */
   #edit-variation-info {
     margin-bottom: 20px;
   }
+
+  .move-block {
+    padding: 10px;
+  }
+
   /* ------------------------ end edit page 900px */
 }
 
