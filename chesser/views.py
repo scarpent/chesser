@@ -957,11 +957,12 @@ def stats(request):
         yield "<table><tr><th style='padding: 4px; text-align: right'>Date</th>"
         for label in level_labels:
             yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
-        yield "</tr>"
+        yield "<th style='padding: 4px; text-align: right'>Total</th></tr>"
 
-        now = timezone.localtime()
+        today = timezone.localtime().date()
         for offset in range(14):
-            day_start = now + timezone.timedelta(days=offset)
+            day = today + timezone.timedelta(days=offset)
+            day_start = timezone.make_aware(datetime.combine(day, datetime.min.time()))
             day_end = day_start + timezone.timedelta(days=1)
 
             day_qs = (
@@ -973,16 +974,18 @@ def stats(request):
             )
 
             level_counts = defaultdict(int)
+            total_for_day = 0
             for row in day_qs:
                 lvl = row["level"]
                 key = f"L{lvl}" if lvl < 10 else "L10+"
                 level_counts[key] += row["count"]
+                total_for_day += row["count"]
 
-            yield f"<tr><td style='padding: 4px; text-align: right'>{day_start.date()}</td>"  # noqa: E501
+            yield f"<tr><td style='padding: 4px; text-align: right'>{day}</td>"
             for label in level_labels:
                 val = level_counts.get(label) or "–"
                 yield f"<td style='padding: 4px; text-align: right'>{val}</td>"
-            yield "</tr>"
+            yield f"<td style='padding: 4px; text-align: right'>{total_for_day}</td></tr>"  # noqa: E501
 
         yield "</table></div></div></body></html>"
 
