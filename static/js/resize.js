@@ -18,14 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   boardContainer.style.width = `${boardSizeToUse}px`;
   boardContainer.style.height = `${boardSizeToUse}px`;
 
-  const board = document.getElementById("board");
-  const offset = 5;
-
-  board.style.backgroundImage = "url('/static/images/brown-board.png')";
-  board.style.backgroundRepeat = "no-repeat";
-  board.style.backgroundSize = `calc(100% - ${offset}px) calc(100% - ${offset}px)`;
-  board.style.backgroundPosition = "top left";
-
   resizeHandle.addEventListener("mousedown", (e) => {
     e.preventDefault();
 
