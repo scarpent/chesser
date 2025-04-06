@@ -97,12 +97,7 @@
           <div class="edit-board" :id="'edit-board-' + index"></div>
           <div class="move-text-container">
             <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>
-            <textarea
-              class="move-text"
-              x-model="move.text"
-              rows="10"
-              cols="60"
-            ></textarea>
+            <textarea class="move-text" x-model="move.text" rows="10"></textarea>
             <div class="move-fen">
               <a
                 :href="variationData.analysis_url + (index + 1)"

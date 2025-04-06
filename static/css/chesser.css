@@ -250,6 +250,29 @@ td:last-child {
   align-self: flex-start;
 }
 
+.move-text-container {
+  width: fit-content; /* shrink-wrap to the widest child */
+  max-width: 100%;
+}
+
+.move-text {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.move-fen {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.move-text,
+.move-fen {
+  width: 600px;
+}
+
 .edit-board canvas {
   width: 100% !important;
   height: 100% !important;
@@ -1023,6 +1046,15 @@ external monitor to avoid display isses... */
   flex-shrink: 0;
 }
 
+/* ---------------------------------------------------------- @media 1200px */
+@media (max-width: 1200px) {
+  .move-text,
+  .move-fen {
+    width: 100%;
+    resize: vertical; /* allow vertical resizing only */
+  }
+}
+
 /* ----------------------------------------------------------- @media 900px */
 @media (max-width: 900px) {
   html,
@@ -1075,21 +1107,8 @@ external monitor to avoid display isses... */
     box-sizing: border-box;
   }
 
-  .move-text {
-    width: 100%;
-    box-sizing: border-box;
-    resize: vertical; /* allow vertical resizing only */
-  }
-
   #edit-variation-info {
     margin-bottom: 20px;
-  }
-
-  .move-fen a {
-    display: block;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    max-width: 100%;
   }
   /* ------------------------ end edit page 900px */
 }
@@ -1111,10 +1130,6 @@ about 500, but also covers our ultimate mobile 450 view */
 
   .variation-title-input {
     width: 100%;
-  }
-
-  .move-fen {
-    font-size: 16px;
   }
 
   #variation-mainline-moves,
