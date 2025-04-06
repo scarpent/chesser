@@ -48,6 +48,12 @@ def review(request, variation_id=None):
             pk=variation_id,
         )  # fmt: on
 
+        # We can specify to learn a new variation on demand
+        learn = request.GET.get("learn") == "1"
+        if learn and variation.level == 0:
+            # don't update next review - we can consider it as not due
+            extra_study = False
+
     if variation is None:
         variation_data = {}
     else:

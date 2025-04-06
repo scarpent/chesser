@@ -62,12 +62,22 @@
               <span x-text="'S' + variationData.start_move"></span>
               <span x-text="'N➤' + variationData.time_until_next_review"></span>
               <span x-text="'#' + variationData.variation_id"></span>
-              <span x-data="{ variation_id: variationData.variation_id }">
-                <a x-bind:href="'/review/' + variationData.variation_id + '/'"
-                  >extra study</a
-                >
-                ✏️
-              </span>
+              <template x-if="variationData.level > 0">
+                <span>
+                  <a :href="'/review/' + variationData.variation_id + '/'"
+                    >extra study</a
+                  >
+                  ✏️
+                </span>
+              </template>
+              <template x-if="variationData.level === 0">
+                <span>
+                  <a :href="'/review/' + variationData.variation_id + '/?learn=1'"
+                    >learn</a
+                  >
+                  📖
+                </span>
+              </template>
             </div>
             <div
               id="variation-mainline-moves"
