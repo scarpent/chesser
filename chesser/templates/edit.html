@@ -138,15 +138,27 @@
               placeholder="Alt move fail"
               @blur="validateAltMoves(index, 'alt_fail')"
             />
-            <button
-              title="Save"
-              class="icon-save icon-button"
-              :class="{
+            <div>
+              <button
+                title="Save"
+                class="icon-save icon-button"
+                :class="{
                 'save-success': move.saved === 'success',
                 'save-error': move.saved === 'error'
               }"
-              @click.prevent="saveFromMove(index)"
-            ></button>
+                @click.prevent="saveFromMove(index)"
+              ></button>
+              <button
+                title="Previous Move"
+                class="icon-back icon-button"
+                @click.prevent="scrollToMoveBlock(index - 1)"
+              ></button>
+              <button
+                title="Next Move"
+                class="icon-forward icon-button"
+                @click.prevent="scrollToMoveBlock(index + 1)"
+              ></button>
+            </div>
           </div>
         </div>
       </template>
