@@ -436,24 +436,6 @@ def variations_tsv(request):
 
 
 def variations_table(request):
-    def get_common_prefix_html(curr_moves, prev_moves):
-        if not prev_moves:
-            return curr_moves  # Nothing to compare
-
-        curr = curr_moves.split()
-        prev = prev_moves.split()
-        common = []
-        for a, b in zip(curr, prev):
-            if a == b:
-                common.append(a)
-            else:
-                break
-        common_str = " ".join(common)
-        rest_str = " ".join(curr[len(common) :])  # noqa: E203
-        if common_str:
-            return f'<span style="color: #888">{common_str}</span> {rest_str}'
-        return curr_moves
-
     def row_generator():
         qs = get_sorted_variations()
 
@@ -474,15 +456,17 @@ def variations_table(request):
                 f'<td colspan="5">{chapter_title}: {count_in_chapter}</td></tr>\n'
             )
 
-            prev_moves = ""
+            previous_moves = []
             for idx, v in enumerate(group_list, start=1):
                 total += 1
                 highlight = (
                     ' style="background-color: #f0f0f0;"' if idx % 2 == 0 else ""
                 )
 
-                moves_html = get_common_prefix_html(v.mainline_moves, prev_moves)
-                prev_moves = v.mainline_moves
+                moves_html, current_moves = util.get_common_move_prefix_html(
+                    v.mainline_moves, previous_moves, use_class=False
+                )
+                previous_moves = current_moves
 
                 yield (
                     f"<tr{highlight}>"
@@ -656,7 +640,7 @@ class HomeView:
                     self.now, variation.next_review
                 )
 
-                mainline_moves_html, current_moves = self.get_mainline_moves_html(
+                moves_html, current_moves = util.get_common_move_prefix_html(
                     variation.mainline_moves_str, previous_moves
                 )
                 nav["variations"].append(
@@ -668,7 +652,7 @@ class HomeView:
                         "time_since_last_review": time_since_last_review,
                         "time_until_next_review": time_until_next_review,
                         "mainline_moves_str": variation.mainline_moves_str,
-                        "mainline_moves_html": mainline_moves_html,
+                        "mainline_moves_html": moves_html,
                     }
                 )
                 previous_moves = current_moves
@@ -679,25 +663,6 @@ class HomeView:
             nav["chapter_title"] = Chapter.objects.get(id=self.chapter_id).title
 
         return nav
-
-    def get_mainline_moves_html(self, mainline_moves_str, previous_moves):
-        # Build HTML to highlight common opening moves
-        current_moves = mainline_moves_str.split()
-        common_len = 0
-        for a, b in zip(previous_moves, current_moves):
-            if a == b:
-                common_len += 1
-            else:
-                break
-
-        common_moves = " ".join(current_moves[:common_len])
-        rest_moves = " ".join(current_moves[common_len:])
-        mainline_moves_html = ""
-        if common_moves:
-            mainline_moves_html += f'<span class="common-moves">{common_moves} </span>'
-        mainline_moves_html += rest_moves
-
-        return mainline_moves_html, current_moves
 
     def get_level_report(self):
         level_counts = []

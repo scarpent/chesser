@@ -52,3 +52,30 @@ def format_time_until(now, next_review):
         parts.append(f"{int(seconds)}s")
 
     return " ".join(parts)
+
+
+def get_common_move_prefix_html(mainline_moves_str, previous_moves, use_class=True):
+    """
+    Returns (html, current_moves_list), where html has the common
+    prefix styled inline or with a class. Useful for visually
+    grouping similar variations.
+    """
+    current_moves = mainline_moves_str.split()
+    common_len = 0
+    for a, b in zip(previous_moves, current_moves):
+        if a == b:
+            common_len += 1
+        else:
+            break
+
+    common_moves = " ".join(current_moves[:common_len])
+    rest_moves = " ".join(current_moves[common_len:])
+
+    if use_class:
+        attribute = 'class="common-moves"'
+    else:
+        attribute = 'style="color: #888"'
+
+    common_span = f"<span {attribute}>{common_moves} </span>" if common_moves else ""
+
+    return f"{common_span} {rest_moves}".strip(), current_moves
