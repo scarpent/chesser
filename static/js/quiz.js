@@ -329,9 +329,11 @@ export function quizApp() {
       this.showCounterReset = passed + failed !== 0;
 
       const totalCompleted = passed + failed;
-      const dueSoon = this.reviewData.total_due_soon
-        ? ` (+${this.reviewData.total_due_soon} soon)`
-        : "";
+      // if we have enough reviews due, we're not much concerned about the "soon" count
+      const dueSoon =
+        this.reviewData.total_due_soon && this.reviewData.total_due_now < 25
+          ? ` (+${this.reviewData.total_due_soon} soon)`
+          : "";
 
       const extra_color = this.failed ? "red" : "lightgreen";
       const extra = this.reviewData.extra_study

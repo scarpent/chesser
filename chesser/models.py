@@ -139,9 +139,11 @@ class Variation(models.Model):
 
     @classmethod
     def due_for_review(cls):
-        now = timezone.now()
-        soon = now + timezone.timedelta(minutes=5)
-        return cls.objects.filter(next_review__lte=soon).order_by("next_review").first()
+        return (
+            cls.objects.filter(next_review__lte=timezone.now())
+            .order_by("next_review")
+            .first()
+        )
 
     @classmethod
     def due_counts(cls):
@@ -169,14 +171,6 @@ class Variation(models.Model):
         total_due_soon = cls.objects.filter(
             next_review__gte=now, next_review__lte=soon
         ).count()
-
-        # This is a bit hacky, but we want to account for feature that we
-        # can start quizzes five minutes before due; if relatively soon is
-        # 2 minutes, we haven't counted it yet. It's okay if some are due
-        # now and we're not counting one as due soon. This just prevents us
-        # from completing the quiz session when there are doable reviews...
-        if total_due_now == 0 and cls.due_for_review() and relatively_soon == 2:
-            total_due_soon += 1
 
         return total_due_now, total_due_soon
 
