@@ -434,7 +434,7 @@ td:last-child {
 }
 
 .variations-container {
-  max-width: 600px;
+  max-width: 800px;
 }
 
 .courses-container {
@@ -489,6 +489,7 @@ td:last-child {
 .variations-container ol li {
   margin-bottom: 10px;
   padding-left: 0;
+  word-break: keep-all;
 }
 
 .variations-container ol li {
@@ -1028,17 +1029,16 @@ external monitor to avoid display isses... */
   color: #222;
 }
 
-/* Highlight alt inputs on focus */
 input.move-alt:focus {
   outline: none;
-  border: 2px solid #f7e26b; /* stronger yellow */
-  background-color: #fffccf; /* slightly lighter yellow */
+  border: 2px solid #f7e26b;
+  background-color: #fffccf;
 }
 
 input.move-alt-fail:focus {
   outline: none;
-  border: 2px solid #f58a8a; /* stronger red */
-  background-color: #ffdede; /* slightly lighter red */
+  border: 2px solid #f58a8a;
+  background-color: #ffdede;
 }
 
 /* ------------------------------------------------------- File Upload Form */

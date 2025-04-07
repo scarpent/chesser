@@ -6,8 +6,6 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- use light yellow and red backgrounds for alt moves?! ⭐️
-- make chapter variation listing be wider at full screen
 - stats: filter by course/chapter on those pages? (maybe, maybe not)
 
 - created_at variations
