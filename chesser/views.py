@@ -436,13 +436,31 @@ def variations_tsv(request):
 
 
 def variations_table(request):
+    def get_common_prefix_html(curr_moves, prev_moves):
+        if not prev_moves:
+            return curr_moves  # Nothing to compare
+
+        curr = curr_moves.split()
+        prev = prev_moves.split()
+        common = []
+        for a, b in zip(curr, prev):
+            if a == b:
+                common.append(a)
+            else:
+                break
+        common_str = " ".join(common)
+        rest_str = " ".join(curr[len(common) :])  # noqa: E203
+        if common_str:
+            return f'<span style="color: #888">{common_str}</span> {rest_str}'
+        return curr_moves
+
     def row_generator():
         qs = get_sorted_variations()
 
         yield "<html><body><table>\n"
         yield (
-            '<tr style="background-color: lightblue; text-align: left"><th>Start</th>'
-            "<th>C</th><th>#</th><th>Variation</th><th>Moves</th></tr>\n"
+            '<tr style="background-color: lightblue; text-align: left">'
+            "<th>Start</th><th>C</th><th>#</th><th>Variation</th><th>Moves</th></tr>\n"
         )
 
         URL_BASE = f"{settings.CHESSER_URL}/variation"
@@ -456,11 +474,16 @@ def variations_table(request):
                 f'<td colspan="5">{chapter_title}: {count_in_chapter}</td></tr>\n'
             )
 
+            prev_moves = ""
             for idx, v in enumerate(group_list, start=1):
                 total += 1
                 highlight = (
                     ' style="background-color: #f0f0f0;"' if idx % 2 == 0 else ""
                 )
+
+                moves_html = get_common_prefix_html(v.mainline_moves, prev_moves)
+                prev_moves = v.mainline_moves
+
                 yield (
                     f"<tr{highlight}>"
                     f"<td>{v.start_move}</td>"
@@ -468,7 +491,7 @@ def variations_table(request):
                     f'<td style="text-align: right">'
                     f'<a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
                     f'<td style="white-space: nowrap;">{v.title}</td>'
-                    f'<td style="white-space: nowrap;">{v.mainline_moves}</td>'
+                    f'<td style="white-space: nowrap;">{moves_html}</td>'
                     "</tr>\n"
                 )
 
