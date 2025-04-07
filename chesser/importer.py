@@ -159,8 +159,8 @@ def import_variation(import_data, end_move=None):
         move.save()
 
     validate_mainline_string(
-        [m["san"] for m in import_data["moves"]],
-        mainline,
+        [m.san for m in variation.moves.all()],
+        variation.mainline_moves_str,
     )
 
     if variation.level < 1 or not created:
