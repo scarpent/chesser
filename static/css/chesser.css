@@ -102,6 +102,7 @@ td:last-child {
   align-items: flex-start;
   white-space: normal; /* Ensure text wraps properly */
   word-wrap: break-word; /* Prevent overflow */
+  border-radius: 8px;
 }
 
 #right-column p {
