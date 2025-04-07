@@ -624,6 +624,7 @@ class HomeView:
                 .annotate(sort_key=Lower("mainline_moves_str"))
                 .order_by("sort_key")
             )
+            previous_moves = []
             for variation in qs.iterator():
                 time_since_last_review = util.get_time_ago(
                     self.now, variation.get_latest_quiz_result_datetime()
@@ -632,6 +633,9 @@ class HomeView:
                     self.now, variation.next_review
                 )
 
+                mainline_moves_html, current_moves = self.get_mainline_moves_html(
+                    variation.mainline_moves_str, previous_moves
+                )
                 nav["variations"].append(
                     {
                         "id": variation.id,
@@ -641,8 +645,10 @@ class HomeView:
                         "time_since_last_review": time_since_last_review,
                         "time_until_next_review": time_until_next_review,
                         "mainline_moves_str": variation.mainline_moves_str,
+                        "mainline_moves_html": mainline_moves_html,
                     }
                 )
+                previous_moves = current_moves
 
             nav["course_id"] = self.course_id
             nav["course_title"] = Course.objects.get(id=self.course_id).title
@@ -650,6 +656,25 @@ class HomeView:
             nav["chapter_title"] = Chapter.objects.get(id=self.chapter_id).title
 
         return nav
+
+    def get_mainline_moves_html(self, mainline_moves_str, previous_moves):
+        # Build HTML to highlight common opening moves
+        current_moves = mainline_moves_str.split()
+        common_len = 0
+        for a, b in zip(previous_moves, current_moves):
+            if a == b:
+                common_len += 1
+            else:
+                break
+
+        common_moves = " ".join(current_moves[:common_len])
+        rest_moves = " ".join(current_moves[common_len:])
+        mainline_moves_html = ""
+        if common_moves:
+            mainline_moves_html += f'<span class="common-moves">{common_moves} </span>'
+        mainline_moves_html += rest_moves
+
+        return mainline_moves_html, current_moves
 
     def get_level_report(self):
         level_counts = []

@@ -536,6 +536,10 @@ td:last-child {
   line-height: 1.3;
 }
 
+.common-moves {
+  color: #777;
+}
+
 .history-table td {
   padding: 0px 5px;
   text-align: left;
