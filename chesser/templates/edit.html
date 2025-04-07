@@ -75,7 +75,9 @@
         </div>
 
         <div>
-          <a :href="'/export/' + variationData.variation_id + '/'">export</a>
+          <a :href="'/export/' + variationData.variation_id + '/'" target="_blank"
+            >export</a
+          >
           •
           <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
           <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
