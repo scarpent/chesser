@@ -1018,6 +1018,29 @@ external monitor to avoid display isses... */
   text-decoration: underline;
 }
 
+.form-standard input.move-alt {
+  background-color: #f1eecd; /* light yellow */
+  color: #222;
+}
+
+.form-standard input.move-alt-fail {
+  background-color: #e1baba; /* light red/pink */
+  color: #222;
+}
+
+/* Highlight alt inputs on focus */
+input.move-alt:focus {
+  outline: none;
+  border: 2px solid #f7e26b; /* stronger yellow */
+  background-color: #fffccf; /* slightly lighter yellow */
+}
+
+input.move-alt-fail:focus {
+  outline: none;
+  border: 2px solid #f58a8a; /* stronger red */
+  background-color: #ffdede; /* slightly lighter red */
+}
+
 /* ------------------------------------------------------- File Upload Form */
 
 .file-upload-form h3 {

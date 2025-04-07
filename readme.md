@@ -6,19 +6,14 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-⭐️
-
-- export feature (just outputs the json) (to be used with clone feature, too)
-- clone lines
-
-- stats: simple stats page with past week and all time (since 3/20) numbers
-  ~ week ahead counts for levels
+- use light yellow and red backgrounds for alt moves?! ⭐️
+- make chapter variation listing be wider at full screen
+- stats: filter by course/chapter on those pages? (maybe, maybe not)
 
 - created_at variations
   ~ backfill using get_variation_git_history.sh
   ~ change to autonowadd
 
-- board png placeholder not doing anything much or at all ➤ improve or remove
 - add next review date form input for clone? Or continue using end of time...
 
 - add move normalizer from schess (regex version?) - use it on clone moves string
