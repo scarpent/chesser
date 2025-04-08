@@ -712,9 +712,12 @@ external monitor to avoid display isses... */
   object-fit: contain;
 }
 
+.icon-button:active {
+  transform: scale(0.9);
+}
+
 .icon-button:hover img {
-  transform: scale(1.12);
-  filter: brightness(1.4) contrast(1.1);
+  filter: brightness(1.5) contrast(1.1);
 }
 
 .icon-button.save-success {
