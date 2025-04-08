@@ -795,6 +795,7 @@ external monitor to avoid display isses... */
 .icon-complete {
   background-image: url("/static/icons/noto-emoji/complete.svg");
 }
+/* don't forget to add to preload_icons.html */
 
 /* ---------------------------------------------- Django Messages Framework */
 .message {
