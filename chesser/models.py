@@ -211,6 +211,6 @@ class QuizResult(models.Model):
     variation = models.ForeignKey(
         Variation, on_delete=models.CASCADE, related_name="quiz_results"
     )
-    datetime = models.DateTimeField(auto_now_add=True, db_index=True)
+    datetime = models.DateTimeField(default=timezone.now, editable=False, db_index=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep. interval, etc
     passed = models.BooleanField(default=False)
