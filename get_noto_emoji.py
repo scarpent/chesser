@@ -24,6 +24,7 @@ emoji_buttons = {
     "random": "🎲",
     "stats": "🔢",
     "clone": "🧬",
+    "complete": "💥",
 }
 
 

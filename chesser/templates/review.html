@@ -46,11 +46,20 @@
         <div x-html="status" class="status"></div>
         <template x-if="completed">
           <div class="button-container">
-            <button
-              title="Next"
-              @click="window.location.href='/review/'"
-              class="icon-review icon-button"
-            ></button>
+            <template x-if="reviewData.total_due_now > 0">
+              <button
+                title="Next"
+                @click="window.location.href='/review/'"
+                class="icon-review icon-button"
+              ></button>
+            </template>
+            <template x-if="reviewData.total_due_now == 0">
+              <button
+                title="Finish"
+                @click="window.location.href='/review/?finish=1'"
+                class="icon-complete icon-button"
+              ></button>
+            </template>
           </div>
         </template>
       </div>

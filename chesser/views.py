@@ -48,13 +48,15 @@ def review(request, variation_id=None):
             pk=variation_id,
         )  # fmt: on
 
-        # We can specify to learn a new variation on demand
+        # However! We can learn a new variation on demand and make it count
         learn = request.GET.get("learn") == "1"
         if learn and variation.level == 0:
-            # don't update next review - we can consider it as not due
+            # don't update next review; it will stay scheduled whenever until completed
             extra_study = False
 
     if variation is None:
+        if request.GET.get("finish") == "1":
+            return redirect("home")
         variation_data = {}
     else:
         variation_data = serialize_variation(variation)

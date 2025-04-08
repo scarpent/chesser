@@ -782,6 +782,9 @@ external monitor to avoid display isses... */
 .icon-clone {
   background-image: url("/static/icons/noto-emoji/clone.svg");
 }
+.icon-complete {
+  background-image: url("/static/icons/noto-emoji/complete.svg");
+}
 
 /* ---------------------------------------------- Django Messages Framework */
 .message {
