@@ -63,43 +63,45 @@
           </div>
         </template>
       </div>
-      <div class="button-container" x-show="hasVariationData()" x-cloak>
-        <button
-          title="Home"
-          class="icon-home icon-button"
-          @click="window.location.href='/'"
-        ></button>
-        <button
-          title="Restart"
-          @click="restartQuiz()"
-          class="icon-restart icon-button"
-        ></button>
-        <button
-          title="Show move"
-          @click="showQuizMove()"
-          class="icon-showmove icon-button"
-        ></button>
-        <button
-          title="Info"
-          @click="showInfo = !showInfo"
-          class="icon-info icon-button"
-        ></button>
-        <button
-          title="View"
-          @click="gotoVariationView()"
-          class="icon-variation icon-button"
-        ></button>
-        <button
-          title="Edit"
-          @click="gotoEditView()"
-          class="icon-edit icon-button"
-        ></button>
-        <button
-          title="Lichess analysis board"
-          @click="window.open(variationData.analysis_url + quizMoveIndex, target='_blank')"
-          class="icon-analysis icon-button"
-        ></button>
-      </div>
+      <template x-if="hasVariationData()">
+        <div class="button-container">
+          <button
+            title="Home"
+            class="icon-home icon-button"
+            @click="window.location.href='/'"
+          ></button>
+          <button
+            title="Restart"
+            @click="restartQuiz()"
+            class="icon-restart icon-button"
+          ></button>
+          <button
+            title="Show move"
+            @click="showQuizMove()"
+            class="icon-showmove icon-button"
+          ></button>
+          <button
+            title="Info"
+            @click="showInfo = !showInfo"
+            class="icon-info icon-button"
+          ></button>
+          <button
+            title="View"
+            @click="gotoVariationView()"
+            class="icon-variation icon-button"
+          ></button>
+          <button
+            title="Edit"
+            @click="gotoEditView()"
+            class="icon-edit icon-button"
+          ></button>
+          <button
+            title="Lichess analysis board"
+            @click="window.open(variationData.analysis_url + quizMoveIndex, target='_blank')"
+            class="icon-analysis icon-button"
+          ></button>
+        </div>
+      </template>
 
       <div id="review-stats" x-html="reviewStats"></div>
       <template x-if="showCounterReset">
