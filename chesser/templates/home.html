@@ -10,7 +10,7 @@
     <link rel="manifest" href="{% static 'manifest.json' %}" />
     <meta name="theme-color" content="#000000" />
   </head>
-  <body x-data="homeApp()">
+  <body x-data="homeApp()" x-init="initHome()">
     <div class="course-covers" x-cloak>
       <a
         :href="homeData.nav.course_id == 1 ? '/course/2/' : '/course/1/'"
@@ -109,7 +109,7 @@
       </h3>
       <ol>
         <template x-for="variation in homeData.nav.variations" :key="variation.id">
-          <li>
+          <li :id="'var_' + variation.id">
             <div class="variations-list-info">
               <div>
                 <a
@@ -281,61 +281,12 @@
       console.log("homeData:", window.homeData);
     </script>
 
-    <script>
+    <script type="module">
+      import { homeApp } from "{% static 'js/home.js' %}";
+      window.homeApp = homeApp;
       document.addEventListener("alpine:init", () => {
-        Alpine.data("homeApp", () => ({
-          homeData: window.homeData,
-
-          goToRandomReview() {
-            const course = this.homeData.nav.course_id;
-            const chapter = this.homeData.nav.chapter_id;
-            let url = "/review/random/";
-
-            const params = [];
-            if (course) params.push(`course_id=${course}`);
-            if (chapter) params.push(`chapter_id=${chapter}`);
-            if (params.length) url += "?" + params.join("&");
-
-            window.location.href = url;
-          },
-        }));
+        Alpine.data("homeApp", homeApp);
       });
-    </script>
-
-    <script>
-      function nextDueTimer() {
-        return {
-          originalText: window.homeData.next_due,
-          label: window.homeData.next_due,
-
-          initCountdown() {
-            const match = this.originalText.match(/Next: (?:(\d+)m)? ?(?:(\d+)s)?/);
-            if (!match) return;
-
-            const minutes = match[1] ? parseInt(match[1], 10) : 0;
-            const seconds = match[2] ? parseInt(match[2], 10) : 0;
-
-            if (minutes > 4) return;
-
-            let value = minutes * 60 + seconds;
-            if (value === 0) return;
-
-            const tick = () => {
-              if (value-- > 1) {
-                const m = Math.floor(value / 60);
-                const s = value % 60;
-                const timeLabel = m > 0 ? `${m}m ${s}s` : `${s}  🧨`;
-                this.label = `⏰ Next: ${timeLabel}`;
-                setTimeout(tick, 1000);
-              } else {
-                this.label = "⏰ Next: 💥 Now!";
-              }
-            };
-
-            tick();
-          },
-        };
-      }
     </script>
 
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
