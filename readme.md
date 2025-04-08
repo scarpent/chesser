@@ -6,23 +6,14 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
-- stats: filter by course/chapter on those pages? (maybe, maybe not)
-
-- created_at variations
-  ~ backfill using get_variation_git_history.sh
-  ~ change to autonowadd
-
 - add next review date form input for clone? Or continue using end of time...
-
 - add move normalizer from schess (regex version?) - use it on clone moves string
 - 404 page that has buttons...
 - use reambiguated moves to check alts, too?
-- decide where to do different cleanup/html stuff (e.g. when making the import json or when importing)
-- a way to have "shared reference" moves? (share shapes, alts, etc)
+- a way to have "shared reference" moves (share shapes, alts, etc)
   ~ perhaps a checkbox next to the large move number, "use standard ref"
   ~ if clicked and there isn't one, it will use the current text/shapes/alt to create it
   ~ if there is an existing one, show all of its info instead (old move should be untouched, can toggle back to it)
-- version number for variations? (version 1 is overwritable)
 - link to source variation from quiz info? Just one link to the original source var.
 
 ## longer term:
