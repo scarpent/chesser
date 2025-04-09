@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -85,6 +86,7 @@ class VariationAdmin(admin.ModelAdmin):
         "id",
         "clickable_title",
         "chapter",
+        "ply",
         "start_move",
         "level",
         "next_review",
@@ -93,6 +95,14 @@ class VariationAdmin(admin.ModelAdmin):
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
     readonly_fields = ("mainline_moves_str", "created_at")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(_ply=models.Count("moves"))
+
+    @admin.display(ordering="_ply")
+    def ply(self, obj):
+        return obj._ply
 
     @admin.display(description="Title")
     def clickable_title(self, obj):
