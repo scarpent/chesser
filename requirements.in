@@ -5,6 +5,7 @@
 # requests
 django
 dj-database-url
+djangoql
 # postgres
 psycopg[binary]
 # for serving production

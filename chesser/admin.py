@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
+from djangoql.admin import DjangoQLSearchMixin
 
 from .models import Chapter, Course, Move, QuizResult, Variation
 
@@ -66,14 +67,14 @@ class QuizResultInline(admin.TabularInline):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("title", "color")
     search_fields = ("title",)
     inlines = [ChapterInline]
 
 
 @admin.register(Chapter)
-class ChapterAdmin(admin.ModelAdmin):
+class ChapterAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("title", "course")
     search_fields = ("title",)
     list_filter = ("course",)
@@ -81,7 +82,7 @@ class ChapterAdmin(admin.ModelAdmin):
 
 
 @admin.register(Variation)
-class VariationAdmin(admin.ModelAdmin):
+class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "clickable_title",
@@ -111,14 +112,14 @@ class VariationAdmin(admin.ModelAdmin):
 
 
 @admin.register(Move)
-class MoveAdmin(admin.ModelAdmin):
+class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("sequence", "move_num", "variation", "san", "annotation")
     search_fields = ("san",)
     list_filter = ("variation",)
 
 
 @admin.register(QuizResult)
-class QuizResultAdmin(admin.ModelAdmin):
+class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("variation", "datetime", "level", "passed")
     search_fields = ("variation__title",)
     list_filter = ("variation", "passed", "level")

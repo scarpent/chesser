@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",  # serves static files in dev & prod
     "django_extensions",
+    "djangoql",
     "chesser",
 ]
 
