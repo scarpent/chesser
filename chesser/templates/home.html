@@ -66,8 +66,10 @@
       <ul>
         <template x-for="course in homeData.nav.courses" :key="course.id">
           <li>
-            <a :href="'/course/' + course.id + '/'" x-text="course.title"></a>
-            (<span x-text="course.variation_count"></span>)
+            <b>
+              <a :href="'/course/' + course.id + '/'" x-text="course.title"></a>
+              (<span x-text="course.variation_count"></span>)
+            </b>
           </li>
         </template>
       </ul>

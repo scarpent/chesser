@@ -6,6 +6,8 @@ This ⸨is⸩ a test. ⸨This might be best?⸩
 
 ## todo
 
+- highlight move notation for variation chessboard current position
+
 - add next review date form input for clone? Or continue using end of time...
 - add move normalizer from schess (regex version?) - use it on clone moves string
 - 404 page that has buttons...
