@@ -18,7 +18,7 @@ def start_scheduler():
     scheduler.add_job(
         lambda: print("💓 Scheduler heartbeat"),
         "interval",
-        seconds=30 * 60 if settings.IS_PRODUCTION else 15 * 60,
+        minutes=30,
         id="heartbeat",
         replace_existing=True,
     )
