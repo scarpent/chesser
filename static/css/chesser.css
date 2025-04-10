@@ -618,6 +618,7 @@ td:last-child {
 /* General image styling */
 .course img {
   width: 70%;
+  height: 70%;
   max-width: 250px;
   height: auto;
   display: block;
@@ -625,7 +626,25 @@ td:last-child {
   border-radius: 15px;
 }
 
-/* Individual styling for borders */
+.castle-button {
+  background: none;
+  border: none;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  border-radius: 15px;
+}
+
+.castle-button img {
+  width: 70%;
+  max-width: 250px;
+  height: auto;
+  display: block;
+  border: 8px solid;
+  border-radius: 15px;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
 .course-white img {
   border-color: white;
   background-color: black;
@@ -634,6 +653,18 @@ td:last-child {
 .course-black img {
   border-color: black;
   background-color: white;
+}
+
+.castle-button:hover {
+  background-color: transparent;
+}
+
+.castle-button:hover img {
+  filter: brightness(1.3) contrast(1.1);
+}
+
+.castle-button img:active {
+  transform: scale(0.92);
 }
 
 .chesser-logo img {
@@ -724,7 +755,7 @@ external monitor to avoid display isses... */
 }
 
 .icon-button:hover img {
-  filter: brightness(1.5) contrast(1.1);
+  filter: brightness(1.3) contrast(1.1);
 }
 
 .icon-button.save-success {
