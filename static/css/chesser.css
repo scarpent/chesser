@@ -540,7 +540,7 @@ td:last-child {
 
 .chapter-var-highlight {
   background-color: #444;
-  padding: 8px 12px;
+  padding: 8px 12px !important;
   border-radius: 10px;
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
 }
