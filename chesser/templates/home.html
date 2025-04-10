@@ -14,18 +14,14 @@
   <body x-data="homeApp()" x-init="initHome()">
     <div class="course-covers" x-cloak>
       <button
-        @click="window.location.href = homeData.nav.course_id == 1 ? '/course/2/' : '/course/1/'"
+        @click="window.location.href = '/course/1/'"
         class="castle-button course-white"
-        x-show="!homeData.nav.course_id || homeData.nav.course_id == 1"
-        aria-label="Switch to White Course"
       >
         <img src="{% static 'images/castle-white.png' %}" alt="Castle White" />
       </button>
       <button
-        @click="window.location.href = homeData.nav.course_id == 2 ? '/course/1/' : '/course/2/'"
+        @click="window.location.href = '/course/2/'"
         class="castle-button course-black"
-        x-show="!homeData.nav.course_id || homeData.nav.course_id == 2"
-        aria-label="Switch to Black Course"
       >
         <img src="{% static 'images/castle-black.png' %}" alt="Castle Black" />
       </button>
