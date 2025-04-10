@@ -95,7 +95,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     search_fields = ("title",)
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
-    readonly_fields = ("mainline_moves_str", "created_at")
+    readonly_fields = ("created_at",)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
