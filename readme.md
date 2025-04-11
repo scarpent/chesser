@@ -1,8 +1,7 @@
 ## notes...
 
-pgn-safe parens
 @@StartBracket@@ @@EndBracket@@
-This ⸨is⸩ a test. ⸨This might be best?⸩
+Don't use these -- just put () inside {()}
 
 ## todo
 

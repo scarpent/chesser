@@ -1,6 +1,8 @@
 .coverage
 *.pyc
 /temp/
+chesser_cleanup.py
 data/chesser.sqlite3
+eval_moves.py
 lcov.info
 staticfiles

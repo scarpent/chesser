@@ -69,14 +69,12 @@ class QuizResultInline(admin.TabularInline):
 @admin.register(Course)
 class CourseAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("title", "color")
-    search_fields = ("title",)
     inlines = [ChapterInline]
 
 
 @admin.register(Chapter)
 class ChapterAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("title", "course")
-    search_fields = ("title",)
     list_filter = ("course",)
     inlines = [VariationInline]
 
@@ -92,7 +90,6 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "level",
         "next_review",
     )
-    search_fields = ("title",)
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
     readonly_fields = ("created_at",)
@@ -113,15 +110,13 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
 @admin.register(Move)
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
-    list_display = ("sequence", "move_num", "variation", "san", "annotation")
-    search_fields = ("san",)
+    list_display = ("san", "annotation", "move_num", "variation")
     list_filter = ("variation",)
 
 
 @admin.register(QuizResult)
 class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("variation", "datetime", "level", "passed")
-    search_fields = ("variation__title",)
     list_filter = ("variation", "passed", "level")
     readonly_fields = ("variation", "datetime", "level", "passed")
     fields = ("variation", "datetime", "level", "passed")
