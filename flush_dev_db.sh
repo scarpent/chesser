@@ -22,9 +22,6 @@ echo "💥 Flushing dev database..."
 
 echo "✅ Database reset!"
 
-echo "🦸 Creating superuser..."
-./manage.py createsuperuser
-
 # Look for the most recent backup
 DB_BACKUP=$(ls -t ./temp/db_backup_*.json 2>/dev/null | head -n 1 || true)
 
@@ -42,3 +39,5 @@ fi
 
 ./manage.py loaddata "$DB_BACKUP" --verbosity 3
 
+echo "🦸 Creating superuser..."
+./manage.py createsuperuser
