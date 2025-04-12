@@ -48,6 +48,18 @@ td:last-child {
   text-align: right;
 }
 
+blockquote {
+  /* colors to complement chessboard */
+  background-color: #4a3b2c;
+  border-left: 6px solid #a57651;
+  border-radius: 12px;
+  margin: 1em 0;
+  padding: 1em 1.5em;
+  font-style: italic;
+  color: #fdfaf6;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
 #quiz-container {
   display: flex;
   flex-direction: column;
@@ -251,8 +263,8 @@ td:last-child {
   border-radius: 8px;
 }
 
-.move-text-container,
-.move-other-container,
+.edit-move-text-container,
+.edit-move-other-container,
 #edit-variation-info {
   display: flex;
   flex-direction: column !important; /* Force vertical stacking */
@@ -260,12 +272,12 @@ td:last-child {
   align-self: flex-start;
 }
 
-.move-text-container {
+.edit-move-text-container {
   width: fit-content; /* shrink-wrap to the widest child */
   max-width: 100%;
 }
 
-.move-text {
+.edit-move-text {
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -278,7 +290,7 @@ td:last-child {
   font-size: 16px;
 }
 
-.move-text,
+.edit-move-text,
 .move-fen {
   width: 600px;
 }
@@ -1134,7 +1146,7 @@ input.move-alt-fail:focus {
 
 /* ---------------------------------------------------------- @media 1200px */
 @media (max-width: 1200px) {
-  .move-text,
+  .edit-move-text,
   .move-fen {
     width: 100%;
     resize: vertical; /* allow vertical resizing only */
@@ -1185,8 +1197,8 @@ input.move-alt-fail:focus {
     box-sizing: border-box;
   }
 
-  .move-text-container,
-  .move-other-container {
+  .edit-move-text-container,
+  .edit-move-other-container {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;

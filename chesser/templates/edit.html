@@ -110,9 +110,9 @@
           :id="'move-block-' + index"
         >
           <div class="edit-board" :id="'edit-board-' + index"></div>
-          <div class="move-text-container">
+          <div class="edit-move-text-container">
             <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>
-            <textarea class="move-text" x-model="move.text" rows="9"></textarea>
+            <textarea class="edit-move-text" x-model="move.text" rows="8"></textarea>
             <div class="move-fen">
               <a
                 :href="variationData.analysis_url + (index + 1)"
@@ -121,7 +121,7 @@
               ></a>
             </div>
           </div>
-          <div class="move-other-container">
+          <div class="edit-move-other-container">
             <select class="annotation" x-model="move.annotation">
               <template
                 x-for="[key, value] in Object.entries(variationData.annotations)"

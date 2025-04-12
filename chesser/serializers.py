@@ -230,7 +230,7 @@ def generate_variation_html(variation):
 
 def htmlize_chessable_tags(html):
     html = html.replace("@@SANStart@@", "<b>").replace("@@SANEnd@@", "</b>")
-    html = html.replace("@@ul@@", "</p><ul>").replace("@@/ul@@", "</ul><p>")
+    html = html.replace("@@ul@@", "<ul>").replace("@@/ul@@", "</ul>")
     html = html.replace("@@li@@", "<li>").replace("@@/li@@", "</li>")
     return html
 
@@ -248,7 +248,7 @@ def generate_subvariations_html(move, move_fen_map):
     """
 
     counter = -1
-    html = "<p>\n"
+    html = ""
     remaining_text = move.text
     for san, fen in move_fen_map:
         while True:
@@ -276,7 +276,7 @@ def generate_subvariations_html(move, move_fen_map):
 
     return (
         '<div class="subvariations" '
-        f'data-mainline-index="{move.sequence}">\n{html}\n</p>\n</div>'
+        f'data-mainline-index="{move.sequence}">\n{html}\n</div>'
     )
 
 

@@ -729,7 +729,7 @@ class HomeView:
             # ("2 hours", 2),
             ("4 hours", 4),
             ("8 hours", 8),
-            ("16 hours", 16),
+            ("12 hours", 12),
             ("1 day", 1 * 24),
             # ("2 days", 2 * 24),
             ("3 days", 3 * 24),
