@@ -167,6 +167,12 @@
                 class="icon-forward icon-button"
                 @click.prevent="scrollToMoveBlock(index + 1)"
               ></button>
+              <!-- utterly defeated trying to scroll to top on mobile; will use this for now -->
+              <button
+                title="Go to Top"
+                class="icon-up icon-button"
+                @click.prevent="scrollToMoveBlock(0)"
+              ></button>
             </div>
           </div>
         </div>

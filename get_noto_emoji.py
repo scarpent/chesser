@@ -20,6 +20,7 @@ emoji_buttons = {
     "showmove": "💣️",
     "back": "⬅️",
     "forward": "➡️",
+    "up": "⬆️",
     "upload": "⤴️",
     "random": "🎲",
     "stats": "🔢",

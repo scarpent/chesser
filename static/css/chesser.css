@@ -823,6 +823,9 @@ external monitor to avoid display isses... */
 .icon-forward {
   background-image: url("/static/icons/noto-emoji/forward.svg");
 }
+.icon-up {
+  background-image: url("/static/icons/noto-emoji/up.svg");
+}
 .icon-upload {
   background-image: url("/static/icons/noto-emoji/upload.svg");
 }

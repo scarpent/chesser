@@ -257,9 +257,8 @@ export function editApp() {
           moveBlock.scrollIntoView({ behavior: behavior, block: "start" });
           this.currentMoveIndex = idx;
         }
-      }, 100); // Tweak as needed based on render speed
+      }, 100);
     },
-
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
       const tag = event.target.tagName.toLowerCase();
