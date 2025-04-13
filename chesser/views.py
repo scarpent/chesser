@@ -790,10 +790,10 @@ class HomeView:
         return reviewed
 
     def get_recently_added(self):
-        one_week_ago = self.now - timezone.timedelta(days=7)
+        two_weeks_ago = self.now - timezone.timedelta(days=14)
         variations = (
             self.get_variations()
-            .filter(created_at__gte=one_week_ago)
+            .filter(created_at__gte=two_weeks_ago)
             .order_by("-created_at")[:20]
         )
         added = []
