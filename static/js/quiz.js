@@ -342,7 +342,7 @@ export function quizApp() {
 
       const emoji =
         this.reviewData.total_due_now + this.reviewData.total_due_soon === 0
-          ? "☀️"
+          ? "💥"
           : "🏃";
 
       this.reviewStats = `${extra}<span>✏️</span>
