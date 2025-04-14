@@ -764,30 +764,23 @@ class HomeView:
         return variations.filter(next_review__lt=end_time).count()
 
     def get_recently_reviewed(self):
-        variations_qs = self.get_variations().values("id")  # Subquery, not list of IDs
-        recently_reviewed = QuizResult.objects.filter(
-            variation__in=variations_qs
-        ).order_by("-datetime")[:50]
+        variations_qs = self.get_variations().values("id")
+        recently_reviewed = (
+            QuizResult.objects.filter(variation__in=variations_qs)
+            .select_related("variation")
+            .order_by("-datetime")[:25]
+        )
 
-        reviewed = []
-        seen = set()
-        for result in recently_reviewed:
-            if result.variation_id not in seen:
-                seen.add(result.variation_id)
-
-                reviewed.append(
-                    {
-                        "variation_id": result.variation_id,
-                        "variation_title": result.variation.title,
-                        "datetime": util.get_time_ago(self.now, result.datetime),
-                        "level": result.level,
-                        "passed": "✅" if result.passed else "❌",
-                    }
-                )
-
-                if len(seen) > 20:
-                    break
-        return reviewed
+        return [
+            {
+                "variation_id": result.variation_id,
+                "variation_title": result.variation.title,
+                "datetime": util.get_time_ago(self.now, result.datetime),
+                "level": result.level,
+                "passed": "✅" if result.passed else "❌",
+            }
+            for result in recently_reviewed
+        ]
 
     def get_recently_added(self):
         two_weeks_ago = self.now - timezone.timedelta(days=14)
