@@ -771,16 +771,18 @@ class HomeView:
             .order_by("-datetime")[:25]
         )
 
-        return [
-            {
-                "variation_id": result.variation_id,
-                "variation_title": result.variation.title,
-                "datetime": util.get_time_ago(self.now, result.datetime),
-                "level": result.level,
-                "passed": "✅" if result.passed else "❌",
-            }
-            for result in recently_reviewed
-        ]
+        reviewed = []
+        for result in recently_reviewed:
+            reviewed.append(
+                {
+                    "variation_id": result.variation_id,
+                    "variation_title": result.variation.title,
+                    "datetime": util.get_time_ago(self.now, result.datetime),
+                    "level": result.level,
+                    "passed": "✅" if result.passed else "❌",
+                }
+            )
+        return reviewed
 
     def get_recently_added(self):
         two_weeks_ago = self.now - timezone.timedelta(days=14)
