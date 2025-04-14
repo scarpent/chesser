@@ -764,9 +764,9 @@ class HomeView:
         return variations.filter(next_review__lt=end_time).count()
 
     def get_recently_reviewed(self):
-        variations_qs = self.get_variations().values("id")
+        variation_ids = self.get_variations().values_list("id", flat=True)
         recently_reviewed = (
-            QuizResult.objects.filter(variation__in=variations_qs)
+            QuizResult.objects.filter(variation_id__in=variation_ids)
             .select_related("variation")
             .order_by("-datetime")[:25]
         )
