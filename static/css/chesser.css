@@ -658,6 +658,7 @@ blockquote {
 }
 
 .course-white img {
+  filter: brightness(1.3);
   border-color: #7b4f11;
   background-color: #7b4f11;
 }
@@ -672,7 +673,7 @@ blockquote {
 }
 
 .castle-button:hover img {
-  filter: brightness(1.3) contrast(1.1);
+  filter: brightness(1.6) contrast(1.1);
 }
 
 .castle-button img:active {
