@@ -274,6 +274,9 @@ def generate_subvariations_html(move, move_fen_map):
 
     html += f"{remaining_text.strip()}"
 
+    # much more to do here of course
+    html = html.replace("<fenseq", " ⏮️ <fenseq")
+
     return (
         '<div class="subvariations" '
         f'data-mainline-index="{move.sequence}">\n{html}\n</div>'
