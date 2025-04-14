@@ -5,7 +5,32 @@ Don't use these -- just put () inside {()}
 
 ## todo
 
-- highlight move notation for variation chessboard current position
+- before/after text markers: use a styled h3 tag to make this stand out and look nice
+  ~ need to remove special move 1 handling from chessable exporter
+
+maybe even better for before after:
+
+```
+5...Nf6 6.e5
+Expanding in the center with tempo.
+6...Nfd7?!
+{
+_____ before
+The retreating move
+_____ after
+is quite dubious as it fails to put any significant pressure on White's center.}
+7.Bf4
+```
+
+Might work in most/all cases to turn this into...
+
+```
+6...Nfd7?!
+
+The retreating move 6...Nfd7 is is quite dubious as it fails to put any significant pressure on White's center.
+```
+
+Look at examples to see if it will make sense to have it inline like that.
 
 - add next review date form input for clone? Or continue using end of time...
 - add move normalizer from schess (regex version?) - use it on clone moves string
@@ -24,12 +49,17 @@ Don't use these -- just put () inside {()}
   - some way to select various openings for this
 - an extra study feature for studying level 1 openings or level 1 & 2, etc
 
-## future credit/attributions if open-sourced
+## if shared publicly...
 
-- python/django
-- chessground and other chess libraries
-- alpine
-- emoji/images/fonts/etc
+- data migration for courses 1, 2
+- update load courses with examples from https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._d4/1...d5/2._c4/2...e6/3._Nf3 can have 10-30 examples with text and demonstrating various features (fenseq, blockquote, source, etc, can demonstrate the source json field to credit wikibooks!)
+
+- credit/attributions
+  ~ python/django
+  ~ chessground and other chess libraries
+  ~ alpine
+  ~ emoji/images/fonts/etc
+  ~ wikibooks openings
 
 ## lichess analysis FEN links
 

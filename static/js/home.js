@@ -63,7 +63,7 @@ export function homeApp() {
               this.label = `⏰ Next: ${timeLabel}`;
               setTimeout(tick, 1000);
             } else {
-              this.label = "⏰ Next: 💥 Now!";
+              this.label = "⏰ Next: 🚀 Now!";
             }
           };
 
