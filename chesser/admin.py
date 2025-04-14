@@ -37,6 +37,22 @@ class MoveInline(admin.TabularInline):
     model = Move
     form = MoveInlineForm
     extra = 0  # Number of empty forms to display
+    readonly_fields = ("move_id",)
+    fields = (
+        "move_id",
+        "sequence",
+        "move_num",
+        "san",
+        "annotation",
+        "text",
+        "alt",
+        "alt_fail",
+        "shapes",
+    )
+
+    @admin.display(description="ID")
+    def move_id(self, obj):
+        return obj.id
 
 
 class VariationInline(admin.TabularInline):
