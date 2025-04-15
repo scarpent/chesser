@@ -659,13 +659,13 @@ blockquote {
 
 .course-white img {
   filter: brightness(1.3);
-  border-color: #7b4f11;
-  background-color: #7b4f11;
+  border-color: #999;
+  background-color: #999;
 }
 
 .course-black img {
-  border-color: #45535d;
-  background-color: #45535d;
+  border-color: #444;
+  background-color: #444;
 }
 
 .castle-button:hover {
@@ -682,7 +682,7 @@ blockquote {
 }
 
 .chesser-logo img {
-  border-color: black;
+  border-color: #7b4f11;
 }
 
 .course-white,
