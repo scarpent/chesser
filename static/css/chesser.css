@@ -672,6 +672,7 @@ blockquote {
   background-color: transparent;
 }
 
+.icon-button.course-white:hover img,
 .castle-button:hover img {
   filter: brightness(1.6) contrast(1.1);
 }
