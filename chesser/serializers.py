@@ -271,6 +271,7 @@ def generate_subvariations_html(move, move_fen_map):
 
     html += f"{remaining_text.strip()}"
     if "<br/>" not in html:
+        # TODO: don't <br/> by block level things like <ul>
         html = html.replace("\n", "<br/>")
 
     # much more to do here of course

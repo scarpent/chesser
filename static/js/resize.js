@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   resizeHandle.addEventListener("mousedown", (e) => {
     e.preventDefault();
 
+    resizeHandle.classList.add("drag-active");
+
     const startX = e.clientX;
     const startWidth = boardContainer.offsetWidth;
 
@@ -40,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function stopResize() {
       document.removeEventListener("mousemove", resize);
       document.removeEventListener("mouseup", stopResize);
+      resizeHandle.classList.remove("drag-active");
     }
 
     document.addEventListener("mousemove", resize);

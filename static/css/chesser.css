@@ -143,7 +143,7 @@ blockquote {
   min-width: 300px; /* Prevents it from shrinking too much */
   min-height: 300px;
   flex-shrink: 0; /* Prevents shrinking */
-  overflow: hidden;
+  overflow: visible; /* so we can see resize handle on hover */
   background-size: contain;
   background-position: top left;
 }
@@ -306,17 +306,19 @@ blockquote {
 
 #resize-handle {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
+  bottom: 0;
+  right: 0;
   width: 18px;
   height: 18px;
+  transform: translate(30%, 30%);
   cursor: nwse-resize;
   z-index: 10;
-  background: transparent; /* invisible */
+  background: transparent;
   pointer-events: auto;
 }
 
-#resize-handle:hover {
+#resize-handle:hover,
+#resize-handle.drag-active {
   border: 2px solid rgba(164, 247, 172, 0.7);
   border-radius: 50%;
   background-color: rgba(164, 247, 172, 0.5);
