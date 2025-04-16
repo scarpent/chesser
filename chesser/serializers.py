@@ -201,25 +201,21 @@ def generate_variation_html(variation):
         white_to_move = not white_to_move
 
         if beginning_of_move_group:
-            html += "<h3 class='variation-mainline'>\n"
+            html += "<h3 class='variation-mainline'>"
             beginning_of_move_group = False
 
         move_str += f"{move.san}{move.annotation}"
 
         html += (
             '<span class="move mainline-move" '
-            f'data-index="{move.sequence}">{move_str}</span>\n'
+            f'data-index="{move.sequence}">{move_str}</span>'
         )
 
         if move.text:
             beginning_of_move_group = True
             moves_with_fen = extract_moves_with_fen(board.copy(), move)
-            # from pprint import pprint
-
-            # pprint(moves_with_fen)
-
             subvar_html = generate_subvariations_html(move, moves_with_fen)
-            html += f"</h3>\n{subvar_html}\n"
+            html += f"</h3>{subvar_html}"
 
         board.push_san(move.san)  # Mainline moves better be valid
 
@@ -228,6 +224,7 @@ def generate_variation_html(variation):
     return html
 
 
+# TODO: this goes away after cleanup is all done and import also cleans
 def htmlize_chessable_tags(html):
     html = html.replace("@@SANStart@@", "<b>").replace("@@SANEnd@@", "</b>")
     html = html.replace("@@ul@@", "<ul>").replace("@@/ul@@", "</ul>")
@@ -266,20 +263,22 @@ def generate_subvariations_html(move, move_fen_map):
                     counter += 1
                     html += (
                         f'<span class="move subvar-move" data-fen="{fen}" '
-                        f'data-index="{counter}">{matched_move}</span>\n'
+                        f'data-index="{counter}">{matched_move}</span>'
                     )
                     break
             else:
                 break
 
     html += f"{remaining_text.strip()}"
+    if "<br/>" not in html:
+        html = html.replace("\n", "<br/>")
 
     # much more to do here of course
     html = html.replace("<fenseq", " ⏮️ <fenseq")
 
     return (
         '<div class="subvariations" '
-        f'data-mainline-index="{move.sequence}">\n{html}\n</div>'
+        f'data-mainline-index="{move.sequence}">{html}</div>'
     )
 
 

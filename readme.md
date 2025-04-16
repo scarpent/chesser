@@ -54,7 +54,8 @@ Look at examples to see if it will make sense to have it inline like that.
 - data migration for courses 1, 2
 - create bulk import with examples from https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._d4/1...d5/2._c4/2...e6/3._Nf3 can have 10-30 examples with text and demonstrating various features (fenseq, blockquote, source, etc, can demonstrate the source json field to credit wikibooks!) - use separate json and license file
 - make sure to use nh3 for sanitizing html!
-- replace castle images
+- might mention that cookies/local storage are either essential or non-PII?
+  ~ potentially: Privacy Notice: Chesser uses essential cookies for login and session protection. It also stores non-identifiable progress data locally in the browser for review sessions. No personal data is shared or tracked.
 
 - credit/attributions
   ~ python/django
