@@ -340,10 +340,13 @@ export function quizApp() {
         ? `<span style="color: ${extra_color}">extra study</span> `
         : "";
 
+      const totalDue = this.reviewData.total_due_now + this.reviewData.total_due_soon;
       const emoji =
-        this.reviewData.total_due_now + this.reviewData.total_due_soon === 0
-          ? "💤"
-          : "🏃";
+        totalDue === 0
+          ? "💤" // nothing due, rest easy
+          : totalDue > 24
+          ? "😬" // yikes! better study
+          : "🏃"; // manageable, keep on running
 
       this.reviewStats = `${extra}<span>✏️</span>
         <span>${passed}/${totalCompleted}</span>
