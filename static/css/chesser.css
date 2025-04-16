@@ -1,5 +1,5 @@
 :root {
-  --vh: 100%; /* trying a js solution for mobile vh; this is the fallback */
+  --vh: 100%; /* using js for mobile vh; this is the fallback */
 }
 
 body {
@@ -85,7 +85,7 @@ blockquote {
   flex-direction: column;
   flex-shrink: 0;
   align-items: center;
-  background-color: #222222; /* Ensure background matches */
+  background-color: #222222;
   z-index: 10;
   box-sizing: border-box;
   max-width: 500px;
@@ -142,8 +142,8 @@ blockquote {
   max-height: 90vh;
   min-width: 300px; /* Prevents it from shrinking too much */
   min-height: 300px;
-  flex-shrink: 0; /* Prevents shrinking */
-  overflow: visible; /* so we can see resize handle on hover */
+  flex-shrink: 0;
+  overflow: visible; /* so we can see entire resize handle on hover */
   background-size: contain;
   background-position: top left;
 }
@@ -157,7 +157,7 @@ blockquote {
 .status-and-next {
   display: flex;
   align-items: center; /* Vertically aligns the items */
-  gap: 10px; /* Optional: space between the status and the button */
+  gap: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -459,8 +459,8 @@ blockquote {
 }
 
 .courses-container h3 {
-  margin: 0; /* Removes default margin for better alignment */
-  white-space: nowrap; /* Prevents wrapping */
+  margin: 0;
+  white-space: nowrap;
 }
 
 .courses-container ul {
@@ -484,7 +484,7 @@ blockquote {
 
 .chapters-container ol {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Two columns */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px 20px; /* Space between rows and columns */
   padding-left: 0;
   counter-reset: list-counter; /* Ensures numbers remain continuous */
@@ -507,7 +507,7 @@ blockquote {
 }
 
 .variations-container ol li {
-  margin-bottom: 20px; /* Increase space between list items */
+  margin-bottom: 20px;
 }
 
 .variations-list-info {
@@ -609,14 +609,14 @@ blockquote {
 .admin-link,
 .logout-button {
   cursor: pointer;
-  font-size: 16px; /* Ensures text size is consistent */
+  font-size: 16px;
 }
 
 .course-covers {
   display: flex;
   justify-content: center; /* Always centers images */
   align-items: center;
-  width: 100%; /* Ensures full width */
+  width: 100%;
   max-width: none;
   flex-wrap: nowrap; /* Keeps images on the same row */
   margin-top: 20px;
@@ -629,7 +629,6 @@ blockquote {
   flex: 0 1 auto; /* Prevents stretching */
 }
 
-/* General image styling */
 .course img {
   width: 70%;
   height: 70%;
@@ -932,11 +931,11 @@ external monitor to avoid display isses... */
 .board-overlay-home {
   width: 120px;
   height: 120px;
-  border-radius: 16px; /* optional: small rounding for visual polish */
+  border-radius: 16px;
   background-color: rgba(0, 0, 0, 0.7);
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 70%; /* adjust if the icon looks too small/big */
+  background-size: 70%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -989,7 +988,7 @@ external monitor to avoid display isses... */
   border-radius: 8px;
   text-align: center;
   color: white;
-  margin-top: 100px; /* Push it down from the top */
+  margin-top: 100px;
 }
 
 .promotion-options {
@@ -1102,12 +1101,12 @@ external monitor to avoid display isses... */
 }
 
 .form-standard input.move-alt {
-  background-color: #f1eecd; /* light yellow */
+  background-color: #f1eecd;
   color: #222;
 }
 
 .form-standard input.move-alt-fail {
-  background-color: #e1baba; /* light red/pink */
+  background-color: #e1baba;
   color: #222;
 }
 
@@ -1291,13 +1290,12 @@ about 500, but also covers our ultimate mobile 450 view */
 @media (max-width: 450px) {
   html,
   body {
-    /* previously tried 92vh which worked well for mobile on first
+    /* previously tried height: 92vh which worked well for mobile on first
     variation view load; but on refresh, it takes away too much space
     at bottom, and we do get refreshes e.g. when returning from lichess
     analysis board; so a better approach is using js to dynamically
     calculate vh, etc */
-    /* height: 92vh; */
-    height: 100%; /* trying js solution instead... */
+    height: 100%; /* js solution working well */
     overflow-x: hidden;
   }
 
@@ -1323,7 +1321,7 @@ about 500, but also covers our ultimate mobile 450 view */
     position: sticky;
     top: 0;
     z-index: 10;
-    display: block; /* Optional: Make sure it still shows */
+    display: block;
     width: 100vw;
     height: 100vw;
     min-width: 200px;
