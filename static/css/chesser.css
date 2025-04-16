@@ -684,7 +684,21 @@ blockquote {
 }
 
 .chesser-logo img {
+  width: 70%;
+  max-width: 250px;
+  height: auto;
+  display: block;
+  border: 8px solid;
+  border-radius: 15px;
   border-color: #7b4f11;
+  background-color: #1a1a1a;
+}
+
+.logo-home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
 }
 
 .course-white,
