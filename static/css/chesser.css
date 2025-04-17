@@ -1,5 +1,6 @@
 :root {
   --vh: 100%; /* using js for mobile vh; this is the fallback */
+  --color-headers: #a57651;
 }
 
 body {
@@ -17,7 +18,7 @@ body {
 
 h2,
 h3 {
-  color: orange;
+  color: var(--color-headers);
 }
 
 a {
@@ -51,7 +52,7 @@ td:last-child {
 blockquote {
   /* colors to complement chessboard */
   background-color: #4a3b2c;
-  border-left: 6px solid #a57651;
+  border-left: 6px solid var(--color-headers);
   border-radius: 12px;
   margin: 1em 0;
   padding: 1em 1.5em;
@@ -174,7 +175,7 @@ blockquote {
 }
 
 #edit-variation-info {
-  color: orange;
+  color: var(--color-headers);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -338,7 +339,7 @@ blockquote {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  color: #f7b14f;
+  color: var(--color-headers);
   max-width: 600px;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -349,7 +350,7 @@ blockquote {
 }
 
 #review-stats {
-  color: orange;
+  color: var(--color-headers);
   margin: 15px 0;
   display: flex;
   gap: 15px;
@@ -544,7 +545,7 @@ blockquote {
 }
 
 .chapter-vars-review-info {
-  color: orange;
+  color: var(--color-headers);
 }
 
 .mainline-moves,
