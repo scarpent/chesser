@@ -798,6 +798,11 @@ external monitor to avoid display isses... */
   height: 80px;
 }
 
+.medium-icon {
+  width: 64px;
+  height: 64px;
+}
+
 .icon-home {
   background-image: url("/static/icons/noto-emoji/home.svg");
 }
