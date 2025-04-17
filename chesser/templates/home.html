@@ -19,12 +19,12 @@
       >
         <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
       </button>
-      <div class="chesser-logo logo-home">
+      <button @click="window.location.href = '/'" class="castle-button book-cover">
         <img
-          src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
-          alt="Chesser Logo"
+          src="{% static 'images/kiwen-suwi-dark-knight-512x512.png' %}"
+          alt="Opening Book Cover"
         />
-      </div>
+      </button>
       <button
         @click="window.location.href = '/course/2/'"
         class="castle-button course-black"
@@ -33,12 +33,7 @@
       </button>
     </div>
 
-    <div class="button-container" x-cloak>
-      <button
-        title="Home"
-        @click="window.location.href='/'"
-        class="icon-home icon-button"
-      ></button>
+    <div class="button-container button-container-home" x-cloak>
       <button
         title="Stats"
         @click="window.open('/stats/', '_blank')"
@@ -53,11 +48,6 @@
         title="Import"
         @click="window.location.href='/import/'"
         class="icon-import icon-button"
-      ></button>
-      <button
-        title="Random Extra Study"
-        @click="goToRandomReview()"
-        class="icon-random icon-button"
       ></button>
     </div>
 
@@ -210,6 +200,14 @@
           </table>
         </div>
       </div>
+    </div>
+
+    <div class="button-container" x-cloak>
+      <button
+        title="Random Extra Study"
+        @click="goToRandomReview()"
+        class="icon-random icon-button"
+      ></button>
     </div>
 
     <div class="home-recently-wrapper">

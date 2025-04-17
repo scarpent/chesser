@@ -5,33 +5,9 @@ Don't use these -- just put () inside {()}
 
 ## todo
 
-- before/after text markers: use a styled h3 tag to make this stand out and look nice
-  ~ need to remove special move 1 handling from chessable exporter
-
-maybe even better for before after:
-
-```
-5...Nf6 6.e5
-Expanding in the center with tempo.
-6...Nfd7?!
-{
-_____ before
-The retreating move
-_____ after
-is quite dubious as it fails to put any significant pressure on White's center.}
-7.Bf4
-```
-
-Might work in most/all cases to turn this into...
-
-```
-6...Nfd7?!
-
-The retreating move 6...Nfd7 is is quite dubious as it fails to put any significant pressure on White's center.
-```
-
-Look at examples to see if it will make sense to have it inline like that.
-
+- recently added should show 2 weeks + all 0 level
+- kiwen suwi as "book cover" instead of a home button!
+- add pgn importer - can accept full pgn or just a simple move string
 - add next review date form input for clone? Or continue using end of time...
 - add move normalizer from schess (regex version?) - use it on clone moves string
 - 404 page that has buttons...

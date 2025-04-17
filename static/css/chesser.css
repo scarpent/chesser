@@ -401,9 +401,9 @@ blockquote {
 
 .variation-mainline {
   font-size: 20px;
-  margin-bottom: 0px;
-  margin-top: 0px;
-  line-height: 1.4;
+  margin-bottom: 2px; /* TODO: revisit after adding paragraphs to subvar */
+  margin-top: 2px; /* TODO: revisit after adding paragraphs to subvar */
+  line-height: 2; /* TODO: revisit after adding paragraphs to subvar */
 }
 
 .move-verbose-edit {
@@ -412,7 +412,8 @@ blockquote {
 
 .mainline-move {
   color: greenyellow;
-  padding: 2px;
+  padding: 2px 3px;
+  margin: 0 4px;
 }
 
 .mainline-move.highlight {
@@ -669,6 +670,11 @@ blockquote {
   background-color: #444;
 }
 
+.book-cover img {
+  border-color: #7b4f11;
+  background-color: #1a1a1a;
+}
+
 .castle-button:hover {
   background-color: transparent;
 }
@@ -682,27 +688,9 @@ blockquote {
   transform: scale(0.92);
 }
 
-.chesser-logo img {
-  width: 70%;
-  max-width: 250px;
-  height: auto;
-  display: block;
-  border: 8px solid;
-  border-radius: 15px;
-  border-color: #7b4f11;
-  background-color: #1a1a1a;
-}
-
-.logo-home {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 5px;
-}
-
 .course-white,
 .course-black,
-.chesser-logo {
+.book-cover {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -734,6 +722,11 @@ blockquote {
   gap: 5px;
   margin-bottom: 0;
   margin-top: 5px;
+}
+
+.button-container-home {
+  gap: 75px;
+  margin-top: 20px;
 }
 
 button {
@@ -771,6 +764,7 @@ external monitor to avoid display isses... */
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
+.icon-button.book-cover img,
 .icon-button.course-white img,
 .icon-button.course-black img {
   width: 80%;
@@ -1334,6 +1328,10 @@ about 500, but also covers our ultimate mobile 450 view */
 
   .button-container {
     gap: 2px;
+  }
+  .button-container-home {
+    gap: 70px;
+    margin-top: 20px;
   }
 }
 
