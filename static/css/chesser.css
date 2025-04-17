@@ -657,8 +657,8 @@ blockquote {
   border-width: 2px;
   border-style: solid;
   border-radius: 8px;
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
 }
 
 /* for small regular icon-button like things! */
@@ -941,7 +941,7 @@ external monitor to avoid display isses... */
   transform: translate(-50%, -50%);
   width: 96px;
   height: 96px;
-  background: #1a1a1a;
+  background: lime; /* to make it obvious when visible */
   border: none;
   border-radius: 12px;
   padding: 0;
@@ -954,11 +954,11 @@ external monitor to avoid display isses... */
 }
 
 .board-cover-button img {
-  width: 88px;
-  height: 88px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
-  border: 2px solid #7b4f11;
-  border-radius: 10px;
+  border: 8px solid #7b4f11;
+  border-radius: 15px;
   display: block;
 }
 
