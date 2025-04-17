@@ -692,7 +692,7 @@ blockquote {
 
 .icon-button.course-white:hover img,
 .castle-button:hover img {
-  filter: brightness(1.6) contrast(1.1);
+  filter: brightness(1.5) contrast(1.1);
 }
 
 .castle-button img:active {
@@ -784,7 +784,7 @@ external monitor to avoid display isses... */
 }
 
 .icon-button:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 .icon-button:hover img {
@@ -963,7 +963,7 @@ external monitor to avoid display isses... */
 }
 
 .board-cover-button:hover img {
-  filter: brightness(1.2) contrast(1.05);
+  filter: brightness(1.5) contrast(1.1);
 }
 
 .board-cover-button:active {
