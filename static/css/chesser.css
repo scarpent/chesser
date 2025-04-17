@@ -755,7 +755,7 @@ external monitor to avoid display isses... */
   border: 2px solid #7b4f11;
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 85%; /* Padding */
+  background-size: 77%; /* adjust icon svg size, essentially */
   cursor: pointer;
   border-radius: 6px;
   transform: translateZ(0); /* try to smooth rendering */
@@ -783,6 +783,12 @@ external monitor to avoid display isses... */
 
 .icon-button:hover {
   filter: brightness(1.3) contrast(1.2);
+}
+
+/* tone it down a bit from others - this one was
+more washed out with all the white paper */
+.icon-review.icon-button:hover {
+  filter: brightness(1.2) contrast(1);
 }
 
 .icon-button.save-success {
