@@ -12,6 +12,7 @@
   <body x-data="importApp()" x-init="init()" x-cloak>
     <div class="button-container" x-cloak>
       <button
+        title="Opening Book Home"
         @click="window.location.href = '/'"
         class="castle-button medium-icon book-cover"
       >
@@ -23,12 +24,14 @@
       <button
         @click="window.location.href = '/course/1/'"
         class="castle-button medium-icon course-white"
+        title="White Openings"
       >
         <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
       </button>
       <button
         @click="window.location.href = '/course/2/'"
         class="castle-button medium-icon course-black"
+        title="Black Openings"
       >
         <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
       </button>

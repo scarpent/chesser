@@ -16,10 +16,15 @@
       <button
         @click="window.location.href = '/course/1/'"
         class="castle-button course-white"
+        title="White Openings"
       >
         <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
       </button>
-      <button @click="window.location.href = '/'" class="castle-button book-cover">
+      <button
+        @click="window.location.href = '/'"
+        class="castle-button book-cover"
+        title="Opening Book Home"
+      >
         <img
           src="{% static 'images/kiwen-suwi-dark-knight-512x512.png' %}"
           alt="Opening Book Cover"
@@ -28,6 +33,7 @@
       <button
         @click="window.location.href = '/course/2/'"
         class="castle-button course-black"
+        title="Black Openings"
       >
         <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
       </button>
