@@ -1,6 +1,7 @@
 :root {
   --vh: 100%; /* using js for mobile vh; this is the fallback */
   --color-headers: #e7b38b;
+  --color-button-border: #7b4f11;
 }
 
 body {
@@ -648,7 +649,7 @@ blockquote {
   display: block;
   border: 8px solid;
   border-radius: 15px;
-  border-color: #7b4f11;
+  border-color: var(--color-button-border);
   background-color: #1a1a1a;
 }
 
@@ -753,7 +754,7 @@ external monitor to avoid display isses... */
   width: 52px;
   height: 52px;
   background-color: #1a1a1a;
-  border: 2px solid #7b4f11;
+  border: 2px solid var(--color-button-border);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 77%; /* adjust icon svg size, essentially */
@@ -958,7 +959,7 @@ more washed out with all the white paper */
   width: 100px;
   height: 100px;
   object-fit: cover;
-  border: 8px solid #7b4f11;
+  border: 8px solid var(--color-button-border);
   border-radius: 15px;
   display: block;
 }
