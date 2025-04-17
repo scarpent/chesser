@@ -159,16 +159,6 @@
       <template x-if="!hasVariationData()">
         <div class="button-container">
           <button
-            @click="window.location.href = '/'"
-            class="castle-button icon-like-img book-cover"
-            style="width: 64px; height: 64px"
-          >
-            <img
-              src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
-              alt="Opening Book Cover"
-            />
-          </button>
-          <button
             title="Random Extra Study"
             @click="window.location.href='/review/random/'"
             class="icon-random icon-button"
