@@ -630,16 +630,6 @@ blockquote {
   flex: 0 1 auto; /* Prevents stretching */
 }
 
-.course img {
-  width: 70%;
-  height: 70%;
-  max-width: 250px;
-  height: auto;
-  display: block;
-  border: 8px solid;
-  border-radius: 15px;
-}
-
 .castle-button {
   background: none;
   border: none;
@@ -649,6 +639,7 @@ blockquote {
   border-radius: 15px;
 }
 
+.course img,
 .castle-button img {
   width: 70%;
   max-width: 250px;
@@ -656,7 +647,27 @@ blockquote {
   display: block;
   border: 8px solid;
   border-radius: 15px;
+}
+
+.castle-button img {
   transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.castle-button.medium-icon img {
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 8px;
+  width: 58px;
+  height: 58px;
+}
+
+/* for small regular icon-button like things! */
+.castle-button.icon-like-img img {
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 8px;
+  width: 48px;
+  height: 48px;
 }
 
 .course-white img {
@@ -763,7 +774,6 @@ external monitor to avoid display isses... */
   object-fit: contain;
   transition: transform 0.2s ease, filter 0.2s ease;
 }
-
 .icon-button.book-cover img,
 .icon-button.course-white img,
 .icon-button.course-black img {
@@ -803,9 +813,6 @@ external monitor to avoid display isses... */
   height: 64px;
 }
 
-.icon-home {
-  background-image: url("/static/icons/noto-emoji/home.svg");
-}
 .icon-review {
   background-image: url("/static/icons/noto-emoji/review.svg");
 }
@@ -926,33 +933,41 @@ external monitor to avoid display isses... */
   scrollbar-color: #444444 #222222;
 }
 
-/* ----------------------------------------- Landscape & Board Home Overlay */
-.board-overlay-home {
-  width: 120px;
-  height: 120px;
-  border-radius: 16px;
-  background-color: rgba(0, 0, 0, 0.7);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 70%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 20;
+/* ----------------------------------------- Landscape & Board Cover Overlay */
+.board-cover-button {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  user-select: none;
+  width: 96px;
+  height: 96px;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: transform 0.1s ease;
 }
 
-.board-overlay-home:hover {
-  background-color: rgba(6, 110, 101, 0.7);
+.board-cover-button img {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border: 2px solid #7b4f11;
+  border-radius: 10px;
+  display: block;
 }
 
-.board-overlay-home:active {
-  transform: translate(-50%, -50%) scale(0.9);
+.board-cover-button:hover img {
+  filter: brightness(1.2) contrast(1.05);
+}
+
+.board-cover-button:active {
+  transform: translate(-50%, -50%) scale(0.92);
 }
 
 .landscape-overlay {

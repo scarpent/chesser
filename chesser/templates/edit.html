@@ -20,10 +20,15 @@
   >
     <div class="button-container">
       <button
-        title="Home"
-        @click="window.location.href='/'"
-        class="icon-home icon-button"
-      ></button>
+        @click="window.location.href = '/'"
+        class="castle-button icon-like-img book-cover"
+        style="width: 64px; height: 64px"
+      >
+        <img
+          src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
+          alt="Opening Book Cover"
+        />
+      </button>
       <button
         title="Review"
         @click="window.location.href='/review/'"

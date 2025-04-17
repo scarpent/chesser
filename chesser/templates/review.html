@@ -21,10 +21,16 @@
       <div id="resizable-board" data-board-id="quiz">
         <div id="board"></div>
         <template x-if="!hasVariationData()">
-          <div
-            class="icon-home board-overlay-home"
+          <button
+            class="board-cover-button"
             @click="window.location.href='/'"
-          ></div>
+            title="Go to Opening Book Cover"
+          >
+            <img
+              src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
+              alt="Opening Book Cover"
+            />
+          </button>
         </template>
 
         <div id="resize-handle"></div>
@@ -67,10 +73,15 @@
       <template x-if="hasVariationData()">
         <div class="button-container">
           <button
-            title="Home"
-            class="icon-home icon-button"
-            @click="window.location.href='/'"
-          ></button>
+            @click="window.location.href = '/'"
+            class="castle-button icon-like-img book-cover"
+            style="width: 64px; height: 64px"
+          >
+            <img
+              src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
+              alt="Opening Book Cover"
+            />
+          </button>
           <button
             title="Restart"
             @click="restartQuiz()"
@@ -148,10 +159,15 @@
       <template x-if="!hasVariationData()">
         <div class="button-container">
           <button
-            title="Home"
-            class="icon-home icon-button"
-            @click="window.location.href='/'"
-          ></button>
+            @click="window.location.href = '/'"
+            class="castle-button icon-like-img book-cover"
+            style="width: 64px; height: 64px"
+          >
+            <img
+              src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
+              alt="Opening Book Cover"
+            />
+          </button>
           <button
             title="Random Extra Study"
             @click="window.location.href='/review/random/'"
