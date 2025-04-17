@@ -787,7 +787,7 @@ class HomeView:
         two_weeks_ago = self.now - timezone.timedelta(days=14)
         variations = (
             self.get_variations()
-            .filter(created_at__gte=two_weeks_ago)
+            .filter(Q(created_at__gte=two_weeks_ago) | Q(level=0))
             .order_by("-created_at")[:20]
         )
         added = []

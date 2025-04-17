@@ -5,12 +5,10 @@ Don't use these -- just put () inside {()}
 
 ## todo
 
-- recently added should show 2 weeks + all 0 level
-- kiwen suwi as "book cover" instead of a home button!
 - add pgn importer - can accept full pgn or just a simple move string
 - add next review date form input for clone? Or continue using end of time...
 - add move normalizer from schess (regex version?) - use it on clone moves string
-- 404 page that has buttons...
+- 404 page that has buttons... (just the course/castle buttons?)
 - use reambiguated moves to check alts, too?
 - a way to have "shared reference" moves (share shapes, alts, etc)
   ~ perhaps a checkbox next to the large move number, "use standard ref"
