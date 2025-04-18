@@ -88,7 +88,10 @@ def import_variation(import_data, end_move=None):
     print("➤ " * 32)
     print(f"{label} chapter: {chapter}")
 
-    mainline = import_data["mainline"].strip()
+    mainline = import_data.get("mainline", "").strip()
+    if not mainline:
+        raise ValueError("Mainline not found or empty")
+
     end_index = 1000
     if end_move:
         # 1.e4 e5 2.Nf3 Nc6

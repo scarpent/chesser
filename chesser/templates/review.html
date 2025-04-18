@@ -22,9 +22,9 @@
         <div id="board"></div>
         <template x-if="!hasVariationData()">
           <button
+            title="Opening Book Home"
             class="board-cover-button"
             @click="window.location.href='/'"
-            title="Go to Opening Book Cover"
           >
             <img
               src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
@@ -73,6 +73,7 @@
       <template x-if="hasVariationData()">
         <div class="button-container">
           <button
+            title="Opening Book Home"
             @click="window.location.href = '/'"
             class="castle-button icon-like-img book-cover"
           >
@@ -87,7 +88,7 @@
             class="icon-restart icon-button"
           ></button>
           <button
-            title="Show move"
+            title="Show Move"
             @click="showQuizMove()"
             class="icon-showmove icon-button"
           ></button>
@@ -107,7 +108,7 @@
             class="icon-edit icon-button"
           ></button>
           <button
-            title="Lichess analysis board"
+            title="Lichess Analysis Board"
             @click="window.open(variationData.analysis_url + quizMoveIndex, target='_blank')"
             class="icon-analysis icon-button"
           ></button>

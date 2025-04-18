@@ -10,11 +10,11 @@
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body x-data="importApp()" x-init="init()" x-cloak>
-    <div class="button-container" x-cloak>
+    <div class="button-container" style="margin-top: 20px" x-cloak>
       <button
         title="Opening Book Home"
         @click="window.location.href = '/'"
-        class="castle-button medium-icon book-cover"
+        class="castle-button big-icon book-cover"
       >
         <img
           src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
@@ -23,14 +23,14 @@
       </button>
       <button
         @click="window.location.href = '/course/1/'"
-        class="castle-button medium-icon course-white"
+        class="castle-button big-icon course-white"
         title="White Openings"
       >
         <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
       </button>
       <button
         @click="window.location.href = '/course/2/'"
-        class="castle-button medium-icon course-black"
+        class="castle-button big-icon course-black"
         title="Black Openings"
       >
         <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
@@ -38,7 +38,7 @@
       <button
         title="Review"
         @click="window.location.href='/review/'"
-        class="icon-review icon-button medium-icon"
+        class="icon-review icon-button big-icon"
       ></button>
     </div>
 
