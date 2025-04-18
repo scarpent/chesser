@@ -815,7 +815,7 @@ def stats(request):
         passed = qs.filter(passed=True).count()
         percent = int((passed / total) * 100) if total else 0
 
-        yield "<html><body><div class='reviews-levels-wrapper'><h1>Stats!</h1>"
+        yield "<html><body style='color:#b59073; background-color:#222; font-family: Helvetica, sans-serif; font-size:18px'><div class='reviews-levels-wrapper'><h1>Stats!</h1>"  # noqa: E501
 
         # Overall
         yield "<div class='reviews-container'><h2>All Quiz Results</h2>"
