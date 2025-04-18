@@ -1,6 +1,6 @@
 :root {
   --vh: 100%; /* using js for mobile vh; this is the fallback */
-  --color-headers: #b59073;
+  --color-headers: #d7af91;
   --color-button-border: #7b4f11;
 }
 
