@@ -403,9 +403,11 @@ blockquote {
 
 .variation-mainline {
   font-size: 20px;
-  margin-bottom: 2px; /* TODO: revisit after adding paragraphs to subvar */
-  margin-top: 2px; /* TODO: revisit after adding paragraphs to subvar */
-  line-height: 2; /* TODO: revisit after adding paragraphs to subvar */
+  margin-bottom: 6px; /* TODO: revisit after adding paragraphs to subvar */
+  margin-top: 6px; /* TODO: revisit after adding paragraphs to subvar */
+  line-height: 1.2; /* TODO: revisit after adding paragraphs to subvar */
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .move-verbose-edit {
@@ -936,7 +938,7 @@ more washed out with all the white paper */
   transform: translate(-50%, -50%);
   width: 96px;
   height: 96px;
-  background: lime; /* to make it obvious when visible */
+  background: var(--color-button-border);
   border: none;
   border-radius: 12px;
   padding: 0;
@@ -972,9 +974,12 @@ more washed out with all the white paper */
   background: #222222;
   color: white;
   font-size: 100px;
-  justify-content: center;
-  align-items: center;
   z-index: 9999;
+  text-align: center;
+}
+
+.landscape-overlay img {
+  filter: brightness(1.3) contrast(1.1);
 }
 
 /* --------------------------------------------------------- Pawn Promotion */
