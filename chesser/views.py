@@ -520,6 +520,8 @@ def save_variation(request):
         variation.start_move = data["start_move"]
         variation.save()
 
+        # TODO: remove parens inside <fenseq> tags
+
         for idx, move in enumerate(variation.moves.all()):
             move.san = data["moves"][idx]["san"]
             move.annotation = data["moves"][idx]["annotation"]
