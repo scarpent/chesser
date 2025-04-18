@@ -654,6 +654,10 @@ blockquote {
 }
 
 .castle-button img {
+  object-fit: contain; /* this is disastrous for `.course img` */
+}
+
+.castle-button img {
   transition: transform 0.1s ease, filter 0.1s ease;
 }
 
@@ -769,14 +773,6 @@ external monitor to avoid display isses... */
   height: 100%;
   object-fit: contain;
   transition: transform 0.2s ease, filter 0.2s ease;
-}
-.icon-button.book-cover img,
-.icon-button.course-white img,
-.icon-button.course-black img {
-  width: 80%;
-  height: 80%;
-  border-radius: 6px; /* match .icon-button */
-  object-fit: contain;
 }
 
 .icon-button:active {
