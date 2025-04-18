@@ -383,6 +383,7 @@ def serialize_variation_to_import_format(variation):
         "chapter_title": variation.chapter.title,
         "variation_title": variation.title,
         "level": variation.level,
+        "created_at": variation.created_at.replace(microsecond=0).isoformat(),
         "next_review": variation.next_review.replace(microsecond=0).isoformat(),
         "last_review": (
             variation.get_latest_quiz_result_datetime()

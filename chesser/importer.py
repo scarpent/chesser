@@ -100,6 +100,8 @@ def import_variation(import_data, end_move=None):
         mainline = " ".join(mainline.split()[:end_index])
         print(f"Shortening mainline to: {mainline}")
 
+    # TODO: use created_at from import_data if it exists?
+
     variation, created = Variation.objects.get_or_create(
         course=course,
         mainline_moves_str=mainline,
