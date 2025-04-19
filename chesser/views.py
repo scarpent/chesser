@@ -549,7 +549,13 @@ def variation(request, variation_id=None):
             pk=variation_id,
         )
 
-    variation_data = serialize_variation(variation, all_data=True) if variation else {}
+    version = int(request.GET.get("v", 1))
+
+    variation_data = (
+        serialize_variation(variation, all_data=True, version=version)
+        if variation
+        else {}
+    )
     context = {"variation_data": json.dumps(variation_data)}
 
     return render(request, "variation.html", context)

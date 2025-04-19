@@ -1,5 +1,7 @@
 import json
 import re
+from dataclasses import dataclass, field
+from typing import Literal
 
 import chess
 import chess.pgn
@@ -26,7 +28,7 @@ annotations = {
 }
 
 
-def serialize_variation(variation, all_data=False):
+def serialize_variation(variation, all_data=False, version=1):
     color = variation.chapter.course.color
 
     now = timezone.now()
@@ -35,7 +37,7 @@ def serialize_variation(variation, all_data=False):
     )
     time_until_next_review = util.format_time_until(now, variation.next_review)
     source_html = get_source_html(variation.source) if all_data else None
-    html = generate_variation_html(variation) if all_data else None
+    html = generate_variation_html(variation, version=version) if all_data else None
     url_moves = "_".join([move.san for move in variation.moves.all()])
     # we'll add current fen/index in UI
     lichess_url = f"https://lichess.org/analysis/pgn/{url_moves}?color={color}&#"
@@ -183,7 +185,7 @@ def get_source_html(source):
     return mine + original
 
 
-def generate_variation_html(variation):
+def generate_variation_html(variation, version=1):
     html = ""
     white_to_move = True
     beginning_of_move_group = True
@@ -213,8 +215,22 @@ def generate_variation_html(variation):
 
         if move.text:
             beginning_of_move_group = True
-            moves_with_fen = extract_moves_with_fen(board.copy(), move)
-            subvar_html = generate_subvariations_html(move, moves_with_fen)
+
+            if version == 1:
+                moves_with_fen = extract_moves_with_fen(board.copy(), move)
+                subvar_html = generate_subvariations_html(move, moves_with_fen)
+            elif version == 2:
+                parsed_blocks = get_parsed_blocks(move.text, board.copy())
+                # subvar_html = render_parsed_blocks(parsed_blocks, board.copy())
+
+                blocks = [
+                    f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
+                    for block in parsed_blocks
+                ]
+                subvar_html = f"<p>{move.text}</p>{"\n".join(blocks)}"
+            else:
+                raise ValueError(f"Invalid version specified: {version}")
+
             html += f"</h3>{subvar_html}"
 
         board.push_san(move.san)  # Mainline moves better be valid
@@ -407,3 +423,167 @@ def serialize_variation_to_import_format(variation):
         ],
         "mainline": variation.mainline_moves,
     }
+
+
+@dataclass
+class ParsedBlock:
+    block_type: Literal["comment", "subvar", "fenseq"]
+    raw: str
+    san_fen: list[tuple[str, str]] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    fenseq_start: bool = False  # TODO: maybe this will tells us where to add/link ⏮️
+    clean_text: str = ""  # Only used for comments for now
+
+
+@dataclass
+class RenderableBlock:
+    block_type: Literal["comment", "moves"]
+    html: str
+    raw: str
+    errors: list[str] = field(default_factory=list)
+
+
+def get_parsed_blocks(text: str, board: chess.Board) -> list[ParsedBlock]:
+    # extract ("comment", ...), ("subvar", ...), ("fenseq", ...) chunks
+    chunks = extract_ordered_chunks(text)
+    parsed_blocks = []
+
+    for chunk_type, raw in chunks:
+        print(f"🔍 Parsing chunk: {chunk_type} ➤ {raw.strip()[:40]}...")
+        if chunk_type == "subvar":
+            parsed_blocks.extend(parse_subvar_chunk(raw, board.copy()))
+        elif chunk_type == "fenseq":
+            parsed_blocks.extend(parse_fenseq_chunk(raw, board.copy()))
+        elif chunk_type == "comment":
+            parsed_blocks.append(parse_comment_chunk(raw))
+        else:
+            raise ValueError(
+                f"Unknown chunk type: {chunk_type} ➤ {raw.strip()[:40]}..."
+            )
+
+    return parsed_blocks
+
+
+def parse_subvar_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
+    return [ParsedBlock(block_type="subvar", raw=raw, san_fen=[])]
+
+
+def parse_fenseq_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
+    return [ParsedBlock(block_type="fenseq", raw=raw, san_fen=[])]
+
+
+def parse_comment_chunk(raw: str) -> ParsedBlock:
+    cleaned = raw.strip()
+
+    # Only remove braces if they surround the *entire* block
+    if cleaned.startswith("{") and cleaned.endswith("}"):
+        cleaned = cleaned[1:-1].strip()
+
+    return ParsedBlock(
+        block_type="comment",
+        raw=raw,
+        clean_text=cleaned,
+    )
+
+
+def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
+    blocks = []
+    i = 0
+    length = len(text)
+    start_before_whitespace = -1
+
+    while i < length:
+        if text[i].isspace():
+            if start_before_whitespace == -1:
+                start_before_whitespace = i
+            i += 1
+            continue
+
+        start = start_before_whitespace if start_before_whitespace >= 0 else i
+        start_before_whitespace = -1
+
+        # --- SUBVAR ---
+        if text[i] == "(":
+            depth = 1
+            i += 1
+            while i < length and depth > 0:
+                if text[i] == "(":
+                    depth += 1
+                elif text[i] == ")":
+                    depth -= 1
+                i += 1
+            blocks.append(("subvar", text[start:i]))
+            continue
+
+        # --- FENSEQ ---
+        elif i < length - 1 and text[i:].startswith("<fenseq"):
+            end_tag = "</fenseq>"
+            end = text.find(end_tag, i)
+            if end != -1:
+                end += len(end_tag)
+                blocks.append(("fenseq", text[start:end]))
+                i = end
+                continue
+            else:
+                # fallback: treat as comment if no close tag
+                blocks.append(("comment", text[i:]))
+                print(f"Warning: <fenseq> tag not closed in text: {text[i:]}")
+                break
+
+        # --- COMMENT ---
+        else:
+            # comments are mostly unstructured but there are *some* cases
+            # of embedded clickable subvars, but we'll ignore those for now;
+            # comments may or may not be enclosed in braces; if there is an
+            # opening brace, we'll complain if we don't find a closing brace;
+            # if no opening brace, we'll look for ( or <fenseq to break out,
+            # otherwise consume everything...
+            implied_comment = True
+            if text[i] == "{":
+                implied_comment = False
+
+            first = True
+            while i < length:
+                if implied_comment:
+                    if text[i:].startswith("<fenseq"):
+                        break
+                    elif text[i] == "(":  # subvar
+                        break
+                    elif text[i] == "{":
+                        # probably rare; just handle as separate chunks
+                        print("🤷 implied and explicit comments lined up")
+                        break
+
+                elif not implied_comment and not first:
+                    assert text[i] != "{", "Unexpected opening brace in comment block"
+                    assert not text[i:].startswith(
+                        "<fenseq"
+                    ), "Unexpected <fenseq> tag in comment block"
+                    # parens are fine, though! we expect and encourage them ❤️
+
+                i += 1
+                if text[i - 1] == "}":
+                    if implied_comment:
+                        print('🚨 Found closing brace while in "implied" comment')
+                    break
+                first = False
+
+            comment_chunk = text[start:i]
+            comment = comment_chunk.strip()  # temporarily strip for checks
+
+            if not comment:
+                continue
+
+            if implied_comment:
+                comment_chunk = "{" + comment_chunk  # explicit is better than implicit
+            elif comment[-1] != "}":
+                print('🚨 Missing closing brace in "explicit" comment block')
+
+            # final safety: ensure closing brace regardless of implied/explicit
+            if comment and comment[-1] != "}":
+                comment_chunk += "}"
+
+            # we're not stripping any actual data; that'll come later
+            blocks.append(("comment", comment_chunk))
+
+    return blocks
