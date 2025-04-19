@@ -26,6 +26,7 @@ emoji_buttons = {
     "stats": "🎯",  # "🔢",
     "clone": "🧬",
     "complete": "💥",
+    "puzzles": "🧩",
 }
 
 

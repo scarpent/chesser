@@ -874,6 +874,9 @@ more washed out with all the white paper */
 .icon-complete {
   background-image: url("/static/icons/noto-emoji/complete.svg");
 }
+.icon-puzzles {
+  background-image: url("/static/icons/noto-emoji/puzzles.svg");
+}
 /* don't forget to add to preload_icons.html */
 
 /* ---------------------------------------------- Django Messages Framework */
