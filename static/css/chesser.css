@@ -668,6 +668,13 @@ blockquote {
   background-color: #1a1a1a;
 }
 
+.book-cover-round {
+  border-radius: 50%;
+}
+.book-cover-round img {
+  border-radius: 50%;
+}
+
 .castle-button img {
   object-fit: contain; /* contain is disastrous for `.course img` */
   transition: transform 0.3s ease, filter 0.3s ease;
@@ -952,11 +959,12 @@ more washed out with all the white paper */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 96px;
-  height: 96px;
+  width: 144px;
+  height: 144px;
   background: var(--color-button-border);
   border: none;
-  border-radius: 75px;
+  border-radius: 111px;
+  aspect-ratio: 1;
   padding: 0;
   cursor: pointer;
   display: flex;
@@ -967,11 +975,11 @@ more washed out with all the white paper */
 }
 
 .board-cover-button img {
-  width: 100px;
-  height: 100px;
+  width: 148px;
+  height: 148px;
   object-fit: cover;
   border: 8px solid var(--color-button-border);
-  border-radius: 75px;
+  border-radius: 111px;
   display: block;
 }
 
