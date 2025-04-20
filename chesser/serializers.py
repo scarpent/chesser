@@ -216,10 +216,7 @@ def generate_variation_html(variation, version=1):
         if move.text:
             beginning_of_move_group = True
 
-            if version == 1:
-                moves_with_fen = extract_moves_with_fen(board.copy(), move)
-                subvar_html = generate_subvariations_html(move, moves_with_fen)
-            elif version == 2:
+            if version == 2:
                 parsed_blocks = get_parsed_blocks(move.text, board.copy())
                 # subvar_html = render_parsed_blocks(parsed_blocks, board.copy())
 
@@ -228,8 +225,10 @@ def generate_variation_html(variation, version=1):
                     for block in parsed_blocks
                 ]
                 subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
-            else:
-                raise ValueError(f"Invalid version specified: {version}")
+
+            else:  # v1
+                moves_with_fen = extract_moves_with_fen(board.copy(), move)
+                subvar_html = generate_subvariations_html(move, moves_with_fen)
 
             html += f"</h3>{subvar_html}"
 
