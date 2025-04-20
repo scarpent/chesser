@@ -956,7 +956,7 @@ more washed out with all the white paper */
   height: 96px;
   background: var(--color-button-border);
   border: none;
-  border-radius: 12px;
+  border-radius: 75px;
   padding: 0;
   cursor: pointer;
   display: flex;
@@ -971,7 +971,7 @@ more washed out with all the white paper */
   height: 100px;
   object-fit: cover;
   border: 8px solid var(--color-button-border);
-  border-radius: 15px;
+  border-radius: 75px;
   display: block;
 }
 
