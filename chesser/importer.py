@@ -222,7 +222,8 @@ def convert_pgn_to_json(
     Convert PGN to chesser JSON format with annotations and comments.
     Grabs all comments and subvariations, and appends them to .text
 
-    TODO: would be nice to have move validation
+    TODO: would be nice to have move validation, but bad moves seem to
+    be discarded by chess.pgn.read_game()
     """
     pgn_io = StringIO(pgn_text)
     game = chess.pgn.read_game(pgn_io)
@@ -289,7 +290,7 @@ def extract_move_text(node: chess.pgn.GameNode) -> str:
 
     for subvar in node.parent.variations[1:]:
         if subvar is not node:
-            parts.append(str(subvar).strip())
+            parts.append(f"({str(subvar).strip()})")
 
     return "\n\n".join(parts).strip()
 
