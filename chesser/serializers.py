@@ -487,6 +487,10 @@ def parse_comment_chunk(raw: str) -> ParsedBlock:
 
 
 def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
+    """
+    The first big pass, identifying the main types of blocks in the text.
+    We don't care about the content of the blocks yet, just their types.
+    """
     blocks = []
     i = 0
     length = len(text)
@@ -534,10 +538,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         else:
             # comments are mostly unstructured but there are *some* cases
             # of embedded clickable subvars, but we'll ignore those for now;
-            # comments may or may not be enclosed in braces; if there is an
-            # opening brace, we'll complain if we don't find a closing brace;
-            # if no opening brace, we'll look for ( or <fenseq to break out,
-            # otherwise consume everything...
+            # comments may or may not be enclosed in braces
             implied_comment = True
             if text[i] == "{":
                 implied_comment = False
@@ -555,6 +556,8 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                         break
 
                 elif not implied_comment and not first:
+                    # these might be temporary, just wanting to see if we get them, but
+                    # maybe we'll be more forgiving here and catch in later validation
                     assert text[i] != "{", "Unexpected opening brace in comment block"
                     assert not text[i:].startswith(
                         "<fenseq"
@@ -571,9 +574,6 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             comment_chunk = text[start:i]
             comment = comment_chunk.strip()  # temporarily strip for checks
 
-            if not comment:
-                continue
-
             if implied_comment:
                 comment_chunk = "{" + comment_chunk  # explicit is better than implicit
             elif comment[-1] != "}":
@@ -585,5 +585,8 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
 
             # we're not stripping any actual data; that'll come later
             blocks.append(("comment", comment_chunk))
+
+    if start_before_whitespace >= 0:  # leftover whitespace at end, handle as comment
+        blocks.append(("comment", text[start_before_whitespace:]))
 
     return blocks
