@@ -21,6 +21,8 @@ from django.urls import path
 
 from chesser import views
 
+handler404 = "chesser.views.custom_404_view"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView.as_view(), name="login"),

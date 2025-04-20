@@ -30,6 +30,10 @@ def home(request, course_id=None, chapter_id=None):
     return render(request, "home.html", home_view.data)
 
 
+def custom_404_view(request, exception):
+    return render(request, "404.html", status=404)
+
+
 def review(request, variation_id=None):
     if variation_id is None:
         extra_study = False
