@@ -143,7 +143,7 @@
         </div>
 
         <div>
-          <label for="json_data">JSON:</label><br />
+          <label for="json_or_pgn_data">JSON or PGN:</label><br />
 
           <div style="position: relative">
             <button
@@ -154,11 +154,11 @@
             ></button>
 
             <textarea
-              name="json_data"
-              id="import-json-text-area"
-              x-model="formDefaults.json_data"
+              name="json_or_pgn_data"
+              id="import-json-or-pgn-text-area"
+              x-model="formDefaults.json_or_pgn_data"
               rows="20"
-              placeholder="Paste your JSON here..."
+              placeholder="Paste your JSON or PGN here. Just a move string is fine..."
               required
             ></textarea>
           </div>

@@ -262,12 +262,21 @@ class ImportVariationView(View):
     def post(self, request):
         self.request = request
         self.form_data = request.POST
-        form_json = request.POST.get("json_data")
+        self.incoming_json = None
+        form_json_or_pgn = request.POST.get("json_or_pgn_data")
 
         try:
-            self.incoming_json = json.loads(form_json)
+            self.incoming_json = json.loads(form_json_or_pgn)
         except json.JSONDecodeError:
-            return self.handle_import_errors("Invalid JSON")
+            pass
+
+        if not self.incoming_json:
+            # If the JSON is invalid, we can try to parse it as PGN
+            try:
+                pgn_to_json = importer.convert_pgn_to_json(form_json_or_pgn)
+                self.incoming_json = pgn_to_json
+            except ValueError:
+                return self.handle_import_errors("Invalid JSON/PGN")
 
         try:
             self.set_variation_title()

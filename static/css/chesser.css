@@ -1102,7 +1102,7 @@ more washed out with all the white paper */
   margin-bottom: 10px;
 }
 
-#import-json-text-area {
+#import-json-or-pgn-text-area {
   width: 100%;
   box-sizing: border-box;
   resize: vertical;

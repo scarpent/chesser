@@ -1,7 +1,9 @@
 import json
 from datetime import timezone as dt_timezone
+from io import StringIO
 
 import chess
+import chess.pgn
 from django.db import transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -207,3 +209,114 @@ def validate_mainline_string(sans, mainline_str):
         )
 
     return True
+
+
+def convert_pgn_to_json(
+    pgn_text,
+    color="",
+    chapter_title="",
+    variation_title="",
+    start_move=2,
+):
+    """
+    Convert PGN to chesser JSON format with annotations and comments.
+    Grabs all comments and subvariations, and appends them to .text
+
+    TODO: would be nice to have move validation
+    """
+    pgn_io = StringIO(pgn_text)
+    game = chess.pgn.read_game(pgn_io)
+    if not game:
+        raise ValueError("No valid game found in PGN")
+
+    board = game.board()
+    moves = []
+    move_number = 1
+
+    node = game
+    while node.variations:
+        next_node = node.variations[0]
+        san = board.san(next_node.move)
+
+        # Collect annotation from NAG (Numeric Annotation Glyphs)
+        annotation = ""
+        nags = list(next_node.nags)
+        if nags:
+            nag = nags[0]
+            if nag in NAG_LOOKUP:
+                annotation = NAG_LOOKUP[nag]
+
+        moves.append(
+            {
+                "move_num": move_number,
+                "san": san,
+                "annotation": annotation,
+                "text": extract_move_text(next_node),
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [],
+            }
+        )
+
+        board.push(next_node.move)
+        node = next_node
+        if board.turn == chess.WHITE:
+            move_number += 1
+
+    return {
+        "source": {},
+        "color": color,
+        "chapter_title": chapter_title,
+        "variation_title": variation_title,
+        "start_move": start_move,
+        "level": 0,
+        "next_review": util.END_OF_TIME_STR,
+        "last_review": util.END_OF_TIME_STR,
+        "mainline": get_mainline_moves_str(moves),
+        "moves": moves,
+    }
+
+
+def extract_move_text(node: chess.pgn.GameNode) -> str:
+    """
+    Returns only the move's comment and immediate subvariations,
+    without the mainline children.
+    """
+    parts = []
+
+    if node.comment:
+        parts.append(node.comment.strip())
+
+    for subvar in node.parent.variations[1:]:
+        if subvar is not node:
+            parts.append(str(subvar).strip())
+
+    return "\n\n".join(parts).strip()
+
+
+def get_mainline_moves_str(moves):
+    white_to_move = True
+    move_string = ""
+    for move in moves:
+        prefix = f"{move['move_num']}." if white_to_move else ""
+        white_to_move = not white_to_move
+        move_string += f"{prefix}{move['san']} "
+    return move_string.strip()
+
+
+NAG_LOOKUP = {
+    1: "!",
+    2: "?",
+    3: "!!",
+    4: "??",
+    5: "!?",
+    6: "?!",
+    10: "=",
+    13: "∞",
+    14: "⩲",  # White slightly better
+    15: "⩱",  # Black slightly better
+    16: "±",
+    17: "∓",
+    18: "+-",
+    19: "-+",
+}
