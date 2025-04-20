@@ -506,7 +506,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         start = start_before_whitespace if start_before_whitespace >= 0 else i
         start_before_whitespace = -1
 
-        # --- SUBVAR ---
+        # --- SUBVAR --------------------------------------------------------
         if text[i] == "(":
             depth = 1
             i += 1
@@ -519,7 +519,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             blocks.append(("subvar", text[start:i]))
             continue
 
-        # --- FENSEQ ---
+        # --- FENSEQ --------------------------------------------------------
         elif i < length - 1 and text[i:].startswith("<fenseq"):
             end_tag = "</fenseq>"
             end = text.find(end_tag, i)
@@ -534,7 +534,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                 print(f"Warning: <fenseq> tag not closed in text: {text[i:]}")
                 break
 
-        # --- COMMENT ---
+        # --- COMMENT -------------------------------------------------------
         else:
             # comments are mostly unstructured but there are *some* cases
             # of embedded clickable subvars, but we'll ignore those for now;

@@ -662,7 +662,7 @@ blockquote {
   max-width: 250px;
   height: auto;
   display: block;
-  border: 8px solid;
+  border: 5px solid;
   border-radius: 15px;
   border-color: var(--color-button-border);
   background-color: #1a1a1a;
