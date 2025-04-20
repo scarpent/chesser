@@ -1168,6 +1168,11 @@ input.move-alt-fail:focus {
   background-color: #ffdede;
 }
 
+.clone-form form button {
+  display: block;
+  margin: 20px auto 0 auto; /* center horizontally */
+}
+
 /* ------------------------------------------------------- File Upload Form */
 
 .file-upload-form h3 {
@@ -1321,6 +1326,10 @@ about 500, but also covers our ultimate mobile 450 view */
     align-items: center;
     margin: 20px auto;
     text-align: center;
+  }
+
+  .file-upload-form form {
+    justify-content: center;
   }
 }
 

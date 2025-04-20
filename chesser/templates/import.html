@@ -51,7 +51,7 @@
     {% endif %}
 
     <template x-if="formDefaults.original_variation_id">
-      <div class="import-page-container form-standard">
+      <div class="import-page-container form-standard clone-form">
         <h2 x-text="'Clone Variation #' + formDefaults.original_variation_id"></h2>
         <form method="POST" action="{% url 'clone' %}">
           {% csrf_token %}
@@ -149,7 +149,7 @@
             <button
               type="submit"
               class="icon-import icon-button big-icon big-round"
-              style="position: absolute; top: 12px; right: 12px; z-index: 10"
+              style="position: absolute; top: 15px; right: 15px; z-index: 10"
               title="Import"
             ></button>
 
@@ -158,7 +158,8 @@
               id="import-json-or-pgn-text-area"
               x-model="formDefaults.json_or_pgn_data"
               rows="20"
-              placeholder="Paste your JSON or PGN here. Just a move string is fine..."
+              placeholder="Paste your JSON or PGN here.
+A simple move string will work. 🧵"
               required
             ></textarea>
           </div>
