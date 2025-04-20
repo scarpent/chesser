@@ -651,7 +651,7 @@ class HomeView:
                     }
                 )
         elif not self.chapter_id:
-            course = Course.objects.get(id=self.course_id)
+            course = get_object_or_404(Course, id=self.course_id)
             for chapter in (
                 Chapter.objects.filter(course=course).order_by("title").iterator()
             ):
