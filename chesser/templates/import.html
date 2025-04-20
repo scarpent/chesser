@@ -38,7 +38,7 @@
       <button
         title="Review"
         @click="window.location.href='/review/'"
-        class="icon-review icon-button big-icon"
+        class="icon-review icon-button big-icon big-round"
       ></button>
     </div>
 
@@ -94,7 +94,7 @@
           />
           <button
             type="submit"
-            class="icon-clone icon-button big-icon"
+            class="icon-clone icon-button big-icon big-round"
             title="Clone"
           ></button>
         </form>
@@ -148,7 +148,7 @@
           <div style="position: relative">
             <button
               type="submit"
-              class="icon-import icon-button big-icon"
+              class="icon-import icon-button big-icon big-round"
               style="position: absolute; top: 12px; right: 12px; z-index: 10"
               title="Import"
             ></button>
@@ -175,7 +175,10 @@
       >
         {% csrf_token %}
         <input type="file" name="uploaded_file" /><br />
-        <button type="submit" class="icon-upload icon-button"></button>
+        <button
+          type="submit"
+          class="icon-upload big-icon icon-button big-round"
+        ></button>
       </form>
     </div>
 

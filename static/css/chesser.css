@@ -803,11 +803,12 @@ more washed out with all the white paper */
 .icon-review.icon-button:hover {
   filter: brightness(1.2) contrast(1);
 }
-.icon-review.big-icon {
+
+.big-round {
   border-radius: 50%;
   background-size: 60%;
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
 }
 
 .variation-button-container {
@@ -1312,14 +1313,6 @@ about 500, but also covers our ultimate mobile 450 view */
 
   .home-recently-wrapper {
     gap: 15px;
-  }
-
-  .icon-button.icon-upload {
-    width: 80px; /* mimic big-icon */
-    height: 80px; /* mimic big-icon */
-    display: block;
-    margin-left: auto; /* center */
-    margin-right: auto;
   }
 
   .export-list {
