@@ -803,6 +803,12 @@ more washed out with all the white paper */
 .icon-review.icon-button:hover {
   filter: brightness(1.2) contrast(1);
 }
+.icon-review.big-icon {
+  border-radius: 50%;
+  background-size: 60%;
+  width: 100px;
+  height: 100px;
+}
 
 .variation-button-container {
   margin: 20px 0;
@@ -963,7 +969,7 @@ more washed out with all the white paper */
   height: 144px;
   background: var(--color-button-border);
   border: none;
-  border-radius: 111px;
+  border-radius: 50%;
   aspect-ratio: 1;
   padding: 0;
   cursor: pointer;
@@ -979,7 +985,7 @@ more washed out with all the white paper */
   height: 148px;
   object-fit: cover;
   border: 8px solid var(--color-button-border);
-  border-radius: 111px;
+  border-radius: 50%;
   display: block;
 }
 
@@ -1375,7 +1381,7 @@ about 500, but also covers our ultimate mobile 450 view */
     gap: 2px;
   }
   .button-container-home {
-    gap: 60px;
+    gap: 55px;
     margin-top: 20px;
   }
 
