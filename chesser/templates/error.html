@@ -3,19 +3,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Off Book</title>
+    <title>{{ title|default:"Error" }}</title>
     <link rel="icon" href="{% static 'favicon.ico' %}" />
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
   </head>
   <body style="text-align: center; padding-top: 100px">
     <div>
-      <h1 style="font-size: 72px; color: var(--color-headers)">404</h1>
-      <p style="font-size: 24px; margin-top: -20px">
-        The princess is in another castle.
-      </p>
-      <p style="color: #aaa; font-style: italic">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      </p>
+      <h1 style="font-size: 72px; color: var(--color-headers)">
+        {{ heading|default:"Oops" }}
+      </h1>
+      {% if message %}
+      <p style="font-size: 24px; margin-top: -20px">{{ message }}</p>
+      {% endif %} {% if subtext %}
+      <p style="color: #aaa; font-style: italic">{{ subtext }}</p>
+      {% endif %}
       <div class="button-container" style="margin-top: 40px">
         <button
           title="Home"
@@ -24,7 +25,7 @@
         >
           <img
             src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
-            alt="Opening Book Cover"
+            alt="Opening Book"
           />
         </button>
       </div>

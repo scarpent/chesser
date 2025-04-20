@@ -31,7 +31,35 @@ def home(request, course_id=None, chapter_id=None):
 
 
 def custom_404_view(request, exception):
-    return render(request, "404.html", status=404)
+    return render(
+        request,
+        "error.html",
+        {
+            "title": "Off Book",
+            "heading": "404",
+            "message": "The princess is in another castle.",
+            "subtext": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        },
+        status=404,
+    )
+
+
+def custom_500_view(request):
+    return render(
+        request,
+        "error.html",
+        {
+            "title": "chesserverror",
+            "heading": "1...500?!",
+            "message": "We're sorry.",
+            "subtext": "Surely elves will fix... 🛠️",
+        },
+        status=500,
+    )
+
+
+def trigger_error(request):
+    raise Exception("💣️ test error 🧨")
 
 
 def review(request, variation_id=None):

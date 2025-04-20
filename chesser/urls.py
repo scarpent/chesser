@@ -22,6 +22,7 @@ from django.urls import path
 from chesser import views
 
 handler404 = "chesser.views.custom_404_view"
+handler500 = "chesser.views.custom_500_view"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -55,4 +56,5 @@ urlpatterns = [
     path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
     path("variations-table/", views.variations_table, name="variations_table"),
     path("stats/", views.stats, name="stats"),
+    path("error/", views.trigger_error),
 ]
