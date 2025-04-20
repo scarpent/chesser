@@ -227,7 +227,7 @@ def generate_variation_html(variation, version=1):
                     f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
                     for block in parsed_blocks
                 ]
-                subvar_html = f"<p>{move.text}</p>{"\n".join(blocks)}"
+                subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
             else:
                 raise ValueError(f"Invalid version specified: {version}")
 

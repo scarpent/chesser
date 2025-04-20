@@ -5,6 +5,8 @@ Don't use these -- just put () inside {()}
 
 ## todo
 
+variations 778, 1215
+
 - add pgn importer - can accept full pgn or just a simple move string
   ~ make existing input flexible to handle all cases
   ~ function to convert pgn ➤ chesser json, used by importer and also a management command
