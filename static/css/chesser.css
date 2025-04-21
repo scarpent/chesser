@@ -398,7 +398,6 @@ blockquote {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  margin-top: 20px;
 }
 
 .variation-mainline {
@@ -1328,8 +1327,14 @@ about 500, but also covers our ultimate mobile 450 view */
     text-align: center;
   }
 
+  .file-upload-form h3 {
+    text-align: center;
+  }
+
   .file-upload-form form {
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 

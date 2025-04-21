@@ -158,8 +158,9 @@
               id="import-json-or-pgn-text-area"
               x-model="formDefaults.json_or_pgn_data"
               rows="20"
-              placeholder="Paste your JSON or PGN here.
-A simple move string will work. 🧵"
+              placeholder="Paste or type here. A simple move
+string will import if unique, e.g. ➤
+1.e4 e5 2.Nf3 Nc6 3.a4!"
               required
             ></textarea>
           </div>
@@ -175,7 +176,7 @@ A simple move string will work. 🧵"
         action="{% url 'upload_json_data' %}"
       >
         {% csrf_token %}
-        <input type="file" name="uploaded_file" /><br />
+        <input type="file" name="uploaded_file" />
         <button
           type="submit"
           class="icon-upload big-icon icon-button big-round"
