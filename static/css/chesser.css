@@ -662,16 +662,9 @@ blockquote {
   height: auto;
   display: block;
   border: 5px solid;
-  border-radius: 15px;
+  border-radius: 20px;
   border-color: var(--color-button-border);
   background-color: #1a1a1a;
-}
-
-.book-cover-round {
-  border-radius: 50%;
-}
-.book-cover-round img {
-  border-radius: 50%;
 }
 
 .castle-button img {
@@ -701,7 +694,6 @@ blockquote {
 .castle-button.big-icon img {
   border-width: 2px;
   border-style: solid;
-  border-radius: 8px;
   width: 80px;
   height: 80px;
 }
@@ -711,13 +703,18 @@ blockquote {
   height: 60px;
 }
 
-/* for small regular icon-button like things! */
 .castle-button.icon-like-img img {
   border-width: 2px;
   border-style: solid;
-  border-radius: 8px;
   width: 48px;
   height: 48px;
+}
+
+.book-cover-round {
+  border-radius: 50%;
+}
+.book-cover-round img {
+  border-radius: 50%;
 }
 
 .export-list h3 {
