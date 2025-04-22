@@ -508,13 +508,24 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         # --- SUBVAR --------------------------------------------------------
         if text[i] == "(":
             depth = 1
+            in_comment = False
             i += 1
             while i < length and depth > 0:
-                if text[i] == "(":
-                    depth += 1
-                elif text[i] == ")":
-                    depth -= 1
+                c = text[i]
+
+                # ignore parens inside {(comments)}
+                if c == "{" and not in_comment:
+                    in_comment = True
+                elif c == "}" and in_comment:
+                    in_comment = False
+                elif not in_comment:
+                    if c == "(":
+                        depth += 1
+                    elif c == ")":
+                        depth -= 1
+
                 i += 1
+
             blocks.append(("subvar", text[start:i]))
             continue
 

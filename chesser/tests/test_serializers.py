@@ -118,3 +118,28 @@ def test_extract_ordered_chunks_assertions():
 )
 def test_extract_ordered_chunks_fenseq(text, expected):
     assert serializers.extract_ordered_chunks(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        (
+            "(1.e4 e5)",
+            [("subvar", "(1.e4 e5)")],
+        ),
+        (
+            "(1.e4 e5) (1.d4 d5)",
+            [("subvar", "(1.e4 e5)"), ("subvar", " (1.d4 d5)")],
+        ),
+        (
+            "(1.e4 e5) abc (1.d4 d5)",
+            [("subvar", "(1.e4 e5)"), ("comment", "{ abc }"), ("subvar", "(1.d4 d5)")],
+        ),
+        (
+            "(1.e4 e5 (1...d5 2.exd5) 2.Nf3)",
+            [("subvar", "(1.e4 e5 (1...d5 2.exd5) 2.Nf3)")],
+        ),
+    ],
+)
+def test_extract_ordered_chunks_subvar(text, expected):
+    assert serializers.extract_ordered_chunks(text) == expected
