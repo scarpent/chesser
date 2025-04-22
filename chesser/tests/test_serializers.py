@@ -86,3 +86,35 @@ def test_extract_ordered_chunks_assertions():
     with pytest.raises(AssertionError) as excinfo:
         serializers.extract_ordered_chunks("{abc <fenseq")
     assert str(excinfo.value) == "Unexpected <fenseq> tag in comment block"
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        (
+            '<fenseq data-fen="...">1.e4</fenseq>',
+            [("fenseq", '<fenseq data-fen="...">1.e4</fenseq>')],
+        ),
+        (
+            "<fenseq>1.e4</fenseq>",
+            [("fenseq", "<fenseq>1.e4</fenseq>")],
+        ),
+        (
+            "{testing}<fenseq>1.e4",
+            [
+                ("comment", "{testing}"),
+                ("comment", "<fenseq>1.e4"),
+            ],
+        ),
+        (
+            "{testing}<fenseq>1.e4</fenseq> more text...",
+            [
+                ("comment", "{testing}"),
+                ("fenseq", "<fenseq>1.e4</fenseq>"),
+                ("comment", "{ more text...}"),
+            ],
+        ),
+    ],
+)
+def test_extract_ordered_chunks_fenseq(text, expected):
+    assert serializers.extract_ordered_chunks(text) == expected

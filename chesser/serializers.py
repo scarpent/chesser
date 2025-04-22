@@ -530,7 +530,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             else:
                 # fallback: treat as comment if no close tag
                 blocks.append(("comment", text[i:]))
-                print(f"Warning: <fenseq> tag not closed in text: {text[i:]}")
+                print(f"🚨 Warning: <fenseq> tag not closed in text: {text[i:]}")
                 break
 
         # --- COMMENT -------------------------------------------------------
