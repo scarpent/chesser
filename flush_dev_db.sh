@@ -30,7 +30,8 @@ if [ -z "$DB_BACKUP" ]; then
   exit 0
 fi
 
-echo "📦 Found latest backup: $DB_BACKUP ($(date '+%Y/%m/%d %H:%M'))"
+echo "📦 Found latest backup: $DB_BACKUP ($(stat -c '%y' "$DB_BACKUP" | cut -d'.' -f1))"
+
 read -p "🚀 Load it? (yes/no) " confirm
 if [ "$confirm" != "yes" ]; then
   echo "👍️ Not loading from backup"
