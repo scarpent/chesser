@@ -1,12 +1,17 @@
+/* =====================
+   THEME VARIABLES
+===================== */
 :root {
   --vh: 100%; /* using js for mobile vh; this is the fallback */
   --color-headers: #d7af91;
   --color-button-border: #7b4f11;
+  --color-bg-dark: #222;
+  --color-text-light: #ccc;
 }
 
 body {
-  background-color: #222;
-  color: #ccc;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
   font-size: 18px;
   font-family: "Helvetica", sans-serif;
   display: flex;
@@ -87,7 +92,7 @@ blockquote {
   flex-direction: column;
   flex-shrink: 0;
   align-items: center;
-  background-color: #222222;
+  background-color: var(--color-bg-dark);
   z-index: 10;
   box-sizing: border-box;
   max-width: 500px;
@@ -213,7 +218,7 @@ blockquote {
 .edit-mainline-move-item:hover,
 .variation-mainline-move-item:hover {
   background-color: #c5c2f4;
-  color: #222;
+  color: var(--color-bg-dark);
   border-radius: 4px;
 }
 
@@ -420,7 +425,7 @@ blockquote {
 }
 
 .mainline-move.highlight {
-  color: #222;
+  color: var(--color-bg-dark);
   background-color: greenyellow;
 }
 
@@ -430,7 +435,7 @@ blockquote {
 }
 
 .subvar-move.highlight {
-  color: #222;
+  color: var(--color-bg-dark);
   background-color: cyan;
 }
 
@@ -937,7 +942,7 @@ more washed out with all the white paper */
 }
 
 ::-webkit-scrollbar-track {
-  background: #222222; /* Matches background */
+  background: var(--color-bg-dark); /* Matches background */
   border-radius: 10px;
 }
 
@@ -953,7 +958,7 @@ more washed out with all the white paper */
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #444444 #222222;
+  scrollbar-color: #444444 var(--color-bg-dark);
 }
 
 /* ----------------------------------------- Landscape & Board Cover Overlay */
@@ -998,7 +1003,7 @@ more washed out with all the white paper */
   display: none;
   position: fixed;
   inset: 0;
-  background: #222222;
+  background: var(--color-bg-dark);
   color: white;
   font-size: 100px;
   z-index: 9999;
@@ -1043,7 +1048,7 @@ more washed out with all the white paper */
 .promotion-options button {
   font-size: 24px;
   padding: 8px 16px;
-  color: #ccc;
+  color: var(--color-text-light);
   background-color: #111;
   border: 1px solid #555;
   border-radius: 5px;
@@ -1059,7 +1064,7 @@ more washed out with all the white paper */
 .form-standard select,
 .form-standard textarea {
   background-color: #111111;
-  color: #ccc;
+  color: var(--color-text-light);
   border: 1px solid #555;
   padding: 6px;
   font-size: 16px;
@@ -1144,12 +1149,12 @@ more washed out with all the white paper */
 
 .form-standard input.move-alt {
   background-color: #f1eecd;
-  color: #222;
+  color: var(--color-bg-dark);
 }
 
 .form-standard input.move-alt-fail {
   background-color: #e1baba;
-  color: #222;
+  color: var(--color-bg-dark);
 }
 
 input.move-alt:focus {
@@ -1201,7 +1206,7 @@ input.move-alt-fail:focus {
   background-color: #333;
   border: none;
   padding: 6px 12px;
-  color: #ccc;
+  color: var(--color-text-light);
   cursor: pointer;
   border-radius: 4px;
   margin-right: 10px;
