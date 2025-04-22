@@ -552,8 +552,8 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             implied_comment = True
             if text[i] == "{":
                 implied_comment = False
+                i += 1
 
-            first = True
             while i < length:
                 if implied_comment:
                     if text[i:].startswith("<fenseq"):
@@ -565,7 +565,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                         print("🤷 implied and explicit comments lined up")
                         break
 
-                elif not implied_comment and not first:
+                elif not implied_comment:
                     # these might be temporary, just wanting to see if we get them, but
                     # maybe we'll be more forgiving here and catch in later validation
                     assert text[i] != "{", "Unexpected opening brace in comment block"
@@ -579,7 +579,6 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                     if implied_comment:
                         print('🚨 Found closing brace while in "implied" comment')
                     break
-                first = False
 
             comment_chunk = text[start:i]
             comment = comment_chunk.strip()  # temporarily strip for checks
