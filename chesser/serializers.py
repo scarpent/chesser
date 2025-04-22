@@ -526,6 +526,9 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
 
                 i += 1
 
+            if depth > 0:
+                print(f"⚠️ Unbalanced parens in subvar: {text[start:i]}")
+
             blocks.append(("subvar", text[start:i]))
             continue
 
@@ -541,7 +544,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             else:
                 # fallback: treat as comment if no close tag
                 blocks.append(("comment", text[i:]))
-                print(f"🚨 Warning: <fenseq> tag not closed in text: {text[i:]}")
+                print(f"⚠️ fenseq> tag not closed in text: {text[i:]}")
                 break
 
         # --- COMMENT -------------------------------------------------------
@@ -577,7 +580,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                 i += 1
                 if text[i - 1] == "}":
                     if implied_comment:
-                        print('🚨 Found closing brace while in "implied" comment')
+                        print('⚠️ Found closing brace while in "implied" comment')
                     break
 
             comment_chunk = text[start:i]
@@ -586,7 +589,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             if implied_comment:
                 comment_chunk = "{" + comment_chunk  # explicit is better than implicit
             elif comment[-1] != "}":
-                print('🚨 Missing closing brace in "explicit" comment block')
+                print('⚠️ Missing closing brace in "explicit" comment block')
 
             # final safety: ensure closing brace regardless of implied/explicit
             if comment and comment[-1] != "}":

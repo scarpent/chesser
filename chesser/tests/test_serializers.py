@@ -139,6 +139,18 @@ def test_extract_ordered_chunks_fenseq(text, expected):
             "(1.e4 e5 (1...d5 2.exd5) 2.Nf3)",
             [("subvar", "(1.e4 e5 (1...d5 2.exd5) 2.Nf3)")],
         ),
+        (
+            "(1.e4 e5 {(}1...d5 2.exd5{)} 2.Nf3)",
+            [("subvar", "(1.e4 e5 {(}1...d5 2.exd5{)} 2.Nf3)")],
+        ),
+        (  # unbalanced
+            "(1.e4 e5",
+            [("subvar", "(1.e4 e5")],
+        ),
+        (  # unbalanced
+            "(1.e4 e5 (1...d5",
+            [("subvar", "(1.e4 e5 (1...d5")],
+        ),
     ],
 )
 def test_extract_ordered_chunks_subvar(text, expected):
