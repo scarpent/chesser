@@ -128,6 +128,13 @@ def test_extract_ordered_chunks_fenseq(text, expected):
             [("subvar", "(1.e4 e5)")],
         ),
         (
+            "(1.e4 e5) \n <fenseq data-fen='...'>1...c5</fenseq>",
+            [
+                ("subvar", "(1.e4 e5)"),
+                ("fenseq", " \n <fenseq data-fen='...'>1...c5</fenseq>"),
+            ],
+        ),
+        (
             "(1.e4 e5) (1.d4 d5)",
             [("subvar", "(1.e4 e5)"), ("subvar", " (1.d4 d5)")],
         ),
