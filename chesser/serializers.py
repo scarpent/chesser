@@ -489,6 +489,17 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
     """
     The first big pass, identifying the main types of blocks in the text.
     We don't care about the content of the blocks yet, just their types.
+
+    Character by character parser is fast and catching a number of rare
+    cases so we don't overly pollute the general parser ahead. If it gets
+    any more complex or we want to extend it, it really needs to be broken
+    up into 3 sub-extractors, one for each type of block. But for now it
+    is readable like a story, let's say.
+
+    1) Suvariations, in parens, e.g. (1.e4! e5 {an open game} 2.Nf3)
+    2) Fenseq, e.g. <fenseq data-fen="">...</fenseq>
+    3) Comments, explicitly in {braces} or implied outside of (parens)
+    4) Whitespace will be glommed onto neighboring elements; no stripping!
     """
     blocks = []
     i = 0
@@ -529,7 +540,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             subvar = text[start:i]
             # there's not that many of these and most of them seem fenseq-related;
             # spent time trying to fix on the cleaner side, and got one case, but
-            # still something missing; But that was a complicated case, and just
+            # still something missing; But remaining is a messy case, and just
             # the one, so we'll fix here because it's a lot easier to see here.
             if depth == 1 and re.search(r"}\s*<fenseq", subvar):
                 print(f"✅  Fixing known unbalanced parens: {subvar}")
