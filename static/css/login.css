@@ -1,8 +1,13 @@
+:root {
+  --font-size: 20px;
+}
+
 /* Simplified login page CSS */
 body {
   background-color: #222222;
   color: #eeeeee;
   font-family: "Helvetica", sans-serif;
+  font-size: var(--font-size);
   display: flex;
   flex-direction: column;
   justify-content: flex-start; /* Align content at the top */
@@ -15,23 +20,40 @@ body {
 form {
   text-align: center; /* Center the form content */
   background-color: #333333;
-  padding: 40px;
+  padding: 30px;
+  margin: 0 25px;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  margin-top: 50px; /* Move the form 20% down from the top */
+  margin-top: 25px;
 }
 
 button {
   background-color: #111111;
   color: #eeeeee;
-  border: 1px solid #444444;
-  font-size: 18px;
-  margin-top: 20px;
+  border: 1px solid #444;
+  font-size: var(--font-size);
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 7px 14px;
   border-radius: 4px;
 }
 
 button:hover {
   background-color: #444444;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  max-width: 250px;
+  padding: 10px;
+  margin: 5px auto;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background-color: #222222;
+  color: #eeeeee;
+  font-size: var(--font-size);
+}
+
+ul {
+  list-style-type: none;
+  padding: 0 0 25px;
 }
