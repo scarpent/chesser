@@ -8,6 +8,7 @@ import chess.pgn
 from django.utils import timezone
 
 from chesser import util
+from chesser.models import Move
 
 annotations = {
     "none": "No annotation",
@@ -217,7 +218,7 @@ def generate_variation_html(variation, version=1):
             beginning_of_move_group = True
 
             if version == 2:
-                parsed_blocks = get_parsed_blocks(move.text, board.copy())
+                parsed_blocks = get_parsed_blocks(move, board.copy())
                 # subvar_html = render_parsed_blocks(parsed_blocks, board.copy())
 
                 blocks = [
@@ -426,12 +427,12 @@ def serialize_variation_to_import_format(variation):
 
 @dataclass
 class ParsedBlock:
-    block_type: Literal["comment", "subvar", "fenseq"]
+    block_type: Literal["comment", "subvar", "fenseq", "move"]
     raw: str
     san_fen: list[tuple[str, str]] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
-    fenseq_start: bool = False  # TODO: maybe this will tells us where to add/link ⏮️
-    clean_text: str = ""  # Only used for comments for now
+    fenseq_start: bool = False  # TODO: tells us where to add/link ⏮️
+    clean_text: str = ""  # used for comments and moves
 
 
 @dataclass
@@ -442,15 +443,15 @@ class RenderableBlock:
     errors: list[str] = field(default_factory=list)
 
 
-def get_parsed_blocks(text: str, board: chess.Board) -> list[ParsedBlock]:
+def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     # extract ("comment", ...), ("subvar", ...), ("fenseq", ...) chunks
-    chunks = extract_ordered_chunks(text)
+    chunks = extract_ordered_chunks(move.text)
     parsed_blocks = []
 
     for chunk_type, raw in chunks:
         print(f"🔍 Parsing chunk: {chunk_type} ➤ {raw.strip()[:40]}...")
         if chunk_type == "subvar":
-            parsed_blocks.extend(parse_subvar_chunk(raw, board.copy()))
+            parsed_blocks.extend(parse_subvar_chunk(raw, move, board.copy()))
         elif chunk_type == "fenseq":
             parsed_blocks.extend(parse_fenseq_chunk(raw, board.copy()))
         elif chunk_type == "comment":
@@ -463,8 +464,53 @@ def get_parsed_blocks(text: str, board: chess.Board) -> list[ParsedBlock]:
     return parsed_blocks
 
 
-def parse_subvar_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
+def parse_subvar_chunk(raw: str, move: Move, board: chess.Board) -> list[ParsedBlock]:
     return [ParsedBlock(block_type="subvar", raw=raw, san_fen=[])]
+
+
+def parse_subvar_chunk_x(raw, move: Move, board: chess.Board) -> list[ParsedBlock]:
+    parsed_blocks = []
+    errors = []
+
+    if not raw.startswith("(") or not raw.endswith(")"):
+        errors.append("Subvar chunk not wrapped in parens")
+        inner = raw.strip()
+    else:
+        inner = raw[1:-1].strip()
+
+    # Break into smaller pieces
+    chunks = extract_ordered_chunks(inner)
+
+    for chunk_type, chunk_text in chunks:
+        assert chunk_type != "fenseq", "Unexpected fenseq in subvar chunk"
+        if chunk_type == "comment":
+            parsed_blocks.append(parse_comment_chunk(chunk_text))
+        elif chunk_type == "subvar":
+            nested = parse_subvar_chunk(chunk_text, move, board.copy())
+            parsed_blocks.extend(nested)
+        else:
+            # assume it's a move if it's not one of the above
+            san = chunk_text.strip()
+            try:
+                move = board.parse_san(san)
+                board.push(move)
+                parsed_blocks.append(
+                    ParsedBlock(
+                        block_type="subvar",
+                        raw=chunk_text,
+                        san_fen=[(san, board.fen())],
+                    )
+                )
+            except Exception as e:
+                parsed_blocks.append(
+                    ParsedBlock(
+                        block_type="subvar",
+                        raw=chunk_text,
+                        errors=[f"Invalid SAN '{san}': {e}"],
+                    )
+                )
+
+    return parsed_blocks
 
 
 def parse_fenseq_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
