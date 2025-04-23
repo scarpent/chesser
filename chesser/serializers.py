@@ -468,51 +468,6 @@ def parse_subvar_chunk(raw: str, move: Move, board: chess.Board) -> list[ParsedB
     return [ParsedBlock(block_type="subvar", raw=raw, san_fen=[])]
 
 
-def parse_subvar_chunk_x(raw, move: Move, board: chess.Board) -> list[ParsedBlock]:
-    parsed_blocks = []
-    errors = []
-
-    if not raw.startswith("(") or not raw.endswith(")"):
-        errors.append("Subvar chunk not wrapped in parens")
-        inner = raw.strip()
-    else:
-        inner = raw[1:-1].strip()
-
-    # Break into smaller pieces
-    chunks = extract_ordered_chunks(inner)
-
-    for chunk_type, chunk_text in chunks:
-        assert chunk_type != "fenseq", "Unexpected fenseq in subvar chunk"
-        if chunk_type == "comment":
-            parsed_blocks.append(parse_comment_chunk(chunk_text))
-        elif chunk_type == "subvar":
-            nested = parse_subvar_chunk(chunk_text, move, board.copy())
-            parsed_blocks.extend(nested)
-        else:
-            # assume it's a move if it's not one of the above
-            san = chunk_text.strip()
-            try:
-                move = board.parse_san(san)
-                board.push(move)
-                parsed_blocks.append(
-                    ParsedBlock(
-                        block_type="subvar",
-                        raw=chunk_text,
-                        san_fen=[(san, board.fen())],
-                    )
-                )
-            except Exception as e:
-                parsed_blocks.append(
-                    ParsedBlock(
-                        block_type="subvar",
-                        raw=chunk_text,
-                        errors=[f"Invalid SAN '{san}': {e}"],
-                    )
-                )
-
-    return parsed_blocks
-
-
 def parse_fenseq_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
     return [ParsedBlock(block_type="fenseq", raw=raw, san_fen=[])]
 
