@@ -532,6 +532,122 @@ def parse_comment_chunk(raw: str) -> ParsedBlock:
 
 
 def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
+    blocks = []
+    i = 0
+    length = len(text)
+    mode = "neutral"  # can be: neutral, comment, subvar
+    paren_depth = 0
+    token_start = None  # token may be a move or an implied comment in the making
+
+    def flush_token():
+        nonlocal token_start
+
+        if token_start is None:
+            return
+        token = text[token_start:i]
+        if mode == "neutral":
+            if stripped := token.strip():
+                end_char = "" if stripped[-1] == "}" else "}"
+            else:
+                end_char = "}"
+            if not end_char:
+                print("⚠️  Found closing comment brace while in neutral mode")
+            blocks.append(("comment", "{" + token + end_char))
+        elif mode == "subvar" and token.strip():
+            # maybe we'll only strip in this one spot
+            blocks.append(("move", token.strip()))
+        else:
+            raise ValueError(
+                f"Unexpected mode '{mode}' in flush_token at index {i}: {token}"
+            )
+        token_start = None
+
+    while i < length:
+        c = text[i]
+
+        # Handle <fenseq ... </fenseq> as atomic
+        if mode == "neutral" and text[i:].startswith("<fenseq"):
+            flush_token()
+            end_tag = "</fenseq>"
+            end = text.find(end_tag, i)
+            if end != -1:
+                end += len(end_tag)
+                blocks.append(("fenseq", text[i:end]))
+                i = end
+                token_start = None
+                continue
+            else:
+                blocks.append(("comment", text[i:]))
+                print(f"⚠️  Unclosed <fenseq>: {text[i:]}")
+                break
+
+        # Comment start
+        elif c == "{" and mode == "neutral":
+            flush_token()
+            token_start = i
+            mode = "comment"
+
+        # Comment end
+        elif c == "}" and mode == "comment":
+            blocks.append(("comment", text[token_start : i + 1]))  # noqa: E203
+            token_start = None
+            mode = "neutral"
+
+        # Subvar start
+        elif c == "(" and mode == "neutral":
+            flush_token()
+            paren_depth = 1
+            blocks.append(("subvar", f"START {paren_depth}"))
+            mode = "subvar"
+
+        # Subvar end
+        elif c == ")" and mode == "subvar":
+            flush_token()
+            blocks.append(("subvar", f"END {paren_depth}"))
+            paren_depth -= 1
+            if paren_depth == 0:
+                mode = "neutral"
+
+        # Nested subvar
+        elif c == "(" and mode == "subvar":
+            paren_depth += 1
+            blocks.append(("subvar", f"START {paren_depth}"))
+
+        # Implied comment
+        elif mode == "neutral":
+            if token_start is None:
+                token_start = i
+
+        elif mode == "subvar":
+            if c.isspace():  # whitespace ends a move token
+                flush_token()
+            elif token_start is None:
+                token_start = i
+
+        elif mode != "comment":
+            raise ValueError(
+                f"Unexpected char '{c}' in mode '{mode}' at index {i}: {text}"
+            )
+
+        i += 1
+
+    # Handle trailing move or comment
+    if token_start is not None and mode == "neutral":
+        flush_token()
+    elif token_start is not None and mode == "comment":
+        token = text[token_start:i]
+        end_char = "" if token.strip()[-1] == "}" else "}"
+        if end_char:
+            print("⚠️  Didn't find trailing closing comment brace")
+        blocks.append(("comment", token + end_char))
+    elif token_start is not None and mode == "subvar":
+        # not sure when we'll hit this but it probably shouldn't be a subvar block...
+        blocks.append(("subvar", text[token_start:].strip() + ")"))
+
+    return blocks
+
+
+def extract_ordered_chunks_old(text: str) -> list[tuple[str, str]]:
     """
     The first big pass, identifying the main types of blocks in the text.
     We don't care about the content of the blocks yet, just their types.

@@ -22,7 +22,8 @@ def test_is_in_comment(upcoming_text, expected):
     "text,expected_chunks",
     [
         ("", []),  # Empty string
-        (" ", [("comment", " ")]),  # Whitespace only
+        (" ", [("comment", "{ }")]),  # Whitespace only
+        (" \n ", [("comment", "{ \n }")]),  # Whitespace only
         (  # Single line, unbraced
             "Just a simple freeform comment.",
             [("comment", "{Just a simple freeform comment.}")],
@@ -33,7 +34,13 @@ def test_is_in_comment(upcoming_text, expected):
         ),
         (  # Implied comment with subvar interrupt
             "comment start (1.e4 e5)",
-            [("comment", "{comment start }"), ("subvar", "(1.e4 e5)")],
+            [
+                ("comment", "{comment start }"),
+                ("subvar", "START 1"),
+                ("move", "1.e4"),
+                ("move", "e5"),
+                ("subvar", "END 1"),
+            ],
         ),
         (  # Implied comment with fenseq interrupt
             "Some note <fenseq data-fen='...'>1...c5</fenseq>",
@@ -68,7 +75,7 @@ def test_is_in_comment(upcoming_text, expected):
             "{Hello world}   \n",
             [
                 ("comment", "{Hello world}"),
-                ("comment", "   \n"),
+                ("comment", "{   \n}"),
             ],
         ),
     ],
@@ -125,7 +132,26 @@ def test_extract_ordered_chunks_fenseq(text, expected):
     [
         (
             "(1.e4 e5)",
-            [("subvar", "(1.e4 e5)")],
+            [
+                ("subvar", "START 1"),
+                ("move", "1.e4"),
+                ("move", "e5"),
+                ("subvar", "END 1"),
+            ],
+        ),
+        (
+            "(1.e4 e5 (1...d5 2.exd5) 2.Nf3)",
+            [
+                ("subvar", "START 1"),
+                ("move", "1.e4"),
+                ("move", "e5"),
+                ("subvar", "START 2"),
+                ("move", "1...d5"),
+                ("move", "2.exd5"),
+                ("subvar", "END 2"),
+                ("move", "2.Nf3"),
+                ("subvar", "END 1"),
+            ],
         ),
         (
             "(1.e4 e5) \n <fenseq data-fen='...'>1...c5</fenseq>",
