@@ -1,7 +1,7 @@
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, Optional
 
 import chess
 import chess.pgn
@@ -429,10 +429,10 @@ def serialize_variation_to_import_format(variation):
 class ParsedBlock:
     block_type: Literal["comment", "subvar", "fenseq", "move"]
     raw: str
-    san_fen: list[tuple[str, str]] = field(default_factory=list)
+    san_fen: Optional[tuple[str, str]] = None  # only for "move"
     errors: list[str] = field(default_factory=list)
-    fenseq_start: bool = False  # TODO: tells us where to add/link ⏮️
-    clean_text: str = ""  # used for comments and moves
+    fenseq_start: bool = False  # for ⏮️ rendering on fenseq
+    display_text: str = ""  # for normalized comments, moves
 
 
 @dataclass
@@ -527,7 +527,7 @@ def parse_comment_chunk(raw: str) -> ParsedBlock:
     return ParsedBlock(
         block_type="comment",
         raw=raw,
-        clean_text=cleaned,
+        display_text=cleaned,
     )
 
 
@@ -629,8 +629,8 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                 token_start = i
 
         elif mode == "subvar":
-            if c.isspace():  # whitespace ends a move token
-                # TODO: should we handle "1. e4" as well?
+            if c.isspace():  # whitespace ends a move token; for now we'll
+                # tokenize 1.e4 and 1. e4 separately and figure out later
                 flush_token()
             elif token_start is None:
                 token_start = i
