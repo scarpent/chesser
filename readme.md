@@ -7,6 +7,9 @@ Don't use these -- just put () inside {()}
 
 variations 778, 1215
 
+- refactor css styles
+  ~ create "stylesheet" with samples
+
 - add next review date form input for clone? Or continue using end of time...
 - add move normalizer from schess (regex version?) - use it on clone moves string
 - 404 page that has buttons... (just the course/castle buttons?)
