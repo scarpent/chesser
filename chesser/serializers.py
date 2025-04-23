@@ -537,7 +537,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
     length = len(text)
     mode = "neutral"  # can be: neutral, comment, subvar
     paren_depth = 0
-    token_start = None  # token may be a move or an implied comment in the making
+    token_start = None  # move or comment start, tracked through iterations
 
     def flush_token():
         nonlocal token_start
@@ -545,19 +545,18 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         if token_start is None:
             return
         token = text[token_start:i]
+        # print(f"\n{text}\n{token}\n{blocks}")
         if mode == "neutral":
-            if stripped := token.strip():
-                end_char = "" if stripped[-1] == "}" else "}"
-            else:
-                end_char = "}"
+            stripped = token.strip()
+            end_char = "" if stripped and stripped[-1] == "}" else "}"
             if not end_char:
                 print("⚠️  Found closing comment brace while in neutral mode")
             blocks.append(("comment", "{" + token + end_char))
-        elif mode == "subvar" and token.strip():
+        elif mode == "subvar" and token.strip():  # pragma: no branch
             # maybe we'll only strip in this one spot
             blocks.append(("move", token.strip()))
         else:
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 f"Unexpected mode '{mode}' in flush_token at index {i}: {token}"
             )
         token_start = None
@@ -582,7 +581,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                 break
 
         # Comment start
-        elif c == "{" and mode == "neutral":
+        elif c == "{" and mode in ("neutral", "subvar"):
             flush_token()
             token_start = i
             mode = "comment"
@@ -591,12 +590,23 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         elif c == "}" and mode == "comment":
             blocks.append(("comment", text[token_start : i + 1]))  # noqa: E203
             token_start = None
-            mode = "neutral"
+            mode = "neutral" if paren_depth < 1 else "subvar"
+
+            if (
+                mode == "subvar"
+                and paren_depth == 1
+                and text[i + 1 :].lstrip().startswith("<fenseq")  # noqa: E203
+            ):
+                print(f"✅  Fixing known unbalanced parens: {text[i:][:60]}")
+                # no need to flush token; we're following the already appended comment
+                blocks.append(("subvar", "END 1"))
+                paren_depth = 0
+                mode = "neutral"
 
         # Subvar start
         elif c == "(" and mode == "neutral":
             flush_token()
-            paren_depth = 1
+            paren_depth += 1
             blocks.append(("subvar", f"START {paren_depth}"))
             mode = "subvar"
 
@@ -620,29 +630,43 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
 
         elif mode == "subvar":
             if c.isspace():  # whitespace ends a move token
+                # TODO: should we handle "1. e4" as well?
                 flush_token()
             elif token_start is None:
                 token_start = i
 
-        elif mode != "comment":
-            raise ValueError(
-                f"Unexpected char '{c}' in mode '{mode}' at index {i}: {text}"
+        elif mode == "comment":  # pragma: no branch
+            assert text[i] != "{", "Unexpected opening brace in comment block"
+            assert not text[i:].startswith(
+                "<fenseq"
+            ), "Unexpected <fenseq> tag in comment block"
+            # parens are fine, though! we expect and encourage them (❤️)
+
+        elif mode != "comment":  # pragma: no cover
+            raise ValueError(  # impossible?
+                f"Unexpected char '{c}' in mode '{mode}' at index {i}: {text[:30]}"
             )
+
+        assert (  # impossible?
+            paren_depth >= 0
+        ), f"Unbalanced parens at index {i}, depth {paren_depth}: {text[:30]}"
 
         i += 1
 
     # Handle trailing move or comment
-    if token_start is not None and mode == "neutral":
-        flush_token()
-    elif token_start is not None and mode == "comment":
-        token = text[token_start:i]
-        end_char = "" if token.strip()[-1] == "}" else "}"
-        if end_char:
-            print("⚠️  Didn't find trailing closing comment brace")
-        blocks.append(("comment", token + end_char))
-    elif token_start is not None and mode == "subvar":
-        # not sure when we'll hit this but it probably shouldn't be a subvar block...
-        blocks.append(("subvar", text[token_start:].strip() + ")"))
+    if token_start is not None:
+        if mode == "comment":
+            token = text[token_start:i]
+            end_char = "" if token.strip()[-1] == "}" else "}"
+            if end_char:  # pragma: no branch
+                # this might be hard to get to as well!
+                print("⚠️  Didn't find trailing closing comment brace (adding)")
+            blocks.append(("comment", token + end_char))
+        else:
+            flush_token()
+
+    if paren_depth > 0:
+        print(f"❌  Unbalanced parens, depth {paren_depth}: {text[:30]}")
 
     return blocks
 
