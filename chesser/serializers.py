@@ -592,6 +592,8 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                 token_start = i
 
         elif mode == "comment":  # pragma: no branch
+            # have yet to see these in the wild - using assertions until
+            # we do, at which time we'll handle them one way or another
             assert text[i] != "{", "Unexpected opening brace in comment block"
             assert not text[i:].startswith(
                 "<fenseq"
