@@ -642,6 +642,14 @@ blockquote {
   align-items: center;
 }
 
+.landscape-cover.book-cover {
+  width: 150px;
+}
+.landscape-cover.course-black,
+.landscape-cover.course-white {
+  width: 350px;
+}
+
 .course {
   display: flex;
   justify-content: center; /* Ensures each image centers inside its container */
