@@ -502,16 +502,15 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         if token_start is None:
             return
         token = text[token_start:i]
-        # print(f"\n{text}\n{token}\n{blocks}")
+        stripped = token.strip()
         if mode == "neutral":
-            stripped = token.strip()
             end_char = "" if stripped and stripped[-1] == "}" else "}"
             if not end_char:
                 print("⚠️  Found closing comment brace while in neutral mode")
             blocks.append(("comment", "{" + token + end_char))
-        elif mode == "subvar" and token.strip():  # pragma: no branch
-            # maybe we'll only strip in this one spot
-            blocks.append(("move", token.strip()))
+        elif mode == "subvar" and stripped:  # pragma: no branch
+            # one of the few (only) places we strip in this pass
+            blocks.append(("move", stripped))
         else:
             raise ValueError(  # pragma: no cover
                 f"Unexpected mode '{mode}' in flush_token at index {i}: {token}"
@@ -593,6 +592,8 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
                 token_start = i
 
         elif mode == "comment":  # pragma: no branch
+            # have yet to see these in the wild - using assertions until
+            # we do, at which time we'll handle them one way or another
             assert text[i] != "{", "Unexpected opening brace in comment block"
             assert not text[i:].startswith(
                 "<fenseq"
