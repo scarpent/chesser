@@ -1324,6 +1324,7 @@ about 500, but also covers our ultimate mobile 450 view */
 
   .home-recently-wrapper {
     gap: 15px;
+    justify-content: flex-start;
   }
 
   .export-list {
