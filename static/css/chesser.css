@@ -994,8 +994,8 @@ more washed out with all the white paper */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 112px;
-  height: 112px;
+  width: 81px;
+  height: 81px;
   background: var(--color-button-border);
   border: none;
   border-radius: 50%;
@@ -1010,10 +1010,10 @@ more washed out with all the white paper */
 }
 
 .board-cover-button img {
-  width: 116px;
-  height: 116px;
+  width: 85px;
+  height: 85px;
   object-fit: cover;
-  border: 8px solid var(--color-button-border);
+  border: 6px solid var(--color-button-border);
   border-radius: 50%;
   display: block;
 }
