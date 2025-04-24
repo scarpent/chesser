@@ -807,6 +807,11 @@ external monitor to avoid display isses... */
   background-color: black;
 }
 
+.icon-upload {
+  width: 52px;
+  height: 52px;
+}
+
 .icon-button-home img,
 .icon-button img {
   width: 100%;
@@ -1365,6 +1370,12 @@ about 500, but also covers our ultimate mobile 450 view */
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .icon-upload {
+    /* back to same larger but not quite as large as icon-button-home */
+    width: 70px;
+    height: 70px;
   }
 }
 

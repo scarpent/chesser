@@ -22,13 +22,13 @@
         <div id="board"></div>
         <template x-if="!hasVariationData()">
           <button
-            title="Opening Book Home"
+            title="Home"
             class="board-cover-button"
             @click="window.location.href='/'"
           >
             <img
               src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
-              alt="Opening Book Cover"
+              alt="Chesser Logo Kiwen Suwi Dark Knight"
             />
           </button>
         </template>
@@ -73,13 +73,13 @@
       <template x-if="hasVariationData()">
         <div class="button-container">
           <button
-            title="Opening Book Home"
+            title="Home"
             @click="window.location.href = '/'"
             class="castle-button icon-like-img book-cover book-cover-round"
           >
             <img
               src="{% static 'images/kiwen-suwi-dark-knight-192x192.png' %}"
-              alt="Opening Book Cover"
+              alt="Chesser Logo Kiwen Suwi Dark Knight"
             />
           </button>
           <button
