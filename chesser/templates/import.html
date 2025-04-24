@@ -38,7 +38,7 @@
       <button
         title="Review"
         @click="window.location.href='/review/'"
-        class="icon-review icon-button big-icon big-round"
+        class="icon-review icon-button-home"
       ></button>
     </div>
 
@@ -94,7 +94,7 @@
           />
           <button
             type="submit"
-            class="icon-clone icon-button big-icon big-round"
+            class="icon-clone icon-button-home"
             title="Clone"
           ></button>
         </form>
@@ -148,7 +148,7 @@
           <div style="position: relative">
             <button
               type="submit"
-              class="icon-import icon-button big-icon big-round"
+              class="icon-import icon-button-home"
               style="position: absolute; top: 15px; right: 15px; z-index: 10"
               title="Import"
             ></button>
@@ -177,10 +177,7 @@ string will import if unique, e.g. ➤
       >
         {% csrf_token %}
         <input type="file" name="uploaded_file" />
-        <button
-          type="submit"
-          class="icon-upload big-icon icon-button big-round"
-        ></button>
+        <button type="submit" class="icon-upload icon-button-home"></button>
       </form>
     </div>
 
