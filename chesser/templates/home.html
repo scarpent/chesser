@@ -44,17 +44,17 @@
       <button
         title="Stats"
         @click="window.open('/stats/', '_blank')"
-        class="icon-stats icon-button medium-icon"
+        class="icon-stats icon-button-home"
       ></button>
       <button
         title="Review"
         @click="window.location.href='/review/'"
-        class="icon-review icon-button big-icon big-round"
+        class="icon-review icon-button-home"
       ></button>
       <button
         title="Import"
         @click="window.location.href='/import/'"
-        class="icon-import icon-button medium-icon"
+        class="icon-import icon-button-home"
       ></button>
     </div>
 
@@ -207,16 +207,20 @@
       </div>
     </div>
 
-    <div class="button-container" style="margin: 20px 0 10px" x-cloak>
+    <div
+      class="button-container button-container-home"
+      style="margin-top: 30px; margin-bottom: 30px"
+      x-cloak
+    >
       <button
         title="Random Extra Study"
         @click="goToRandomReview()"
-        class="icon-random icon-button"
+        class="icon-random icon-button-home"
       ></button>
       <button
         title="Lichess Puzzles"
         @click="window.open('https://lichess.org/training', target='_blank')"
-        class="icon-puzzles icon-button"
+        class="icon-puzzles icon-button-home"
       ></button>
     </div>
 

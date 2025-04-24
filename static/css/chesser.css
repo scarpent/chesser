@@ -775,6 +775,7 @@ button:hover {
 /* trying transform and will-change but the rendering
 problem may be that I turned off some GPU stuff on
 external monitor to avoid display isses... */
+.icon-button-home,
 .icon-button {
   width: 52px;
   height: 52px;
@@ -789,6 +790,16 @@ external monitor to avoid display isses... */
   will-change: background-image, transform; /* prioritize for paint */
 }
 
+.icon-button-home {
+  border: 0;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  background-size: 60%;
+  background-color: black;
+}
+
+.icon-button-home img,
 .icon-button img {
   width: 100%;
   height: 100%;
@@ -796,16 +807,19 @@ external monitor to avoid display isses... */
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
+.icon-button-home:active,
 .icon-button:active {
   transform: scale(0.92);
 }
 
+.icon-button-home:hover,
 .icon-button:hover {
   filter: brightness(1.3) contrast(1.2);
 }
 
 /* tone it down a bit from others - this one was
 more washed out with all the white paper */
+.icon-review.icon-button-home:hover,
 .icon-review.icon-button:hover {
   filter: brightness(1.2) contrast(1);
 }
@@ -1396,7 +1410,7 @@ about 500, but also covers our ultimate mobile 450 view */
     gap: 2px;
   }
   .button-container-home {
-    gap: 55px;
+    gap: 40px;
     margin-top: 20px;
   }
 
