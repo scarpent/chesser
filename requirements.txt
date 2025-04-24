@@ -41,7 +41,7 @@ django==5.2
     #   -r requirements.in
     #   dj-database-url
     #   django-extensions
-django-extensions==4.0
+django-extensions==4.1
     # via -r requirements.in
 djangoql==0.18.1
     # via -r requirements.in
