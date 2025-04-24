@@ -37,6 +37,7 @@ def serialize_variation(variation, all_data=False, version=1):
         now, variation.get_latest_quiz_result_datetime()
     )
     time_until_next_review = util.format_time_until(now, variation.next_review)
+
     source_html = get_source_html(variation.source) if all_data else None
     html = generate_variation_html(variation, version=version) if all_data else None
     url_moves = "_".join([move.san for move in variation.moves.all()])
@@ -55,6 +56,7 @@ def serialize_variation(variation, all_data=False, version=1):
         "level": variation.level,
         "time_since_last_review": time_since_last_review,
         "time_until_next_review": time_until_next_review,
+        "created_at": util.format_local_date(variation.created_at),
         "mainline": variation.mainline_moves,
         "source_html": source_html,
         "html": html,

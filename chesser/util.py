@@ -2,6 +2,7 @@ import re
 from datetime import datetime, timezone
 
 from django.utils.timesince import timesince
+from django.utils.timezone import localtime
 
 BEGINNING_OF_TIME = 0  # 1970-01-01T00:00:00
 END_OF_TIME = 253402300799
@@ -52,6 +53,14 @@ def format_time_until(now, next_review):
         parts.append(f"{int(seconds)}s")
 
     return " ".join(parts)
+
+
+def format_local_date(dt):
+    """
+    Returns a nicely formatted datetime string like: '8 March 2022'
+    """
+    dt_local = localtime(dt)
+    return dt_local.strftime("%-d %B %Y")
 
 
 def get_common_move_prefix_html(mainline_moves_str, previous_moves, use_class=True):

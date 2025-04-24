@@ -101,6 +101,10 @@
           </div>
           <div id="source" x-html="variationData.source_html"></div>
           {% include "includes/history.html" %}
+          <div
+            id="variation-added-date"
+            x-text="'Added ➤ ' + variationData.created_at"
+          ></div>
         </div>
       </div>
       <div id="right-column" x-html="variationData.html"></div>

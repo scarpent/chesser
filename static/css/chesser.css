@@ -180,6 +180,11 @@ blockquote {
   justify-content: space-between; /* Distributes items equally */
 }
 
+#variation-added-date {
+  color: var(--color-headers);
+  margin-top: 10px;
+}
+
 #edit-variation-info {
   color: var(--color-headers);
   display: flex;
