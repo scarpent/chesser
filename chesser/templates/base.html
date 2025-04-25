@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Chesser{% endblock %}</title>
+    {% if debug %}
+    <link rel="icon" href="{% static 'favicon-dev.ico' %}" type="image/x-icon" />
+    {% else %}
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+    {% endif %}
+    <!-- prettier-ignore -->
+    {% include "includes/preload_icons.html" %}
+    {% block head_extra %}{% endblock %}
+    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
+  </head>
+  {% block content %}{% endblock %}
+</html>

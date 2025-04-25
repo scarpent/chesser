@@ -1,316 +1,312 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chesser</title>
-    {% load static %} {% if debug %}
-    <link rel="icon" href="{% static 'favicon-dev.ico' %}" type="image/x-icon" />
-    {% else %}
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-    {% endif %} {% include "includes/preload_icons.html" %}
-    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
-    <link rel="manifest" href="{% static 'manifest.json' %}" />
-    <meta name="theme-color" content="#000000" />
-  </head>
-  <body x-data="homeApp()" x-init="initHome()">
-    <div class="course-covers" x-cloak>
-      <button
-        @click="window.location.href = '/course/1/'"
-        class="castle-button course-white"
-        title="White Openings"
-      >
-        <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
-      </button>
-      <button
-        @click="window.location.href = '/'"
-        class="castle-button book-cover book-cover-round"
-        title="Home"
-      >
-        <img
-          src="{% static 'images/kiwen-suwi-light-knight-512x512.png' %}"
-          alt="Chesser Logo Kiwen Suwi Dark Knight"
-          style="width: 85px; border: 2px solid var(--color-button-border)"
-        />
-      </button>
-      <button
-        @click="window.location.href = '/course/2/'"
-        class="castle-button course-black"
-        title="Black Openings"
-      >
-        <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
-      </button>
-    </div>
 
-    <div class="button-container button-container-home" x-cloak>
-      <button
-        title="Stats"
-        @click="window.open('/stats/', '_blank')"
-        class="icon-stats icon-button-home"
-      ></button>
-      <button
-        title="Review"
-        @click="window.location.href='/review/'"
-        class="icon-review icon-button-home"
-      ></button>
-      <button
-        title="Import"
-        @click="window.location.href='/import/'"
-        class="icon-import icon-button-home"
-      ></button>
-    </div>
+{% block head_extra %}
+<link rel="manifest" href="{% static 'manifest.json' %}" />
+<meta name="theme-color" content="#000000" />
+{% endblock %}
 
-    <div
-      x-show="Object.keys(homeData.nav.courses).length > 0"
-      class="courses-container"
-      x-cloak
+<!-- prettier-ignore -->
+{% block content %}
+<body x-data="homeApp()" x-init="initHome()">
+  <div class="course-covers" x-cloak>
+    <button
+      @click="window.location.href = '/course/1/'"
+      class="castle-button course-white"
+      title="White Openings"
     >
-      <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
+      <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
+    </button>
+    <button
+      @click="window.location.href = '/'"
+      class="castle-button book-cover book-cover-round"
+      title="Home"
+    >
+      {% block kiwen-suwi-knight %}
+      <img
+        src="{% static 'images/kiwen-suwi-light-knight-512x512.png' %}"
+        alt="Chesser Logo Kiwen Suwi Knight"
+        style="width: 85px; border: 2px solid var(--color-button-border)"
+      />
+      {% endblock %}
+    </button>
+    <button
+      @click="window.location.href = '/course/2/'"
+      class="castle-button course-black"
+      title="Black Openings"
+    >
+      <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
+    </button>
+  </div>
+
+  <div class="button-container button-container-home" x-cloak>
+    <button
+      title="Stats"
+      @click="window.open('/stats/', '_blank')"
+      class="icon-stats icon-button-home"
+    ></button>
+    <button
+      title="Review"
+      @click="window.location.href='/review/'"
+      class="icon-review icon-button-home"
+    ></button>
+    <button
+      title="Import"
+      @click="window.location.href='/import/'"
+      class="icon-import icon-button-home"
+    ></button>
+  </div>
+
+  <div
+    x-show="Object.keys(homeData.nav.courses).length > 0"
+    class="courses-container"
+    x-cloak
+  >
+    <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
+    <ul>
+      <template x-for="course in homeData.nav.courses" :key="course.id">
+        <li>
+          <b>
+            <a :href="'/course/' + course.id + '/'" x-text="course.title"></a>
+            (<span x-text="course.variation_count"></span>)
+          </b>
+        </li>
+      </template>
+    </ul>
+  </div>
+
+  <div
+    x-show="Object.keys(homeData.nav.chapters).length > 0"
+    class="chapters-container"
+    x-cloak
+  >
+    <h3>
+      📚️ <a href="/">My Book</a> ➤
+      <span x-text="homeData.nav.course_title"></span>
+      (<span x-text="homeData.nav.chapters_var_count"></span>)
+    </h3>
+    <ol>
+      <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
+        <li>
+          <a
+            :href="'/course/' + homeData.nav.course_id + '/chapter/' + chapter.id + '/'"
+            x-text="chapter.title"
+          ></a>
+          (<span x-text="chapter.variation_count"></span>)
+        </li>
+      </template>
+    </ol>
+  </div>
+
+  <div x-show="homeData.nav.chapter_id" class="variations-container" x-cloak>
+    <h3>
+      📚️ <a href="/">My Book</a> ➤
+      <a :href="'/course/' + homeData.nav.course_id + '/'"
+        ><span x-text="homeData.nav.course_title"></span
+      ></a>
+      ➤
+      <span x-text="homeData.nav.chapter_title"></span>
+      (<span x-text="homeData.nav.variations.length"></span>)
+    </h3>
+    <ol>
+      <template x-for="variation in homeData.nav.variations" :key="variation.id">
+        <li :id="'var_' + variation.id">
+          <div class="variations-list-info">
+            <div>
+              <a
+                :href="'/variation/' + variation.id + '/'"
+                x-text="variation.title"
+              ></a>
+            </div>
+            <div style="text-align: right">
+              <span
+                x-text="'S' + variation.start_move"
+                class="chapter-vars-review-info"
+              ></span>
+              •
+              <span
+                x-text="'L' + variation.level"
+                class="chapter-vars-review-info"
+              ></span>
+              •
+              <span
+                x-text="variation.time_since_last_review"
+                class="chapter-vars-review-info"
+              ></span>
+              ➤<span
+                x-text="variation.time_until_next_review"
+                class="chapter-vars-review-info"
+              ></span>
+            </div>
+          </div>
+
+          <span
+            x-html="variation.mainline_moves_html"
+            class="chapter-vars-mainline-moves"
+          ></span>
+        </li>
+      </template>
+    </ol>
+    <template x-if="Object.keys(homeData.nav.variations).length === 0">
+      <p>This chapter lacks variations.</p>
+    </template>
+  </div>
+
+  <div
+    id="next-due"
+    x-data="nextDueTimer()"
+    x-init="initCountdown()"
+    x-text="label"
+  ></div>
+
+  <div class="reviews-levels-wrapper" x-cloak>
+    <div class="reviews-levels-container">
+      <div class="reviews-container">
+        <h3>Upcoming Reviews</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>When?</th>
+              <th># Vars</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="timeframe in homeData.upcoming" :key="timeframe.label">
+              <tr>
+                <td x-text="timeframe.label"></td>
+                <td x-text="timeframe.count"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="levels-container">
+        <h3>Current Levels</h3>
+        <table class="current-levels">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th># Vars</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template
+              x-for="variation_level in homeData.levels"
+              :key="variation_level.label"
+            >
+              <tr>
+                <td x-text="variation_level.label"></td>
+                <td x-text="variation_level.count"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="button-container button-container-home"
+    style="margin-top: 30px; margin-bottom: 30px"
+    x-cloak
+  >
+    <button
+      title="Random Extra Study"
+      @click="goToRandomReview()"
+      class="icon-random icon-button-home"
+    ></button>
+    <button
+      title="Lichess Puzzles"
+      @click="window.open('https://lichess.org/training', target='_blank')"
+      class="icon-puzzles icon-button-home"
+    ></button>
+  </div>
+
+  <div class="home-recently-wrapper">
+    <div class="home-recently" x-cloak>
+      <h3>Recently Reviewed</h3>
       <ul>
-        <template x-for="course in homeData.nav.courses" :key="course.id">
+        <template x-for="review in homeData.recent" :key="review.id">
           <li>
-            <b>
-              <a :href="'/course/' + course.id + '/'" x-text="course.title"></a>
-              (<span x-text="course.variation_count"></span>)
-            </b>
+            <div class="home-recently-info">
+              <div>
+                <span x-text="review.passed"></span>
+                <a
+                  :href="'/variation/' + review.variation_id + '/'"
+                  x-text="review.variation_title"
+                ></a>
+              </div>
+              <div>
+                (<span x-text="review.datetime"></span>, L<span
+                  x-text="review.level"
+                ></span
+                >)
+              </div>
+            </div>
           </li>
         </template>
       </ul>
     </div>
 
-    <div
-      x-show="Object.keys(homeData.nav.chapters).length > 0"
-      class="chapters-container"
-      x-cloak
-    >
-      <h3>
-        📚️ <a href="/">My Book</a> ➤
-        <span x-text="homeData.nav.course_title"></span>
-        (<span x-text="homeData.nav.chapters_var_count"></span>)
-      </h3>
-      <ol>
-        <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
-          <li>
-            <a
-              :href="'/course/' + homeData.nav.course_id + '/chapter/' + chapter.id + '/'"
-              x-text="chapter.title"
-            ></a>
-            (<span x-text="chapter.variation_count"></span>)
-          </li>
-        </template>
-      </ol>
-    </div>
-
-    <div x-show="homeData.nav.chapter_id" class="variations-container" x-cloak>
-      <h3>
-        📚️ <a href="/">My Book</a> ➤
-        <a :href="'/course/' + homeData.nav.course_id + '/'"
-          ><span x-text="homeData.nav.course_title"></span
-        ></a>
-        ➤
-        <span x-text="homeData.nav.chapter_title"></span>
-        (<span x-text="homeData.nav.variations.length"></span>)
-      </h3>
-      <ol>
-        <template x-for="variation in homeData.nav.variations" :key="variation.id">
-          <li :id="'var_' + variation.id">
-            <div class="variations-list-info">
-              <div>
-                <a
-                  :href="'/variation/' + variation.id + '/'"
-                  x-text="variation.title"
-                ></a>
-              </div>
-              <div style="text-align: right">
-                <span
-                  x-text="'S' + variation.start_move"
-                  class="chapter-vars-review-info"
-                ></span>
-                •
-                <span
-                  x-text="'L' + variation.level"
-                  class="chapter-vars-review-info"
-                ></span>
-                •
-                <span
-                  x-text="variation.time_since_last_review"
-                  class="chapter-vars-review-info"
-                ></span>
-                ➤<span
-                  x-text="variation.time_until_next_review"
-                  class="chapter-vars-review-info"
-                ></span>
-              </div>
-            </div>
-
-            <span
-              x-html="variation.mainline_moves_html"
-              class="chapter-vars-mainline-moves"
-            ></span>
-          </li>
-        </template>
-      </ol>
-      <template x-if="Object.keys(homeData.nav.variations).length === 0">
-        <p>This chapter lacks variations.</p>
-      </template>
-    </div>
-
-    <div
-      id="next-due"
-      x-data="nextDueTimer()"
-      x-init="initCountdown()"
-      x-text="label"
-    ></div>
-
-    <div class="reviews-levels-wrapper" x-cloak>
-      <div class="reviews-levels-container">
-        <div class="reviews-container">
-          <h3>Upcoming Reviews</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>When?</th>
-                <th># Vars</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template x-for="timeframe in homeData.upcoming" :key="timeframe.label">
-                <tr>
-                  <td x-text="timeframe.label"></td>
-                  <td x-text="timeframe.count"></td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="levels-container">
-          <h3>Current Levels</h3>
-          <table class="current-levels">
-            <thead>
-              <tr>
-                <th>Level</th>
-                <th># Vars</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template
-                x-for="variation_level in homeData.levels"
-                :key="variation_level.label"
-              >
-                <tr>
-                  <td x-text="variation_level.label"></td>
-                  <td x-text="variation_level.count"></td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="button-container button-container-home"
-      style="margin-top: 30px; margin-bottom: 30px"
-      x-cloak
-    >
-      <button
-        title="Random Extra Study"
-        @click="goToRandomReview()"
-        class="icon-random icon-button-home"
-      ></button>
-      <button
-        title="Lichess Puzzles"
-        @click="window.open('https://lichess.org/training', target='_blank')"
-        class="icon-puzzles icon-button-home"
-      ></button>
-    </div>
-
-    <div class="home-recently-wrapper">
+    <template x-if="homeData.recently_added.length !== 0">
       <div class="home-recently" x-cloak>
-        <h3>Recently Reviewed</h3>
+        <h3>Recently Added</h3>
         <ul>
-          <template x-for="review in homeData.recent" :key="review.id">
+          <template
+            x-for="variation in homeData.recently_added"
+            :key="variation.variation_id"
+          >
             <li>
               <div class="home-recently-info">
                 <div>
-                  <span x-text="review.passed"></span>
+                  ➡️
                   <a
-                    :href="'/variation/' + review.variation_id + '/'"
-                    x-text="review.variation_title"
+                    :href="'/variation/' + variation.variation_id + '/'"
+                    x-text="variation.variation_title"
                   ></a>
                 </div>
                 <div>
-                  (<span x-text="review.datetime"></span>, L<span
-                    x-text="review.level"
-                  ></span
-                  >)
+                  <span x-text="variation.created_at"></span> ➤
+                  <span x-text="variation.next_review"></span>, L<span
+                    x-text="variation.level"
+                  ></span>
                 </div>
               </div>
             </li>
           </template>
         </ul>
       </div>
+    </template>
+  </div>
 
-      <template x-if="homeData.recently_added.length !== 0">
-        <div class="home-recently" x-cloak>
-          <h3>Recently Added</h3>
-          <ul>
-            <template
-              x-for="variation in homeData.recently_added"
-              :key="variation.variation_id"
-            >
-              <li>
-                <div class="home-recently-info">
-                  <div>
-                    ➡️
-                    <a
-                      :href="'/variation/' + variation.variation_id + '/'"
-                      x-text="variation.variation_title"
-                    ></a>
-                  </div>
-                  <div>
-                    <span x-text="variation.created_at"></span> ➤
-                    <span x-text="variation.next_review"></span>, L<span
-                      x-text="variation.level"
-                    ></span>
-                  </div>
-                </div>
-              </li>
-            </template>
-          </ul>
-        </div>
-      </template>
-    </div>
+  {% include "includes/landscape_overlay.html" %}
 
-    {% include "includes/landscape_overlay.html" %}
+  <div class="links-container" x-cloak>
+    <!-- Admin link -->
+    <a href="/admin/" class="admin-link" target="_blank">Admin</a>
 
-    <!-- Admin and Logout links side by side -->
-    <div class="links-container" x-cloak>
-      <!-- Admin link -->
-      <a href="/admin/" class="admin-link" target="_blank">Admin</a>
+    <!-- Logout form styled as a link -->
+    <form method="POST" action="{% url 'logout' %}" class="logout-form">
+      {% csrf_token %}
+      <button type="submit" class="logout-button">Logout</button>
+    </form>
+  </div>
 
-      <!-- Logout form styled as a link -->
-      <form method="POST" action="{% url 'logout' %}" class="logout-form">
-        {% csrf_token %}
-        <button type="submit" class="logout-button">Logout</button>
-      </form>
-    </div>
+  <script>
+    window.homeData = JSON.parse("{{ home_data|escapejs }}");
+    console.log("homeData:", window.homeData);
+  </script>
 
-    <script>
-      window.homeData = JSON.parse("{{ home_data|escapejs }}");
-      console.log("homeData:", window.homeData);
-    </script>
+  <script type="module">
+    import { homeApp } from "{% static 'js/home.js' %}";
+    window.homeApp = homeApp;
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("homeApp", homeApp);
+    });
+  </script>
 
-    <script type="module">
-      import { homeApp } from "{% static 'js/home.js' %}";
-      window.homeApp = homeApp;
-      document.addEventListener("alpine:init", () => {
-        Alpine.data("homeApp", homeApp);
-      });
-    </script>
-
-    <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-  </body>
-</html>
+  <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
+</body>
+{% endblock %}
