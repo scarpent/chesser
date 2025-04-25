@@ -1,213 +1,208 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Import/Export</title>
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-    {% include "includes/preload_icons.html" %}
-    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
-  </head>
-  <body x-data="importApp()" x-init="init()" x-cloak>
-    <div class="button-container" style="margin-top: 20px" x-cloak>
-      <button
-        title="Home"
-        @click="window.location.href = '/'"
-        class="castle-button big-icon book-cover book-cover-round"
-      >
-        <img
-          src="{% static 'images/kiwen-suwi-light-knight-192x192.png' %}"
-          alt="Chesser Logo Kiwen Suwi Knight"
-        />
-      </button>
-      <button
-        @click="window.location.href = '/course/1/'"
-        class="castle-button big-icon course-white book-cover-round"
-        title="White Openings"
-      >
-        <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
-      </button>
-      <button
-        @click="window.location.href = '/course/2/'"
-        class="castle-button big-icon course-black book-cover-round"
-        title="Black Openings"
-      >
-        <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
-      </button>
-      <button
-        title="Review"
-        @click="window.location.href='/review/'"
-        class="icon-review icon-button-home"
-      ></button>
-    </div>
+{% block title %}Import/Export{% endblock %}
 
-    {% if messages %}
-    <ul class="import-status">
-      {% for message in messages %}
-      <li class="message {{ message.tags }}">{{ message|safe }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+{% block content %}
+<body x-data="importApp()" x-init="init()" x-cloak>
+  <div class="button-container" style="margin-top: 20px" x-cloak>
+    <button
+      title="Home"
+      @click="window.location.href = '/'"
+      class="castle-button big-icon book-cover book-cover-round"
+    >
+      <img
+        src="{% static 'images/kiwen-suwi-light-knight-192x192.png' %}"
+        alt="Chesser Logo Kiwen Suwi Knight"
+      />
+    </button>
+    <button
+      @click="window.location.href = '/course/1/'"
+      class="castle-button big-icon course-white book-cover-round"
+      title="White Openings"
+    >
+      <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
+    </button>
+    <button
+      @click="window.location.href = '/course/2/'"
+      class="castle-button big-icon course-black book-cover-round"
+      title="Black Openings"
+    >
+      <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
+    </button>
+    <button
+      title="Review"
+      @click="window.location.href='/review/'"
+      class="icon-review icon-button-home"
+    ></button>
+  </div>
 
-    <template x-if="formDefaults.original_variation_id">
-      <div class="import-page-container form-standard clone-form">
-        <h2 x-text="'Clone Variation #' + formDefaults.original_variation_id"></h2>
-        <form method="POST" action="{% url 'clone' %}">
-          {% csrf_token %}
-          <div class="form-standard">
-            <label for="clone_variation_title">New Title:</label>
-            <input
-              type="text"
-              name="clone_variation_title"
-              x-model="formDefaults.clone_variation_title"
-              class="variation-title-input"
-            />
-          </div>
-          <div class="form-clone-mainline">
-            <label for="clone_mainline">New Moves:</label>
-            <input
-              type="text"
-              name="clone_mainline"
-              x-model="formDefaults.clone_mainline"
-              class="variation-title-input"
-            />
-          </div>
-          <div>
-            <label for="original-variation-moves" class="form-label"
-              >Original Moves:</label
-            >
-            <textarea
-              id="original-variation-moves"
-              name="original_variation_moves"
-              readonly
-              rows="3"
-              class="wide-textarea"
-              x-text="importData.form_defaults.original_variation_moves"
-            ></textarea>
-          </div>
-          <input
-            id="original-variation-id"
-            name="original_variation_id"
-            type="hidden"
-            :value="importData.form_defaults.original_variation_id"
-          />
-          <button
-            type="submit"
-            class="icon-clone icon-button-home"
-            title="Clone"
-          ></button>
-        </form>
-      </div>
-    </template>
+  {% if messages %}
+  <ul class="import-status">
+    {% for message in messages %}
+    <li class="message {{ message.tags }}">{{ message|safe }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
-    <div class="import-page-container form-standard">
-      <h2>Import Variation</h2>
-      <form method="POST" action="{% url 'import_json' %}">
+  <template x-if="formDefaults.original_variation_id">
+    <div class="import-page-container form-standard clone-form">
+      <h2 x-text="'Clone Variation #' + formDefaults.original_variation_id"></h2>
+      <form method="POST" action="{% url 'clone' %}">
         {% csrf_token %}
-        <div>
-          <label for="chapter">Chapter:</label>
-          <select name="chapter_id" id="chapter">
-            <template x-for="chapter in chapters" :key="chapter.id">
-              <option :value="chapter.id" x-text="chapter.label"></option>
-            </template>
-          </select>
-        </div>
-
-        <div>
-          <label for="variation_title">Variation Title:</label>
+        <div class="form-standard">
+          <label for="clone_variation_title">New Title:</label>
           <input
             type="text"
-            name="variation_title"
-            x-model="formDefaults.variation_title"
+            name="clone_variation_title"
+            x-model="formDefaults.clone_variation_title"
             class="variation-title-input"
           />
         </div>
-
-        <div class="form-start-and-end">
-          <label for="start_move">Start Move:</label>
-          <input type="text" name="start_move" x-model="formDefaults.start_move" />
-
-          <label for="end_move">End Move:</label>
-          <input type="text" name="end_move" x-model="formDefaults.end_move" />
-        </div>
-
-        <div>
-          <label for="next_review_date">Next Review Date:</label>
+        <div class="form-clone-mainline">
+          <label for="clone_mainline">New Moves:</label>
           <input
-            type="date"
-            name="next_review_date"
-            id="next_review_date"
-            x-model="formDefaults.next_review_date"
+            type="text"
+            name="clone_mainline"
+            x-model="formDefaults.clone_mainline"
+            class="variation-title-input"
           />
         </div>
-
         <div>
-          <label for="json_or_pgn_data">JSON or PGN:</label><br />
-
-          <div style="position: relative">
-            <button
-              type="submit"
-              class="icon-import icon-button-home"
-              style="position: absolute; top: 15px; right: 15px; z-index: 10"
-              title="Import"
-            ></button>
-
-            <textarea
-              name="json_or_pgn_data"
-              id="import-json-or-pgn-text-area"
-              x-model="formDefaults.json_or_pgn_data"
-              rows="20"
-              placeholder="Paste or type here. A simple move
-string will import if unique, e.g. ➤
-1.e4 e5 2.Nf3 Nc6 3.a4!"
-              required
-            ></textarea>
-          </div>
+          <label for="original-variation-moves" class="form-label"
+            >Original Moves:</label
+          >
+          <textarea
+            id="original-variation-moves"
+            name="original_variation_moves"
+            readonly
+            rows="3"
+            class="wide-textarea"
+            x-text="importData.form_defaults.original_variation_moves"
+          ></textarea>
         </div>
-      </form>
-    </div>
-
-    <div class="file-upload-form import-page-container">
-      <h3>Upload to /tmp/upload.json</h3>
-      <form
-        method="POST"
-        enctype="multipart/form-data"
-        action="{% url 'upload_json_data' %}"
-      >
-        {% csrf_token %}
-        <input type="file" name="uploaded_file" />
+        <input
+          id="original-variation-id"
+          name="original_variation_id"
+          type="hidden"
+          :value="importData.form_defaults.original_variation_id"
+        />
         <button
-          title="Upload"
           type="submit"
-          class="icon-upload icon-button-home"
+          class="icon-clone icon-button-home"
+          title="Clone"
         ></button>
       </form>
     </div>
+  </template>
 
-    <div class="export-list import-page-container">
-      <h3>Variations Export</h3>
-      <ul>
-        <li><a href="/variations.tsv/" target="_blank">variations.tsv</a></li>
-        <li><a href="/variations-table/" target="_blank">table</a></li>
-      </ul>
-    </div>
+  <div class="import-page-container form-standard">
+    <h2>Import Variation</h2>
+    <form method="POST" action="{% url 'import_json' %}">
+      {% csrf_token %}
+      <div>
+        <label for="chapter">Chapter:</label>
+        <select name="chapter_id" id="chapter">
+          <template x-for="chapter in chapters" :key="chapter.id">
+            <option :value="chapter.id" x-text="chapter.label"></option>
+          </template>
+        </select>
+      </div>
 
-    {% include "includes/landscape_overlay.html" %}
+      <div>
+        <label for="variation_title">Variation Title:</label>
+        <input
+          type="text"
+          name="variation_title"
+          x-model="formDefaults.variation_title"
+          class="variation-title-input"
+        />
+      </div>
 
-    <script>
-      window.importData = JSON.parse("{{ import_data|escapejs }}");
-      console.log("importData:", window.importData);
-    </script>
+      <div class="form-start-and-end">
+        <label for="start_move">Start Move:</label>
+        <input type="text" name="start_move" x-model="formDefaults.start_move" />
 
-    <script type="module">
-      import { importApp } from "{% static 'js/import.js' %}";
-      window.importApp = importApp;
-      document.addEventListener("alpine:init", () => {
-        Alpine.data("importApp", importApp);
-      });
-    </script>
+        <label for="end_move">End Move:</label>
+        <input type="text" name="end_move" x-model="formDefaults.end_move" />
+      </div>
 
-    <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-  </body>
-</html>
+      <div>
+        <label for="next_review_date">Next Review Date:</label>
+        <input
+          type="date"
+          name="next_review_date"
+          id="next_review_date"
+          x-model="formDefaults.next_review_date"
+        />
+      </div>
+
+      <div>
+        <label for="json_or_pgn_data">JSON or PGN:</label><br />
+
+        <div style="position: relative">
+          <button
+            type="submit"
+            class="icon-import icon-button-home"
+            style="position: absolute; top: 15px; right: 15px; z-index: 10"
+            title="Import"
+          ></button>
+
+          <textarea
+            name="json_or_pgn_data"
+            id="import-json-or-pgn-text-area"
+            x-model="formDefaults.json_or_pgn_data"
+            rows="20"
+            placeholder="Paste or type here. A simple move
+string will import if unique, e.g. ➤
+1.e4 e5 2.Nf3 Nc6 3.a4!"
+            required
+          ></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="file-upload-form import-page-container">
+    <h3>Upload to /tmp/upload.json</h3>
+    <form
+      method="POST"
+      enctype="multipart/form-data"
+      action="{% url 'upload_json_data' %}"
+    >
+      {% csrf_token %}
+      <input type="file" name="uploaded_file" />
+      <button
+        title="Upload"
+        type="submit"
+        class="icon-upload icon-button-home"
+      ></button>
+    </form>
+  </div>
+
+  <div class="export-list import-page-container">
+    <h3>Variations Export</h3>
+    <ul>
+      <li><a href="/variations.tsv/" target="_blank">variations.tsv</a></li>
+      <li><a href="/variations-table/" target="_blank">table</a></li>
+    </ul>
+  </div>
+
+  {% include "includes/landscape_overlay.html" %}
+
+  <script>
+    window.importData = JSON.parse("{{ import_data|escapejs }}");
+    console.log("importData:", window.importData);
+  </script>
+
+  <script type="module">
+    import { importApp } from "{% static 'js/import.js' %}";
+    window.importApp = importApp;
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("importApp", importApp);
+    });
+  </script>
+
+  <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
+</body>
+{% endblock %}

@@ -1,215 +1,214 @@
+<!-- prettier-ignore -->
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Review</title>
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
-    <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
-    <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
-    <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
-    {% include "includes/preload_icons.html" %}
-    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
-  </head>
-  <body
-    x-data="quizApp()"
-    x-init="initQuiz()"
-    @keydown.window="handleKeyNavigation($event)"
-  >
-    <div id="quiz-container">
-      <div id="resizable-board" data-board-id="quiz">
-        <div id="board"></div>
-        <template x-if="!hasVariationData()">
-          <button
-            title="Home"
-            class="board-cover-button"
-            @click="window.location.href='/'"
-          >
-            <img
-              src="{% static 'images/kiwen-suwi-light-knight-192x192.png' %}"
-              alt="Chesser Logo Kiwen Suwi Knight"
-            />
-          </button>
-        </template>
 
-        <div id="resize-handle"></div>
-      </div>
-      <div class="status-and-next">
-        <template x-if="completed">
-          <div class="button-container">
-            <button
-              title="Mainline Back"
-              @click="previousMove()"
-              class="icon-back icon-button"
-            ></button>
-            <button
-              title="Mainline Forward"
-              @click="nextMove()"
-              class="icon-forward icon-button"
-            ></button>
-          </div>
-        </template>
-        <div x-html="status" class="status"></div>
-        <template x-if="completed">
-          <div class="button-container">
-            <template x-if="reviewData.total_due_now > 0">
-              <button
-                title="Next"
-                @click="window.location.href='/review/'"
-                class="icon-review icon-button"
-              ></button>
-            </template>
-            <template x-if="reviewData.total_due_now == 0">
-              <button
-                title="Finish"
-                @click="window.location.href='/review/?finish=1'"
-                class="icon-complete icon-button"
-              ></button>
-            </template>
-          </div>
-        </template>
-      </div>
-      <template x-if="hasVariationData()">
+{% block title %}Review{% endblock %}
+{% block head_extra %}
+<link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
+<link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
+<link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
+{% endblock %}
+
+<!-- prettier-ignore -->
+{% block content %}
+<body
+  x-data="quizApp()"
+  x-init="initQuiz()"
+  @keydown.window="handleKeyNavigation($event)"
+>
+  <div id="quiz-container">
+    <div id="resizable-board" data-board-id="quiz">
+      <div id="board"></div>
+      <template x-if="!hasVariationData()">
+        <button
+          title="Home"
+          class="board-cover-button"
+          @click="window.location.href='/'"
+        >
+          <img
+            src="{% static 'images/kiwen-suwi-light-knight-192x192.png' %}"
+            alt="Chesser Logo Kiwen Suwi Knight"
+          />
+        </button>
+      </template>
+
+      <div id="resize-handle"></div>
+    </div>
+    <div class="status-and-next">
+      <template x-if="completed">
         <div class="button-container">
           <button
-            title="Home"
-            @click="window.location.href = '/'"
-            class="castle-button icon-like-img book-cover book-cover-round"
-          >
-            <img
-              src="{% static 'images/kiwen-suwi-light-knight-192x192.png' %}"
-              alt="Chesser Logo Kiwen Suwi Knight"
-            />
-          </button>
-          <button
-            title="Restart"
-            @click="restartQuiz()"
-            class="icon-restart icon-button"
+            title="Mainline Back"
+            @click="previousMove()"
+            class="icon-back icon-button"
           ></button>
           <button
-            title="Show Move"
-            @click="showQuizMove()"
-            class="icon-showmove icon-button"
-          ></button>
-          <button
-            title="Variation Info"
-            @click="showInfo = !showInfo"
-            class="icon-info icon-button"
-          ></button>
-          <button
-            title="View"
-            @click="gotoVariationView()"
-            class="icon-variation icon-button"
-          ></button>
-          <button
-            title="Edit"
-            @click="gotoEditView()"
-            class="icon-edit icon-button"
-          ></button>
-          <button
-            title="Lichess Analysis Board"
-            @click="window.open(variationData.analysis_url + quizMoveIndex, target='_blank')"
-            class="icon-analysis icon-button"
+            title="Mainline Forward"
+            @click="nextMove()"
+            class="icon-forward icon-button"
           ></button>
         </div>
       </template>
-
-      <div id="review-stats" x-html="reviewStats"></div>
-      <template x-if="showCounterReset">
-        <a href="#" @click.prevent="resetReviewSession()" style="margin-bottom: 5px">
-          reset counter
-        </a>
-      </template>
-      <template x-if="showInfo && variationData.title">
-        <div class="review-info-container">
-          <div class="chapter-title">
-            <a
-              :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
-              ><span x-text="variationData.chapter"></span
-            ></a>
-            <span> ➤ </span>
-            <span x-text="variationData.title"></span> (#<span
-              x-text="variationData.variation_id"
-            ></span
-            >)
-          </div>
-          <div class="variation-state-info">
-            <span x-show="completed" x-text="'Level ➤ ' + variationData.level"></span
-            >&nbsp;&nbsp;&nbsp;
-            <span
-              x-show="completed"
-              x-text="'Last ➤ ' + variationData.time_since_last_review"
-            ></span>
-          </div>
-          <div
-            x-show="completed"
-            x-text="variationData.mainline"
-            class="mainline-moves"
-          ></div>
+      <div x-html="status" class="status"></div>
+      <template x-if="completed">
+        <div class="button-container">
+          <template x-if="reviewData.total_due_now > 0">
+            <button
+              title="Next"
+              @click="window.location.href='/review/'"
+              class="icon-review icon-button"
+            ></button>
+          </template>
+          <template x-if="reviewData.total_due_now == 0">
+            <button
+              title="Finish"
+              @click="window.location.href='/review/?finish=1'"
+              class="icon-complete icon-button"
+            ></button>
+          </template>
         </div>
       </template>
-
-      <template x-if="showInfo && completed && finalMove().text">
-        <div class="final-move">
-          <p x-text="finalMove().move_verbose + ' ' + finalMove().text"></p>
-        </div>
-      </template>
-
-      <template x-if="!hasVariationData()">
-        <div class="button-container button-container-home">
-          <button
-            title="Random Extra Study"
-            @click="window.location.href='/review/random/'"
-            class="icon-random icon-button-home"
-          ></button>
-          <button
-            title="Lichess Puzzles"
-            @click="window.open('https://lichess.org/training', target='_blank')"
-            class="icon-puzzles icon-button-home"
-          ></button>
-        </div>
-      </template>
-
-      <template x-if="completed"> {% include "includes/history.html" %} </template>
     </div>
+    <template x-if="hasVariationData()">
+      <div class="button-container">
+        <button
+          title="Home"
+          @click="window.location.href = '/'"
+          class="castle-button icon-like-img book-cover book-cover-round"
+        >
+          <img
+            src="{% static 'images/kiwen-suwi-light-knight-192x192.png' %}"
+            alt="Chesser Logo Kiwen Suwi Knight"
+          />
+        </button>
+        <button
+          title="Restart"
+          @click="restartQuiz()"
+          class="icon-restart icon-button"
+        ></button>
+        <button
+          title="Show Move"
+          @click="showQuizMove()"
+          class="icon-showmove icon-button"
+        ></button>
+        <button
+          title="Variation Info"
+          @click="showInfo = !showInfo"
+          class="icon-info icon-button"
+        ></button>
+        <button
+          title="View"
+          @click="gotoVariationView()"
+          class="icon-variation icon-button"
+        ></button>
+        <button
+          title="Edit"
+          @click="gotoEditView()"
+          class="icon-edit icon-button"
+        ></button>
+        <button
+          title="Lichess Analysis Board"
+          @click="window.open(variationData.analysis_url + quizMoveIndex, target='_blank')"
+          class="icon-analysis icon-button"
+        ></button>
+      </div>
+    </template>
 
-    <div
-      x-data="{ show: false, resolve: null }"
-      x-show="show"
-      x-cloak
-      id="promotion-modal"
-      class="modal-overlay"
-      @promotion="(e) => { show = true; resolve = e.detail }"
-    >
-      <div class="modal-box">
-        <div class="promotion-options">
-          <button @click="resolve('q'); show = false">Queen ♛</button>
-          <button @click="resolve('r'); show = false">Rook</button>
-          <button @click="resolve('b'); show = false">Bishop</button>
-          <button @click="resolve('n'); show = false">Knight</button>
+    <div id="review-stats" x-html="reviewStats"></div>
+    <template x-if="showCounterReset">
+      <a href="#" @click.prevent="resetReviewSession()" style="margin-bottom: 5px">
+        reset counter
+      </a>
+    </template>
+    <template x-if="showInfo && variationData.title">
+      <div class="review-info-container">
+        <div class="chapter-title">
+          <a
+            :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
+            ><span x-text="variationData.chapter"></span
+          ></a>
+          <span> ➤ </span>
+          <span x-text="variationData.title"></span> (#<span
+            x-text="variationData.variation_id"
+          ></span
+          >)
         </div>
+        <div class="variation-state-info">
+          <span x-show="completed" x-text="'Level ➤ ' + variationData.level"></span
+          >&nbsp;&nbsp;&nbsp;
+          <span
+            x-show="completed"
+            x-text="'Last ➤ ' + variationData.time_since_last_review"
+          ></span>
+        </div>
+        <div
+          x-show="completed"
+          x-text="variationData.mainline"
+          class="mainline-moves"
+        ></div>
+      </div>
+    </template>
+
+    <template x-if="showInfo && completed && finalMove().text">
+      <div class="final-move">
+        <p x-text="finalMove().move_verbose + ' ' + finalMove().text"></p>
+      </div>
+    </template>
+
+    <template x-if="!hasVariationData()">
+      <div class="button-container button-container-home">
+        <button
+          title="Random Extra Study"
+          @click="window.location.href='/review/random/'"
+          class="icon-random icon-button-home"
+        ></button>
+        <button
+          title="Lichess Puzzles"
+          @click="window.open('https://lichess.org/training', target='_blank')"
+          class="icon-puzzles icon-button-home"
+        ></button>
+      </div>
+    </template>
+
+    <template x-if="completed"> {% include "includes/history.html" %} </template>
+  </div>
+
+  <div
+    x-data="{ show: false, resolve: null }"
+    x-show="show"
+    x-cloak
+    id="promotion-modal"
+    class="modal-overlay"
+    @promotion="(e) => { show = true; resolve = e.detail }"
+  >
+    <div class="modal-box">
+      <div class="promotion-options">
+        <button @click="resolve('q'); show = false">Queen ♛</button>
+        <button @click="resolve('r'); show = false">Rook</button>
+        <button @click="resolve('b'); show = false">Bishop</button>
+        <button @click="resolve('n'); show = false">Knight</button>
       </div>
     </div>
+  </div>
 
-    {% include "includes/landscape_overlay.html" %}
+  {% include "includes/landscape_overlay.html" %}
 
-    <script>
-      window.variationData = JSON.parse("{{ variation_data|escapejs }}");
-      window.reviewData = JSON.parse("{{ review_data|escapejs }}");
-      console.log("variationData:", window.variationData);
-      console.log("reviewData:", window.reviewData);
-    </script>
+  <script>
+    window.variationData = JSON.parse("{{ variation_data|escapejs }}");
+    window.reviewData = JSON.parse("{{ review_data|escapejs }}");
+    console.log("variationData:", window.variationData);
+    console.log("reviewData:", window.reviewData);
+  </script>
 
-    <script type="module">
-      import { quizApp } from "{% static 'js/quiz.js' %}";
-      window.quizApp = quizApp;
-      document.addEventListener("alpine:init", () => {
-        Alpine.data("quizApp", quizApp);
-      });
-    </script>
+  <script type="module">
+    import { quizApp } from "{% static 'js/quiz.js' %}";
+    window.quizApp = quizApp;
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("quizApp", quizApp);
+    });
+  </script>
 
-    <script src="{% static 'js/resize.js' %}"></script>
-    <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-  </body>
-</html>
+  <script src="{% static 'js/resize.js' %}"></script>
+  <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
+</body>
+{% endblock %}

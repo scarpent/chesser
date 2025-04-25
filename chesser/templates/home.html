@@ -23,13 +23,11 @@
       class="castle-button book-cover book-cover-round"
       title="Home"
     >
-      {% block kiwen-suwi-knight %}
       <img
         src="{% static 'images/kiwen-suwi-light-knight-512x512.png' %}"
         alt="Chesser Logo Kiwen Suwi Knight"
         style="width: 85px; border: 2px solid var(--color-button-border)"
       />
-      {% endblock %}
     </button>
     <button
       @click="window.location.href = '/course/2/'"
