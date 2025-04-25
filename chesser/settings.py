@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "chesser-production.up.railway.app",
 ]
+INTERNAL_IPS = ["localhost", "127.0.0.1"]
 
 if not IS_PRODUCTION and os.environ.get("RUN_MAIN") == "true":
     if local_ip := get_local_ip():
