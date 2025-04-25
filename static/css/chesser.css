@@ -662,7 +662,6 @@ blockquote {
   border: none;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
   border-radius: 15px;
   display: flex;
   justify-content: center;
@@ -796,6 +795,7 @@ external monitor to avoid display isses... */
   border-radius: 6px;
   transform: translateZ(0); /* try to smooth rendering */
   will-change: background-image, transform; /* prioritize for paint */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .icon-button-home {
@@ -1012,6 +1012,7 @@ more washed out with all the white paper */
   justify-content: center;
   z-index: 20;
   transition: transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .board-cover-button img {
