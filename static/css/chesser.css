@@ -924,7 +924,7 @@ more washed out with all the white paper */
 .icon-puzzles {
   background-image: url("/static/icons/noto-emoji/puzzles.svg");
 }
-/* don't forget to add to preload_icons.html */
+/* add to preload_icons.html if it's still around, and to pages used... */
 
 /* ---------------------------------------------- Django Messages Framework */
 .message {

@@ -4,6 +4,14 @@
 
 {% block title %}Review{% endblock %}
 {% block head_extra %}
+<link rel="preload" href="{% static 'icons/noto-emoji/variation.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/edit.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/analysis.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/restart.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/info.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/showmove.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/random.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/puzzles.svg' %}" as="image" />
 <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
 <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
 <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
@@ -34,7 +42,7 @@
 
       <div id="resize-handle"></div>
     </div>
-    <div class="status-and-next">
+    <div class="status-and-next" x-cloak>
       <template x-if="completed">
         <div class="button-container">
           <button
