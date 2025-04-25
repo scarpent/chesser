@@ -1,8 +1,14 @@
 <!-- prettier-ignore -->
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Import/Export{% endblock %}
 
+{% block title %}Import/Export{% endblock %}
+{% block head_extra %}
+<link rel="preload" href="{% static 'icons/noto-emoji/review.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/import.svg' %}" as="image" />
+{% endblock %}
+
+<!-- prettier-ignore -->
 {% block content %}
 <body x-data="importApp()" x-init="init()" x-cloak>
   <div class="button-container" style="margin-top: 20px" x-cloak>
