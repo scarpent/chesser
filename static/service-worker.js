@@ -1,8 +1,7 @@
 // bump version manually if updating this service worker code
-const CACHE_NAME = "chesser-dynamic-assets-v1";
+const CACHE_NAME = "chesser-dynamic-assets-v2";
 
-// Precache only the offline fallback page
-const urlsToPrecache = ["/static/offline.html"];
+const urlsToPrecache = [];
 
 self.addEventListener("install", (event) => {
   console.log("📦 Installing service worker...");
