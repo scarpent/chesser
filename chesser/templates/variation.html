@@ -103,7 +103,9 @@
     <div id="right-column" x-html="variationData.html"></div>
   </div>
 
+  <!-- prettier-ignore -->
   {% include "includes/landscape_overlay.html" %}
+  {% include "includes/service_worker_register.html" %}
 
   <script>
     window.variationData = JSON.parse("{{ variation_data|escapejs }}");
