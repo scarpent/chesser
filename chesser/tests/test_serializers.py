@@ -252,3 +252,22 @@ def test_extract_ordered_chunks_fenseq(text, expected):
 )
 def test_extract_ordered_chunks_subvar(text, expected):
     assert serializers.extract_ordered_chunks(text) == expected
+
+
+@pytest.mark.parametrize(
+    "raw, depth, expected_display",
+    [
+        ("   This is   a test.   ", 0, " This is a test. "),
+        ("Line 1\n   Line 2", 0, "Line 1\nLine 2"),
+        ("Line 1\n\n\nLine 2", 0, "Line 1\n\nLine 2"),
+        ("Multiple    spaces", 0, "Multiple spaces"),
+        ("  \n   \n\n\n", 0, "\n\n"),
+        ("A\n   \n   \nB", 1, "A\n\nB"),
+    ],
+)
+def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
+    block = serializers.get_cleaned_comment_parsed_block(raw, depth)
+    assert block.block_type == "comment"
+    assert block.raw == raw
+    assert block.display_text == expected_display
+    assert block.subvar_depth == depth

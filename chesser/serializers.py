@@ -435,6 +435,10 @@ class ParsedBlock:
     errors: list[str] = field(default_factory=list)
     fenseq_start: bool = False  # for ⏮️ rendering on fenseq
     display_text: str = ""  # for normalized comments, moves
+    move_num: Optional[int] = None
+    dots: str = ""  # . or ... or nothing
+    san: str = ""  # basic SAN used to advance board, regardless of move #s
+    subvar_depth: int = 0  # for subvar depth tracking
 
 
 @dataclass
@@ -445,46 +449,99 @@ class RenderableBlock:
     errors: list[str] = field(default_factory=list)
 
 
-def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
-    # extract ("comment", ...), ("subvar", ...), ("fenseq", ...) chunks
-    chunks = extract_ordered_chunks(move.text)
-    parsed_blocks = []
+def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
+    move_parts = re.search(r"^(\d*)(\.*)(.*)", literal_move)
+    move_num = int(move_parts.group(1)) if move_parts.group(1) else None
+    dots = move_parts.group(2)
+    san = move_parts.group(3)
+    return ParsedBlock(
+        block_type="move",
+        raw=literal_move,
+        move_num=move_num,
+        dots=dots,
+        san=san,
+        subvar_depth=depth,
+    )
 
-    for chunk_type, raw in chunks:
-        print(f"🔍 Parsing chunk: {chunk_type} ➤ {raw.strip()[:40]}...")
-        if chunk_type == "subvar":
-            parsed_blocks.extend(parse_subvar_chunk(raw, move, board.copy()))
-        elif chunk_type == "fenseq":
-            parsed_blocks.extend(parse_fenseq_chunk(raw, board.copy()))
-        elif chunk_type == "comment":
-            parsed_blocks.append(parse_comment_chunk(raw))
+
+def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
+    chunks = extract_ordered_chunks(move.text)
+    parsed_blocks = get_parsed_blocks_first_pass(chunks)
+    return parsed_blocks
+
+
+def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBlock]:
+    TYPE = 0  # block type
+    DATA = 1  # raw data
+    parsed_blocks = []
+    i = 0
+    depth = 0
+    move_prefix = re.compile(r"^\d+\.+$")  # e.g. "1." or "2..."
+
+    while i < len(chunks):
+        type_, data = chunks[i]
+        print(f"🔍 Parsing chunk: {type_} ➤ {data.strip()[:40]}...")
+
+        if type_ == "subvar":
+            if data.startswith("START"):
+                depth += 1
+            else:  # starts with END
+                depth = max(depth - 1, 0)
+            i += 1
+            continue
+
+        # Reassemble moves with spaces that were split up in extractor
+        # e.g. "1. e4" ➤ ["1.", "e4"] ➤ "1.e4" ➤ normalized!
+        if type_ == "move" and i + 1 < len(chunks) and chunks[i + 1][TYPE] == "move":
+            # move blocks are the only ones that we can count on having been stripped
+            next_raw = chunks[i + 1][DATA]
+
+            if move_prefix.match(data) and not move_prefix.match(next_raw):
+                parsed_blocks.append(
+                    get_simple_move_parsed_block(data + next_raw, depth)
+                )
+                i += 2
+                continue
+        elif type_ == "move":  # a single move
+            parsed_blocks.append(get_simple_move_parsed_block(data, depth))
+            i += 1
+            continue
+
+        elif type_ == "comment":
+            raw = data.strip("{}")
+            while type_ == "comment" and i + 1 < len(chunks):
+                i += 1
+                raw += chunks[i][DATA].strip("{}")
+
+            parsed_blocks.append(get_cleaned_comment_parsed_block(raw, depth))
+            i += 1
+            continue
+
+        elif type_ == "fenseq":
+            parsed_blocks.extend(parse_fenseq_chunk(data))
+
         else:
-            raise ValueError(
-                f"Unknown chunk type: {chunk_type} ➤ {raw.strip()[:40]}..."
-            )
+            raise ValueError(f"Unknown chunk type: {type_} ➤ {data.strip()[:40]}")
+
+        i += 1
 
     return parsed_blocks
 
 
-def parse_subvar_chunk(raw: str, move: Move, board: chess.Board) -> list[ParsedBlock]:
-    return [ParsedBlock(block_type="subvar", raw=raw, san_fen=[])]
-
-
-def parse_fenseq_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
+def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     return [ParsedBlock(block_type="fenseq", raw=raw, san_fen=[])]
 
 
-def parse_comment_chunk(raw: str) -> ParsedBlock:
-    cleaned = raw.strip()
-
-    # Only remove braces if they surround the *entire* block
-    if cleaned.startswith("{") and cleaned.endswith("}"):
-        cleaned = cleaned[1:-1].strip()
-
+def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
+    # remove whitespace around newlines
+    cleaned = re.sub(r"[ \t\r\f\v]*\n[ \t\r\f\v]*", "\n", raw)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)  # collapse newlines
+    cleaned = re.sub(r" +", " ", cleaned)  # collapse spaces
     return ParsedBlock(
         block_type="comment",
         raw=raw,
         display_text=cleaned,
+        subvar_depth=depth,
     )
 
 
