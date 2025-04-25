@@ -271,3 +271,86 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
     assert block.raw == raw
     assert block.display_text == expected_display
     assert block.subvar_depth == depth
+
+
+def make_comment_block(raw, display, depth=0):
+    return serializers.ParsedBlock(
+        block_type="comment",
+        raw=raw,
+        display_text=display,
+        subvar_depth=depth,
+    )
+
+
+def make_move_block(raw, move_num, dots, san, depth):
+    return serializers.ParsedBlock(
+        block_type="move",
+        raw=raw,
+        move_num=move_num,
+        dots=dots,
+        san=san,
+        subvar_depth=depth,
+    )
+
+
+@pytest.mark.parametrize(
+    "chunks, expected",
+    [
+        (
+            [
+                ("comment", "1"),
+                ("comment", " \n \n "),
+                ("comment", "2  3"),
+            ],
+            [make_comment_block("1 \n \n 2  3", "1\n\n2 3")],
+        ),
+        (
+            [
+                ("subvar", "START 1"),
+                ("move", "1.e4"),
+                ("move", "e5"),
+                ("subvar", "END 1"),
+            ],
+            [
+                make_move_block("1.e4", 1, ".", "e4", depth=1),
+                make_move_block("e5", None, "", "e5", depth=1),
+            ],
+        ),
+        (
+            [
+                ("subvar", "START 1"),
+                ("move", "1."),
+                ("move", "e4"),
+                ("subvar", "START 2"),
+                ("move", "1..."),
+                ("move", "d5"),
+                ("subvar", "END 2"),
+                ("subvar", "END 1"),
+            ],
+            [
+                make_move_block("1.e4", 1, ".", "e4", depth=1),
+                make_move_block("1...d5", 1, "...", "d5", depth=2),
+            ],
+        ),
+        (
+            [
+                ("comment", "{hello }"),
+                ("subvar", "START 1"),
+                ("move", "1.e4"),
+                ("move", "e5"),
+                ("comment", "{ world}"),
+                ("subvar", "END 1"),
+                ("comment", "{!<br/>}"),
+            ],
+            [
+                make_comment_block("hello ", "hello ", depth=0),
+                make_move_block("1.e4", 1, ".", "e4", depth=1),
+                make_move_block("e5", None, "", "e5", depth=1),
+                make_comment_block(" world", " world", depth=1),
+                make_comment_block("!<br/>", "!\n", depth=0),
+            ],
+        ),
+    ],
+)
+def test_get_parsed_blocks_first_pass(chunks, expected):
+    assert serializers.get_parsed_blocks_first_pass(chunks) == expected

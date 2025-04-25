@@ -433,7 +433,7 @@ class ParsedBlock:
     raw: str
     san_fen: Optional[tuple[str, str]] = None  # only for "move"
     errors: list[str] = field(default_factory=list)
-    fenseq_start: bool = False  # for ⏮️ rendering on fenseq
+    fen_start: str = ""  # for ⏮️ rendering on fenseq
     display_text: str = ""  # for normalized comments, moves
     move_num: Optional[int] = None
     dots: str = ""  # . or ... or nothing
@@ -494,27 +494,27 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
         # e.g. "1. e4" ➤ ["1.", "e4"] ➤ "1.e4" ➤ normalized!
         if type_ == "move" and i + 1 < len(chunks) and chunks[i + 1][TYPE] == "move":
             # move blocks are the only ones that we can count on having been stripped
-            next_raw = chunks[i + 1][DATA]
+            next_data = chunks[i + 1][DATA]
 
-            if move_prefix.match(data) and not move_prefix.match(next_raw):
+            if move_prefix.match(data) and not move_prefix.match(next_data):
                 parsed_blocks.append(
-                    get_simple_move_parsed_block(data + next_raw, depth)
+                    get_simple_move_parsed_block(data + next_data, depth)
                 )
                 i += 2
                 continue
-        elif type_ == "move":  # a single move
+
+        if type_ == "move":  # a single move
             parsed_blocks.append(get_simple_move_parsed_block(data, depth))
             i += 1
             continue
 
         elif type_ == "comment":
-            raw = data.strip("{}")
-            while type_ == "comment" and i + 1 < len(chunks):
-                i += 1
+            raw = ""
+            while i < len(chunks) and chunks[i][TYPE] == "comment":
                 raw += chunks[i][DATA].strip("{}")
+                i += 1
 
             parsed_blocks.append(get_cleaned_comment_parsed_block(raw, depth))
-            i += 1
             continue
 
         elif type_ == "fenseq":
@@ -533,8 +533,10 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
 
 
 def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
+    # we don't expect/want <br/> tags in move.text but they're easy to handle
+    cleaned = re.sub(r"<br\s*/?>", "\n", raw)
     # remove whitespace around newlines
-    cleaned = re.sub(r"[ \t\r\f\v]*\n[ \t\r\f\v]*", "\n", raw)
+    cleaned = re.sub(r"[ \t\r\f\v]*\n[ \t\r\f\v]*", "\n", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)  # collapse newlines
     cleaned = re.sub(r" +", " ", cleaned)  # collapse spaces
     return ParsedBlock(
