@@ -354,3 +354,32 @@ def make_move_block(raw, move_num, dots, san, depth):
 )
 def test_get_parsed_blocks_first_pass(chunks, expected):
     assert serializers.get_parsed_blocks_first_pass(chunks) == expected
+
+
+@pytest.mark.parametrize(
+    "test_input",
+    [
+        ('<fenseq data-fen="start_fen">1.e4 e5 2.Nf3 2...Nc6</fenseq>'),
+        ("<fenseq data-fen='start_fen'>1. e4 e5 2. Nf3 2... Nc6</fenseq>"),
+    ],
+)
+def test_parse_fenseq_chunk_valid(test_input):
+    blocks = serializers.parse_fenseq_chunk(test_input)
+    assert len(blocks) == 4
+    assert [block.san for block in blocks] == ["e4", "e5", "Nf3", "Nc6"]
+    assert blocks[0].fen_start == "start_fen"
+    assert all(b.fen_start == "" for b in blocks[1:])
+    assert all(b.subvar_depth == 1 for b in blocks)
+    assert all(b.block_type == "move" for b in blocks)
+
+
+def test_parse_fenseq_chunk_invalid():
+    try:
+        serializers.parse_fenseq_chunk('<fenseq data-fen="start_fen"> </fenseq>')
+    except AssertionError as e:
+        assert "Empty move text" in str(e)
+
+    try:
+        serializers.parse_fenseq_chunk("<fenseq>1.e4 e5</fenseq>")
+    except AssertionError as e:
+        assert "Invalid fenseq block" in str(e)

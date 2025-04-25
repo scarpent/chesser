@@ -433,7 +433,7 @@ class ParsedBlock:
     raw: str
     san_fen: Optional[tuple[str, str]] = None  # only for "move"
     errors: list[str] = field(default_factory=list)
-    fen_start: str = ""  # for ⏮️ rendering on fenseq
+    fen_start: str = ""  # fenseq start of subvar sequence ⏮️
     display_text: str = ""  # for normalized comments, moves
     move_num: Optional[int] = None
     dots: str = ""  # . or ... or nothing
@@ -529,7 +529,41 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
 
 
 def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
-    return [ParsedBlock(block_type="fenseq", raw=raw, san_fen=[])]
+    """
+    e.g.
+    <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">
+        1.d4 d5 2.e3
+    </fenseq>
+
+    turn this intermediate representation into a mostly typical move block list
+    * the fen will tells us where to start the subvar, and to insert ⏮️
+    * we expect/allow no comments or subvariations; it's meant to be simple
+    * we should mostly get "condensed" moves, e.g. 1.e4, but we'll handle 1. e4
+
+    we could make data-fen be optional and use game starting fen if omitted...
+    """
+    match = re.search(
+        r"""<fenseq\s+[^>]*data-fen=["']([^"']+)["'][^>]*>(.*?)</fenseq>""",
+        raw,
+        re.DOTALL,
+    )
+    # "fenseq" type blocks should always match or they'd already be "comment"
+    assert match, f"Invalid fenseq block: {raw}"
+
+    fen, move_text = match.groups()
+    # remove spaces after move numbers
+    move_text = re.sub(r"\b(\d+\.+)\s*", r"\1", move_text).strip()
+
+    assert move_text, f"Empty move text in fenseq block: {raw}"
+
+    DEPTH = 1
+    blocks = []
+    for move in move_text.split():
+        blocks.append(get_simple_move_parsed_block(move, DEPTH))
+
+    blocks[0].fen_start = fen
+
+    return blocks
 
 
 def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
