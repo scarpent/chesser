@@ -60,4 +60,3 @@ function debounceRedraw(redrawNow) {
         });
     };
 }
-//# sourceMappingURL=chessground.js.map

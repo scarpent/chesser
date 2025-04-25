@@ -120,7 +120,11 @@ STATICFILES_DIRS = [
 # Ensure this line is present to collect static files from apps
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
