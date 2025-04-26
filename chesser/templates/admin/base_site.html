@@ -21,9 +21,13 @@
 {% block extrahead %}
 {{ block.super }}
 {% if debug %}
-<link rel="icon" href="{% static 'favicon-dev.ico' %}" type="image/x-icon" />
+<link
+  rel="icon"
+  href="{% static 'icons/favicon-admin-dev.ico' %}"
+  type="image/x-icon"
+/>
 {% else %}
-<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+<link rel="icon" href="{% static 'icons/favicon-admin.ico' %}" type="image/x-icon" />
 {% endif %}
 <!-- prettier-ignore -->
 {% endblock %}

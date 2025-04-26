@@ -866,7 +866,7 @@ def stats(request):
 
         favicon = "favicon-dev.ico" if settings.DEBUG else "favicon.ico"
 
-        yield f"<html><head><title>Stats</title><meta name='viewport' content='width=device-width, initial-scale=1.0' /><link rel='icon' href='/static/{favicon}' type='image/x-icon' /><body style='color: #d7af91; background-color: #222; font-family: Helvetica, sans-serif; font-size: 18px; margin-bottom: 222px; padding-top: 50px;'><div><h1>Stats!</h1>"  # noqa: E501
+        yield f"<html><head><title>Stats</title><meta name='viewport' content='width=device-width, initial-scale=1.0' /><link rel='icon' href='/static/icons/{favicon}' type='image/x-icon' /><body style='color: #d7af91; background-color: #222; font-family: Helvetica, sans-serif; font-size: 18px; margin-bottom: 222px; padding-top: 50px;'><div><h1>Stats!</h1>"  # noqa: E501
 
         # Overall
         yield "<div class='reviews-container'><h2>All Quiz Results</h2>"
