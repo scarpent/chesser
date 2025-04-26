@@ -270,7 +270,7 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
     assert block.block_type == "comment"
     assert block.raw == raw
     assert block.display_text == expected_display
-    assert block.subvar_depth == depth
+    assert block.depth == depth
 
 
 def make_comment_block(raw, display, depth=0):
@@ -278,7 +278,7 @@ def make_comment_block(raw, display, depth=0):
         block_type="comment",
         raw=raw,
         display_text=display,
-        subvar_depth=depth,
+        depth=depth,
     )
 
 
@@ -290,7 +290,7 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
         dots=dots,
         san=san,
         fen=fen,
-        subvar_depth=depth,
+        depth=depth,
     )
 
 
@@ -313,8 +313,10 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 ("subvar", "END 1"),
             ],
             [
+                serializers.ParsedBlock(block_type="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
+                serializers.ParsedBlock(block_type="end", depth=1),
             ],
         ),
         (
@@ -329,8 +331,12 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 ("subvar", "END 1"),
             ],
             [
+                serializers.ParsedBlock(block_type="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
+                serializers.ParsedBlock(block_type="start", depth=2),
                 make_move_block("1...d5", 1, "...", "d5", depth=2),
+                serializers.ParsedBlock(block_type="end", depth=2),
+                serializers.ParsedBlock(block_type="end", depth=1),
             ],
         ),
         (
@@ -345,9 +351,11 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
             ],
             [
                 make_comment_block("hello ", "hello ", depth=0),
+                serializers.ParsedBlock(block_type="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
                 make_comment_block(" world", " world", depth=1),
+                serializers.ParsedBlock(block_type="end", depth=1),
                 make_comment_block("!<br/>", "!\n", depth=0),
             ],
         ),
@@ -356,9 +364,11 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 ("fenseq", "<fenseq data-fen='...'>1.e4 e5 2. Nf3</fenseq>"),
             ],
             [
-                make_move_block("1.e4", 1, ".", "e4", depth=1, fen="..."),
+                serializers.ParsedBlock(block_type="start", depth=1, fen="..."),
+                make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
                 make_move_block("2.Nf3", 2, ".", "Nf3", depth=1),
+                serializers.ParsedBlock(block_type="end", depth=1),
             ],
         ),
     ],
@@ -382,12 +392,14 @@ def test_get_parsed_blocks_first_pass_invalid_type():
 )
 def test_parse_fenseq_chunk_valid(test_input):
     blocks = serializers.parse_fenseq_chunk(test_input)
-    assert len(blocks) == 4
-    assert [block.san for block in blocks] == ["e4", "e5", "Nf3", "Nc6"]
+    assert len(blocks) == 6
+    assert [block.san for block in blocks] == ["", "e4", "e5", "Nf3", "Nc6", ""]
     assert blocks[0].fen == "start_fen"
     assert all(b.fen == "" for b in blocks[1:])
-    assert all(b.subvar_depth == 1 for b in blocks)
-    assert all(b.block_type == "move" for b in blocks)
+    assert all(b.depth == 1 for b in blocks)
+    assert all(b.block_type == "move" for b in blocks[1:-1])
+    assert blocks[0].block_type == "start"
+    assert blocks[-1].block_type == "end"
 
 
 def test_parse_fenseq_chunk_invalid():

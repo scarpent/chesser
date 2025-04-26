@@ -429,8 +429,9 @@ def serialize_variation_to_import_format(variation):
 
 @dataclass
 class ParsedBlock:
-    block_type: Literal["comment", "subvar", "fenseq", "move"]
-    raw: str
+    # chunk types: "comment", "subvar", "fenseq", "move"
+    block_type: Literal["comment", "start", "end", "move"]
+    raw: str = ""
     errors: list[str] = field(default_factory=list)
     display_text: str = ""  # for normalized comments, moves
     move_num: Optional[int] = None
@@ -438,7 +439,7 @@ class ParsedBlock:
     san: str = ""  # basic SAN used to advance board, regardless of move #s
     fen: str = ""  # fen representing the state *before* this move
     link_fen: bool = False  # render ⏮️ as a link to fen position (for former fenseq!)
-    subvar_depth: int = 0  # for subvar depth tracking
+    depth: int = 0  # for subvar depth tracking
 
 
 @dataclass
@@ -460,7 +461,7 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
         move_num=move_num,
         dots=dots,
         san=san,
-        subvar_depth=depth,
+        depth=depth,
     )
 
 
@@ -511,8 +512,16 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
         if type_ == "subvar":
             if data.startswith("START"):
                 depth += 1
+                this_subvar_depth = depth
             else:  # starts with END
+                this_subvar_depth = depth
                 depth = max(depth - 1, 0)
+            parsed_blocks.append(
+                ParsedBlock(
+                    block_type="start" if data.startswith("START") else "end",
+                    depth=this_subvar_depth,
+                )
+            )
             i += 1
             continue
 
@@ -564,7 +573,6 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     </fenseq>
 
     turn this intermediate representation into a mostly typical move block list
-    * the fen will tells us where to start the subvar, and to insert ⏮️
     * we expect/allow no comments or subvariations; it's meant to be simple
     * we should mostly get "condensed" moves, e.g. 1.e4, but we'll handle 1. e4
 
@@ -585,11 +593,10 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     assert move_text, f"Empty move text in fenseq block: {raw}"
 
     DEPTH = 1
-    blocks = []
+    blocks = [ParsedBlock("start", depth=DEPTH, fen=fen)]
     for move in move_text.split():
         blocks.append(get_simple_move_parsed_block(move, DEPTH))
-
-    blocks[0].fen = fen
+    blocks.append(ParsedBlock("end", depth=DEPTH))
 
     return blocks
 
@@ -605,12 +612,12 @@ def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
         block_type="comment",
         raw=raw,
         display_text=cleaned,
-        subvar_depth=depth,
+        depth=depth,
     )
 
 
 def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
-    chunks = []
+    chunks = []  # types: "comment", "subvar", "fenseq", "move"
     i = 0
     length = len(text)
     mode = "neutral"  # can be: neutral, comment, subvar
