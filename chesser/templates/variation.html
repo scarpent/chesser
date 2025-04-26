@@ -69,6 +69,10 @@
         <div class="variation-info-container">
           <div x-text="variationData.title"></div>
           <div class="variation-state-info">
+            <span
+              x-show="variationData.level === 0 || variationData.level >= 9"
+              x-text="variationData.level === 0 ? '🌱' : '🌳'"
+            ></span>
             <span x-text="'L' + variationData.level"></span>
             <span x-text="'S' + variationData.start_move"></span>
             <span x-text="'N➤' + variationData.time_until_next_review"></span>
