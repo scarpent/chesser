@@ -88,11 +88,11 @@ def test_extract_ordered_chunks_comments(text, expected_chunks):
 def test_extract_ordered_chunks_assertions():
     with pytest.raises(AssertionError) as excinfo:
         serializers.extract_ordered_chunks("{abc{")
-    assert str(excinfo.value) == "Unexpected opening brace in comment block"
+    assert str(excinfo.value) == "Unexpected opening brace in comment chunk"
 
     with pytest.raises(AssertionError) as excinfo:
         serializers.extract_ordered_chunks("{abc <fenseq")
-    assert str(excinfo.value) == "Unexpected <fenseq> tag in comment block"
+    assert str(excinfo.value) == "Unexpected <fenseq> tag in comment chunk"
 
 
 @pytest.mark.parametrize(

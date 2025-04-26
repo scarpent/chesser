@@ -610,7 +610,7 @@ def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
 
 
 def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
-    blocks = []
+    chunks = []
     i = 0
     length = len(text)
     mode = "neutral"  # can be: neutral, comment, subvar
@@ -628,10 +628,10 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             end_char = "" if stripped and stripped[-1] == "}" else "}"
             if not end_char:
                 print("⚠️  Found closing comment brace while in neutral mode")
-            blocks.append(("comment", "{" + token + end_char))
+            chunks.append(("comment", "{" + token + end_char))
         elif mode == "subvar" and stripped:  # pragma: no branch
             # one of the few (only) places we strip in this pass
-            blocks.append(("move", stripped))
+            chunks.append(("move", stripped))
         else:
             raise ValueError(  # pragma: no cover
                 f"Unexpected mode '{mode}' in flush_token at index {i}: {token}"
@@ -648,12 +648,12 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             end = text.find(end_tag, i)
             if end != -1:
                 end += len(end_tag)
-                blocks.append(("fenseq", text[i:end]))
+                chunks.append(("fenseq", text[i:end]))
                 i = end
                 token_start = None
                 continue
             else:
-                blocks.append(("comment", text[i:]))
+                chunks.append(("comment", text[i:]))
                 print(f"⚠️  Unclosed <fenseq>: {text[i:]}")
                 break
 
@@ -665,7 +665,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
 
         # Comment end
         elif c == "}" and mode == "comment":
-            blocks.append(("comment", text[token_start : i + 1]))  # noqa: E203
+            chunks.append(("comment", text[token_start : i + 1]))  # noqa: E203
             token_start = None
             mode = "neutral" if paren_depth < 1 else "subvar"
 
@@ -676,7 +676,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             ):
                 print(f"✅  Fixing known unbalanced parens: {text[i:][:60]}")
                 # no need to flush token; we're following the already appended comment
-                blocks.append(("subvar", "END 1"))
+                chunks.append(("subvar", "END 1"))
                 paren_depth = 0
                 mode = "neutral"
 
@@ -684,13 +684,16 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         elif c == "(" and mode == "neutral":
             flush_token()
             paren_depth += 1
-            blocks.append(("subvar", f"START {paren_depth}"))
+            # paren depth is added to the chunk value for visibility only;
+            # a later step will have its own depth tracking and split into
+            # subvar start/end types
+            chunks.append(("subvar", f"START {paren_depth}"))
             mode = "subvar"
 
         # Subvar end
         elif c == ")" and mode == "subvar":
             flush_token()
-            blocks.append(("subvar", f"END {paren_depth}"))
+            chunks.append(("subvar", f"END {paren_depth}"))
             paren_depth -= 1
             if paren_depth == 0:
                 mode = "neutral"
@@ -698,7 +701,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         # Nested subvar
         elif c == "(" and mode == "subvar":
             paren_depth += 1
-            blocks.append(("subvar", f"START {paren_depth}"))
+            chunks.append(("subvar", f"START {paren_depth}"))
 
         # Implied comment when we encounter a non-defined structure in neutral zone
         elif mode == "neutral":
@@ -715,10 +718,10 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         elif mode == "comment":  # pragma: no branch
             # have yet to see these in the wild - using assertions until
             # we do, at which time we'll handle them one way or another
-            assert text[i] != "{", "Unexpected opening brace in comment block"
+            assert text[i] != "{", "Unexpected opening brace in comment chunk"
             assert not text[i:].startswith(
                 "<fenseq"
-            ), "Unexpected <fenseq> tag in comment block"
+            ), "Unexpected <fenseq> tag in comment chunk"
             # parens are fine, though! we expect and encourage them (❤️)
 
         elif mode != "comment":  # pragma: no cover
@@ -740,14 +743,14 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             if end_char:  # pragma: no branch
                 # this might be hard to get to as well!
                 print("⚠️  Didn't find trailing closing comment brace (adding)")
-            blocks.append(("comment", token + end_char))
+            chunks.append(("comment", token + end_char))
         else:
             flush_token()
 
     if paren_depth > 0:
         print(f"❌  Unbalanced parens, depth {paren_depth}: {text[:30]}")
 
-    return blocks
+    return chunks
 
 
 def extract_ordered_chunks_old(text: str) -> list[tuple[str, str]]:
