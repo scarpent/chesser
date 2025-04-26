@@ -443,7 +443,7 @@ class ParsedBlock:
 
 @dataclass
 class RenderableBlock:
-    block_type: Literal["comment", "moves"]
+    block_type: Literal["comment", "move"]
     html: str
     raw: str
     errors: list[str] = field(default_factory=list)
@@ -467,7 +467,31 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     chunks = extract_ordered_chunks(move.text)
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
-    return parsed_blocks
+    resolved_blocks = resolve_moves(parsed_blocks, move, board)
+    return resolved_blocks
+
+
+def resolve_moves(
+    blocks: list[ParsedBlock], move: Move, board: chess.Board
+) -> list[ParsedBlock]:
+    """
+    Given initial parsed blocks and a starting board,
+    attempts to resolve moves, normalize structure,
+    and produce a cleaned list of blocks, dropping
+    redundant moves as needed.
+    """
+    resolved_blocks = []
+    # board_stack = [board.copy()]
+    # maybe also track move sequence to handle redundancies
+
+    for block in blocks:
+        # handle comments and fenseq markers cleanly
+        # for moves: validate SAN, drop duplicates
+        # resolved_blocks.append(...)
+
+        resolved_blocks.append(block)  # stub for now, just pass the data back
+
+    return resolved_blocks
 
 
 def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBlock]:
@@ -513,7 +537,7 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
 
         elif type_ == "comment":
             raw = ""
-            # combine multiple consecutive comments into one
+            # combine consecutive comments into one
             while i < len(chunks) and chunks[i][TYPE] == "comment":
                 raw += chunks[i][DATA].strip("{}")
                 i += 1
@@ -521,7 +545,7 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
             parsed_blocks.append(get_cleaned_comment_parsed_block(raw, depth))
             continue
 
-        elif type_ == "fenseq":
+        elif type_ == "fenseq":  # turn this into a sequence of moves
             parsed_blocks.extend(parse_fenseq_chunk(data))
             i += 1
             continue
