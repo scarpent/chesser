@@ -436,7 +436,7 @@ class Chunk:
 @dataclass
 class ParsedBlock:
     # chunk types: "comment", "subvar", "fenseq", "move"
-    block_type: Literal["comment", "start", "end", "move"]
+    type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
     errors: list[str] = field(default_factory=list)
     display_text: str = ""  # for normalized comments, moves
@@ -450,7 +450,7 @@ class ParsedBlock:
 
 @dataclass
 class RenderableBlock:
-    block_type: Literal["comment", "move"]
+    type_: Literal["comment", "move"]
     html: str
     raw: str
     errors: list[str] = field(default_factory=list)
@@ -462,7 +462,7 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
     dots = move_parts.group(2)
     san = move_parts.group(3)
     return ParsedBlock(
-        block_type="move",
+        type_="move",
         raw=literal_move,
         move_num=move_num,
         dots=dots,
@@ -522,7 +522,7 @@ def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
                 depth = max(depth - 1, 0)
             parsed_blocks.append(
                 ParsedBlock(
-                    block_type="start" if chunk.data.startswith("START") else "end",
+                    type_="start" if chunk.data.startswith("START") else "end",
                     depth=this_subvar_depth,
                 )
             )
@@ -619,7 +619,7 @@ def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)  # collapse newlines
     cleaned = re.sub(r" +", " ", cleaned)  # collapse spaces
     return ParsedBlock(
-        block_type="comment",
+        type_="comment",
         raw=raw,
         display_text=cleaned,
         depth=depth,

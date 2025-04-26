@@ -268,7 +268,7 @@ def test_extract_ordered_chunks_subvar(text, expected):
 )
 def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
     block = serializers.get_cleaned_comment_parsed_block(raw, depth)
-    assert block.block_type == "comment"
+    assert block.type_ == "comment"
     assert block.raw == raw
     assert block.display_text == expected_display
     assert block.depth == depth
@@ -276,7 +276,7 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
 
 def make_comment_block(raw, display, depth=0):
     return ParsedBlock(
-        block_type="comment",
+        type_="comment",
         raw=raw,
         display_text=display,
         depth=depth,
@@ -285,7 +285,7 @@ def make_comment_block(raw, display, depth=0):
 
 def make_move_block(raw, move_num, dots, san, depth, fen=""):
     return ParsedBlock(
-        block_type="move",
+        type_="move",
         raw=raw,
         move_num=move_num,
         dots=dots,
@@ -314,10 +314,10 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 Chunk("subvar", "END 1"),
             ],
             [
-                ParsedBlock(block_type="start", depth=1),
+                ParsedBlock(type_="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
-                ParsedBlock(block_type="end", depth=1),
+                ParsedBlock(type_="end", depth=1),
             ],
         ),
         (
@@ -332,12 +332,12 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 Chunk("subvar", "END 1"),
             ],
             [
-                ParsedBlock(block_type="start", depth=1),
+                ParsedBlock(type_="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
-                ParsedBlock(block_type="start", depth=2),
+                ParsedBlock(type_="start", depth=2),
                 make_move_block("1...d5", 1, "...", "d5", depth=2),
-                ParsedBlock(block_type="end", depth=2),
-                ParsedBlock(block_type="end", depth=1),
+                ParsedBlock(type_="end", depth=2),
+                ParsedBlock(type_="end", depth=1),
             ],
         ),
         (
@@ -352,11 +352,11 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
             ],
             [
                 make_comment_block("hello ", "hello ", depth=0),
-                ParsedBlock(block_type="start", depth=1),
+                ParsedBlock(type_="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
                 make_comment_block(" world", " world", depth=1),
-                ParsedBlock(block_type="end", depth=1),
+                ParsedBlock(type_="end", depth=1),
                 make_comment_block("!<br/>", "!\n", depth=0),
             ],
         ),
@@ -365,11 +365,11 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 Chunk("fenseq", "<fenseq data-fen='...'>1.e4 e5 2. Nf3</fenseq>"),
             ],
             [
-                ParsedBlock(block_type="start", depth=1, fen="..."),
+                ParsedBlock(type_="start", depth=1, fen="..."),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
                 make_move_block("2.Nf3", 2, ".", "Nf3", depth=1),
-                ParsedBlock(block_type="end", depth=1),
+                ParsedBlock(type_="end", depth=1),
             ],
         ),
     ],
@@ -398,9 +398,9 @@ def test_parse_fenseq_chunk_valid(test_input):
     assert blocks[0].fen == "start_fen"
     assert all(b.fen == "" for b in blocks[1:])
     assert all(b.depth == 1 for b in blocks)
-    assert all(b.block_type == "move" for b in blocks[1:-1])
-    assert blocks[0].block_type == "start"
-    assert blocks[-1].block_type == "end"
+    assert all(b.type_ == "move" for b in blocks[1:-1])
+    assert blocks[0].type_ == "start"
+    assert blocks[-1].type_ == "end"
 
 
 def test_parse_fenseq_chunk_invalid():
