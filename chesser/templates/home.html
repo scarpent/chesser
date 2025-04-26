@@ -121,6 +121,10 @@
                 :href="'/variation/' + variation.id + '/'"
                 x-text="variation.title"
               ></a>
+              <span
+                x-show="variation.level === 0 || variation.level >= 9"
+                x-text="variation.level === 0 ? '🌱' : '🌳'"
+              ></span>
             </div>
             <div style="text-align: right">
               <span
