@@ -428,6 +428,12 @@ def serialize_variation_to_import_format(variation):
 
 
 @dataclass
+class Chunk:
+    type_: Literal["comment", "move", "fenseq", "subvar"]
+    data: str
+
+
+@dataclass
 class ParsedBlock:
     # chunk types: "comment", "subvar", "fenseq", "move"
     block_type: Literal["comment", "start", "end", "move"]
@@ -495,22 +501,20 @@ def resolve_moves(
     return resolved_blocks
 
 
-def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBlock]:
-    TYPE = 0  # block type
-    DATA = 1  # raw data
+def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
     parsed_blocks = []
     i = 0
     depth = 0
     move_prefix = re.compile(r"^\d+\.+$")  # e.g. "1." or "2..."
 
     while i < len(chunks):
-        type_, data = chunks[i]
-        print(f"🔍 Parsing chunk: {type_} ➤ {data.strip()[:40]}...")
+        chunk = chunks[i]
+        print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
 
         # ➡️ Every branch must advance `i`
 
-        if type_ == "subvar":
-            if data.startswith("START"):
+        if chunk.type_ == "subvar":
+            if chunk.data.startswith("START"):
                 depth += 1
                 this_subvar_depth = depth
             else:  # starts with END
@@ -518,7 +522,7 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
                 depth = max(depth - 1, 0)
             parsed_blocks.append(
                 ParsedBlock(
-                    block_type="start" if data.startswith("START") else "end",
+                    block_type="start" if chunk.data.startswith("START") else "end",
                     depth=this_subvar_depth,
                 )
             )
@@ -527,40 +531,46 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
 
         # Reassemble moves with spaces that were split up in extractor
         # e.g. "1. e4" ➤ ["1.", "e4"] ➤ "1.e4" ➤ normalized!
-        if type_ == "move" and i + 1 < len(chunks) and chunks[i + 1][TYPE] == "move":
+        if (
+            chunk.type_ == "move"
+            and i + 1 < len(chunks)
+            and chunks[i + 1].type_ == "move"
+        ):
             # move blocks are the only ones that we can count on having been stripped
-            next_data = chunks[i + 1][DATA]
+            next_data = chunks[i + 1].data
 
-            if move_prefix.match(data) and not move_prefix.match(next_data):
+            if move_prefix.match(chunk.data) and not move_prefix.match(next_data):
                 parsed_blocks.append(
-                    get_simple_move_parsed_block(data + next_data, depth)
+                    get_simple_move_parsed_block(chunk.data + next_data, depth)
                 )
                 i += 2
                 continue
             # else fall through to single move block handler
 
-        if type_ == "move":  # a single move
-            parsed_blocks.append(get_simple_move_parsed_block(data, depth))
+        if chunk.type_ == "move":  # a single move
+            parsed_blocks.append(get_simple_move_parsed_block(chunk.data, depth))
             i += 1
             continue
 
-        elif type_ == "comment":
+        elif chunk.type_ == "comment":
             raw = ""
             # combine consecutive comments into one
-            while i < len(chunks) and chunks[i][TYPE] == "comment":
-                raw += chunks[i][DATA].strip("{}")
+            while i < len(chunks) and chunks[i].type_ == "comment":
+                raw += chunks[i].data.strip("{}")
                 i += 1
 
             parsed_blocks.append(get_cleaned_comment_parsed_block(raw, depth))
             continue
 
-        elif type_ == "fenseq":  # turn this into a sequence of moves
-            parsed_blocks.extend(parse_fenseq_chunk(data))
+        elif chunk.type_ == "fenseq":  # turn this into a sequence of moves
+            parsed_blocks.extend(parse_fenseq_chunk(chunk.data))
             i += 1
             continue
 
         else:
-            raise ValueError(f"Unknown chunk type: {type_} ➤ {data.strip()[:40]}")
+            raise ValueError(
+                f"Unknown chunk type: {chunk.type_} ➤ {chunk.data.strip()[:40]}"
+            )
 
     return parsed_blocks
 
@@ -616,8 +626,8 @@ def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
     )
 
 
-def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
-    chunks = []  # types: "comment", "subvar", "fenseq", "move"
+def extract_ordered_chunks(text: str) -> list[Chunk]:
+    chunks = []
     i = 0
     length = len(text)
     mode = "neutral"  # can be: neutral, comment, subvar
@@ -635,10 +645,10 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             end_char = "" if stripped and stripped[-1] == "}" else "}"
             if not end_char:
                 print("⚠️  Found closing comment brace while in neutral mode")
-            chunks.append(("comment", "{" + token + end_char))
+            chunks.append(Chunk("comment", "{" + token + end_char))
         elif mode == "subvar" and stripped:  # pragma: no branch
             # one of the few (only) places we strip in this pass
-            chunks.append(("move", stripped))
+            chunks.append(Chunk("move", stripped))
         else:
             raise ValueError(  # pragma: no cover
                 f"Unexpected mode '{mode}' in flush_token at index {i}: {token}"
@@ -655,12 +665,12 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             end = text.find(end_tag, i)
             if end != -1:
                 end += len(end_tag)
-                chunks.append(("fenseq", text[i:end]))
+                chunks.append(Chunk("fenseq", text[i:end]))
                 i = end
                 token_start = None
                 continue
             else:
-                chunks.append(("comment", text[i:]))
+                chunks.append(Chunk("comment", text[i:]))
                 print(f"⚠️  Unclosed <fenseq>: {text[i:]}")
                 break
 
@@ -672,7 +682,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
 
         # Comment end
         elif c == "}" and mode == "comment":
-            chunks.append(("comment", text[token_start : i + 1]))  # noqa: E203
+            chunks.append(Chunk("comment", text[token_start : i + 1]))  # noqa: E203
             token_start = None
             mode = "neutral" if paren_depth < 1 else "subvar"
 
@@ -683,7 +693,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             ):
                 print(f"✅  Fixing known unbalanced parens: {text[i:][:60]}")
                 # no need to flush token; we're following the already appended comment
-                chunks.append(("subvar", "END 1"))
+                chunks.append(Chunk("subvar", "END 1"))
                 paren_depth = 0
                 mode = "neutral"
 
@@ -694,13 +704,13 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             # paren depth is added to the chunk value for visibility only;
             # a later step will have its own depth tracking and split into
             # subvar start/end types
-            chunks.append(("subvar", f"START {paren_depth}"))
+            chunks.append(Chunk("subvar", f"START {paren_depth}"))
             mode = "subvar"
 
         # Subvar end
         elif c == ")" and mode == "subvar":
             flush_token()
-            chunks.append(("subvar", f"END {paren_depth}"))
+            chunks.append(Chunk("subvar", f"END {paren_depth}"))
             paren_depth -= 1
             if paren_depth == 0:
                 mode = "neutral"
@@ -708,7 +718,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         # Nested subvar
         elif c == "(" and mode == "subvar":
             paren_depth += 1
-            chunks.append(("subvar", f"START {paren_depth}"))
+            chunks.append(Chunk("subvar", f"START {paren_depth}"))
 
         # Implied comment when we encounter a non-defined structure in neutral zone
         elif mode == "neutral":
@@ -750,7 +760,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             if end_char:  # pragma: no branch
                 # this might be hard to get to as well!
                 print("⚠️  Didn't find trailing closing comment brace (adding)")
-            chunks.append(("comment", token + end_char))
+            chunks.append(Chunk("comment", token + end_char))
         else:
             flush_token()
 
