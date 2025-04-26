@@ -431,13 +431,13 @@ def serialize_variation_to_import_format(variation):
 class ParsedBlock:
     block_type: Literal["comment", "subvar", "fenseq", "move"]
     raw: str
-    san_fen: Optional[tuple[str, str]] = None  # only for "move"
     errors: list[str] = field(default_factory=list)
-    fen_start: str = ""  # fenseq start of subvar sequence ⏮️
     display_text: str = ""  # for normalized comments, moves
     move_num: Optional[int] = None
     dots: str = ""  # . or ... or nothing
     san: str = ""  # basic SAN used to advance board, regardless of move #s
+    fen: str = ""  # fen representing the state *before* this move
+    link_fen: bool = False  # render ⏮️ as a link to fen position (for former fenseq!)
     subvar_depth: int = 0  # for subvar depth tracking
 
 
@@ -482,6 +482,8 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
         type_, data = chunks[i]
         print(f"🔍 Parsing chunk: {type_} ➤ {data.strip()[:40]}...")
 
+        # ➡️ Every branch must advance `i`
+
         if type_ == "subvar":
             if data.startswith("START"):
                 depth += 1
@@ -502,6 +504,7 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
                 )
                 i += 2
                 continue
+            # else fall through to single move block handler
 
         if type_ == "move":  # a single move
             parsed_blocks.append(get_simple_move_parsed_block(data, depth))
@@ -510,6 +513,7 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
 
         elif type_ == "comment":
             raw = ""
+            # combine multiple consecutive comments into one
             while i < len(chunks) and chunks[i][TYPE] == "comment":
                 raw += chunks[i][DATA].strip("{}")
                 i += 1
@@ -519,11 +523,11 @@ def get_parsed_blocks_first_pass(chunks: list[tuple[str, str]]) -> list[ParsedBl
 
         elif type_ == "fenseq":
             parsed_blocks.extend(parse_fenseq_chunk(data))
+            i += 1
+            continue
 
         else:
             raise ValueError(f"Unknown chunk type: {type_} ➤ {data.strip()[:40]}")
-
-        i += 1
 
     return parsed_blocks
 
@@ -561,7 +565,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     for move in move_text.split():
         blocks.append(get_simple_move_parsed_block(move, DEPTH))
 
-    blocks[0].fen_start = fen
+    blocks[0].fen = fen
 
     return blocks
 
@@ -672,7 +676,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             paren_depth += 1
             blocks.append(("subvar", f"START {paren_depth}"))
 
-        # Implied comment
+        # Implied comment when we encounter a non-defined structure in neutral zone
         elif mode == "neutral":
             if token_start is None:
                 token_start = i

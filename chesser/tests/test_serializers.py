@@ -282,13 +282,14 @@ def make_comment_block(raw, display, depth=0):
     )
 
 
-def make_move_block(raw, move_num, dots, san, depth):
+def make_move_block(raw, move_num, dots, san, depth, fen=""):
     return serializers.ParsedBlock(
         block_type="move",
         raw=raw,
         move_num=move_num,
         dots=dots,
         san=san,
+        fen=fen,
         subvar_depth=depth,
     )
 
@@ -350,10 +351,26 @@ def make_move_block(raw, move_num, dots, san, depth):
                 make_comment_block("!<br/>", "!\n", depth=0),
             ],
         ),
+        (
+            [
+                ("fenseq", "<fenseq data-fen='...'>1.e4 e5 2. Nf3</fenseq>"),
+            ],
+            [
+                make_move_block("1.e4", 1, ".", "e4", depth=1, fen="..."),
+                make_move_block("e5", None, "", "e5", depth=1),
+                make_move_block("2.Nf3", 2, ".", "Nf3", depth=1),
+            ],
+        ),
     ],
 )
 def test_get_parsed_blocks_first_pass(chunks, expected):
     assert serializers.get_parsed_blocks_first_pass(chunks) == expected
+
+
+def test_get_parsed_blocks_first_pass_invalid_type():
+    with pytest.raises(ValueError) as excinfo:
+        serializers.get_parsed_blocks_first_pass([("fahr", "vegnugen")])
+    assert "Unknown chunk type" in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
@@ -367,8 +384,8 @@ def test_parse_fenseq_chunk_valid(test_input):
     blocks = serializers.parse_fenseq_chunk(test_input)
     assert len(blocks) == 4
     assert [block.san for block in blocks] == ["e4", "e5", "Nf3", "Nc6"]
-    assert blocks[0].fen_start == "start_fen"
-    assert all(b.fen_start == "" for b in blocks[1:])
+    assert blocks[0].fen == "start_fen"
+    assert all(b.fen == "" for b in blocks[1:])
     assert all(b.subvar_depth == 1 for b in blocks)
     assert all(b.block_type == "move" for b in blocks)
 
