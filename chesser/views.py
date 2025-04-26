@@ -746,9 +746,10 @@ class HomeView:
                 count = variations.filter(level=level).count()
 
             if count > 0:
+                badge = "🌱" if level == 0 else "🌳" if level >= 9 else ""
                 level_counts.append(
                     {
-                        "label": label,
+                        "label": f"{label} {badge}",
                         "count": count,
                     }
                 )
