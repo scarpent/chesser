@@ -3,7 +3,7 @@
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker
-        .register("{% static 'service-worker.js' %}")
+        .register("/service-worker.js?v={{ BUILD_TIMESTAMP }}")
         .then(function (registration) {
           console.log("✅ Service Worker registered with scope:", registration.scope);
         })

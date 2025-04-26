@@ -15,6 +15,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("service-worker.js", views.service_worker, name="service-worker"),
+    path("error/", views.trigger_error),
     path("", views.home, name="home"),
     path("course/<int:course_id>/", views.home, name="course_view"),
     path(
@@ -43,5 +45,4 @@ urlpatterns = [
     path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
     path("variations-table/", views.variations_table, name="variations_table"),
     path("stats/", views.stats, name="stats"),
-    path("error/", views.trigger_error),
 ]

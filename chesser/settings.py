@@ -1,5 +1,6 @@
 import os
 import socket
+import time
 from pathlib import Path
 
 import dj_database_url
@@ -79,6 +80,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "chesser.context_processors.build_info",
             ],
         },
     },
@@ -151,6 +153,8 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = "chesser"
 AWS_S3_REGION_NAME = "us-east-1"
+
+BUILD_TIMESTAMP = str(int(time.time()))
 
 CHESSER_URL = (
     "https://chesser-production.up.railway.app"

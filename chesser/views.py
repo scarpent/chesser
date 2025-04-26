@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.db.models.functions import Lower
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import FileResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -28,6 +28,12 @@ from chesser.serializers import (
 def home(request, course_id=None, chapter_id=None):
     home_view = HomeView(course_id=course_id, chapter_id=chapter_id)
     return render(request, "home.html", home_view.data)
+
+
+def service_worker(request):
+    return FileResponse(
+        open("chesser/service-worker.js", "rb"), content_type="application/javascript"
+    )
 
 
 def custom_404_view(request, exception):

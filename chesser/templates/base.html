@@ -13,6 +13,8 @@
     <!-- prettier-ignore -->
     {% block head_extra %}{% endblock %}
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
+    <link rel="manifest" href="{% static 'manifest.json' %}" />
+    <meta name="theme-color" content="#000000" />
   </head>
   {% block content %}{% endblock %}
 </html>

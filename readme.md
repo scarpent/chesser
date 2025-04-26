@@ -113,39 +113,13 @@ oid
 
 nextUpdated is next review due
 
-## getReview
+## Service Workers
 
-can you only call this on variations that are up for review?
+Situation | What Happens
+Restart Django server (new deploy) | A new BUILD_TIMESTAMP is generated
+Browser loads /service-worker.js?v=newtimestamp | Browser fetches the new service worker
+New service worker installs immediately (skipWaiting) | ✅ No "waiting" phase — it activates right away
+During activate event | ✅ Old caches are cleaned (except current chesser-cache)
+clients.claim() after activate | ✅ New service worker takes control of all open tabs immediately
 
-Looks like chessable getReview endpoint holds spaced repetition "level" data
-
-https://www.chessable.com/api/v1/getReview?uid=118804&bid=51617&lid=23&oid=39269901
-bid = course
-oid = variation
-
-lesson ➤ moves ➤
-
-there is level_b and level_b_origin, where both seem to be the same (\_b has nothing to do with black?)
-level_origin is 0
-
-level or level_b can be null or not alternatively -- just use one that is there?
-
-e.g. for above, had +60 on moves which was 6. Overstudied moves had higher numbers, up to +12 in some cases, which would be +120? Is it just level \* 10?
-
-although +60 is really "level 3"
-+60 level_b 6
-
-another (white) alapin 2...d5
-dxc5 +60 (level_b for white, too)
-
-another (and hope for something other than +60)
-Be7 +50
-a6 +50
-Qa5 +50 level_b = 5
-
-another (a rare case of two numbers!)
-Qd7 +160
-Nc6 +160 level_b = 16
-Ke7 +150 level_b = 15
-
-Qa5+ +40 level_b = 4
+See browser dev tools ➤ application ➤ (manifest, service workers, storage)
