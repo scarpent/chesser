@@ -1,0 +1,29 @@
+<!-- prettier-ignore -->
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if subtitle %}
+{{ subtitle }} |
+{% endif %}
+{{ title }} | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}"
+    >{{ site_header|default:_('Django administration') }}</a
+  >
+</div>
+{% endblock %}
+
+<!-- prettier-ignore -->
+{% block extrahead %}
+{{ block.super }}
+{% if debug %}
+<link rel="icon" href="{% static 'favicon-dev.ico' %}" type="image/x-icon" />
+{% else %}
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+{% endif %}
+<!-- prettier-ignore -->
+{% endblock %}

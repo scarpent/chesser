@@ -41,6 +41,7 @@ if not IS_PRODUCTION and os.environ.get("RUN_MAIN") == "true":
         ALLOWED_HOSTS.append(local_ip)  # Allow LAN IP for local development
 
 INSTALLED_APPS = [
+    "chesser",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -50,7 +51,6 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",  # serves static files in dev & prod
     "django_extensions",
     "djangoql",
-    "chesser",
 ]
 
 MIDDLEWARE = [
