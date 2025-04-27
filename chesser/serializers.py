@@ -95,6 +95,41 @@ def serialize_variation(variation, all_data=False, version=1):
     return variation_data
 
 
+def serialize_variation_to_import_format(variation):
+    # TODO: export quiz history, too? perhaps optionally...
+    return {
+        "variation_id": variation.id,
+        "source": variation.source,
+        "color": variation.course.color,
+        "chapter_title": variation.chapter.title,
+        "variation_title": variation.title,
+        "level": variation.level,
+        "created_at": variation.created_at.replace(microsecond=0).isoformat(),
+        "next_review": variation.next_review.replace(microsecond=0).isoformat(),
+        "last_review": (
+            variation.get_latest_quiz_result_datetime()
+            .replace(microsecond=0)
+            .isoformat()
+            if variation.quiz_results.exists()
+            else util.END_OF_TIME_STR
+        ),
+        "start_move": variation.start_move,
+        "moves": [
+            {
+                "move_num": m.move_num,
+                "san": m.san,
+                "annotation": m.annotation or "",
+                "text": m.text or "",
+                "alt": m.alt or "",
+                "alt_fail": m.alt_fail or "",
+                "shapes": json.loads(m.shapes or "[]"),
+            }
+            for m in variation.moves.all().order_by("sequence")
+        ],
+        "mainline": variation.mainline_moves,
+    }
+
+
 def get_history(variation):
     """
     Returns a list of dictionaries with quiz history for the variation.
@@ -186,6 +221,9 @@ def get_source_html(source):
         return "<p>No source information available.</p>"
 
     return mine + original
+
+
+# === Parser/Renderer v1 ====================================================
 
 
 def generate_variation_html(variation, version=1):
@@ -392,39 +430,7 @@ def flatten_move_fen_map(nested_list):
     return flat_list
 
 
-def serialize_variation_to_import_format(variation):
-    # TODO: export quiz history, too? perhaps optionally...
-    return {
-        "variation_id": variation.id,
-        "source": variation.source,
-        "color": variation.course.color,
-        "chapter_title": variation.chapter.title,
-        "variation_title": variation.title,
-        "level": variation.level,
-        "created_at": variation.created_at.replace(microsecond=0).isoformat(),
-        "next_review": variation.next_review.replace(microsecond=0).isoformat(),
-        "last_review": (
-            variation.get_latest_quiz_result_datetime()
-            .replace(microsecond=0)
-            .isoformat()
-            if variation.quiz_results.exists()
-            else util.END_OF_TIME_STR
-        ),
-        "start_move": variation.start_move,
-        "moves": [
-            {
-                "move_num": m.move_num,
-                "san": m.san,
-                "annotation": m.annotation or "",
-                "text": m.text or "",
-                "alt": m.alt or "",
-                "alt_fail": m.alt_fail or "",
-                "shapes": json.loads(m.shapes or "[]"),
-            }
-            for m in variation.moves.all().order_by("sequence")
-        ],
-        "mainline": variation.mainline_moves,
-    }
+# === Parser v2 =============================================================
 
 
 @dataclass
@@ -477,9 +483,9 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
 
     The goal is to be strict in how we parse and clean fields,
     but flexible in accepting whatever we have at this point.
-    We probably have mostly clean data and errors won't be
-    catastrophic later. God knows Chessable has enough broken
-    subvariations themselves.
+    We probably have mostly clean data at this point and errors
+    won't be catastrophic later. God knows Chessable has enough
+    broken subvariations themselves.
     """
     move_parts = re.search(r"^(\d*)(\.*)(.*)", literal_move)
     move_num = int(move_parts.group(1)) if move_parts.group(1) else None

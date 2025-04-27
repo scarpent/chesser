@@ -1,3 +1,23 @@
+# header 1
+
+## header 2
+
+### header 3
+
+### Thank you / Attribution
+
+- python/django
+- python-chess
+- chessground
+- chess.js
+- alpine
+- googlefonts/noto-emoji
+- wikibooks openings
+- "fantasy" piece set for queen logo
+  ~ https://github.com/maurimo/chess-art
+  ~ https://maurimo.github.io/chess-art/configure.html
+  ~ (remember to send note to the author)
+
 ## notes...
 
 @@StartBracket@@ @@EndBracket@@
@@ -30,19 +50,6 @@ Don't use these -- just put () inside {()}
 - an extra study feature for studying level 1 openings or level 1 & 2, etc
 
 ## if shared publicly...
-
-- data migration for courses 1, 2
-- create bulk import with examples from https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._d4/1...d5/2._c4/2...e6/3._Nf3 can have 10-30 examples with text and demonstrating various features (fenseq, blockquote, source, etc, can demonstrate the source json field to credit wikibooks!) - use separate json and license file
-- make sure to use nh3 for sanitizing html!
-- might mention that cookies/local storage are either essential or non-PII?
-  ~ potentially: Privacy Notice: Chesser uses essential cookies for login and session protection. It also stores non-identifiable progress data locally in the browser for review sessions. No personal data is shared or tracked.
-
-- credit/attributions
-  ~ python/django
-  ~ chessground and other chess libraries
-  ~ alpine
-  ~ emoji/images/fonts/etc
-  ~ wikibooks openings
 
 ## lichess analysis FEN links
 
