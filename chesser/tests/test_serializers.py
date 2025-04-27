@@ -399,8 +399,7 @@ def test_parse_fenseq_chunk_valid(test_input):
     assert all(b.fen == "" for b in blocks[1:])
     assert all(b.depth == 1 for b in blocks)
     assert all(b.type_ == "move" for b in blocks[1:-1])
-    assert blocks[0].type_ == "start"
-    assert blocks[-1].type_ == "end"
+    assert (blocks[0].type_, blocks[-1].type_) == ("start", "end")
 
 
 def test_parse_fenseq_chunk_invalid():
@@ -413,3 +412,35 @@ def test_parse_fenseq_chunk_invalid():
         serializers.parse_fenseq_chunk("<fenseq>1.e4 e5</fenseq>")
     except AssertionError as e:
         assert "Invalid fenseq block" in str(e)
+
+
+@pytest.mark.parametrize(
+    "literal_move, expected_move_num, expected_dots, expected_san",
+    [
+        ("1.e4", 1, ".", "e4"),
+        ("1...e5", 1, "...", "e5"),
+        ("e4", None, "", "e4"),
+        ("2.d4", 2, ".", "d4"),
+        ("10...Nc6", 10, "...", "Nc6"),
+        ("7.Qxf7#", 7, ".", "Qxf7#"),
+        ("d5", None, "", "d5"),
+        ("1...", 1, "...", ""),  # accepted: no SAN
+        ("1.", 1, ".", ""),  # accepted: no SAN
+        ("...", None, "...", ""),  # accepted: dots only
+        ("", None, "", ""),  # accepted: truly empty
+        ("....", None, "....", ""),  # accepted: weird but fine
+        ("12345", 12345, "", ""),  # accepted: number, no SAN
+        ("1. e4", 1, ".", "e4"),  # leading space between dot and SAN
+        ("1.  e4  ", 1, ".", "e4"),  # extra spaces both sides
+        ("   e4", None, "", "e4"),  # leading whitespace only
+        ("e4   ", None, "", "e4"),  # trailing whitespace only
+        ("1..  .e4", 1, "..", ".e4"),  # well, we will only try so much
+    ],
+)
+def test_get_simple_move_parsed_block(
+    literal_move, expected_move_num, expected_dots, expected_san
+):
+    block = serializers.get_simple_move_parsed_block(literal_move, depth=0)
+    assert block.move_num == expected_move_num
+    assert block.dots == expected_dots
+    assert block.san == expected_san

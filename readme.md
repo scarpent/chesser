@@ -5,7 +5,9 @@ Don't use these -- just put () inside {()}
 
 ## todo
 
-variations 778, 1215
+`get_simple_move_parsed_block`
+
+- export link from variations table! 📦️
 
 - refactor css styles
   ~ create "stylesheet" with samples

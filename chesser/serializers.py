@@ -444,7 +444,7 @@ class ParsedBlock:
     dots: str = ""  # . or ... or nothing
     san: str = ""  # basic SAN used to advance board, regardless of move #s
     fen: str = ""  # fen representing the state *before* this move
-    link_fen: bool = False  # render ⏮️ as a link to fen position (for former fenseq!)
+    link_fen: bool = False  # render ⏮️ as link fen (for former fenseq / @@StartFEN@@)
     depth: int = 0  # for subvar depth tracking
 
 
@@ -457,10 +457,34 @@ class RenderableBlock:
 
 
 def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
+    """
+    Breaks a literal move string into its core parts:
+    move number, dots, and SAN.
+
+    At this stage, the input has already been cleaned and tokenized —
+    so we expect reasonably structured data, but we aren't verifying
+    full chess legality yet.
+
+    This function:
+    - Extracts optional move number (e.g. "1" from "1.e4", "1. e4" "1...e5")
+    - Extracts dots following the number ("." or "..." or "........" & so on)
+    - Extracts the SAN (Standard Algebraic Notation) portion
+    - Strips any leading/trailing whitespace from the SAN
+
+    We do not validate the move content here:
+    - Malformed SANs, impossible moves, etc. are allowed
+    - Path validation happens later during move resolution
+
+    The goal is to be strict in how we parse and clean fields,
+    but flexible in accepting whatever we have at this point.
+    We probably have mostly clean data and errors won't be
+    catastrophic later. God knows Chessable has enough broken
+    subvariations themselves.
+    """
     move_parts = re.search(r"^(\d*)(\.*)(.*)", literal_move)
     move_num = int(move_parts.group(1)) if move_parts.group(1) else None
     dots = move_parts.group(2)
-    san = move_parts.group(3)
+    san = move_parts.group(3).strip()
     return ParsedBlock(
         type_="move",
         raw=literal_move,
@@ -602,7 +626,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
 
     assert move_text, f"Empty move text in fenseq block: {raw}"
 
-    DEPTH = 1
+    DEPTH = 1  # fenseq blocks are always depth 1
     blocks = [ParsedBlock("start", depth=DEPTH, fen=fen)]
     for move in move_text.split():
         blocks.append(get_simple_move_parsed_block(move, DEPTH))
