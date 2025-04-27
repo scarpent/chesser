@@ -11,7 +11,8 @@
 - chessground
 - chess.js
 - alpine
-- googlefonts/noto-emoji
+- googlefonts/noto-emoji OFL-1.1
+  ~ Emoji icons derived from Noto Emoji, licensed under the SIL Open Font License, Version 1.1.
 - wikibooks openings
 - "fantasy" piece set for queen logo
   ~ https://github.com/maurimo/chess-art

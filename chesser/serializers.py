@@ -449,8 +449,10 @@ class ParsedBlock:
     move_num: Optional[int] = None
     dots: str = ""  # . or ... or nothing
     san: str = ""  # basic SAN used to advance board, regardless of move #s
-    fen: str = ""  # fen representing the state *before* this move
-    link_fen: bool = False  # render ⏮️ as link fen (for former fenseq / @@StartFEN@@)
+    fen: str = ""  # fen representing state after this move (for normal render linking)
+    # fen_before represents the state before a subvar's first move, is exclusive to
+    # fenseq/@@StartFEN@@ blocks, and tells us to render ⏮️ as a link to the before_fen
+    fen_before: str = ""
     depth: int = 0  # for subvar depth tracking
 
 
@@ -460,6 +462,91 @@ class RenderableBlock:
     html: str
     raw: str
     errors: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ResolveStats:
+    subvar_total: int = 0
+    subvar_moves_attempted: int = 0
+    subvar_moves_resolved: int = 0
+    max_subvar_depth: int = 0
+    rebranch_attempts: int = 0
+
+    fenseq_total: int = 0
+    fenseq_moves_attempted: int = 0
+    fenseq_moves_resolved: int = 0
+
+    failure_blocks: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ActiveFenseq:
+    fen_start: str = ""
+    blocks: list[ParsedBlock] = field(default_factory=list)
+    any_failures: bool = False
+
+    def validate(
+        self,
+        stats: Optional[ResolveStats] = None,
+    ) -> bool:
+        """
+        Attempts to play through all moves starting from the initial FEN.
+        Marks blocks with errors if moves fail.
+
+        Returns True if the entire sequence was valid, False otherwise.
+        """
+
+        if stats:
+            stats.fenseq_total += 1
+
+        # "URL FENs" get handled in cleanup now but we might as well
+        # make this resilient for others that appear in the wild
+        fen = self.fen_start.replace("_", " ")
+
+        try:
+            board = chess.Board(fen)
+            # print(f"✅ FEN: {self.fen_start}")
+        except ValueError:
+            print(f"🚨 Invalid FEN in fenseq block: {fen} " f"({self.blocks[0].raw})")
+            self.any_failures = True
+            return not self.any_failures
+
+        for block in self.blocks:
+            if block.type_ != "move":
+                # TODO: I was thinking that fenseq blocks couldn't have comments,
+                # but variation 712 is a weird problem child, even after adding in
+                # the fen and otherwise manually fixing. Ends up with a comment
+                # inside <fenseq> tags -- does that normally happen? That was going
+                # to be a tricky situation anyway since sometimes the fenseq is
+                # continued and sometimes not.
+                if block.type_ == "comment":
+                    print(f"😬 comment found in fenseq {block.raw}")
+                continue  # ignore subvars (which shouldn't be here anyway)
+
+            if stats:
+                stats.fenseq_moves_attempted += 1
+
+            try:
+                move_obj = board.parse_san(block.san)
+                board.push(move_obj)
+                if stats:
+                    stats.fenseq_moves_resolved += 1
+            except Exception:
+                # TODO: find out what's happening with variation 712
+                block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
+                self.any_failures = True
+
+            # print(block, stats)
+            # break point
+
+        return not self.any_failures
+
+
+def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
+    chunks = extract_ordered_chunks(move.text)
+    parsed_blocks = get_parsed_blocks_first_pass(chunks)
+    resolved_blocks = resolve_moves(parsed_blocks, move, board)
+    return resolved_blocks
 
 
 def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
@@ -501,32 +588,77 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
     )
 
 
-def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
-    chunks = extract_ordered_chunks(move.text)
-    parsed_blocks = get_parsed_blocks_first_pass(chunks)
-    resolved_blocks = resolve_moves(parsed_blocks, move, board)
-    return resolved_blocks
-
-
 def resolve_moves(
-    blocks: list[ParsedBlock], move: Move, board: chess.Board
+    blocks: list,
+    move: Move,
+    board: chess.Board,
+    mode: str = "strict",
+    stats: Optional[ResolveStats] = None,
 ) -> list[ParsedBlock]:
     """
-    Given initial parsed blocks and a starting board,
-    attempts to resolve moves, normalize structure,
-    and produce a cleaned list of blocks, dropping
-    redundant moves as needed.
+    Walks through parsed blocks, tries resolving moves,
+    optionally collects stats, and records the originating root move.
     """
     resolved_blocks = []
-    # board_stack = [board.copy()]
-    # maybe also track move sequence to handle redundancies
+    board_stack = [board.copy()]
+    active_fenseq = None
 
     for block in blocks:
-        # handle comments and fenseq markers cleanly
-        # for moves: validate SAN, drop duplicates
-        # resolved_blocks.append(...)
+        # Pass through comments and subvar markers directly
+        if block.block_type in {"comment", "subvar-start", "subvar-end"}:
+            resolved_blocks.append(block)
+            if stats:
+                stats.max_subvar_depth = max(stats.max_subvar_depth, block.subvar_depth)
+                if block.block_type == "subvar-start" and block.before_fen:
+                    active_fenseq = ActiveFenseq(start_fen=block.before_fen)
+                elif block.block_type == "subvar-end" and active_fenseq:
+                    active_fenseq.validate(stats)
+                    active_fenseq = None
+            continue
 
-        resolved_blocks.append(block)  # stub for now, just pass the data back
+        if block.block_type != "move":
+            raise ValueError(
+                f"Unexpected block type during resolution: {block.block_type}"
+            )
+
+        if active_fenseq:
+            active_fenseq.blocks.append(block)
+            continue
+
+        if stats:
+            stats.total_moves_attempted += 1
+
+        # TODO: we need to branch on fenseq vs subvars...
+        # just want to accumulate ActiveFenseq blocks for now if fenseq
+
+        move_resolved = False
+
+        # In strict mode, we only try the current board
+        for back in (0,) if mode == "strict" else range(len(board_stack)):
+            try:
+                test_board = board_stack[-(back + 1)].copy()
+                move_obj = test_board.parse_san(block.san)
+                block.fen = test_board.fen()
+                test_board.push(move_obj)
+
+                # Reset board stack at correct place
+                board_stack = board_stack[:-(back)] + [test_board]
+
+                move_resolved = True
+                if stats:
+                    stats.total_moves_resolved += 1
+                    if back > 0:
+                        stats.rebranch_attempts += 1
+                break
+            except Exception:
+                continue
+
+        if not move_resolved:
+            if stats:
+                stats.failure_blocks.append(block.raw)
+            block.errors.append(f"Failed to resolve SAN: {block.san}")
+
+        resolved_blocks.append(block)
 
     return resolved_blocks
 
@@ -539,7 +671,7 @@ def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
 
     while i < len(chunks):
         chunk = chunks[i]
-        print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
+        # print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
 
         # ➡️ Every branch must advance `i`
         # (exception for two move handler that can fall through to single move)
@@ -625,7 +757,10 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
         re.DOTALL,
     )
     # "fenseq" type blocks should always match or they'd already be "comment"
-    assert match, f"Invalid fenseq block: {raw}"
+    # assert match, f"Invalid fenseq block: {raw}"
+    if not match:
+        print(f"🚨 Invalid fenseq block: {raw}")
+        return []
 
     fen, move_text = match.groups()
     # remove spaces after move numbers
@@ -634,7 +769,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     assert move_text, f"Empty move text in fenseq block: {raw}"
 
     DEPTH = 1  # fenseq blocks are always depth 1
-    blocks = [ParsedBlock("start", depth=DEPTH, fen=fen)]
+    blocks = [ParsedBlock("start", depth=DEPTH, fen_before=fen)]
     for move in move_text.split():
         blocks.append(get_simple_move_parsed_block(move, DEPTH))
     blocks.append(ParsedBlock("end", depth=DEPTH))
