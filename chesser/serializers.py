@@ -542,6 +542,7 @@ def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
         print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
 
         # ➡️ Every branch must advance `i`
+        # (exception for two move handler that can fall through to single move)
 
         if chunk.type_ == "subvar":
             if chunk.data.startswith("START"):
@@ -658,9 +659,8 @@ def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
 
 def extract_ordered_chunks(text: str) -> list[Chunk]:
     chunks = []
-    i = 0
-    length = len(text)
     mode = "neutral"  # can be: neutral, comment, subvar
+    i = 0
     paren_depth = 0
     token_start = None  # move or comment start, tracked through iterations
 
@@ -672,6 +672,7 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
         token = text[token_start:i]
         stripped = token.strip()
         if mode == "neutral":
+            # we're closing out a comment; we'll first nag if needed
             end_char = "" if stripped and stripped[-1] == "}" else "}"
             if not end_char:
                 print("⚠️  Found closing comment brace while in neutral mode")
@@ -685,12 +686,14 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
             )
         token_start = None
 
-    while i < length:
+    while i < len(text):
         c = text[i]
 
         # Handle <fenseq ... </fenseq> as atomic
         if mode == "neutral" and text[i:].startswith("<fenseq"):
             flush_token()
+            # we'll naively check for the end tag and accept irregular results
+            # for unlikey html soup like <fenseq blah <fenseq>...</fenseq>
             end_tag = "</fenseq>"
             end = text.find(end_tag, i)
             if end != -1:
@@ -698,11 +701,13 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
                 chunks.append(Chunk("fenseq", text[i:end]))
                 i = end
                 token_start = None
-                continue
             else:
-                chunks.append(Chunk("comment", text[i:]))
-                print(f"⚠️  Unclosed <fenseq>: {text[i:]}")
-                break
+                print(f"⚠️  Unclosed <fenseq> (making a comment): {text[i:]}")
+                token_start = i
+                i = len(text)
+                mode = "neutral"
+                flush_token()
+            continue
 
         # Comment start
         elif c == "{" and mode in ("neutral", "subvar"):

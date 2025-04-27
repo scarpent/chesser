@@ -108,10 +108,23 @@ def test_extract_ordered_chunks_assertions():
             [Chunk("fenseq", "<fenseq>1.e4</fenseq>")],
         ),
         (
+            "<fenseq>1.e4</fenseq><fenseq>1.d4</fenseq>",
+            [
+                Chunk("fenseq", "<fenseq>1.e4</fenseq>"),
+                Chunk("fenseq", "<fenseq>1.d4</fenseq>"),
+            ],
+        ),
+        (  # broken fenseq turns into comment
             "{testing}<fenseq>1.e4",
             [
                 Chunk("comment", "{testing}"),
-                Chunk("comment", "<fenseq>1.e4"),
+                Chunk("comment", "{<fenseq>1.e4}"),
+            ],
+        ),
+        (  # broken fenseq turns everything into comment
+            "<fenseq>1.e4 (1.d4 d5)",
+            [
+                Chunk("comment", "{<fenseq>1.e4 (1.d4 d5)}"),
             ],
         ),
         (
@@ -173,6 +186,31 @@ def test_extract_ordered_chunks_fenseq(text, expected):
                 Chunk("subvar", "END 1"),
                 Chunk("comment", "{ \n }"),
                 Chunk("fenseq", "<fenseq data-fen='...'>1...c5</fenseq>"),
+            ],
+        ),
+        (
+            "(1.e4 e5) \n <fenseq 1...c5 (1.e4 e5)",
+            [
+                Chunk("subvar", "START 1"),
+                Chunk("move", "1.e4"),
+                Chunk("move", "e5"),
+                Chunk("subvar", "END 1"),
+                Chunk("comment", "{ \n }"),
+                Chunk("comment", "{<fenseq 1...c5 (1.e4 e5)}"),
+            ],
+        ),
+        (  # TODO: we could/should turn this into a comment, but, meh;
+            # it's unlikely and we won't deal with all cases
+            '<fenseq 1...c5 <fenseq data-fen="...">1.e4</fenseq>',
+            [
+                Chunk("fenseq", '<fenseq 1...c5 <fenseq data-fen="...">1.e4</fenseq>'),
+            ],
+        ),
+        (  # broken fenseq and comment could result in unbalanced
+            # braces but again we won't deal with all cases
+            "<fenseq 1...c5 {and a comment}",
+            [
+                Chunk("comment", "{<fenseq 1...c5 {and a comment}"),
             ],
         ),
         (

@@ -49,8 +49,6 @@ Don't use these -- just put () inside {()}
   - some way to select various openings for this
 - an extra study feature for studying level 1 openings or level 1 & 2, etc
 
-## if shared publicly...
-
 ## lichess analysis FEN links
 
 ### variation.html
