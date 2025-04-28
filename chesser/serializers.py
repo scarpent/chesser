@@ -656,6 +656,8 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     * we should mostly get "condensed" moves, e.g. 1.e4, but we'll handle 1. e4
 
     we could make data-fen be optional and use game starting fen if omitted...
+
+    this is a bit hairy at the moment but it actually works now so that's good
     """
     match = re.search(
         r"""<\s*fenseq[^>]*data-fen=["']([^"']+)["'][^>]*>(.*?)</fenseq>""",
@@ -663,10 +665,10 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
         re.DOTALL,
     )
     # "fenseq" type blocks should always match or they'd already be "comment" type
-    assert match, f"Invalid fenseq chunk: {raw}"
-    # if not match:
-    #     print(f"🚨 Invalid fenseq block: {raw}")
-    #     return []
+    # assert match, f"Invalid fenseq chunk: {raw}"
+    if not match:
+        print(f"🚨 Invalid fenseq block: {raw}")
+        return []
 
     fen, inner_text = match.groups()
     # we don't expect fenseq tags to have parens; we'll strip
@@ -698,18 +700,17 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
                 )
             )
         elif chunk.type_ == "subvar":
-            # we might ignore these in favor of the hardcoded fenseq start/end
+            # we might ignore these in favor of the hardcoded fenseq
+            # start/end and we might discard extras and just treat
+            # flatly and hope for the best
             pass
         else:
             print(
-                "⚠️ Unexpected chunk inside fenseq: "
+                "⚠️  Unexpected chunk inside fenseq: "
                 f"{chunk.type_} ➤ {chunk.data.strip()}"
             )
 
     blocks.append(ParsedBlock("end", depth=DEPTH))
-
-    # TODO: could and should do some validation/logging here;
-    # we're expecting hoping to have a simple flat subvar
 
     return blocks
 
