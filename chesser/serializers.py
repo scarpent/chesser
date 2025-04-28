@@ -499,8 +499,8 @@ class ActiveFenseq:
         if stats:
             stats.fenseq_total += 1
 
-        # "URL FENs" get handled in cleanup now but we might as well
-        # make this resilient for others that appear in the wild
+        # "URL FENs" should be cleaned in the pre-import process, but we'll
+        # be resilient for when they appear in the wild (it's easy enough)
         fen = self.fen_start.replace("_", " ")
 
         try:
@@ -509,10 +509,9 @@ class ActiveFenseq:
         except ValueError:
             print(f"🚨 Invalid FEN in fenseq block: {fen} " f"({self.blocks[0].raw})")
             self.any_failures = True
-            return not self.any_failures
+            return False
 
         for block in self.blocks:
-            # TODO: variation 712 may still need looking at, unrelated to this?
             if block.type_ != "move":
                 continue  # we don't expect any subvars
 
@@ -525,13 +524,8 @@ class ActiveFenseq:
                 if stats:
                     stats.fenseq_moves_resolved += 1
             except Exception:
-                # TODO: find out what's happening with variation 712
                 block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
                 self.any_failures = True
-
-            # maybe our 712 nemesis is largely fixed now with better extraction
-            # print(block, stats)
-            # break point
 
         return not self.any_failures
 
@@ -693,7 +687,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
 
     for chunk in chunks:
         if chunk.type_ == "move":
-            # one of the few/only places we strip in this pass
+            # moves are the only things we try stripping down in this pass
             blocks.append(get_simple_move_parsed_block(chunk.data.strip(), DEPTH))
         elif chunk.type_ == "comment":
             blocks.append(
@@ -756,7 +750,7 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
                 print("⚠️  Found closing comment brace while in neutral mode")
             chunks.append(Chunk("comment", "{" + token + end_char))
         elif mode == "subvar" and stripped:  # pragma: no branch
-            # one of the few (only) places we strip in this pass
+            # moves are the only things we strip in this pass
             chunks.append(Chunk("move", stripped))
         else:
             raise ValueError(  # pragma: no cover
