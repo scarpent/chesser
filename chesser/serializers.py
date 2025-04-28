@@ -441,7 +441,14 @@ class Chunk:
 
 @dataclass
 class ParsedBlock:
-    # previously, chunk types: "comment", "subvar", "fenseq", "move"
+    """
+    TODO: san may currently have an annotation; we remove this when
+    it's time to parse/push to a board, but maybe we should split it
+    out here, earlier, with a new annotation field?
+
+    we started with chunk types: "comment", "subvar", "fenseq", "move"
+    """
+
     type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
     errors: list[str] = field(default_factory=list)
@@ -519,7 +526,8 @@ class ActiveFenseq:
                 stats.fenseq_moves_attempted += 1
 
             try:
-                move_obj = board.parse_san(block.san)
+                clean_san = normalize_san_for_parse(block.san)
+                move_obj = board.parse_san(clean_san)
                 board.push(move_obj)
                 if stats:
                     stats.fenseq_moves_resolved += 1
@@ -574,6 +582,29 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
         san=san,
         depth=depth,
     )
+
+
+SAN_CLEAN_LEADING_NUMBER = re.compile(r"^[\d.\s]*")
+# definitely not SAN characters
+SAN_CLEAN_REGEX_STRIP_NON_SAN = re.compile(r"[^a-zA-Z0-9#+=-]+")
+# trailing characters that are not SAN when trailing
+SAN_CLEAN_REGEX_STRIP_TRAILING_NON_SAN = re.compile(r"[^a-zA-Z0-9#+]+$")
+
+
+def normalize_san_for_parse(san: str) -> str:
+    """
+    Strips leading numbers and dots from SAN, leaving only the SAN itself
+    Strips any trailing annotation characters from SAN, leaving # and +
+
+    Three passes. First strips leading numbers/dots, second all non-SAN
+    characters, which leaves only equals (=) and minus (-) as things that
+    may be either:
+    31.b8=Q or 31.Nd7=
+    12.O-O or 17.Bd6-
+    """
+    first = SAN_CLEAN_LEADING_NUMBER.sub("", san.strip())
+    second = SAN_CLEAN_REGEX_STRIP_NON_SAN.sub("", first)
+    return SAN_CLEAN_REGEX_STRIP_TRAILING_NON_SAN.sub("", second)
 
 
 def resolve_moves(

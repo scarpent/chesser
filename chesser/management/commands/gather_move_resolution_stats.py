@@ -73,7 +73,11 @@ class Command(BaseCommand):
                         active_fenseq = ActiveFenseq(fen_start=block.fen_before)
                         continue
                     elif block.type_ == "end" and active_fenseq:
-                        active_fenseq.validate(stats)
+                        valid = active_fenseq.validate(stats)
+                        if not valid:
+                            print(
+                                f"Invalid fenseq: var# {variation.id}, move# {move.id}"
+                            )
                         active_fenseq = None
                         continue
                     elif block.type_ in ["start", "end"]:

@@ -499,3 +499,50 @@ def test_get_simple_move_parsed_block(
     assert block.move_num == expected_move_num
     assert block.dots == expected_dots
     assert block.san == expected_san
+
+
+@pytest.mark.parametrize(
+    "input_san, expected_san",
+    [
+        # No annotations
+        ("e4", "e4"),
+        ("Nf3", "Nf3"),
+        ("Qh5+", "Qh5+"),
+        ("Rd8#", "Rd8#"),
+        ("O-O", "O-O"),
+        ("O-O-O", "O-O-O"),
+        ("c8=Q#", "c8=Q#"),
+        # Normal annotations
+        ("e4!", "e4"),
+        ("e4?", "e4"),
+        ("e4!?", "e4"),
+        ("e4?!", "e4"),
+        ("O-O-", "O-O"),
+        ("O-O-O=", "O-O-O"),
+        ("d8=R=", "d8=R"),
+        # Mixed with checks/mates
+        ("Qh5+!", "Qh5+"),
+        ("Rd8#!", "Rd8#"),
+        ("Rd8#+!?∞", "Rd8#+"),  # invalid but partly parsed
+        ("Qa4!+", "Qa4+"),
+        ("Qa4!!#", "Qa4#"),
+        # Other symbols
+        ("e4⩱", "e4"),
+        ("d4∞", "d4"),
+        ("Nf3∅", "Nf3"),
+        ("Nc6⩲", "Nc6"),
+        ("Qd8+∅", "Qd8+"),
+        ("Kg1#⩱", "Kg1#"),
+        # Spaces (should be stripped too)
+        ("  e4!  ", "e4"),
+        ("  Nf3⩲ ", "Nf3"),
+        ("Rd8# ", "Rd8#"),
+        # leading numbers/dots
+        ("1.e4", "e4"),
+        ("2. Nf3", "Nf3"),
+        ("3...Nc6", "Nc6"),
+        ("4.Qd8+", "Qd8+"),
+    ],
+)
+def test_normalize_san_for_parse(input_san, expected_san):
+    assert serializers.normalize_san_for_parse(input_san) == expected_san
