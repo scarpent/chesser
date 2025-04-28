@@ -490,10 +490,10 @@ class ActiveFenseq:
         stats: Optional[ResolveStats] = None,
     ) -> bool:
         """
-        Attempts to play through all moves starting from the initial FEN.
-        Marks blocks with errors if moves fail.
-
-        Returns True if the entire sequence was valid, False otherwise.
+        - Accepts moves and comments. Attempts to play through
+          all moves starting from the initial FEN.
+        - Marks blocks with errors if moves fail.
+        - Returns True if the entire sequence was valid, False otherwise.
         """
 
         if stats:
@@ -512,16 +512,9 @@ class ActiveFenseq:
             return not self.any_failures
 
         for block in self.blocks:
+            # TODO: variation 712 may still need looking at, unrelated to this?
             if block.type_ != "move":
-                # TODO: I was thinking that fenseq blocks couldn't have comments,
-                # but variation 712 is a weird problem child, even after adding in
-                # the fen and otherwise manually fixing. Ends up with a comment
-                # inside <fenseq> tags -- does that normally happen? That was going
-                # to be a tricky situation anyway since sometimes the fenseq is
-                # continued and sometimes not.
-                if block.type_ == "comment":
-                    print(f"😬 comment found in fenseq {block.raw}")
-                continue  # ignore subvars (which shouldn't be here anyway)
+                continue  # we don't expect any subvars
 
             if stats:
                 stats.fenseq_moves_attempted += 1
@@ -536,6 +529,7 @@ class ActiveFenseq:
                 block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
                 self.any_failures = True
 
+            # maybe our 712 nemesis is largely fixed now with better extraction
             # print(block, stats)
             # break point
 
