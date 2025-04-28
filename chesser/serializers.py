@@ -675,7 +675,8 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     #     return []
 
     fen, inner_text = match.groups()
-    # we don't expect fenseq tags to have parens, let's normalize
+    # we don't expect fenseq tags to have parens; we'll strip
+    # them here so that we can always add them below
     inner_text = inner_text.strip().strip("()")
 
     if not inner_text:
@@ -692,10 +693,16 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
 
     for chunk in chunks:
         if chunk.type_ == "move":
-            # one of the few/only places we don't strip in this pass
+            # one of the few/only places we strip in this pass
             blocks.append(get_simple_move_parsed_block(chunk.data.strip(), DEPTH))
         elif chunk.type_ == "comment":
-            blocks.append(ParsedBlock(type_="comment", raw=chunk.data))
+            blocks.append(
+                ParsedBlock(
+                    type_="comment",
+                    raw=chunk.data,
+                    display_text=chunk.data.strip("{}"),
+                )
+            )
         elif chunk.type_ == "subvar":
             # we might ignore these in favor of the hardcoded fenseq start/end
             pass

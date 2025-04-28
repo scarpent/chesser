@@ -438,6 +438,24 @@ def test_parse_fenseq_chunk_valid(test_input):
     assert (blocks[0].type_, blocks[-1].type_) == ("start", "end")
 
 
+def test_parse_fenseq_chunk_with_comments():
+    test_input = '<fenseq data-fen="start_fen">1.e4 {comment} e5 2.Nf3 {another comment} 2...Nc6</fenseq>'  # noqa: E501
+
+    blocks = serializers.parse_fenseq_chunk(test_input)
+
+    expected = [
+        ParsedBlock(type_="start", fen_before="start_fen", depth=1),
+        make_move_block("1.e4", 1, ".", "e4", depth=1),
+        make_comment_block("{comment}", "comment"),
+        make_move_block("e5", None, "", "e5", depth=1),
+        make_move_block("2.Nf3", 2, ".", "Nf3", depth=1),
+        make_comment_block("{another comment}", "another comment"),
+        make_move_block("2...Nc6", 2, "...", "Nc6", depth=1),
+        ParsedBlock(type_="end", depth=1),
+    ]
+    assert blocks == expected
+
+
 def test_parse_fenseq_chunk_empty():
     assert (
         serializers.parse_fenseq_chunk('<fenseq data-fen="start_fen"> </fenseq>') == []
