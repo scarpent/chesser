@@ -361,11 +361,9 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
         (
             [
                 Chunk("subvar", "START 1"),
-                Chunk("move", "1."),
-                Chunk("move", "e4"),
+                Chunk("move", "1.e4"),
                 Chunk("subvar", "START 2"),
-                Chunk("move", "1..."),
-                Chunk("move", "d5"),
+                Chunk("move", "1... d5"),
                 Chunk("subvar", "END 2"),
                 Chunk("subvar", "END 1"),
             ],
@@ -373,7 +371,7 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 ParsedBlock(type_="start", depth=1),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 ParsedBlock(type_="start", depth=2),
-                make_move_block("1...d5", 1, "...", "d5", depth=2),
+                make_move_block("1... d5", 1, "...", "d5", depth=2),
                 ParsedBlock(type_="end", depth=2),
                 ParsedBlock(type_="end", depth=1),
             ],
@@ -406,7 +404,7 @@ def make_move_block(raw, move_num, dots, san, depth, fen=""):
                 ParsedBlock(type_="start", depth=1, fen_before="..."),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
-                make_move_block("2.Nf3", 2, ".", "Nf3", depth=1),
+                make_move_block("2. Nf3", 2, ".", "Nf3", depth=1),
                 ParsedBlock(type_="end", depth=1),
             ],
         ),
@@ -440,16 +438,17 @@ def test_parse_fenseq_chunk_valid(test_input):
     assert (blocks[0].type_, blocks[-1].type_) == ("start", "end")
 
 
-def test_parse_fenseq_chunk_invalid():
-    try:
-        serializers.parse_fenseq_chunk('<fenseq data-fen="start_fen"> </fenseq>')
-    except AssertionError as e:
-        assert "Empty move text" in str(e)
+def test_parse_fenseq_chunk_empty():
+    assert (
+        serializers.parse_fenseq_chunk('<fenseq data-fen="start_fen"> </fenseq>') == []
+    )
 
+
+def test_parse_fenseq_chunk_invalid():
     try:
         serializers.parse_fenseq_chunk("<fenseq>1.e4 e5</fenseq>")
     except AssertionError as e:
-        assert "Invalid fenseq block" in str(e)
+        assert "Invalid fenseq chunk" in str(e)
 
 
 @pytest.mark.parametrize(

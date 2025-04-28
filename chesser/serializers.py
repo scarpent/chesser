@@ -441,7 +441,7 @@ class Chunk:
 
 @dataclass
 class ParsedBlock:
-    # chunk types: "comment", "subvar", "fenseq", "move"
+    # previously, chunk types: "comment", "subvar", "fenseq", "move"
     type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
     errors: list[str] = field(default_factory=list)
@@ -589,92 +589,26 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
 
 
 def resolve_moves(
-    blocks: list,
+    blocks: list[ParsedBlock],
     move: Move,
     board: chess.Board,
     mode: str = "strict",
     stats: Optional[ResolveStats] = None,
 ) -> list[ParsedBlock]:
-    """
-    Walks through parsed blocks, tries resolving moves,
-    optionally collects stats, and records the originating root move.
-    """
-    resolved_blocks = []
-    board_stack = [board.copy()]
-    active_fenseq = None
-
-    for block in blocks:
-        # Pass through comments and subvar markers directly
-        if block.block_type in {"comment", "subvar-start", "subvar-end"}:
-            resolved_blocks.append(block)
-            if stats:
-                stats.max_subvar_depth = max(stats.max_subvar_depth, block.subvar_depth)
-                if block.block_type == "subvar-start" and block.before_fen:
-                    active_fenseq = ActiveFenseq(start_fen=block.before_fen)
-                elif block.block_type == "subvar-end" and active_fenseq:
-                    active_fenseq.validate(stats)
-                    active_fenseq = None
-            continue
-
-        if block.block_type != "move":
-            raise ValueError(
-                f"Unexpected block type during resolution: {block.block_type}"
-            )
-
-        if active_fenseq:
-            active_fenseq.blocks.append(block)
-            continue
-
-        if stats:
-            stats.total_moves_attempted += 1
-
-        # TODO: we need to branch on fenseq vs subvars...
-        # just want to accumulate ActiveFenseq blocks for now if fenseq
-
-        move_resolved = False
-
-        # In strict mode, we only try the current board
-        for back in (0,) if mode == "strict" else range(len(board_stack)):
-            try:
-                test_board = board_stack[-(back + 1)].copy()
-                move_obj = test_board.parse_san(block.san)
-                block.fen = test_board.fen()
-                test_board.push(move_obj)
-
-                # Reset board stack at correct place
-                board_stack = board_stack[:-(back)] + [test_board]
-
-                move_resolved = True
-                if stats:
-                    stats.total_moves_resolved += 1
-                    if back > 0:
-                        stats.rebranch_attempts += 1
-                break
-            except Exception:
-                continue
-
-        if not move_resolved:
-            if stats:
-                stats.failure_blocks.append(block.raw)
-            block.errors.append(f"Failed to resolve SAN: {block.san}")
-
-        resolved_blocks.append(block)
-
-    return resolved_blocks
+    # TODO: back to the drawing board on this one
+    return blocks
 
 
 def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
     parsed_blocks = []
     i = 0
     depth = 0
-    move_prefix = re.compile(r"^\d+\.+$")  # e.g. "1." or "2..."
 
     while i < len(chunks):
         chunk = chunks[i]
         # print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
 
         # ➡️ Every branch must advance `i`
-        # (exception for two move handler that can fall through to single move)
 
         if chunk.type_ == "subvar":
             if chunk.data.startswith("START"):
@@ -692,25 +626,9 @@ def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
             i += 1
             continue
 
-        # Reassemble moves with spaces that were split up in extractor
-        # e.g. "1. e4" ➤ ["1.", "e4"] ➤ "1.e4" ➤ normalized!
-        if (
+        elif (
             chunk.type_ == "move"
-            and i + 1 < len(chunks)
-            and chunks[i + 1].type_ == "move"
-        ):
-            # move blocks are the only ones that we can count on having been stripped
-            next_data = chunks[i + 1].data
-
-            if move_prefix.match(chunk.data) and not move_prefix.match(next_data):
-                parsed_blocks.append(
-                    get_simple_move_parsed_block(chunk.data + next_data, depth)
-                )
-                i += 2
-                continue
-            # else fall through to single move block handler
-
-        if chunk.type_ == "move":  # a single move
+        ):  # a single move, whether 1.e4 or 1. e4 or something malformed
             parsed_blocks.append(get_simple_move_parsed_block(chunk.data, depth))
             i += 1
             continue
@@ -742,37 +660,61 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     """
     e.g.
     <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">
-        1.d4 d5 2.e3
+        1.d4 d5 2.e3 {comment}
     </fenseq>
 
-    turn this intermediate representation into a mostly typical move block list
-    * we expect/allow no comments or subvariations; it's meant to be simple
+    turn this fenseq blob into a mostly typical subvar block list
+    * fenseq sequences are expected to be depth 1, and *may* have comments
     * we should mostly get "condensed" moves, e.g. 1.e4, but we'll handle 1. e4
 
     we could make data-fen be optional and use game starting fen if omitted...
     """
     match = re.search(
-        r"""<fenseq\s+[^>]*data-fen=["']([^"']+)["'][^>]*>(.*?)</fenseq>""",
+        r"""<\s*fenseq[^>]*data-fen=["']([^"']+)["'][^>]*>(.*?)</fenseq>""",
         raw,
         re.DOTALL,
     )
-    # "fenseq" type blocks should always match or they'd already be "comment"
-    # assert match, f"Invalid fenseq block: {raw}"
-    if not match:
-        print(f"🚨 Invalid fenseq block: {raw}")
+    # "fenseq" type blocks should always match or they'd already be "comment" type
+    assert match, f"Invalid fenseq chunk: {raw}"
+    # if not match:
+    #     print(f"🚨 Invalid fenseq block: {raw}")
+    #     return []
+
+    fen, inner_text = match.groups()
+    # we don't expect fenseq tags to have parens, let's normalize
+    inner_text = inner_text.strip().strip("()")
+
+    if not inner_text:
+        print(f"⚠️  Empty inner text in fenseq chunk: {raw}")
         return []
 
-    fen, move_text = match.groups()
-    # remove spaces after move numbers
-    move_text = re.sub(r"\b(\d+\.+)\s*", r"\1", move_text).strip()
+    # extract_ordered_chunks requires parens to process as a subvar
+    inner_text = f"({inner_text})"
 
-    assert move_text, f"Empty move text in fenseq block: {raw}"
-
-    DEPTH = 1  # fenseq blocks are always depth 1
+    DEPTH = 1
     blocks = [ParsedBlock("start", depth=DEPTH, fen_before=fen)]
-    for move in move_text.split():
-        blocks.append(get_simple_move_parsed_block(move, DEPTH))
+
+    chunks = extract_ordered_chunks(inner_text)
+
+    for chunk in chunks:
+        if chunk.type_ == "move":
+            # one of the few/only places we don't strip in this pass
+            blocks.append(get_simple_move_parsed_block(chunk.data.strip(), DEPTH))
+        elif chunk.type_ == "comment":
+            blocks.append(ParsedBlock(type_="comment", raw=chunk.data))
+        elif chunk.type_ == "subvar":
+            # we might ignore these in favor of the hardcoded fenseq start/end
+            pass
+        else:
+            print(
+                "⚠️ Unexpected chunk inside fenseq: "
+                f"{chunk.type_} ➤ {chunk.data.strip()}"
+            )
+
     blocks.append(ParsedBlock("end", depth=DEPTH))
+
+    # TODO: could and should do some validation/logging here;
+    # we're expecting hoping to have a simple flat subvar
 
     return blocks
 
@@ -896,9 +838,14 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
                 token_start = i
 
         elif mode == "subvar":
-            if c.isspace():  # whitespace ends a move token; for now we'll
-                # tokenize 1.e4 and 1. e4 separately and figure out later
-                flush_token()
+            if c.isspace():
+                if token_start is not None:
+                    token = text[token_start:i]
+                    if re.match(r"^\d+\.*\s*$", token):
+                        # still building a move number like "1." or "1..."
+                        pass
+                    else:
+                        flush_token()
             elif token_start is None:
                 token_start = i
 
