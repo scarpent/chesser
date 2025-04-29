@@ -474,12 +474,18 @@ class RenderableBlock:
 @dataclass
 class ResolveStats:
     subvar_total: int = 0
+    fenseq_total: int = 0
+
+    moves_attempted: int = 0
+    moves_resolved: int = 0
+    moves_discarded: int = 0
+
+    max_subvar_depth: int = 0
+
     subvar_moves_attempted: int = 0
     subvar_moves_resolved: int = 0
-    max_subvar_depth: int = 0
-    rebranch_attempts: int = 0
 
-    fenseq_total: int = 0
+    rebranch_attempts: int = 0
     fenseq_moves_attempted: int = 0
     fenseq_moves_resolved: int = 0
 
@@ -534,6 +540,41 @@ class ActiveFenseq:
             except Exception:
                 block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
                 self.any_failures = True
+
+        """
+        things to consider and handle if we can; when things fail...
+        * try going back to start of fenseq
+        * to end of previous subvar
+        * to mainline
+        * try other things!
+
+        <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
+
+        variation 754, move 14950, mainline 2.Nc3
+        <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.d4 d5 2.c4 e6 3.Nc3 {...} 2.Nc3 {...} 2...Nf6 {...}</fenseq>
+
+        variation 754, move 14958, mainline 6.f3
+        <fenseq data-fen="rn1qkb1r/pp2pppp/5n2/3p4/3P1Bb1/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6">6.Nf3 Nc6 {...} 6.Qd2 {, but after} 6...Nc6 {, they will probably play} 7.f3 {anyway, which transposes to 6.f3 after all.}</fenseq>
+
+        after pushing the move:
+
+        ipdb> board.ply()
+        1
+        ipdb> board.fullmove_number
+        1
+        ipdb> board.turn  # white = True, black = False
+        False
+        ipdb> board.peek()
+        Move.from_uci('e2e4')
+
+        before pushing:
+
+        board.san(move_obj)
+
+        ...
+
+        board.pop() to undo the move
+        """  # noqa: E501
 
         return not self.any_failures
 
@@ -607,14 +648,79 @@ def normalize_san_for_parse(san: str) -> str:
     return SAN_CLEAN_REGEX_STRIP_TRAILING_NON_SAN.sub("", second)
 
 
+@dataclass
+class StackFrame:
+    board: chess.Board
+    sans: list[str]
+
+
 def resolve_moves(
     blocks: list[ParsedBlock],
     move: Move,
     board: chess.Board,
-    mode: str = "strict",
     stats: Optional[ResolveStats] = None,
 ) -> list[ParsedBlock]:
-    # TODO: back to the drawing board on this one
+
+    resolved_blocks = []
+
+    board_stack = [StackFrame(board.copy(), [])]
+
+    i = 0
+    while i < len(blocks):
+        block = blocks[i]
+        print(block)
+
+        if block.type_ == "comment":
+            resolved_blocks.append(block)
+            i += 1
+            continue
+
+        elif block.type_ == "start":
+            if block.fen_before:
+                # fenseq; let's see if we can treat this and subvar the same after this
+                board_stack.append(StackFrame(chess.Board(block.fen_before), []))
+                if stats:
+                    stats.fenseq_total += 1
+            else:
+                board_stack.append(StackFrame(board_stack[-1].board.copy(), []))
+                if stats:
+                    stats.subvar_total += 1
+                    stats.max_subvar_depth = max(stats.max_subvar_depth, block.depth)
+            resolved_blocks.append(block)
+            i += 1
+            continue
+
+        elif block.type_ == "end":
+            resolved_blocks.append(block)
+            board_stack.pop()
+            i += 1
+            continue
+
+        else:  # move
+            assert block.type_ == "move", f"Unexpected block type: {block.type_}"
+
+        if stats:
+            stats.moves_attempted += 1
+
+        # first = True if len(board_stack[-1].sans) == 0 else False
+        # if i + 1 < len(blocks) and blocks[i + 1].type_ == "move":
+        #     next_ = blocks[i + 1]
+        # else:
+        #     next_ = None
+
+        try:
+            clean_san = normalize_san_for_parse(block.san)
+            move_obj = board_stack[-1].parse_san(clean_san)
+            board_stack[-1].push(move_obj)
+            if stats:
+                stats.moves_resolved += 1
+        except Exception:
+            block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
+
+        board_stack[-1].sans.append(block.san)
+
+        i += 1
+
     return blocks
 
 
