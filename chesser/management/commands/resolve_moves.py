@@ -3,10 +3,10 @@ from django.core.management.base import BaseCommand
 
 from chesser.models import Variation
 from chesser.serializers import (
+    PathFinder,
     ResolveStats,
     extract_ordered_chunks,
     get_parsed_blocks_first_pass,
-    resolve_moves,
 )
 
 
@@ -33,6 +33,9 @@ class Command(BaseCommand):
         self.stdout.write(f"moves resolved: {stats.moves_resolved}")
 
         self.stdout.write(f"Max subvar depth: {stats.max_subvar_depth}")
+        self.stdout.write(f"Resolved on attempt N: {dict(stats.resolved_on_attempt)}")
+        self.stdout.write(f"Matched root san: {stats.matched_root_san}")
+        self.stdout.write(f"Discarded: {stats.discarded}")
         self.stdout.write("\n")
         if stats.failure_blocks:
             self.stdout.write(f"{len(stats.failure_blocks)} failed blocks:")
@@ -58,6 +61,12 @@ class Command(BaseCommand):
 
                 chunks = extract_ordered_chunks(move.text)
                 parsed_blocks = get_parsed_blocks_first_pass(chunks)
-                resolve_moves(parsed_blocks, move, board.copy(), stats)
+                path_finder = PathFinder(
+                    parsed_blocks,
+                    move,
+                    board.copy(),
+                    stats,
+                )
+                path_finder.resolve_moves()
 
         return stats

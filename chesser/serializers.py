@@ -1,5 +1,6 @@
 import json
 import re
+from collections import defaultdict, namedtuple
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
@@ -432,6 +433,8 @@ def flatten_move_fen_map(nested_list):
 
 # === Parser v2 =============================================================
 
+MoveParts = namedtuple("MoveParts", ["move_num", "dots", "san", "annotation"])
+
 
 @dataclass
 class Chunk:
@@ -441,26 +444,25 @@ class Chunk:
 
 @dataclass
 class ParsedBlock:
-    """
-    TODO: san may currently have an annotation; we remove this when
-    it's time to parse/push to a board, but maybe we should split it
-    out here, earlier, with a new annotation field?
-
-    we started with chunk types: "comment", "subvar", "fenseq", "move"
-    """
-
+    # we started with chunk types: "comment", "subvar", "fenseq", "move"
     type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
     errors: list[str] = field(default_factory=list)
     display_text: str = ""  # for normalized comments, moves
-    move_num: Optional[int] = None
-    dots: str = ""  # . or ... or nothing
-    san: str = ""  # basic SAN used to advance board, regardless of move #s
-    fen: str = ""  # fen representing state after this move (for normal render linking)
+    move_parts_raw: Optional[MoveParts] = None
+    move_parts_resolved: Optional[MoveParts] = None
+    # fen representing state after this move (for normal render linking)
+    fen: str = ""
     # fen_before represents the state before a subvar's first move, is exclusive to
     # fenseq/@@StartFEN@@ blocks, and tells us to render ⏮️ as a link to the before_fen
     fen_before: str = ""
     depth: int = 0  # for subvar depth tracking
+
+    @property
+    def verbose_move(self):
+        # verbose is normalized for comparisons; no annotation
+        move_num = self.move_num or ""
+        return f"{move_num}{self.dots}{self.san}"
 
 
 @dataclass
@@ -482,123 +484,59 @@ class ResolveStats:
 
     max_subvar_depth: int = 0
 
-    subvar_moves_attempted: int = 0
-    subvar_moves_resolved: int = 0
-
-    rebranch_attempts: int = 0
-    fenseq_moves_attempted: int = 0
-    fenseq_moves_resolved: int = 0
+    resolved_on_attempt: defaultdict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
+    matched_root_san: int = 0
+    discarded: int = 0
 
     failure_blocks: list[str] = field(default_factory=list)
-
-
-@dataclass
-class ActiveFenseq:
-    fen_start: str = ""
-    blocks: list[ParsedBlock] = field(default_factory=list)
-    any_failures: bool = False
-
-    def validate(
-        self,
-        stats: Optional[ResolveStats] = None,
-    ) -> bool:
-        """
-        - Accepts moves and comments. Attempts to play through
-          all moves starting from the initial FEN.
-        - Marks blocks with errors if moves fail.
-        - Returns True if the entire sequence was valid, False otherwise.
-        """
-
-        if stats:
-            stats.fenseq_total += 1
-
-        # "URL FENs" should be cleaned in the pre-import process, but we'll
-        # be resilient for when they appear in the wild (it's easy enough)
-        fen = self.fen_start.replace("_", " ")
-
-        try:
-            board = chess.Board(fen)
-            # print(f"✅ FEN: {self.fen_start}")
-        except ValueError:
-            print(f"🚨 Invalid FEN in fenseq block: {fen} " f"({self.blocks[0].raw})")
-            self.any_failures = True
-            return False
-
-        for block in self.blocks:
-            if block.type_ != "move":
-                continue  # we don't expect any subvars
-
-            if stats:
-                stats.fenseq_moves_attempted += 1
-
-            try:
-                clean_san = normalize_san_for_parse(block.san)
-                move_obj = board.parse_san(clean_san)
-                board.push(move_obj)
-                if stats:
-                    stats.fenseq_moves_resolved += 1
-            except Exception:
-                block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
-                self.any_failures = True
-
-        """
-        things to consider and handle if we can; when things fail...
-        * try going back to start of fenseq
-        * to end of previous subvar
-        * to mainline
-        * try other things!
-
-        <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
-
-        variation 754, move 14950, mainline 2.Nc3
-        <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.d4 d5 2.c4 e6 3.Nc3 {...} 2.Nc3 {...} 2...Nf6 {...}</fenseq>
-
-        variation 754, move 14958, mainline 6.f3
-        <fenseq data-fen="rn1qkb1r/pp2pppp/5n2/3p4/3P1Bb1/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6">6.Nf3 Nc6 {...} 6.Qd2 {, but after} 6...Nc6 {, they will probably play} 7.f3 {anyway, which transposes to 6.f3 after all.}</fenseq>
-
-        after pushing the move:
-
-        ipdb> board.ply()
-        1
-        ipdb> board.fullmove_number
-        1
-        ipdb> board.turn  # white = True, black = False
-        False
-        ipdb> board.peek()
-        Move.from_uci('e2e4')
-
-        before pushing:
-
-        board.san(move_obj)
-
-        ...
-
-        board.pop() to undo the move
-        """  # noqa: E501
-
-        return not self.any_failures
 
 
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     chunks = extract_ordered_chunks(move.text)
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
-    resolved_blocks = resolve_moves(parsed_blocks, move, board)
-    return resolved_blocks
+    # resolved_blocks = resolve_moves(parsed_blocks, move, board)
+    return parsed_blocks
 
 
-def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
+def get_move_parsed_block(text: str, depth: int) -> ParsedBlock:
+    return ParsedBlock(
+        type_="move",
+        raw=text,
+        move_parts_raw=get_move_parts(text),
+        depth=depth,
+    )
+
+
+MOVE_PARTS_REGEX = re.compile(
+    r"""(?x)                # verbose 💬
+    ^(\d*)                  # optional move number
+    (\.*)\s*                # optional dots
+    (
+      [a-zA-Z]              # first san char must be a letter e4, Ba3, ...
+      [a-zA-Z0-9-=]*        # allows for O-O and a8=Q
+      [a-zA-Z0-9]           # last san char must be a number/letter (cap, really)
+    )?
+    ([^a-zA-Z0-9]*)$        # optional trailing annotation, including + and #
+                            # which are part of san, but not required there
+    """
+)
+
+
+def get_move_parts(text: str) -> MoveParts:
     """
     Breaks a literal move string into its core parts:
-    move number, dots, and SAN.
+    move number, dots, san, and annotation. Check + and mate #
+    will be included with annotation, even though they are part
+    of the san.
 
-    At this stage, the input has already been cleaned and tokenized —
-    so we expect reasonably structured data, but we aren't verifying
-    full chess legality yet.
+    This split is very permissive. *Something* will match.
 
-    This function:
     - Extracts optional move number (e.g. "1" from "1.e4", "1. e4" "1...e5")
     - Extracts dots following the number ("." or "..." or "........" & so on)
     - Extracts the SAN (Standard Algebraic Notation) portion
+    - Extracts any trailing annotation (e.g. "+", "#", "!?", etc.)
     - Strips any leading/trailing whitespace from the SAN
 
     We do not validate the move content here:
@@ -611,117 +549,243 @@ def get_simple_move_parsed_block(literal_move: str, depth: int) -> ParsedBlock:
     won't be catastrophic later. God knows Chessable has enough
     broken subvariations themselves.
     """
-    move_parts = re.search(r"^(\d*)(\.*)(.*)", literal_move)
-    move_num = int(move_parts.group(1)) if move_parts.group(1) else None
-    dots = move_parts.group(2)
-    san = move_parts.group(3).strip()
-    return ParsedBlock(
-        type_="move",
-        raw=literal_move,
-        move_num=move_num,
-        dots=dots,
-        san=san,
-        depth=depth,
-    )
-
-
-SAN_CLEAN_LEADING_NUMBER = re.compile(r"^[\d.\s]*")
-# definitely not SAN characters
-SAN_CLEAN_REGEX_STRIP_NON_SAN = re.compile(r"[^a-zA-Z0-9#+=-]+")
-# trailing characters that are not SAN when trailing
-SAN_CLEAN_REGEX_STRIP_TRAILING_NON_SAN = re.compile(r"[^a-zA-Z0-9#+]+$")
-
-
-def normalize_san_for_parse(san: str) -> str:
-    """
-    Strips leading numbers and dots from SAN, leaving only the SAN itself
-    Strips any trailing annotation characters from SAN, leaving # and +
-
-    Three passes. First strips leading numbers/dots, second all non-SAN
-    characters, which leaves only equals (=) and minus (-) as things that
-    may be either:
-    31.b8=Q or 31.Nd7=
-    12.O-O or 17.Bd6-
-    """
-    first = SAN_CLEAN_LEADING_NUMBER.sub("", san.strip())
-    second = SAN_CLEAN_REGEX_STRIP_NON_SAN.sub("", first)
-    return SAN_CLEAN_REGEX_STRIP_TRAILING_NON_SAN.sub("", second)
+    m = MOVE_PARTS_REGEX.search(text.strip())
+    if m:
+        return MoveParts(
+            move_num=int(m.group(1)) if m.group(1) else None,
+            dots=m.group(2) or "",
+            san=m.group(3) or "",
+            annotation=m.group(4) or "",
+        )
+    else:
+        return MoveParts(None, "", text.strip(), "")
 
 
 @dataclass
 class StackFrame:
     board: chess.Board
-    sans: list[str]
+    root_fen: str = ""
+    root_san: str = ""
+    parsed_moves: list[ParsedBlock] = field(default_factory=list)
+
+    latest_san: str = ""
+    latest_verbose: str = ""
+
+    san: str = ""
+    root_san: str = ""
+    root_verbose: str = ""
+    last_san: str = ""
+    last_verbose: str = ""
 
 
-def resolve_moves(
-    blocks: list[ParsedBlock],
-    move: Move,
-    board: chess.Board,
-    stats: Optional[ResolveStats] = None,
-) -> list[ParsedBlock]:
+class PathFinder:
 
-    resolved_blocks = []
+    def __init__(
+        self,
+        blocks: list[ParsedBlock],
+        move: Move,
+        board: chess.Board,
+        stats: Optional[ResolveStats] = None,
+    ):
+        self.blocks = blocks
+        self.mainline_move = move
+        self.board = board
+        self.board_stack = [
+            StackFrame(
+                board=self.board.copy(),
+                root_fen=self.board.fen(),
+                root_san=move.san,  # will be a clean mainline san
+            )
+        ]
+        self.stats = stats or ResolveStats()
+        self.index = 0
+        self.end_of_list = len(blocks)
 
-    board_stack = [StackFrame(board.copy(), [])]
+    @property
+    def current(self):
+        return self.board_stack[-1]
 
-    i = 0
-    while i < len(blocks):
-        block = blocks[i]
-        print(block)
+    def get_next_move(self):
+        if (
+            self.index + 1 < self.end_of_list
+            and self.blocks[self.index + 1].type_ == "move"
+        ):
+            return self.blocks[self.index + 1]
+        else:
+            return None
 
-        if block.type_ == "comment":
-            resolved_blocks.append(block)
-            i += 1
-            continue
+    def handle_start_block(self, block: ParsedBlock):
+        if block.fen_before:
+            # fenseq; let's try to mostly treat same as subvar
+            chessboard = chess.Board(block.fen_before)
+            self.stats.fenseq_total += 1
+            print("↘️  fenseq")
+        else:
+            chessboard = self.current.board.copy()
+            self.stats.subvar_total += 1
+            self.stats.max_subvar_depth = max(self.stats.max_subvar_depth, block.depth)
+            print(f"↘️  subvar (depth {block.depth})")
 
-        elif block.type_ == "start":
-            if block.fen_before:
-                # fenseq; let's see if we can treat this and subvar the same after this
-                board_stack.append(StackFrame(chess.Board(block.fen_before), []))
-                if stats:
-                    stats.fenseq_total += 1
-            else:
-                board_stack.append(StackFrame(board_stack[-1].board.copy(), []))
-                if stats:
-                    stats.subvar_total += 1
-                    stats.max_subvar_depth = max(stats.max_subvar_depth, block.depth)
-            resolved_blocks.append(block)
-            i += 1
-            continue
+        if block.depth == 1:
+            root_san = self.current.root_san
+        else:
+            root_san = (
+                self.current.parsed_moves[-1].san if self.current.parsed_moves else ""
+            )
+        self.board_stack.append(
+            StackFrame(
+                board=chessboard,
+                root_fen=chessboard.fen(),
+                root_san=root_san,
+            )
+        )
 
-        elif block.type_ == "end":
-            resolved_blocks.append(block)
-            board_stack.pop()
-            i += 1
-            continue
-
-        else:  # move
-            assert block.type_ == "move", f"Unexpected block type: {block.type_}"
-
-        if stats:
-            stats.moves_attempted += 1
-
-        # first = True if len(board_stack[-1].sans) == 0 else False
-        # if i + 1 < len(blocks) and blocks[i + 1].type_ == "move":
-        #     next_ = blocks[i + 1]
-        # else:
-        #     next_ = None
-
+    def bust_a_move(self, block: ParsedBlock, attempt: int = 1) -> bool:
+        # don't just stand there... 🎶
+        san = block.move_parts_raw.san
         try:
-            clean_san = normalize_san_for_parse(block.san)
-            move_obj = board_stack[-1].parse_san(clean_san)
-            board_stack[-1].push(move_obj)
-            if stats:
-                stats.moves_resolved += 1
+            move_obj = self.current.board.parse_san(san)
+            self.current.board.push(move_obj)
         except Exception:
-            block.errors.append(f"Failed SAN during fenseq replay: {block.san}")
+            print(f"❌ Failed to push move: {block.raw}")
+            block.errors.append(f"Failed SAN during path finding: {san}")
+            return False
 
-        board_stack[-1].sans.append(block.san)
+        # turn = True means it's white's move, but that is *now*, so we
+        # reverse things to apply to this move we just played for dots
 
-        i += 1
+        block.move_parts_resolved = MoveParts(
+            move_num=(self.current.board.ply() + 1) // 2,
+            dots="..." if self.current.board.turn else ".",
+            san=san,
+            annotation=block.move_parts_raw.annotation,
+        )
+        block.fen = self.current.board.fen()
 
-    return blocks
+        # I don't think we can decide on display text yet
+
+        self.stats.moves_resolved += 1
+        self.stats.resolved_on_attempt[attempt] += 1
+
+        self.current.parsed_moves.append(block)
+        print(f"✅ resolved move: {block.raw} ➤ {move_obj}\n\t\t{block}")
+        return True
+
+    def resolve_moves(self) -> list[ParsedBlock]:
+
+        resolved_blocks = []
+
+        while self.index < self.end_of_list:
+            block = self.blocks[self.index]
+
+            if block.type_ == "comment":
+                resolved_blocks.append(block)
+                self.index += 1
+                continue
+
+            elif block.type_ == "start":
+                self.handle_start_block(block)
+                resolved_blocks.append(block)
+                self.index += 1
+                continue
+
+            elif block.type_ == "end":
+                resolved_blocks.append(block)
+                self.board_stack.pop()
+                self.index += 1
+                continue
+
+            else:  # move
+                assert block.type_ == "move", f"Unexpected block type: {block.type_}"
+
+            self.stats.moves_attempted += 1
+
+            # first, let's just try whatever the move is...
+            # perhaps most of the time it will be valid 🤞
+            move_played = self.bust_a_move(block, attempt=1)
+
+            # however this will break our naive non-move number parsing:
+            # (1...e5 2.Nf3 {or} 1...c5 2.c3)
+            # c5 is a valid black second move
+            # so how to reconcile it all...
+
+            if move_played:
+                self.index += 1
+                resolved_blocks.append(block)
+                continue
+
+            first = False if self.current.parsed_moves else True
+            # maybe the first just repeated the previous (root) san,
+            # and we can drop this one and move on...
+
+            next_ = self.get_next_move()
+            matched_root_san = self.current.root_san == block.move_parts_raw.san
+            if matched_root_san:
+                self.stats.matched_root_san += 1
+            if first and matched_root_san and next_:
+                self.stats.discarded += 1
+                # expect that this will happen quite a bit;
+                # should we see if the next move works first?
+                # TODO: maybe should have some move num validation?
+                print(
+                    "🗑️  Discarding failed move block that has "
+                    f"same san as previous: {block.san}"
+                )
+                self.index += 1
+                continue
+            if not first:
+                # another common case is "implied" subvariations, without parens
+                # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+                # 2.Nc3 will work if we pop 2.Nf3...
+                print("🛠️  implied subvar? undoing move and trying again")
+                self.current.board.pop()
+                move_played = self.bust_a_move(block, attempt=2)
+                if move_played:
+                    self.index += 1
+                    resolved_blocks.append(block)
+                    continue
+
+            self.index += 1
+
+        return self.blocks
+
+
+"""
+former ActiveFenseq notes/comments/examples...
+
+things to consider and handle if we can; when things fail...
+* try going back to start of fenseq
+* to end of previous subvar
+* to mainline
+* try other things!
+
+<fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
+
+variation 754, move 14950, mainline 2.Nc3
+<fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.d4 d5 2.c4 e6 3.Nc3 {...} 2.Nc3 {...} 2...Nf6 {...}</fenseq>
+
+variation 754, move 14958, mainline 6.f3
+<fenseq data-fen="rn1qkb1r/pp2pppp/5n2/3p4/3P1Bb1/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6">6.Nf3 Nc6 {...} 6.Qd2 {, but after} 6...Nc6 {, they will probably play} 7.f3 {anyway, which transposes to 6.f3 after all.}</fenseq>
+
+after pushing the move:
+
+ipdb> board.ply()
+1
+ipdb> board.fullmove_number  # but this doesn't seem to be "right"?
+1
+ipdb> board.turn  # white = True, black = False
+False
+ipdb> board.peek()
+Move.from_uci('e2e4')
+
+before pushing:
+
+board.san(move_obj)
+
+...
+
+board.pop() to undo the move
+"""  # noqa: E501
 
 
 def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
@@ -754,7 +818,7 @@ def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
         elif (
             chunk.type_ == "move"
         ):  # a single move, whether 1.e4 or 1. e4 or something malformed
-            parsed_blocks.append(get_simple_move_parsed_block(chunk.data, depth))
+            parsed_blocks.append(get_move_parsed_block(chunk.data, depth))
             i += 1
             continue
 
@@ -827,7 +891,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     for chunk in chunks:
         if chunk.type_ == "move":
             # moves are the only things we try stripping down in this pass
-            blocks.append(get_simple_move_parsed_block(chunk.data.strip(), DEPTH))
+            blocks.append(get_move_parsed_block(chunk.data.strip(), DEPTH))
         elif chunk.type_ == "comment":
             blocks.append(
                 ParsedBlock(

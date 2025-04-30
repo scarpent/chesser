@@ -205,9 +205,10 @@ class Move(models.Model):
         return self.sequence % 2 == 0
 
     @property
-    def move_verbose(self):
+    def move_verbose(self, with_annotation=True):
         dots = "." if self.white_to_move else "..."
-        return f"{self.move_num}{dots}{self.san}{self.annotation}"
+        annotation = self.annotation if with_annotation else ""
+        return f"{self.move_num}{dots}{self.san}{annotation}"
 
 
 class QuizResult(models.Model):

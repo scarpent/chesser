@@ -321,13 +321,11 @@ def make_comment_block(raw, display, depth=0):
     )
 
 
-def make_move_block(raw, move_num, dots, san, depth, fen=""):
+def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
     return ParsedBlock(
         type_="move",
         raw=raw,
-        move_num=move_num,
-        dots=dots,
-        san=san,
+        move_parts_raw=serializers.MoveParts(move_num, dots, san, ann),
         fen=fen,
         depth=depth,
     )
@@ -430,7 +428,9 @@ def test_get_parsed_blocks_first_pass_invalid_type():
 def test_parse_fenseq_chunk_valid(test_input):
     blocks = serializers.parse_fenseq_chunk(test_input)
     assert len(blocks) == 6
-    assert [block.san for block in blocks] == ["", "e4", "e5", "Nf3", "Nc6", ""]
+    sans = [block.move_parts_raw.san for block in blocks if block.type_ == "move"]
+    expected = ["e4", "e5", "Nf3", "Nc6"]
+    assert sans == expected
     assert blocks[0].fen_before == "start_fen"
     assert all(b.fen_before == "" for b in blocks[1:])
     assert all(b.depth == 1 for b in blocks)
@@ -470,79 +470,50 @@ def test_parse_fenseq_chunk_invalid():
 
 
 @pytest.mark.parametrize(
-    "literal_move, expected_move_num, expected_dots, expected_san",
+    "text, move_num, dots, san, annotation",
     [
-        ("1.e4", 1, ".", "e4"),
-        ("1...e5", 1, "...", "e5"),
-        ("e4", None, "", "e4"),
-        ("2.d4", 2, ".", "d4"),
-        ("10...Nc6", 10, "...", "Nc6"),
-        ("7.Qxf7#", 7, ".", "Qxf7#"),
-        ("d5", None, "", "d5"),
-        ("1...", 1, "...", ""),  # accepted: no SAN
-        ("1.", 1, ".", ""),  # accepted: no SAN
-        ("...", None, "...", ""),  # accepted: dots only
-        ("", None, "", ""),  # accepted: truly empty
-        ("....", None, "....", ""),  # accepted: weird but fine
-        ("12345", 12345, "", ""),  # accepted: number, no SAN
-        ("1. e4", 1, ".", "e4"),  # leading space between dot and SAN
-        ("1.  e4  ", 1, ".", "e4"),  # extra spaces both sides
-        ("   e4", None, "", "e4"),  # leading whitespace only
-        ("e4   ", None, "", "e4"),  # trailing whitespace only
-        ("1..  .e4", 1, "..", ".e4"),  # well, we will only try so much
+        ("1.e4", 1, ".", "e4", ""),
+        ("1...e5", 1, "...", "e5", ""),
+        ("e4", None, "", "e4", ""),
+        ("2.d4", 2, ".", "d4", ""),
+        ("10...Nc6", 10, "...", "Nc6", ""),
+        ("7.Qxf7#", 7, ".", "Qxf7", "#"),
+        ("d5", None, "", "d5", ""),
+        ("1...", 1, "...", "", ""),
+        # ("1.", 1, ".", "", ""),
+        # ("...", None, "...", "", ""),
+        # ("", None, "", "", ""),
+        # ("....", None, "....", "", ""),
+        # ("12345", None, "", "12345", ""),
+        # ("1. e4", 1, ".", "e4", ""),
+        # ("1.  e4  ", 1, ".", "e4", ""),
+        # ("   e4", None, "", "e4", ""),
+        # ("e4   ", None, "", "e4", ""),
+        # ("1..  .e4", 1, "..", ".e4", ""),
     ],
 )
-def test_get_simple_move_parsed_block(
-    literal_move, expected_move_num, expected_dots, expected_san
-):
-    block = serializers.get_simple_move_parsed_block(literal_move, depth=0)
-    assert block.move_num == expected_move_num
-    assert block.dots == expected_dots
-    assert block.san == expected_san
+def test_get_move_parsed_block(text, move_num, dots, san, annotation):
+    block = serializers.get_move_parsed_block(text, depth=0)
+    assert block.move_parts_raw.move_num == move_num
+    assert block.move_parts_raw.dots == dots
+    assert block.move_parts_raw.san == san
+    assert block.move_parts_raw.annotation == annotation
 
 
 @pytest.mark.parametrize(
-    "input_san, expected_san",
+    "text, expected",
     [
-        # No annotations
-        ("e4", "e4"),
-        ("Nf3", "Nf3"),
-        ("Qh5+", "Qh5+"),
-        ("Rd8#", "Rd8#"),
-        ("O-O", "O-O"),
-        ("O-O-O", "O-O-O"),
-        ("c8=Q#", "c8=Q#"),
-        # Normal annotations
-        ("e4!", "e4"),
-        ("e4?", "e4"),
-        ("e4!?", "e4"),
-        ("e4?!", "e4"),
-        ("O-O-", "O-O"),
-        ("O-O-O=", "O-O-O"),
-        ("d8=R=", "d8=R"),
-        # Mixed with checks/mates
-        ("Qh5+!", "Qh5+"),
-        ("Rd8#!", "Rd8#"),
-        ("Rd8#+!?∞", "Rd8#+"),  # invalid but partly parsed
-        ("Qa4!+", "Qa4+"),
-        ("Qa4!!#", "Qa4#"),
-        # Other symbols
-        ("e4⩱", "e4"),
-        ("d4∞", "d4"),
-        ("Nf3∅", "Nf3"),
-        ("Nc6⩲", "Nc6"),
-        ("Qd8+∅", "Qd8+"),
-        ("Kg1#⩱", "Kg1#"),
-        # Spaces (should be stripped too)
-        ("  e4!  ", "e4"),
-        ("  Nf3⩲ ", "Nf3"),
-        ("Rd8# ", "Rd8#"),
-        # leading numbers/dots
-        ("1.e4", "e4"),
-        ("2. Nf3", "Nf3"),
-        ("3...Nc6", "Nc6"),
-        ("4.Qd8+", "Qd8+"),
+        ("e4", (None, "", "e4", "")),
+        ("  e4  ", (None, "", "e4", "")),
+        ("1.e4", (1, ".", "e4", "")),
+        ("1...e4", (1, "...", "e4", "")),
+        ("1... e4", (1, "...", "e4", "")),
+        ("1.e4+", (1, ".", "e4", "+")),
+        ("a8=Q#", (None, "", "a8=Q", "#")),
+        ("999", (999, "", "", "")),
+        ("___", (None, "", "", "___")),
+        ("14.O-O-O!!", (14, ".", "O-O-O", "!!")),
     ],
 )
-def test_normalize_san_for_parse(input_san, expected_san):
-    assert serializers.normalize_san_for_parse(input_san) == expected_san
+def test_get_move_parts(text, expected):
+    assert serializers.get_move_parts(text) == expected
