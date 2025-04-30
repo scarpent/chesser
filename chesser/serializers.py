@@ -1,6 +1,7 @@
 import json
 import re
 from collections import defaultdict, namedtuple
+from copy import copy
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
@@ -628,20 +629,10 @@ def get_resolved_move_distance(
 @dataclass
 class StackFrame:
     board: chess.Board
-    root_fen: str = ""
-    root_san: str = ""
+    root_block: ParsedBlock
     move_counter: int = 0  # pass or fail
     # only resolved moves are added to this list
     parsed_moves: list[ParsedBlock] = field(default_factory=list)
-
-    latest_san: str = ""
-    latest_verbose: str = ""
-
-    san: str = ""
-    root_san: str = ""
-    root_verbose: str = ""
-    last_san: str = ""
-    last_verbose: str = ""
 
 
 class PathFinder:
@@ -656,13 +647,20 @@ class PathFinder:
         self.blocks = blocks
         self.mainline_move = move
         self.board = board
-        self.board_stack = [
-            StackFrame(
-                board=self.board.copy(),
-                root_fen=self.board.fen(),
-                root_san=move.san,  # will be a clean mainline san
-            )
-        ]
+
+        # make a parsed move block for the mainline move -
+        # it will always have all the information: move_num, dots, san
+        move_parts = get_move_parts(move.move_verbose)
+        root_block = ParsedBlock(
+            type_="move",
+            raw=move.move_verbose,
+            move_parts_raw=move_parts,
+            move_parts_resolved=move_parts,
+            fen=board.fen(),
+            depth=0,  # this is the root root! 🌳 no move block would naturally be < 1
+        )
+        self.board_stack = [StackFrame(board=self.board.copy(), root_block=root_block)]
+
         self.stats = stats or ResolveStats()
         self.index = 0
         self.end_of_list = len(blocks)
@@ -692,31 +690,22 @@ class PathFinder:
             self.stats.max_subvar_depth = max(self.stats.max_subvar_depth, block.depth)
             print(f"↘️  subvar (depth {block.depth})")
 
-        if block.depth == 1:
-            root_san = self.current.root_san
-        else:
-            if self.current.parsed_moves:
-                raw_san = self.current.parsed_moves[-1].move_parts_raw.san
-                resolved_san = self.current.parsed_moves[-1].move_parts_resolved.san
-            else:
-                print("❓️ No parsed moves when depth != 1")
-                raw_san = ""
-                resolved_san = ""
+        # I think a shallow copy is good enough for our purposes here
+        if block.depth == 1 or not self.current.parsed_moves:
+            root_block = copy(self.current.root_block)
+        else:  # else use the last of current resolved moves
+            root_block = copy(self.current.parsed_moves[-1])
 
-            if raw_san != resolved_san:
-                print(
-                    "📌 in start block, nested subvar, and stack raw san != "
-                    f"resolved san: {raw_san} != {resolved_san}"
-                )
+        # the original root root will always remain 0
+        root_block.depth = block.depth
 
-            root_san = raw_san if self.current.parsed_moves else ""  # TODO: or resolved
-        self.board_stack.append(
-            StackFrame(
-                board=chessboard,
-                root_fen=chessboard.fen(),
-                root_san=root_san,
+        self.board_stack.append(StackFrame(board=chessboard, root_block=root_block))
+        print("↘️  stack:")
+        for frame in self.board_stack:
+            print(
+                f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} "
+                f"➤ {frame.board.fen()}"
             )
-        )
 
     def bust_a_move(self, block: ParsedBlock, attempt: int = 1) -> bool:
         # don't just stand there... 🎶
@@ -770,6 +759,7 @@ class PathFinder:
                 continue
 
             elif block.type_ == "end":
+                print("🪦 subvar end")
                 resolved_blocks.append(block)
                 self.board_stack.pop()
                 self.index += 1
@@ -841,7 +831,9 @@ class PathFinder:
 
             next_ = self.get_next_move()
 
-            matched_root_san = self.current.root_san == block.move_parts_raw.san
+            matched_root_san = (
+                self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
+            )
             if matched_root_san:
                 self.stats.matched_root_san += 1
 
