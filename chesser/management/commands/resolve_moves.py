@@ -24,44 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         variation_id = options.get("variation")
         stats = self.move_resolver_runner(variation_id=variation_id)
-
-        self.stdout.write("\nParsing Stats Summary:\n")
-        self.stdout.write(f"subvar total: {stats.subvar_total}")
-        self.stdout.write(f"fenseq total: {stats.fenseq_total}")
-
-        self.stdout.write(f"moves attempted: {stats.moves_attempted}")
-        self.stdout.write(f"moves resolved: {stats.moves_resolved}")
-
-        self.stdout.write(f"Max subvar depth: {stats.max_subvar_depth}")
-
-        self.stdout.write(
-            f"Resolved match explicit: {stats.resolved_matches_raw_explicit}"
-        )
-        self.stdout.write(
-            f"Resolved match implicit: {stats.resolved_matches_raw_implicit}"
-        )
-        self.stdout.write(
-            f"Resolved move distance: {dict(sorted(stats.resolved_move_distance.items()))}"  # noqa: E501
-        )
-
-        self.stdout.write(
-            f"Resolved on attempt N: {dict(sorted(stats.resolved_on_attempt.items()))}"
-        )
-        self.stdout.write(f"Matched root san: {stats.matched_root_san}")
-        self.stdout.write(f"Discarded: {stats.discarded}")
-        self.stdout.write(f"Mainline siblings: {stats.mainline_siblings}")
-        self.stdout.write(
-            f"Mainline siblings resolved: {stats.mainline_siblings_resolved}"
-        )
-        self.stdout.write(
-            f"First matched root but no next: {stats.first_matched_root_but_no_next}"
-        )
-        self.stdout.write("\n")
-        if stats.failure_blocks:
-            self.stdout.write(f"{len(stats.failure_blocks)} failed blocks:")
-            for block in stats.failure_blocks[:10]:  # Show first 10
-                self.stdout.write(f"  - {block}")
-
+        stats.print_stats()
         return 0
 
     def move_resolver_runner(self, variation_id=None):

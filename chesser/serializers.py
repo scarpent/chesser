@@ -502,6 +502,36 @@ class ResolveStats:
 
     failure_blocks: list[str] = field(default_factory=list)
 
+    def print_stats(self):
+        print("\nParsing Stats Summary:\n")
+        print(f"subvar total: {self.subvar_total}")
+        print(f"fenseq total: {self.fenseq_total}")
+
+        print(f"moves attempted: {self.moves_attempted}")
+        print(f"moves resolved: {self.moves_resolved}")
+
+        print(f"Max subvar depth: {self.max_subvar_depth}")
+
+        print(f"Resolved match explicit: {self.resolved_matches_raw_explicit}")
+        print(f"Resolved match implicit: {self.resolved_matches_raw_implicit}")
+        print(
+            f"Resolved move distance: {dict(sorted(self.resolved_move_distance.items()))}"  # noqa: E501
+        )
+
+        print(
+            f"Resolved on attempt N: {dict(sorted(self.resolved_on_attempt.items()))}"
+        )
+        print(f"Matched root san: {self.matched_root_san}")
+        print(f"Discarded: {self.discarded}")
+        print(f"Mainline siblings: {self.mainline_siblings}")
+        print(f"Mainline siblings resolved: {self.mainline_siblings_resolved}")
+        print(f"First matched root but no next: {self.first_matched_root_but_no_next}")
+        print("\n")
+        if self.failure_blocks:
+            print(f"{len(self.failure_blocks)} failed blocks:")
+            for block in self.failure_blocks[:10]:  # Show first 10
+                self.stdout.write(f"  - {block}")
+
 
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     chunks = extract_ordered_chunks(move.text)
@@ -803,14 +833,33 @@ class PathFinder:
                 resolved_blocks.append(block)
                 continue
 
+            # wild explorations... keep in mind mainline move root vs other roots...
+
             first = self.current.move_counter == 1
             # maybe the first just repeated the previous (root) san,
             # and we can drop this one and move on...
 
             next_ = self.get_next_move()
+
             matched_root_san = self.current.root_san == block.move_parts_raw.san
             if matched_root_san:
                 self.stats.matched_root_san += 1
+
+            if first and matched_root_san and block.depth == 1:
+                mainline_move_parts = get_move_parts(self.mainline_move.move_verbose)
+                distance = get_resolved_move_distance(
+                    mainline_move_parts.move_num,
+                    mainline_move_parts.dots,
+                    block.move_parts_raw.move_num,
+                    block.move_parts_raw.dots,
+                )
+                if distance != 0:
+                    print("❌")
+                # distance = 0 on all matches!
+                # if distance != 0:
+
+            # TODO: should be looking at depth here? or make sure subvar root
+            # is working as expected
             if first and matched_root_san and next_:
                 self.stats.discarded += 1
                 # expect that this will happen quite a bit;
