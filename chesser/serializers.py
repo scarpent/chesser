@@ -484,10 +484,20 @@ class ResolveStats:
 
     max_subvar_depth: int = 0
 
+    resolved_matches_raw_explicit: int = 0  # move_num, dots, san all match
+    resolved_matches_raw_implicit: int = 0  # items present match
+    # maybe later we'll look more at annotations
+    resolved_move_distance: defaultdict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
+
     resolved_on_attempt: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
     matched_root_san: int = 0
+    mainline_siblings: int = 0
+    mainline_siblings_resolved: int = 0
+    first_matched_root_but_no_next: int = 0
     discarded: int = 0
 
     failure_blocks: list[str] = field(default_factory=list)
@@ -561,11 +571,37 @@ def get_move_parts(text: str) -> MoveParts:
         return MoveParts(None, "", text.strip(), "")
 
 
+def get_resolved_move_distance(
+    resolved_move_num, resolved_dots, raw_move_num, raw_dots
+):
+    """
+    Returns:
+        -1 if ambiguous (missing raw num or dots)
+         0 if match
+        >0 ply distance otherwise
+
+    Dot types:
+        "."   → white to move = ply = (move_num - 1) * 2
+        "..." → black to move = ply = (move_num - 1) * 2 + 1
+    """
+    if raw_move_num is None or raw_dots not in (".", "..."):
+        return -1
+
+    def move_to_ply(num, dots):
+        return (num - 1) * 2 + (1 if dots == "..." else 0)
+
+    resolved_ply = move_to_ply(resolved_move_num, resolved_dots)
+    raw_ply = move_to_ply(raw_move_num, raw_dots)
+    return abs(resolved_ply - raw_ply)
+
+
 @dataclass
 class StackFrame:
     board: chess.Board
     root_fen: str = ""
     root_san: str = ""
+    move_counter: int = 0  # pass or fail
+    # only resolved moves are added to this list
     parsed_moves: list[ParsedBlock] = field(default_factory=list)
 
     latest_san: str = ""
@@ -629,9 +665,21 @@ class PathFinder:
         if block.depth == 1:
             root_san = self.current.root_san
         else:
-            root_san = (
-                self.current.parsed_moves[-1].san if self.current.parsed_moves else ""
-            )
+            if self.current.parsed_moves:
+                raw_san = self.current.parsed_moves[-1].move_parts_raw.san
+                resolved_san = self.current.parsed_moves[-1].move_parts_resolved.san
+            else:
+                print("❓️ No parsed moves when depth != 1")
+                raw_san = ""
+                resolved_san = ""
+
+            if raw_san != resolved_san:
+                print(
+                    "📌 in start block, nested subvar, and stack raw san != "
+                    f"resolved san: {raw_san} != {resolved_san}"
+                )
+
+            root_san = raw_san if self.current.parsed_moves else ""  # TODO: or resolved
         self.board_stack.append(
             StackFrame(
                 board=chessboard,
@@ -668,7 +716,9 @@ class PathFinder:
         self.stats.resolved_on_attempt[attempt] += 1
 
         self.current.parsed_moves.append(block)
-        print(f"✅ resolved move: {block.raw} ➤ {move_obj}\n\t\t{block}")
+        print(f"✅ resolved move: {block.raw} ➤ {move_obj}")  # \n\t\t{block}")
+        print(f"\traw parts: {block.move_parts_raw}")
+        print(f"\tresolved parts: {block.move_parts_resolved}")
         return True
 
     def resolve_moves(self) -> list[ParsedBlock]:
@@ -699,22 +749,61 @@ class PathFinder:
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
             self.stats.moves_attempted += 1
+            self.current.move_counter += 1  # pass or fail
 
             # first, let's just try whatever the move is...
             # perhaps most of the time it will be valid 🤞
             move_played = self.bust_a_move(block, attempt=1)
 
-            # however this will break our naive non-move number parsing:
-            # (1...e5 2.Nf3 {or} 1...c5 2.c3)
-            # c5 is a valid black second move
-            # so how to reconcile it all...
+            if move_played:
+                # resolved moves should/better/absolutely must(?) have all the parts
+                if (
+                    block.move_parts_raw.move_num == block.move_parts_resolved.move_num
+                    and block.move_parts_raw.dots == block.move_parts_resolved.dots
+                    and block.move_parts_raw.san == block.move_parts_resolved.san
+                ):
+                    self.stats.resolved_matches_raw_explicit += 1
+
+                # raw move parts may or may not have been there, we'll call it an
+                # implicit match if whatever there matches
+                elif (
+                    (
+                        block.move_parts_raw.move_num is None
+                        or block.move_parts_raw.move_num
+                        == block.move_parts_resolved.move_num
+                    )
+                    and (
+                        block.move_parts_raw.dots == ""
+                        or block.move_parts_raw.dots == block.move_parts_resolved.dots
+                    )
+                    and block.move_parts_raw.san == block.move_parts_resolved.san
+                ):
+                    self.stats.resolved_matches_raw_implicit += 1
+
+                # 1...e4 ➤ 1.e4  2...e4 ➤ 1.e4
+                # 1.e4 2.e5 ➤ 1.e4 1...e5
+                # distance:
+                # -1 = implied match (missing raw num or dots)
+                # 0 = exact match
+                move_distance = get_resolved_move_distance(
+                    block.move_parts_resolved.move_num,
+                    block.move_parts_resolved.dots,
+                    block.move_parts_raw.move_num,
+                    block.move_parts_raw.dots,
+                )
+                self.stats.resolved_move_distance[move_distance] += 1
+
+                # however this will break our naive non-move number parsing:
+                # (1...e5 2.Nf3 {or} 1...c5 2.c3)
+                # c5 is a valid black second move
+                # we'll start looking at raw vs resolved to try being smart
 
             if move_played:
                 self.index += 1
                 resolved_blocks.append(block)
                 continue
 
-            first = False if self.current.parsed_moves else True
+            first = self.current.move_counter == 1
             # maybe the first just repeated the previous (root) san,
             # and we can drop this one and move on...
 
@@ -729,21 +818,48 @@ class PathFinder:
                 # TODO: maybe should have some move num validation?
                 print(
                     "🗑️  Discarding failed move block that has "
-                    f"same san as previous: {block.san}"
+                    f"same san as previous: {block.move_parts_raw.san}"
                 )
                 self.index += 1
                 continue
-            if not first:
-                # another common case is "implied" subvariations, without parens
-                # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
-                # 2.Nc3 will work if we pop 2.Nf3...
-                print("🛠️  implied subvar? undoing move and trying again")
-                self.current.board.pop()
-                move_played = self.bust_a_move(block, attempt=2)
-                if move_played:
-                    self.index += 1
-                    resolved_blocks.append(block)
-                    continue
+            if first and matched_root_san and not next_:
+                self.stats.first_matched_root_but_no_next += 1
+            dots = "." if self.mainline_move.white_to_move else "..."
+            if (
+                first
+                and block.depth == 1
+                and self.mainline_move.move_num == block.move_parts_raw.move_num
+                and dots == block.move_parts_raw.dots
+            ):
+                # subvar move is a sibling of the mainline move
+                temp_board = self.current.board.copy()
+                temp_board.pop()
+                print(
+                    "❗️ first subvar move is sibling to mainline move; "
+                    "figure out how to handle this..."
+                )
+                self.stats.mainline_siblings += 1
+                try:
+                    move_obj = temp_board.parse_san(block.move_parts_raw.san)
+                    temp_board.push(move_obj)
+                    print("✅ sibling move resolved! 🚀")
+                    self.stats.mainline_siblings_resolved += 1
+                except Exception:
+                    print("❌ sibling move didn't resolve")
+
+                # TODO: more here in verifying if things resolved to "wrong" move
+
+            # if not first:
+            #     # another common case is "implied" subvariations, without parens
+            #     # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+            #     # 2.Nc3 will work if we pop 2.Nf3...
+            #     print("🛠️  implied subvar? undoing move and trying again")
+            #     self.current.board.pop()
+            #     move_played = self.bust_a_move(block, attempt=2)
+            #     if move_played:
+            #         self.index += 1
+            #         resolved_blocks.append(block)
+            #         continue
 
             self.index += 1
 

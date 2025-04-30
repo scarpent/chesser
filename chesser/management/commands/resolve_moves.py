@@ -33,9 +33,29 @@ class Command(BaseCommand):
         self.stdout.write(f"moves resolved: {stats.moves_resolved}")
 
         self.stdout.write(f"Max subvar depth: {stats.max_subvar_depth}")
-        self.stdout.write(f"Resolved on attempt N: {dict(stats.resolved_on_attempt)}")
+
+        self.stdout.write(
+            f"Resolved match explicit: {stats.resolved_matches_raw_explicit}"
+        )
+        self.stdout.write(
+            f"Resolved match implicit: {stats.resolved_matches_raw_implicit}"
+        )
+        self.stdout.write(
+            f"Resolved move distance: {dict(sorted(stats.resolved_move_distance.items()))}"  # noqa: E501
+        )
+
+        self.stdout.write(
+            f"Resolved on attempt N: {dict(sorted(stats.resolved_on_attempt.items()))}"
+        )
         self.stdout.write(f"Matched root san: {stats.matched_root_san}")
         self.stdout.write(f"Discarded: {stats.discarded}")
+        self.stdout.write(f"Mainline siblings: {stats.mainline_siblings}")
+        self.stdout.write(
+            f"Mainline siblings resolved: {stats.mainline_siblings_resolved}"
+        )
+        self.stdout.write(
+            f"First matched root but no next: {stats.first_matched_root_but_no_next}"
+        )
         self.stdout.write("\n")
         if stats.failure_blocks:
             self.stdout.write(f"{len(stats.failure_blocks)} failed blocks:")
