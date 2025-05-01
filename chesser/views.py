@@ -42,8 +42,8 @@ def custom_404_view(request, exception):
         "error.html",
         {
             "title": "404 Off Book",
-            "heading": "404",
-            "message": "Your princess is in another castle.",
+            "heading": "404 🤷‍♀️",
+            "message": "Your queen is in another castle.",
             "subtext": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         },
         status=404,

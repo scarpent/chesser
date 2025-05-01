@@ -8,7 +8,7 @@ export function quizApp() {
   return {
     board: null,
     chess: null,
-    status: "⚪️⚪️",
+    status: "",
     reviewStats: "",
     variationData: variationData,
     reviewData: reviewData,

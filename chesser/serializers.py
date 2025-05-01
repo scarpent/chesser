@@ -1,5 +1,7 @@
 import json
 import re
+from collections import defaultdict, namedtuple
+from copy import copy
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
@@ -9,6 +11,8 @@ from django.utils import timezone
 
 from chesser import util
 from chesser.models import Move
+
+AMBIGUOUS = -1
 
 annotations = {
     "none": "No annotation",
@@ -93,6 +97,41 @@ def serialize_variation(variation, all_data=False, version=1):
     variation_data["history"] = get_history(variation)
 
     return variation_data
+
+
+def serialize_variation_to_import_format(variation):
+    # TODO: export quiz history, too? perhaps optionally...
+    return {
+        "variation_id": variation.id,
+        "source": variation.source,
+        "color": variation.course.color,
+        "chapter_title": variation.chapter.title,
+        "variation_title": variation.title,
+        "level": variation.level,
+        "created_at": variation.created_at.replace(microsecond=0).isoformat(),
+        "next_review": variation.next_review.replace(microsecond=0).isoformat(),
+        "last_review": (
+            variation.get_latest_quiz_result_datetime()
+            .replace(microsecond=0)
+            .isoformat()
+            if variation.quiz_results.exists()
+            else util.END_OF_TIME_STR
+        ),
+        "start_move": variation.start_move,
+        "moves": [
+            {
+                "move_num": m.move_num,
+                "san": m.san,
+                "annotation": m.annotation or "",
+                "text": m.text or "",
+                "alt": m.alt or "",
+                "alt_fail": m.alt_fail or "",
+                "shapes": json.loads(m.shapes or "[]"),
+            }
+            for m in variation.moves.all().order_by("sequence")
+        ],
+        "mainline": variation.mainline_moves,
+    }
 
 
 def get_history(variation):
@@ -216,30 +255,109 @@ def generate_variation_html(variation, version=1):
             f'data-index="{move.sequence}">{move_str}</span>'
         )
 
+        # v2 expects mainline move will already be played
+        if version == 2:
+            board.push_san(move.san)  # Mainline moves better be valid
+
         if move.text:
             beginning_of_move_group = True
 
             if version == 2:
                 parsed_blocks = get_parsed_blocks(move, board.copy())
+                subvar_html = generate_subvariations_html(move, parsed_blocks)
+
                 # subvar_html = render_parsed_blocks(parsed_blocks, board.copy())
 
-                blocks = [
-                    f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
-                    for block in parsed_blocks
-                ]
-                subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
+                # blocks = [
+                #     f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
+                #     for block in parsed_blocks
+                # ]
+                # subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
 
             else:  # v1
                 moves_with_fen = extract_moves_with_fen(board.copy(), move)
-                subvar_html = generate_subvariations_html(move, moves_with_fen)
+                subvar_html = generate_subvariations_html_v1(move, moves_with_fen)
 
             html += f"</h3>{subvar_html}"
 
-        board.push_san(move.san)  # Mainline moves better be valid
+        # v1 had this at the end of the loop for some reason
+        if version != 2:
+            board.push_san(move.san)  # Mainline moves better be valid
 
     html = htmlize_chessable_tags(html)
 
     return html
+
+
+def generate_subvariations_html(move, parsed_blocks):
+    counter = -1
+    html = ""
+    for block in parsed_blocks:
+        if block.type_ == "comment":
+            comment = block.display_text.replace("\n", "<br/>")
+            html += f" {comment} "
+            continue
+
+        if block.type_ == "start":
+            if block.fen:
+                html += "⏮️"
+            pass
+
+        if block.type_ == "move":
+            counter += 1
+            resolved = "✅" if block.move_parts_resolved else "❌"
+            html += f" {block.raw} {resolved} "
+
+            # TODO: resolved vs not, etc.
+
+            # html += (
+            #     f'<span class="move subvar-move" data-fen="{fen}" '
+            #     f'data-index="{counter}">{matched_move}</span>'
+            # )
+
+    return (
+        '<div class="subvariations" '
+        f'data-mainline-index="{move.sequence}">{html}</div>'
+    )
+
+    # remaining_text = move.text
+    # for san, fen in move_fen_map:
+    #     while True:
+    #         m = re.search(re.escape(san), remaining_text)
+    #         if m:
+    #             mstart = m.start()
+    #             mend = m.end()
+    #             html += remaining_text[:mstart]
+    #             remaining_text = remaining_text[mend:]
+    #             matched_move = m.group(0)
+    #             if is_in_comment(remaining_text):
+    #                 html += matched_move
+    #                 continue
+    #             else:
+    #                 counter += 1
+    #                 html += (
+    #                     f'<span class="move subvar-move" data-fen="{fen}" '
+    #                     f'data-index="{counter}">{matched_move}</span>'
+    #                 )
+    #                 break
+    #         else:
+    #             break
+
+    # html += f"{remaining_text.strip()}"
+    # if "<br/>" not in html:
+    #     # TODO: don't <br/> by block level things like <ul>
+    #     html = html.replace("\n", "<br/>")
+
+    # # much more to do here of course
+    # html = html.replace("<fenseq", " ⏮️ <fenseq")
+
+    # return (
+    #     '<div class="subvariations" '
+    #     f'data-mainline-index="{move.sequence}">{html}</div>'
+    # )
+
+
+# === Parser/Renderer v1 ====================================================
 
 
 # TODO: this goes away after cleanup is all done and import also cleans
@@ -250,7 +368,7 @@ def htmlize_chessable_tags(html):
     return html
 
 
-def generate_subvariations_html(move, move_fen_map):
+def generate_subvariations_html_v1(move, move_fen_map):
     """
     {sicilian}
     (1...c5 {or french}) (1...e6 {or caro}) (1...c6?!)
@@ -392,107 +510,683 @@ def flatten_move_fen_map(nested_list):
     return flat_list
 
 
-def serialize_variation_to_import_format(variation):
-    # TODO: export quiz history, too? perhaps optionally...
-    return {
-        "variation_id": variation.id,
-        "source": variation.source,
-        "color": variation.course.color,
-        "chapter_title": variation.chapter.title,
-        "variation_title": variation.title,
-        "level": variation.level,
-        "created_at": variation.created_at.replace(microsecond=0).isoformat(),
-        "next_review": variation.next_review.replace(microsecond=0).isoformat(),
-        "last_review": (
-            variation.get_latest_quiz_result_datetime()
-            .replace(microsecond=0)
-            .isoformat()
-            if variation.quiz_results.exists()
-            else util.END_OF_TIME_STR
-        ),
-        "start_move": variation.start_move,
-        "moves": [
-            {
-                "move_num": m.move_num,
-                "san": m.san,
-                "annotation": m.annotation or "",
-                "text": m.text or "",
-                "alt": m.alt or "",
-                "alt_fail": m.alt_fail or "",
-                "shapes": json.loads(m.shapes or "[]"),
-            }
-            for m in variation.moves.all().order_by("sequence")
-        ],
-        "mainline": variation.mainline_moves,
-    }
+# === Parser v2 =============================================================
+
+MoveParts = namedtuple("MoveParts", ["move_num", "dots", "san", "annotation"])
+
+
+@dataclass
+class Chunk:
+    type_: Literal["comment", "move", "fenseq", "subvar"]
+    data: str
 
 
 @dataclass
 class ParsedBlock:
-    block_type: Literal["comment", "subvar", "fenseq", "move"]
-    raw: str
-    san_fen: Optional[tuple[str, str]] = None  # only for "move"
+    # we started with chunk types: "comment", "subvar", "fenseq", "move"
+    type_: Literal["comment", "start", "end", "move"]
+    raw: str = ""
     errors: list[str] = field(default_factory=list)
-    fenseq_start: bool = False  # for ⏮️ rendering on fenseq
     display_text: str = ""  # for normalized comments, moves
+    move_parts_raw: Optional[MoveParts] = None
+    move_parts_resolved: Optional[MoveParts] = None
+    raw_to_resolved_distance: int = AMBIGUOUS  # unknown to start
+    # for move blocks: fen representing state after this move (normal link rendering)
+    # for start blocks: fen representing state before the sequence;
+    #                   i.e. fenseq/@@StartFEN@@, enables rendering ⏮️ as a link
+    fen: str = ""
+    depth: int = 0  # for subvar depth tracking
 
 
 @dataclass
 class RenderableBlock:
-    block_type: Literal["comment", "moves"]
+    type_: Literal["comment", "move"]
     html: str
     raw: str
     errors: list[str] = field(default_factory=list)
 
 
-def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
-    # extract ("comment", ...), ("subvar", ...), ("fenseq", ...) chunks
-    chunks = extract_ordered_chunks(move.text)
-    parsed_blocks = []
+@dataclass
+class ResolveStats:
+    subvar_total: int = 0
+    fenseq_total: int = 0
 
-    for chunk_type, raw in chunks:
-        print(f"🔍 Parsing chunk: {chunk_type} ➤ {raw.strip()[:40]}...")
-        if chunk_type == "subvar":
-            parsed_blocks.extend(parse_subvar_chunk(raw, move, board.copy()))
-        elif chunk_type == "fenseq":
-            parsed_blocks.extend(parse_fenseq_chunk(raw, board.copy()))
-        elif chunk_type == "comment":
-            parsed_blocks.append(parse_comment_chunk(raw))
+    moves_attempted: int = 0
+    moves_resolved: int = 0
+    moves_discarded: int = 0
+
+    max_subvar_depth: int = 0
+
+    # tells us if implicit match (-1), explicit match (0), or how far off (1+)
+    resolved_move_distance: defaultdict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
+
+    matched_root_san: int = 0
+    root_siblings: int = 0
+    root_siblings_resolved: int = 0
+    discarded: int = 0
+
+    failure_blocks: list[str] = field(default_factory=list)
+
+    def print_stats(self):
+        print("\nParsing Stats Summary:\n")
+        print(f"subvar total: {self.subvar_total}")
+        print(f"fenseq total: {self.fenseq_total}")
+        print(f"moves attempted: {self.moves_attempted}")
+        print(f"moves resolved: {self.moves_resolved}")
+        print(f"Max subvar depth: {self.max_subvar_depth}")
+        move_distances = str(dict(sorted(self.resolved_move_distance.items())))
+        print(f"Resolved move distance: {move_distances}")
+        print(f"Matched root san: {self.matched_root_san}")
+        print(f"Discarded: {self.discarded}")
+        print(f"Root siblings: {self.root_siblings}")
+        print(f"Root siblings resolved: {self.root_siblings_resolved}")
+        print("\n")
+        if self.failure_blocks:
+            print(f"{len(self.failure_blocks)} failed blocks:")
+            for block in self.failure_blocks[:10]:  # Show first 10
+                self.stdout.write(f"  - {block}")
+
+
+def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
+    chunks = extract_ordered_chunks(move.text)
+    parsed_blocks = get_parsed_blocks_first_pass(chunks)
+    pathfinder = PathFinder(parsed_blocks, move, board)
+    resolved_blocks = pathfinder.resolve_moves()
+    return resolved_blocks
+
+
+def get_move_parsed_block(text: str, depth: int) -> ParsedBlock:
+    return ParsedBlock(
+        type_="move",
+        raw=text,
+        move_parts_raw=get_move_parts(text),
+        depth=depth,
+    )
+
+
+MOVE_PARTS_REGEX = re.compile(
+    r"""(?x)                # verbose 💬
+    ^(\d*)                  # optional move number
+    (\.*)\s*                # optional dots
+    (                       #
+      [a-zA-Z]              # first san char must be a letter e4, Ba3, ...
+      [a-zA-Z0-9-=]*        # allows for O-O and a8=Q
+      [a-zA-Z0-9]           # last san char usually a a number but could be cap
+                            # OQRNB (we'll be easy with a-zA-Z, still)
+    )?                      # optional san
+    ([^a-zA-Z0-9]*)$        # optional trailing annotation, including + and #
+                            # which are part of san, but not required there
+    """
+)
+
+
+def get_move_parts(text: str) -> MoveParts:
+    """
+    Breaks a literal move string into its core parts:
+    move number, dots, san, and annotation. Check + and mate #
+    will be included with annotation, even though they are part
+    of the san.
+
+    This split is very permissive. Everything is optional, so *something*
+    will match, even if just empties. But we'll likely get a san at least.
+
+    - Extracts optional move number (e.g. "1" from "1.e4", "1. e4" "1...e5")
+    - Extracts dots following the number ("." or "..." or "........" & so on)
+    - Extracts the SAN (Standard Algebraic Notation) portion
+    - Extracts any trailing annotation (e.g. "+", "#", "!?", etc.)
+    - Strips any leading/trailing whitespace from the SAN
+
+    We do not validate the move content here:
+    - Malformed SANs, impossible moves, etc. are allowed
+    - Path validation happens later during move resolution
+
+    The goal is to be strict in how we parse and clean fields, but
+    flexible in accepting whatever we have at this point. We probably
+    have mostly clean data at this point and errors won't be catastrophic
+    later. God knows Chessable has enough broken subvariations themselves.
+    """
+    m = MOVE_PARTS_REGEX.search(text.strip())
+    if m:
+        return MoveParts(
+            move_num=int(m.group(1)) if m.group(1) else None,
+            dots=m.group(2) or "",
+            san=m.group(3) or "",
+            annotation=m.group(4) or "",
+        )
+    else:
+        return MoveParts(None, "", text.strip(), "")
+
+
+def get_resolved_move_distance(
+    resolved_move_num, resolved_dots, raw_move_num, raw_dots
+):
+    """
+    Returns:
+        -1 if ambiguous (missing raw num or dots)
+         0 if match
+        >0 ply distance otherwise
+
+    Dot types:
+        "."   → white to move = ply = (move_num - 1) * 2
+        "..." → black to move = ply = (move_num - 1) * 2 + 1
+
+    TODO: perhaps we shouldn't use "abs" here; we'll see if we care
+    about the direction of the move distance later...
+    """
+    if raw_move_num is None or raw_dots not in (".", "..."):
+        return AMBIGUOUS
+
+    def move_to_ply(num, dots):
+        return (num - 1) * 2 + (1 if dots == "..." else 0)
+
+    resolved_ply = move_to_ply(resolved_move_num, resolved_dots)
+    raw_ply = move_to_ply(raw_move_num, raw_dots)
+    return abs(resolved_ply - raw_ply)
+
+
+def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
+    """
+    Returns a resolved move parts and "move distance"
+    if successful, None, None if not.
+
+    Nothing changes with the original move block except
+    we'll add an error to it. (For now, anyway.)
+    """
+    san = block.move_parts_raw.san
+    try:
+        move_obj = board.parse_san(san)
+        board.push(move_obj)
+    except Exception:
+        print(f"❌ Failed to push move: {block.raw}")
+        # TODO: decide what to do with block error handling
+        block.errors.append(f"Failed SAN during path finding: {san}")
+        return None, None
+
+    # turn = True means it's white's move *now*, so we reverse things
+    # to figure out dots for move just played
+
+    move_parts_resolved = MoveParts(
+        move_num=(board.ply() + 1) // 2,
+        dots="..." if board.turn else ".",
+        san=san,
+        annotation=block.move_parts_raw.annotation,
+    )
+
+    resolved_move_distance = get_resolved_move_distance(
+        move_parts_resolved.move_num,
+        move_parts_resolved.dots,
+        block.move_parts_raw.move_num,
+        block.move_parts_raw.dots,
+    )
+
+    return move_parts_resolved, resolved_move_distance
+
+
+@dataclass
+class StackFrame:
+    board: chess.Board
+    root_block: ParsedBlock
+    move_counter: int = 0  # pass or fail
+    # only resolved moves are added to this list
+    parsed_moves: list[ParsedBlock] = field(default_factory=list)
+
+
+class PathFinder:
+
+    def __init__(
+        self,
+        blocks: list[ParsedBlock],
+        move: Move,
+        board: chess.Board,
+        stats: Optional[ResolveStats] = None,
+    ):
+        self.blocks = blocks
+        self.mainline_move = move
+        self.board = board
+
+        # make a parsed move block for the mainline move -
+        # it will always have all the information: move_num, dots, san
+        move_parts = get_move_parts(move.move_verbose)
+        root_block = ParsedBlock(
+            type_="move",
+            raw=move.move_verbose,
+            move_parts_raw=move_parts,
+            move_parts_resolved=move_parts,
+            fen=board.fen(),
+            depth=0,  # this is the root root! 🌳 no move block would naturally be < 1
+        )
+        self.board_stack = [StackFrame(board=self.board.copy(), root_block=root_block)]
+
+        self.stats = stats or ResolveStats()
+        self.index = 0
+        self.end_of_list = len(blocks)
+
+    @property
+    def current(self):
+        return self.board_stack[-1]
+
+    def get_next_move(self):
+        if (
+            self.index + 1 < self.end_of_list
+            and self.blocks[self.index + 1].type_ == "move"
+        ):
+            return self.blocks[self.index + 1]
+        else:
+            return None
+
+    def handle_start_block(self, block: ParsedBlock):
+        if block.fen:
+            # fenseq; let's try to mostly treat same as subvar
+            chessboard = chess.Board(block.fen)
+            self.stats.fenseq_total += 1
+            print("↘️  fenseq")
+        else:
+            chessboard = self.current.board.copy()
+            self.stats.subvar_total += 1
+            self.stats.max_subvar_depth = max(self.stats.max_subvar_depth, block.depth)
+            print(f"↘️  subvar (depth {block.depth})")
+
+        # I think a shallow copy is good enough for our purposes here
+        if block.depth == 1 or not self.current.parsed_moves:
+            root_block = copy(self.current.root_block)
+        else:  # else use the last of current resolved moves
+            root_block = copy(self.current.parsed_moves[-1])
+
+        # the original root root will always remain 0
+        root_block.depth = block.depth
+
+        self.board_stack.append(StackFrame(board=chessboard, root_block=root_block))
+        print("↘️  stack:")
+        for frame in self.board_stack:
+            fen = frame.board.fen()
+            print(f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}")
+
+    def register_move(
+        self,
+        block: ParsedBlock,
+        move_parts_resolved: MoveParts,
+        move_distance: int,
+        fen: str,
+    ):
+        block.move_parts_resolved = move_parts_resolved
+        block.raw_to_resolved_distance = move_distance
+        block.fen = fen
+
+        # I don't think we can decide on display text yet
+
+        self.stats.moves_resolved += 1
+        # self.stats.resolved_on_attempt[attempt] += 1
+
+        self.current.parsed_moves.append(block)
+        print(f"✅ registered move: {block.raw} ➤")
+        print(f"\traw: {tuple(block.move_parts_raw)}")
+        print(f"\tresolved: {tuple(block.move_parts_resolved)}")
+
+    def resolve_moves(self) -> list[ParsedBlock]:
+
+        resolved_blocks = []
+
+        while self.index < self.end_of_list:
+            block = self.blocks[self.index]
+
+            if block.type_ == "comment":
+                resolved_blocks.append(block)
+                self.index += 1
+                continue
+
+            elif block.type_ == "start":
+                self.handle_start_block(block)
+                resolved_blocks.append(block)
+                self.index += 1
+                continue
+
+            elif block.type_ == "end":
+                print("🪦 subvar end")
+                resolved_blocks.append(block)
+                self.board_stack.pop()
+                self.index += 1
+                continue
+
+            else:  # move
+                assert block.type_ == "move", f"Unexpected block type: {block.type_}"
+
+            self.stats.moves_attempted += 1
+            # move count whether pass or fail; in particular we want to know
+            # when we're on the first move of a subvar to compare against mainline
+            self.current.move_counter += 1
+
+            move_parts_resolved, move_distance = try_move(self.current.board, block)
+
+            if move_parts_resolved:
+                self.stats.resolved_move_distance[move_distance] += 1
+                raw = tuple(block.move_parts_raw)
+                resolved = tuple(move_parts_resolved)
+
+                if move_distance <= 1:
+                    # distance = 0: no doubt this is the move we want
+                    # distance = -1: AMBIGUOUS ➤ there's a good chance this
+                    #                is it, maybe enough to just go for it 🚀
+                    # distance = 1: *maybe* okay, seems there are some number
+                    #               of variations that are off by 1 ply
+                    self.register_move(
+                        block,
+                        move_parts_resolved,
+                        move_distance,
+                        self.current.board.fen(),
+                    )
+                    self.index += 1
+                    resolved_blocks.append(block)
+
+                    if move_distance == 1:
+                        block.errors.append(
+                            "Distance off by 1 after resolving. We'll go with it... "
+                            f"{raw} ➤ {resolved}"
+                        )
+                    continue
+                else:
+                    block.errors.append(
+                        f"Distance too far off after resolving: {move_distance}. "
+                        f"We'll not register it... {raw} ➤ {resolved}"
+                    )
+
+                # treat distance >2 as failed and go with regular recovery strategies
+                # should we deal with these first?
+
+                # TODO: make sure to deal with unregistered tried move!
+
+            # consider scenarios in order of likelihood?
+
+            if matched_root_san := (
+                self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
+            ):
+                self.stats.matched_root_san += 1
+
+            # TODO: more fun to be had in here... this is probably the time to
+            # decide on move display text...
+            # * if we discard a move, the following move should be "verbose"
+            # * moves following comments should also be verbose
+            # * etc - here we have the information -- so we have to work out
+            #   how to keep track of after comments, etc...
+
+            # TODO: think about clean handling of move_parts_resolved/registered/etc...
+            if self.current.move_counter == 1 and not move_parts_resolved:
+                # two common scenarios:
+                # (1) the root move (usually the mainline move) is repeated,
+                #   e.g. mainline 1.e4, subvar (1.e4 e5)
+                #   discard the first subvar and keep going...
+                distance_from_root = get_resolved_move_distance(
+                    self.current.root_block.move_parts_resolved.move_num,
+                    self.current.root_block.move_parts_resolved.dots,
+                    block.move_parts_raw.move_num,
+                    block.move_parts_raw.dots,
+                )
+                # TODO how lenient should this be? we'll start more lenient
+                if matched_root_san and distance_from_root <= 1:
+                    self.stats.discarded += 1
+                    print(
+                        "🗑️  Discarding move block that has "
+                        f"same san as previous: {block.move_parts_raw.san}"
+                    )
+                    self.index += 1
+                    continue
+
+                # (2) sibling! e.g. mainline 1.e4, subvar (1.d4 d5)
+                if distance_from_root == 0:
+                    self.stats.root_siblings += 1
+                    # go back to try the sibling...
+                    self.current.board.pop()
+                    # will this always be 0 distance?
+                    sibling_move_parts_resolved, sibling_move_distance = try_move(
+                        self.current.board, block
+                    )
+                    if sibling_move_parts_resolved:
+                        print("👥 sibling move resolved! 🚀")
+                        self.stats.root_siblings_resolved += 1
+                        self.stats.resolved_move_distance[sibling_move_distance] += 1
+                        self.register_move(
+                            block,
+                            sibling_move_parts_resolved,
+                            sibling_move_distance,
+                            self.current.board.fen(),
+                        )
+                        resolved_blocks.append(block)
+                        self.index += 1
+                        continue
+
+                    # TODO: need to work out the try/register concept better --
+                    # e.g. trying a move may advance board state but what if we
+                    # don't register it?
+
+                    # TODO: consider this failure with bad pgn data
+                    # mainline 1.e4 subvar (2.d4 d5)
+                    # 2.d4 won't be detected as a sibling since distance != 0,
+                    # and after it fails, d5 will be treated as a valid black
+                    # first move, so...
+
+                    # how to handle failures -- seems like once we run out of
+                    # recovery options, we should include rest of blocks in the
+                    # subvar in resolved blocks without trying to resolve them -
+                    # we want to see them the rendered output but might be
+                    # confusing to have them partially resolved correctly? or
+                    # maybe interesting to see what happens and can refine later...
+
+            # if not first:
+            #     # another common case is "implied" subvariations, without parens
+            #     # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+            #     # 2.Nc3 will work if we pop 2.Nf3...
+            #     print("🛠️  implied subvar? undoing move and trying again")
+            #     self.current.board.pop()
+            #     move_played = self.bust_a_move(block, attempt=2)
+            #     if move_played:
+            #         self.index += 1
+            #         resolved_blocks.append(block)
+            #         continue
+
+            if move_parts_resolved:
+                # TODO: leftover "too far" distance to be handled...
+                # 😬 need much better handling here to make sure we're
+                # maintaining and reading board state properly...
+                self.register_move(
+                    block,
+                    move_parts_resolved,
+                    move_distance,
+                    self.current.board.fen(),
+                )
+
+            resolved_blocks.append(block)
+            self.index += 1
+
+        # could have a checksum of len self.blocks - a discarded count
+        return resolved_blocks
+
+
+"""
+former ActiveFenseq notes/comments/examples...
+
+things to consider and handle if we can; when things fail...
+* try going back to start of fenseq
+* to end of previous subvar
+* to mainline
+* try other things!
+
+<fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
+
+variation 754, move 14950, mainline 2.Nc3
+<fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.d4 d5 2.c4 e6 3.Nc3 {...} 2.Nc3 {...} 2...Nf6 {...}</fenseq>
+
+variation 754, move 14958, mainline 6.f3
+<fenseq data-fen="rn1qkb1r/pp2pppp/5n2/3p4/3P1Bb1/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6">6.Nf3 Nc6 {...} 6.Qd2 {, but after} 6...Nc6 {, they will probably play} 7.f3 {anyway, which transposes to 6.f3 after all.}</fenseq>
+
+after pushing the move:
+
+ipdb> board.ply()
+1
+ipdb> board.fullmove_number  # but this doesn't seem to be "right"?
+1
+ipdb> board.turn  # white = True, black = False
+False
+ipdb> board.peek()
+Move.from_uci('e2e4')
+
+before pushing:
+
+board.san(move_obj)
+
+...
+
+board.pop() to undo the move
+"""  # noqa: E501
+
+
+def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
+    parsed_blocks = []
+    i = 0
+    depth = 0
+
+    while i < len(chunks):
+        chunk = chunks[i]
+        # print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
+
+        # ➡️ Every branch must advance `i`
+
+        if chunk.type_ == "subvar":
+            if chunk.data.startswith("START"):
+                depth += 1
+                this_subvar_depth = depth
+            else:  # starts with END
+                this_subvar_depth = depth
+                depth = max(depth - 1, 0)
+            parsed_blocks.append(
+                ParsedBlock(
+                    type_="start" if chunk.data.startswith("START") else "end",
+                    depth=this_subvar_depth,
+                )
+            )
+            i += 1
+            continue
+
+        elif (
+            chunk.type_ == "move"
+        ):  # a single move, whether 1.e4 or 1. e4 or something malformed
+            parsed_blocks.append(get_move_parsed_block(chunk.data, depth))
+            i += 1
+            continue
+
+        elif chunk.type_ == "comment":
+            raw = ""
+            # combine consecutive comments into one
+            while i < len(chunks) and chunks[i].type_ == "comment":
+                raw += chunks[i].data.strip("{}")
+                i += 1
+
+            parsed_blocks.append(get_cleaned_comment_parsed_block(raw, depth))
+            continue
+
+        elif chunk.type_ == "fenseq":  # turn this into a sequence of moves
+            parsed_blocks.extend(parse_fenseq_chunk(chunk.data))
+            i += 1
+            continue
+
         else:
             raise ValueError(
-                f"Unknown chunk type: {chunk_type} ➤ {raw.strip()[:40]}..."
+                f"Unknown chunk type: {chunk.type_} ➤ {chunk.data.strip()[:40]}"
             )
 
     return parsed_blocks
 
 
-def parse_subvar_chunk(raw: str, move: Move, board: chess.Board) -> list[ParsedBlock]:
-    return [ParsedBlock(block_type="subvar", raw=raw, san_fen=[])]
+def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
+    """
+    e.g.
+    <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">
+        1.d4 d5 2.e3 {comment}
+    </fenseq>
+
+    turn this fenseq blob into a mostly typical subvar block list
+    * fenseq sequences are expected to be depth 1, and *may* have comments
+    * we should mostly get "condensed" moves, e.g. 1.e4, but we'll handle 1. e4
+
+    we could make data-fen be optional and use game starting fen if omitted...
+
+    this is a bit hairy at the moment but it actually works now so that's good
+    """
+    match = re.search(
+        r"""<\s*fenseq[^>]*data-fen=["']([^"']+)["'][^>]*>(.*?)</fenseq>""",
+        raw,
+        re.DOTALL,
+    )
+    # "fenseq" type blocks should always match or they'd already be "comment" type
+    # assert match, f"Invalid fenseq chunk: {raw}"
+    if not match:
+        print(f"🚨 Invalid fenseq block: {raw}")
+        return []
+
+    fen, inner_text = match.groups()
+    # we don't expect fenseq tags to have parens; we'll strip
+    # them here so that we can always add them below
+    inner_text = inner_text.strip().strip("()")
+
+    if not inner_text:
+        print(f"⚠️  Empty inner text in fenseq chunk: {raw}")
+        return []
+
+    # extract_ordered_chunks requires parens to process as a subvar
+    inner_text = f"({inner_text})"
+
+    DEPTH = 1
+    blocks = [ParsedBlock("start", depth=DEPTH, fen=fen)]
+
+    chunks = extract_ordered_chunks(inner_text)
+
+    for chunk in chunks:
+        if chunk.type_ == "move":
+            # moves are the only things we try stripping down in this pass
+            blocks.append(get_move_parsed_block(chunk.data.strip(), DEPTH))
+        elif chunk.type_ == "comment":
+            blocks.append(
+                ParsedBlock(
+                    type_="comment",
+                    raw=chunk.data,
+                    display_text=chunk.data.strip("{}"),
+                )
+            )
+        elif chunk.type_ == "subvar":
+            # we might ignore these in favor of the hardcoded fenseq
+            # start/end and we might discard extras and just treat
+            # flatly and hope for the best
+            pass
+        else:
+            print(
+                "⚠️  Unexpected chunk inside fenseq: "
+                f"{chunk.type_} ➤ {chunk.data.strip()}"
+            )
+
+    blocks.append(ParsedBlock("end", depth=DEPTH))
+
+    return blocks
 
 
-def parse_fenseq_chunk(raw: str, board: chess.Board) -> list[ParsedBlock]:
-    return [ParsedBlock(block_type="fenseq", raw=raw, san_fen=[])]
-
-
-def parse_comment_chunk(raw: str) -> ParsedBlock:
-    cleaned = raw.strip()
-
-    # Only remove braces if they surround the *entire* block
-    if cleaned.startswith("{") and cleaned.endswith("}"):
-        cleaned = cleaned[1:-1].strip()
-
+def get_cleaned_comment_parsed_block(raw: str, depth: int) -> ParsedBlock:
+    # we don't expect/want <br/> tags in move.text but they're easy to handle
+    cleaned = re.sub(r"<br\s*/?>", "\n", raw)
+    # remove whitespace around newlines
+    cleaned = re.sub(r"[ \t\r\f\v]*\n[ \t\r\f\v]*", "\n", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)  # collapse newlines
+    cleaned = re.sub(r" +", " ", cleaned)  # collapse spaces
     return ParsedBlock(
-        block_type="comment",
+        type_="comment",
         raw=raw,
         display_text=cleaned,
+        depth=depth,
     )
 
 
-def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
-    blocks = []
-    i = 0
-    length = len(text)
+def extract_ordered_chunks(text: str) -> list[Chunk]:
+    chunks = []
     mode = "neutral"  # can be: neutral, comment, subvar
+    i = 0
     paren_depth = 0
     token_start = None  # move or comment start, tracked through iterations
 
@@ -504,37 +1198,42 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         token = text[token_start:i]
         stripped = token.strip()
         if mode == "neutral":
+            # we're closing out a comment; we'll first nag if needed
             end_char = "" if stripped and stripped[-1] == "}" else "}"
             if not end_char:
                 print("⚠️  Found closing comment brace while in neutral mode")
-            blocks.append(("comment", "{" + token + end_char))
+            chunks.append(Chunk("comment", "{" + token + end_char))
         elif mode == "subvar" and stripped:  # pragma: no branch
-            # one of the few (only) places we strip in this pass
-            blocks.append(("move", stripped))
+            # moves are the only things we strip in this pass
+            chunks.append(Chunk("move", stripped))
         else:
             raise ValueError(  # pragma: no cover
                 f"Unexpected mode '{mode}' in flush_token at index {i}: {token}"
             )
         token_start = None
 
-    while i < length:
+    while i < len(text):
         c = text[i]
 
         # Handle <fenseq ... </fenseq> as atomic
         if mode == "neutral" and text[i:].startswith("<fenseq"):
             flush_token()
+            # we'll naively check for the end tag and accept irregular results
+            # for unlikey html soup like <fenseq blah <fenseq>...</fenseq>
             end_tag = "</fenseq>"
             end = text.find(end_tag, i)
             if end != -1:
                 end += len(end_tag)
-                blocks.append(("fenseq", text[i:end]))
+                chunks.append(Chunk("fenseq", text[i:end]))
                 i = end
                 token_start = None
-                continue
             else:
-                blocks.append(("comment", text[i:]))
-                print(f"⚠️  Unclosed <fenseq>: {text[i:]}")
-                break
+                print(f"⚠️  Unclosed <fenseq> (making a comment): {text[i:]}")
+                token_start = i
+                i = len(text)
+                mode = "neutral"
+                flush_token()
+            continue
 
         # Comment start
         elif c == "{" and mode in ("neutral", "subvar"):
@@ -544,7 +1243,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
 
         # Comment end
         elif c == "}" and mode == "comment":
-            blocks.append(("comment", text[token_start : i + 1]))  # noqa: E203
+            chunks.append(Chunk("comment", text[token_start : i + 1]))  # noqa: E203
             token_start = None
             mode = "neutral" if paren_depth < 1 else "subvar"
 
@@ -555,7 +1254,7 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             ):
                 print(f"✅  Fixing known unbalanced parens: {text[i:][:60]}")
                 # no need to flush token; we're following the already appended comment
-                blocks.append(("subvar", "END 1"))
+                chunks.append(Chunk("subvar", "END 1"))
                 paren_depth = 0
                 mode = "neutral"
 
@@ -563,13 +1262,16 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         elif c == "(" and mode == "neutral":
             flush_token()
             paren_depth += 1
-            blocks.append(("subvar", f"START {paren_depth}"))
+            # paren depth is added to the chunk value for visibility only;
+            # a later step will have its own depth tracking and split into
+            # subvar start/end types
+            chunks.append(Chunk("subvar", f"START {paren_depth}"))
             mode = "subvar"
 
         # Subvar end
         elif c == ")" and mode == "subvar":
             flush_token()
-            blocks.append(("subvar", f"END {paren_depth}"))
+            chunks.append(Chunk("subvar", f"END {paren_depth}"))
             paren_depth -= 1
             if paren_depth == 0:
                 mode = "neutral"
@@ -577,27 +1279,32 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
         # Nested subvar
         elif c == "(" and mode == "subvar":
             paren_depth += 1
-            blocks.append(("subvar", f"START {paren_depth}"))
+            chunks.append(Chunk("subvar", f"START {paren_depth}"))
 
-        # Implied comment
+        # Implied comment when we encounter a non-defined structure in neutral zone
         elif mode == "neutral":
             if token_start is None:
                 token_start = i
 
         elif mode == "subvar":
-            if c.isspace():  # whitespace ends a move token; for now we'll
-                # tokenize 1.e4 and 1. e4 separately and figure out later
-                flush_token()
+            if c.isspace():
+                if token_start is not None:
+                    token = text[token_start:i]
+                    if re.match(r"^\d+\.*\s*$", token):
+                        # still building a move number like "1." or "1..."
+                        pass
+                    else:
+                        flush_token()
             elif token_start is None:
                 token_start = i
 
         elif mode == "comment":  # pragma: no branch
             # have yet to see these in the wild - using assertions until
             # we do, at which time we'll handle them one way or another
-            assert text[i] != "{", "Unexpected opening brace in comment block"
+            assert text[i] != "{", "Unexpected opening brace in comment chunk"
             assert not text[i:].startswith(
                 "<fenseq"
-            ), "Unexpected <fenseq> tag in comment block"
+            ), "Unexpected <fenseq> tag in comment chunk"
             # parens are fine, though! we expect and encourage them (❤️)
 
         elif mode != "comment":  # pragma: no cover
@@ -619,148 +1326,11 @@ def extract_ordered_chunks(text: str) -> list[tuple[str, str]]:
             if end_char:  # pragma: no branch
                 # this might be hard to get to as well!
                 print("⚠️  Didn't find trailing closing comment brace (adding)")
-            blocks.append(("comment", token + end_char))
+            chunks.append(Chunk("comment", token + end_char))
         else:
             flush_token()
 
     if paren_depth > 0:
         print(f"❌  Unbalanced parens, depth {paren_depth}: {text[:30]}")
 
-    return blocks
-
-
-def extract_ordered_chunks_old(text: str) -> list[tuple[str, str]]:
-    """
-    The first big pass, identifying the main types of blocks in the text.
-    We don't care about the content of the blocks yet, just their types.
-
-    Character by character parser is fast and catching a number of rare
-    cases so we don't overly pollute the general parser ahead. If it gets
-    any more complex or we want to extend it, it really needs to be broken
-    up into 3 sub-extractors, one for each type of block. But for now it
-    is readable like a story, let's say.
-
-    1) Suvariations, in parens, e.g. (1.e4! e5 {an open game} 2.Nf3)
-    2) Fenseq, e.g. <fenseq data-fen="">...</fenseq>
-    3) Comments, explicitly in {braces} or implied outside of (parens)
-    4) Whitespace will be glommed onto neighboring elements; no stripping!
-    """
-    blocks = []
-    i = 0
-    length = len(text)
-    start_before_whitespace = -1
-
-    while i < length:
-        if text[i].isspace():
-            if start_before_whitespace == -1:
-                start_before_whitespace = i
-            i += 1
-            continue
-
-        start = start_before_whitespace if start_before_whitespace >= 0 else i
-        start_before_whitespace = -1
-
-        # --- SUBVAR --------------------------------------------------------
-        if text[i] == "(":
-            depth = 1
-            in_comment = False
-            i += 1
-            while i < length and depth > 0:
-                c = text[i]
-
-                # ignore parens inside {(comments)}
-                if c == "{" and not in_comment:
-                    in_comment = True
-                elif c == "}" and in_comment:
-                    in_comment = False
-                elif not in_comment:
-                    if c == "(":
-                        depth += 1
-                    elif c == ")":
-                        depth -= 1
-
-                i += 1
-
-            subvar = text[start:i]
-            # there's not that many of these and most of them seem fenseq-related;
-            # spent time trying to fix on the cleaner side, and got one case, but
-            # still something missing; But remaining is a messy case, and just
-            # the one, so we'll fix here because it's a lot easier to see here.
-            if depth == 1 and re.search(r"}\s*<fenseq", subvar):
-                print(f"✅  Fixing known unbalanced parens: {subvar}")
-                subvar = subvar.replace("<fenseq", ")<fenseq")
-            elif depth != 0:
-                print(f"⚠️  Unbalanced parens in subvar: {subvar}")
-
-            blocks.append(("subvar", subvar))
-            continue
-
-        # --- FENSEQ --------------------------------------------------------
-        elif i < length - 1 and text[i:].startswith("<fenseq"):
-            end_tag = "</fenseq>"
-            end = text.find(end_tag, i)
-            if end != -1:
-                end += len(end_tag)
-                blocks.append(("fenseq", text[start:end]))
-                i = end
-                continue
-            else:
-                # fallback: treat as comment if no close tag
-                blocks.append(("comment", text[i:]))
-                print(f"⚠️  fenseq> tag not closed in text: {text[i:]}")
-                break
-
-        # --- COMMENT -------------------------------------------------------
-        else:
-            # comments are mostly unstructured but there are *some* cases
-            # of embedded clickable subvars, but we'll ignore those for now;
-            # comments may or may not be enclosed in braces
-            implied_comment = True
-            if text[i] == "{":
-                implied_comment = False
-                i += 1
-
-            while i < length:
-                if implied_comment:
-                    if text[i:].startswith("<fenseq"):
-                        break
-                    elif text[i] == "(":  # subvar
-                        break
-                    elif text[i] == "{":
-                        # explicit comment following implicit; handle as separate chunks
-                        break
-
-                elif not implied_comment:
-                    # these might be temporary, just wanting to see if we get them, but
-                    # maybe we'll be more forgiving here and catch in later validation
-                    assert text[i] != "{", "Unexpected opening brace in comment block"
-                    assert not text[i:].startswith(
-                        "<fenseq"
-                    ), "Unexpected <fenseq> tag in comment block"
-                    # parens are fine, though! we expect and encourage them ❤️
-
-                i += 1
-                if text[i - 1] == "}":
-                    if implied_comment:
-                        print('⚠️  Found closing brace while in "implied" comment')
-                    break
-
-            comment_chunk = text[start:i]
-            comment = comment_chunk.strip()  # temporarily strip for checks
-
-            if implied_comment:
-                comment_chunk = "{" + comment_chunk  # explicit is better than implicit
-            elif comment[-1] != "}":
-                print('⚠️  Missing closing brace in "explicit" comment block')
-
-            # final safety: ensure closing brace regardless of implied/explicit
-            if comment and comment[-1] != "}":
-                comment_chunk += "}"
-
-            # we're not stripping any actual data; that'll come later
-            blocks.append(("comment", comment_chunk))
-
-    if start_before_whitespace >= 0:  # leftover whitespace at end, handle as comment
-        blocks.append(("comment", text[start_before_whitespace:]))
-
-    return blocks
+    return chunks
