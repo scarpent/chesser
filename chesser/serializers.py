@@ -537,12 +537,6 @@ class ParsedBlock:
     fen: str = ""
     depth: int = 0  # for subvar depth tracking
 
-    @property
-    def verbose_move(self):
-        # verbose is normalized for comparisons; no annotation
-        move_num = self.move_num or ""
-        return f"{move_num}{self.dots}{self.san}"
-
 
 @dataclass
 class RenderableBlock:
