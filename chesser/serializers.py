@@ -486,9 +486,7 @@ class ResolveStats:
 
     max_subvar_depth: int = 0
 
-    resolved_matches_raw_explicit: int = 0  # move_num, dots, san all match
-    resolved_matches_raw_implicit: int = 0  # items present match
-    # maybe later we'll look more at annotations
+    # tells us if implicit match (-1), explicit match (0), or how far off (1+)
     resolved_move_distance: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
@@ -505,18 +503,11 @@ class ResolveStats:
         print("\nParsing Stats Summary:\n")
         print(f"subvar total: {self.subvar_total}")
         print(f"fenseq total: {self.fenseq_total}")
-
         print(f"moves attempted: {self.moves_attempted}")
         print(f"moves resolved: {self.moves_resolved}")
-
         print(f"Max subvar depth: {self.max_subvar_depth}")
-
-        print(f"Resolved match explicit: {self.resolved_matches_raw_explicit}")
-        print(f"Resolved match implicit: {self.resolved_matches_raw_implicit}")
-        print(
-            f"Resolved move distance: {dict(sorted(self.resolved_move_distance.items()))}"  # noqa: E501
-        )
-
+        move_distances = str(dict(sorted(self.resolved_move_distance.items())))
+        print(f"Resolved move distance: {move_distances}")
         print(f"Matched root san: {self.matched_root_san}")
         print(f"Discarded: {self.discarded}")
         print(f"Mainline siblings: {self.mainline_siblings}")
@@ -797,10 +788,6 @@ class PathFinder:
             if move_parts_resolved:
 
                 self.stats.resolved_move_distance[move_distance] += 1
-                if move_distance == 0:
-                    self.stats.resolved_matches_raw_explicit += 1
-                elif move_distance == -1:
-                    self.stats.resolved_matches_raw_implicit += 1
 
                 if move_distance < 1:
                     # distance = 0: no doubt this is the move we want
