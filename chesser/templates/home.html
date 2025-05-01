@@ -306,8 +306,9 @@
     console.log("homeData:", window.homeData);
   </script>
 
+  <!-- module + dev caching bugbear calls for this redundant in prod cache buster -->
   <script type="module">
-    import { homeApp } from "{% static 'js/home.js' %}";
+    import { homeApp } from "{% static 'js/home.js' %}?v={{ BUILD_TIMESTAMP }}";
     window.homeApp = homeApp;
     document.addEventListener("alpine:init", () => {
       Alpine.data("homeApp", homeApp);
