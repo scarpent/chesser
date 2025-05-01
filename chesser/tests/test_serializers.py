@@ -399,7 +399,7 @@ def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
                 Chunk("fenseq", "<fenseq data-fen='...'>1.e4 e5 2. Nf3</fenseq>"),
             ],
             [
-                ParsedBlock(type_="start", depth=1, fen_before="..."),
+                ParsedBlock(type_="start", depth=1, fen="..."),
                 make_move_block("1.e4", 1, ".", "e4", depth=1),
                 make_move_block("e5", None, "", "e5", depth=1),
                 make_move_block("2. Nf3", 2, ".", "Nf3", depth=1),
@@ -431,8 +431,8 @@ def test_parse_fenseq_chunk_valid(test_input):
     sans = [block.move_parts_raw.san for block in blocks if block.type_ == "move"]
     expected = ["e4", "e5", "Nf3", "Nc6"]
     assert sans == expected
-    assert blocks[0].fen_before == "start_fen"
-    assert all(b.fen_before == "" for b in blocks[1:])
+    assert blocks[0].fen == "start_fen"
+    assert all(b.fen == "" for b in blocks[1:])
     assert all(b.depth == 1 for b in blocks)
     assert all(b.type_ == "move" for b in blocks[1:-1])
     assert (blocks[0].type_, blocks[-1].type_) == ("start", "end")
@@ -444,7 +444,7 @@ def test_parse_fenseq_chunk_with_comments():
     blocks = serializers.parse_fenseq_chunk(test_input)
 
     expected = [
-        ParsedBlock(type_="start", fen_before="start_fen", depth=1),
+        ParsedBlock(type_="start", fen="start_fen", depth=1),
         make_move_block("1.e4", 1, ".", "e4", depth=1),
         make_comment_block("{comment}", "comment"),
         make_move_block("e5", None, "", "e5", depth=1),

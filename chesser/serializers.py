@@ -453,11 +453,10 @@ class ParsedBlock:
     move_parts_raw: Optional[MoveParts] = None
     move_parts_resolved: Optional[MoveParts] = None
     raw_to_resolved_distance: int = -1  # distance between raw and resolved
-    # fen representing state after this move (for normal render linking)
+    # for move blocks: fen representing state after this move (normal link rendering)
+    # for start blocks: fen representing state before the sequence
+    # i.e. fenseq/@@StartFEN@@, and tells us to render ⏮️ as a link
     fen: str = ""
-    # fen_before represents the state before a subvar's first move, is exclusive to
-    # fenseq/@@StartFEN@@ blocks, and tells us to render ⏮️ as a link to the before_fen
-    fen_before: str = ""
     depth: int = 0  # for subvar depth tracking
 
     @property
@@ -703,9 +702,9 @@ class PathFinder:
             return None
 
     def handle_start_block(self, block: ParsedBlock):
-        if block.fen_before:
+        if block.fen:
             # fenseq; let's try to mostly treat same as subvar
-            chessboard = chess.Board(block.fen_before)
+            chessboard = chess.Board(block.fen)
             self.stats.fenseq_total += 1
             print("↘️  fenseq")
         else:
@@ -1029,7 +1028,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     inner_text = f"({inner_text})"
 
     DEPTH = 1
-    blocks = [ParsedBlock("start", depth=DEPTH, fen_before=fen)]
+    blocks = [ParsedBlock("start", depth=DEPTH, fen=fen)]
 
     chunks = extract_ordered_chunks(inner_text)
 
