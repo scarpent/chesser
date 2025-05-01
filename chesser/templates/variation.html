@@ -131,8 +131,9 @@
     window.dispatchEvent(new Event("resize"));
   </script>
 
+  <!-- module + dev caching bugbear calls for this prod redundant cache buster -->
   <script type="module">
-    import { variationApp } from "{% static 'js/variation.js' %}";
+    import { variationApp } from "{% static 'js/variation.js' %}?v={{ BUILD_TIMESTAMP }}";
     window.variationApp = variationApp;
     document.addEventListener("alpine:init", () => {
       Alpine.data("variationApp", variationApp);
