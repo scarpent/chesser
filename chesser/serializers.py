@@ -227,9 +227,6 @@ def get_source_html(source):
     return mine + original
 
 
-# === Parser/Renderer v1 ====================================================
-
-
 def generate_variation_html(variation, version=1):
     html = ""
     white_to_move = True
@@ -258,30 +255,109 @@ def generate_variation_html(variation, version=1):
             f'data-index="{move.sequence}">{move_str}</span>'
         )
 
+        # v2 expects mainline move will already be played
+        if version == 2:
+            board.push_san(move.san)  # Mainline moves better be valid
+
         if move.text:
             beginning_of_move_group = True
 
             if version == 2:
                 parsed_blocks = get_parsed_blocks(move, board.copy())
+                subvar_html = generate_subvariations_html(move, parsed_blocks)
+
                 # subvar_html = render_parsed_blocks(parsed_blocks, board.copy())
 
-                blocks = [
-                    f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
-                    for block in parsed_blocks
-                ]
-                subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
+                # blocks = [
+                #     f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
+                #     for block in parsed_blocks
+                # ]
+                # subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
 
             else:  # v1
                 moves_with_fen = extract_moves_with_fen(board.copy(), move)
-                subvar_html = generate_subvariations_html(move, moves_with_fen)
+                subvar_html = generate_subvariations_html_v1(move, moves_with_fen)
 
             html += f"</h3>{subvar_html}"
 
-        board.push_san(move.san)  # Mainline moves better be valid
+        # v1 had this at the end of the loop for some reason
+        if version != 2:
+            board.push_san(move.san)  # Mainline moves better be valid
 
     html = htmlize_chessable_tags(html)
 
     return html
+
+
+def generate_subvariations_html(move, parsed_blocks):
+    counter = -1
+    html = ""
+    for block in parsed_blocks:
+        if block.type_ == "comment":
+            comment = block.display_text.replace("\n", "<br/>")
+            html += f" {comment} "
+            continue
+
+        if block.type_ == "start":
+            if block.fen:
+                html += "⏮️"
+            pass
+
+        if block.type_ == "move":
+            counter += 1
+            resolved = "✅" if block.move_parts_resolved else "❌"
+            html += f" {block.raw} {resolved} "
+
+            # TODO: resolved vs not, etc.
+
+            # html += (
+            #     f'<span class="move subvar-move" data-fen="{fen}" '
+            #     f'data-index="{counter}">{matched_move}</span>'
+            # )
+
+    return (
+        '<div class="subvariations" '
+        f'data-mainline-index="{move.sequence}">{html}</div>'
+    )
+
+    # remaining_text = move.text
+    # for san, fen in move_fen_map:
+    #     while True:
+    #         m = re.search(re.escape(san), remaining_text)
+    #         if m:
+    #             mstart = m.start()
+    #             mend = m.end()
+    #             html += remaining_text[:mstart]
+    #             remaining_text = remaining_text[mend:]
+    #             matched_move = m.group(0)
+    #             if is_in_comment(remaining_text):
+    #                 html += matched_move
+    #                 continue
+    #             else:
+    #                 counter += 1
+    #                 html += (
+    #                     f'<span class="move subvar-move" data-fen="{fen}" '
+    #                     f'data-index="{counter}">{matched_move}</span>'
+    #                 )
+    #                 break
+    #         else:
+    #             break
+
+    # html += f"{remaining_text.strip()}"
+    # if "<br/>" not in html:
+    #     # TODO: don't <br/> by block level things like <ul>
+    #     html = html.replace("\n", "<br/>")
+
+    # # much more to do here of course
+    # html = html.replace("<fenseq", " ⏮️ <fenseq")
+
+    # return (
+    #     '<div class="subvariations" '
+    #     f'data-mainline-index="{move.sequence}">{html}</div>'
+    # )
+
+
+# === Parser/Renderer v1 ====================================================
 
 
 # TODO: this goes away after cleanup is all done and import also cleans
@@ -292,7 +368,7 @@ def htmlize_chessable_tags(html):
     return html
 
 
-def generate_subvariations_html(move, move_fen_map):
+def generate_subvariations_html_v1(move, move_fen_map):
     """
     {sicilian}
     (1...c5 {or french}) (1...e6 {or caro}) (1...c6?!)
@@ -522,8 +598,9 @@ class ResolveStats:
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     chunks = extract_ordered_chunks(move.text)
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
-    # resolved_blocks = resolve_moves(parsed_blocks, move, board)
-    return parsed_blocks
+    pathfinder = PathFinder(parsed_blocks, move, board)
+    resolved_blocks = pathfinder.resolve_moves()
+    return resolved_blocks
 
 
 def get_move_parsed_block(text: str, depth: int) -> ParsedBlock:
@@ -832,6 +909,13 @@ class PathFinder:
             ):
                 self.stats.matched_root_san += 1
 
+            # TODO: more fun to be had in here... this is probably the time to
+            # decide on move display text...
+            # * if we discard a move, the following move should be "verbose"
+            # * moves following comments should also be verbose
+            # * etc - here we have the information -- so we have to work out
+            #   how to keep track of after comments, etc...
+
             # TODO: think about clean handling of move_parts_resolved/registered/etc...
             if self.current.move_counter == 1 and not move_parts_resolved:
                 # two common scenarios:
@@ -920,7 +1004,8 @@ class PathFinder:
             resolved_blocks.append(block)
             self.index += 1
 
-        return self.blocks
+        # could have a checksum of len self.blocks - a discarded count
+        return resolved_blocks
 
 
 """
