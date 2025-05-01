@@ -149,6 +149,13 @@ export function quizApp() {
           lastMove: [move.from, move.to],
         });
         this.quizMoveIndex++;
+
+        // quizzes *should* end on our move but if we have a
+        // hanging opposing move we'll need to end things here...
+        if (this.noMoreMoves()) {
+          this.completeQuiz();
+          return;
+        }
       }, 250); // 0.25 second delay
       // (Later: maybe 1 second for first move? shorter for subsequent?)
     },
