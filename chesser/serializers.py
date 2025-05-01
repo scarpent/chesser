@@ -452,6 +452,7 @@ class ParsedBlock:
     display_text: str = ""  # for normalized comments, moves
     move_parts_raw: Optional[MoveParts] = None
     move_parts_resolved: Optional[MoveParts] = None
+    raw_to_resolved_distance: int = -1  # distance between raw and resolved
     # fen representing state after this move (for normal render linking)
     fen: str = ""
     # fen_before represents the state before a subvar's first move, is exclusive to
@@ -626,6 +627,44 @@ def get_resolved_move_distance(
     return abs(resolved_ply - raw_ply)
 
 
+def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
+    """
+    Returns a resolved move parts and "move distance"
+    if successful, None, None if not.
+
+    Nothing changes with the original move block except
+    we'll add an error to it. (For now, anyway.)
+    """
+    san = block.move_parts_raw.san
+    try:
+        move_obj = board.parse_san(san)
+        board.push(move_obj)
+    except Exception:
+        print(f"❌ Failed to push move: {block.raw}")
+        # TODO: decide what to do with block error handling
+        block.errors.append(f"Failed SAN during path finding: {san}")
+        return None, None
+
+    # turn = True means it's white's move *now*, so we reverse things
+    # to figure out dots for move just played
+
+    move_parts_resolved = MoveParts(
+        move_num=(board.ply() + 1) // 2,
+        dots="..." if board.turn else ".",
+        san=san,
+        annotation=block.move_parts_raw.annotation,
+    )
+
+    resolved_move_distance = get_resolved_move_distance(
+        move_parts_resolved.move_num,
+        move_parts_resolved.dots,
+        block.move_parts_raw.move_num,
+        block.move_parts_raw.dots,
+    )
+
+    return move_parts_resolved, resolved_move_distance
+
+
 @dataclass
 class StackFrame:
     board: chess.Board
@@ -709,24 +748,13 @@ class PathFinder:
 
     def bust_a_move(self, block: ParsedBlock, attempt: int = 1) -> bool:
         # don't just stand there... 🎶
-        san = block.move_parts_raw.san
-        try:
-            move_obj = self.current.board.parse_san(san)
-            self.current.board.push(move_obj)
-        except Exception:
-            print(f"❌ Failed to push move: {block.raw}")
-            block.errors.append(f"Failed SAN during path finding: {san}")
+
+        move_parts_resolved, move_distance = try_move(self.current.board, block)
+        if not move_parts_resolved:
             return False
 
-        # turn = True means it's white's move, but that is *now*, so we
-        # reverse things to apply to this move we just played for dots
-
-        block.move_parts_resolved = MoveParts(
-            move_num=(self.current.board.ply() + 1) // 2,
-            dots="..." if self.current.board.turn else ".",
-            san=san,
-            annotation=block.move_parts_raw.annotation,
-        )
+        block.move_parts_resolved = move_parts_resolved
+        block.raw_to_resolved_distance = move_distance
         block.fen = self.current.board.fen()
 
         # I don't think we can decide on display text yet
@@ -735,7 +763,7 @@ class PathFinder:
         self.stats.resolved_on_attempt[attempt] += 1
 
         self.current.parsed_moves.append(block)
-        print(f"✅ resolved move: {block.raw} ➤ {move_obj}")  # \n\t\t{block}")
+        print(f"✅ resolved move: {block.raw} ➤")
         print(f"\traw parts: {block.move_parts_raw}")
         print(f"\tresolved parts: {block.move_parts_resolved}")
         return True
@@ -769,54 +797,23 @@ class PathFinder:
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
             self.stats.moves_attempted += 1
-            self.current.move_counter += 1  # pass or fail
+            self.current.move_counter += 1  # whether pass or fail
 
             # first, let's just try whatever the move is...
             # perhaps most of the time it will be valid 🤞
             move_played = self.bust_a_move(block, attempt=1)
 
+            # however this will break our naive non-move number parsing:
+            # (1...e5 2.Nf3 {or} 1...c5 2.c3)
+            # c5 is a valid black second move
+            # we'll start looking at raw vs resolved to try being smart...
+
             if move_played:
-                # resolved moves should/better/absolutely must(?) have all the parts
-                if (
-                    block.move_parts_raw.move_num == block.move_parts_resolved.move_num
-                    and block.move_parts_raw.dots == block.move_parts_resolved.dots
-                    and block.move_parts_raw.san == block.move_parts_resolved.san
-                ):
+                self.stats.resolved_move_distance[block.raw_to_resolved_distance] += 1
+                if block.raw_to_resolved_distance == 0:
                     self.stats.resolved_matches_raw_explicit += 1
-
-                # raw move parts may or may not have been there, we'll call it an
-                # implicit match if whatever there matches
-                elif (
-                    (
-                        block.move_parts_raw.move_num is None
-                        or block.move_parts_raw.move_num
-                        == block.move_parts_resolved.move_num
-                    )
-                    and (
-                        block.move_parts_raw.dots == ""
-                        or block.move_parts_raw.dots == block.move_parts_resolved.dots
-                    )
-                    and block.move_parts_raw.san == block.move_parts_resolved.san
-                ):
+                elif block.raw_to_resolved_distance == -1:
                     self.stats.resolved_matches_raw_implicit += 1
-
-                # 1...e4 ➤ 1.e4  2...e4 ➤ 1.e4
-                # 1.e4 2.e5 ➤ 1.e4 1...e5
-                # distance:
-                # -1 = implied match (missing raw num or dots)
-                # 0 = exact match
-                move_distance = get_resolved_move_distance(
-                    block.move_parts_resolved.move_num,
-                    block.move_parts_resolved.dots,
-                    block.move_parts_raw.move_num,
-                    block.move_parts_raw.dots,
-                )
-                self.stats.resolved_move_distance[move_distance] += 1
-
-                # however this will break our naive non-move number parsing:
-                # (1...e5 2.Nf3 {or} 1...c5 2.c3)
-                # c5 is a valid black second move
-                # we'll start looking at raw vs resolved to try being smart
 
             if move_played:
                 self.index += 1
