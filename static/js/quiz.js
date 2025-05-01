@@ -55,9 +55,7 @@ export function quizApp() {
     }, // initQuiz()
 
     goToStartingPosition() {
-      // Give some indication when we're extra studying after a fail 🔴
-      // Put red in second position to match the "failed" state
-      this.status = this.failed ? "🟤🔴" : "🟤🟤";
+      this.status = "🟤🟤";
       // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {
@@ -266,14 +264,10 @@ export function quizApp() {
     completeQuiz() {
       this.completed = true;
       this.showInfo = true;
-      if (this.failed) {
-        // Green indicates that the last move was successful, which it *has* to be
-        // in order to complete the quiz; it seems like we need some indication
-        // that the move itself was good, but the quiz as a whole was not
-        this.status = "🟢🔴";
-      } else {
-        this.status = "🟢🟢";
-      }
+      // Green indicates that the last move was successful, which it *has* to be
+      // in order to complete the quiz; "extra study" will show up in red as *some*
+      // indication when the overall quiz was not completed successfully
+      this.status = "🟢🟢";
 
       if (this.reviewData.extra_study) {
         console.log("extra study: not reporting result");
