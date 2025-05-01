@@ -493,9 +493,8 @@ class ResolveStats:
     )
 
     matched_root_san: int = 0
-    mainline_siblings: int = 0
-    mainline_siblings_resolved: int = 0
-    first_matched_root_but_no_next: int = 0
+    root_siblings: int = 0
+    root_siblings_resolved: int = 0
     discarded: int = 0
 
     failure_blocks: list[str] = field(default_factory=list)
@@ -511,9 +510,8 @@ class ResolveStats:
         print(f"Resolved move distance: {move_distances}")
         print(f"Matched root san: {self.matched_root_san}")
         print(f"Discarded: {self.discarded}")
-        print(f"Mainline siblings: {self.mainline_siblings}")
-        print(f"Mainline siblings resolved: {self.mainline_siblings_resolved}")
-        print(f"First matched root but no next: {self.first_matched_root_but_no_next}")
+        print(f"Root siblings: {self.root_siblings}")
+        print(f"Root siblings resolved: {self.root_siblings_resolved}")
         print("\n")
         if self.failure_blocks:
             print(f"{len(self.failure_blocks)} failed blocks:")
@@ -541,11 +539,12 @@ MOVE_PARTS_REGEX = re.compile(
     r"""(?x)                # verbose 💬
     ^(\d*)                  # optional move number
     (\.*)\s*                # optional dots
-    (
+    (                       #
       [a-zA-Z]              # first san char must be a letter e4, Ba3, ...
       [a-zA-Z0-9-=]*        # allows for O-O and a8=Q
-      [a-zA-Z0-9]           # last san char must be a number/letter (cap, really)
-    )?
+      [a-zA-Z0-9]           # last san char usually a a number but could be cap
+                            # OQRNB (we'll be easy with a-zA-Z, still)
+    )?                      # optional san
     ([^a-zA-Z0-9]*)$        # optional trailing annotation, including + and #
                             # which are part of san, but not required there
     """
@@ -559,7 +558,8 @@ def get_move_parts(text: str) -> MoveParts:
     will be included with annotation, even though they are part
     of the san.
 
-    This split is very permissive. *Something* will match.
+    This split is very permissive. Everything is optional, so *something*
+    will match, even if just empties. But we'll likely get a san at least.
 
     - Extracts optional move number (e.g. "1" from "1.e4", "1. e4" "1...e5")
     - Extracts dots following the number ("." or "..." or "........" & so on)
@@ -571,11 +571,10 @@ def get_move_parts(text: str) -> MoveParts:
     - Malformed SANs, impossible moves, etc. are allowed
     - Path validation happens later during move resolution
 
-    The goal is to be strict in how we parse and clean fields,
-    but flexible in accepting whatever we have at this point.
-    We probably have mostly clean data at this point and errors
-    won't be catastrophic later. God knows Chessable has enough
-    broken subvariations themselves.
+    The goal is to be strict in how we parse and clean fields, but
+    flexible in accepting whatever we have at this point. We probably
+    have mostly clean data at this point and errors won't be catastrophic
+    later. God knows Chessable has enough broken subvariations themselves.
     """
     m = MOVE_PARTS_REGEX.search(text.strip())
     if m:
@@ -603,7 +602,7 @@ def get_resolved_move_distance(
         "..." → black to move = ply = (move_num - 1) * 2 + 1
 
     TODO: perhaps we shouldn't use "abs" here; we'll see if we care
-    about the direction of the move distance later
+    about the direction of the move distance later...
     """
     if raw_move_num is None or raw_dots not in (".", "..."):
         return AMBIGUOUS
@@ -730,10 +729,8 @@ class PathFinder:
         self.board_stack.append(StackFrame(board=chessboard, root_block=root_block))
         print("↘️  stack:")
         for frame in self.board_stack:
-            print(
-                f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} "
-                f"➤ {frame.board.fen()}"
-            )
+            fen = frame.board.fen()
+            print(f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}")
 
     def register_move(
         self,
@@ -753,8 +750,8 @@ class PathFinder:
 
         self.current.parsed_moves.append(block)
         print(f"✅ registered move: {block.raw} ➤")
-        print(f"\traw parts: {block.move_parts_raw}")
-        print(f"\tresolved parts: {block.move_parts_resolved}")
+        print(f"\traw: {tuple(block.move_parts_raw)}")
+        print(f"\tresolved: {tuple(block.move_parts_resolved)}")
 
     def resolve_moves(self) -> list[ParsedBlock]:
 
@@ -785,17 +782,23 @@ class PathFinder:
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
             self.stats.moves_attempted += 1
-            self.current.move_counter += 1  # whether pass or fail
+            # move count whether pass or fail; in particular we want to know
+            # when we're on the first move of a subvar to compare against mainline
+            self.current.move_counter += 1
 
             move_parts_resolved, move_distance = try_move(self.current.board, block)
 
             if move_parts_resolved:
                 self.stats.resolved_move_distance[move_distance] += 1
+                raw = tuple(block.move_parts_raw)
+                resolved = tuple(move_parts_resolved)
 
-                if move_distance < 1:
+                if move_distance <= 1:
                     # distance = 0: no doubt this is the move we want
                     # distance = -1: AMBIGUOUS ➤ there's a good chance this
                     #                is it, maybe enough to just go for it 🚀
+                    # distance = 1: *maybe* okay, seems there are some number
+                    #               of variations that are off by 1 ply
                     self.register_move(
                         block,
                         move_parts_resolved,
@@ -804,83 +807,92 @@ class PathFinder:
                     )
                     self.index += 1
                     resolved_blocks.append(block)
+
+                    if move_distance == 1:
+                        block.errors.append(
+                            "Distance off by 1 after resolving. We'll go with it... "
+                            f"{raw} ➤ {resolved}"
+                        )
                     continue
+                else:
+                    block.errors.append(
+                        f"Distance too far off after resolving: {move_distance}. "
+                        f"We'll not register it... {raw} ➤ {resolved}"
+                    )
 
-                # TODO: here there be dragons... 🐉🐲
+                # treat distance >2 as failed and go with regular recovery strategies
+                # should we deal with these first?
 
-            else:
-                pass
+                # TODO: make sure to deal with unregistered tried move!
 
-            # consider...
-            # (1...e5 2.Nf3 {or} 1...c5 2.c3)
-            # c5 is a valid black second move, so we can't handle naively
+            # consider scenarios in order of likelihood?
 
-            # wild explorations... keep in mind mainline move root vs other roots...
-
-            first = self.current.move_counter == 1
-            # maybe the first just repeated the previous (root) san,
-            # and we can drop this one and move on...
-
-            next_ = self.get_next_move()
-
-            matched_root_san = (
+            if matched_root_san := (
                 self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
-            )
-            if matched_root_san:
+            ):
                 self.stats.matched_root_san += 1
 
-            if first and matched_root_san and block.depth == 1:
-                mainline_move_parts = get_move_parts(self.mainline_move.move_verbose)
-                distance = get_resolved_move_distance(
-                    mainline_move_parts.move_num,
-                    mainline_move_parts.dots,
+            # TODO: think about clean handling of move_parts_resolved/registered/etc...
+            if self.current.move_counter == 1 and not move_parts_resolved:
+                # two common scenarios:
+                # (1) the root move (usually the mainline move) is repeated,
+                #   e.g. mainline 1.e4, subvar (1.e4 e5)
+                #   discard the first subvar and keep going...
+                distance_from_root = get_resolved_move_distance(
+                    self.current.root_block.move_parts_resolved.move_num,
+                    self.current.root_block.move_parts_resolved.dots,
                     block.move_parts_raw.move_num,
                     block.move_parts_raw.dots,
                 )
-                if distance != 0:
-                    print("❌")
-                # distance = 0 on all matches!
-                # if distance != 0:
+                # TODO how lenient should this be? we'll start more lenient
+                if matched_root_san and distance_from_root <= 1:
+                    self.stats.discarded += 1
+                    print(
+                        "🗑️  Discarding move block that has "
+                        f"same san as previous: {block.move_parts_raw.san}"
+                    )
+                    self.index += 1
+                    continue
 
-            # TODO: should be looking at depth here? or make sure subvar root
-            # is working as expected
-            if first and matched_root_san and next_:
-                self.stats.discarded += 1
-                # expect that this will happen quite a bit;
-                # should we see if the next move works first?
-                # TODO: maybe should have some move num validation?
-                print(
-                    "🗑️  Discarding failed move block that has "
-                    f"same san as previous: {block.move_parts_raw.san}"
-                )
-                self.index += 1
-                continue
-            if first and matched_root_san and not next_:
-                self.stats.first_matched_root_but_no_next += 1
-            dots = "." if self.mainline_move.white_to_move else "..."
-            if (
-                first
-                and block.depth == 1
-                and self.mainline_move.move_num == block.move_parts_raw.move_num
-                and dots == block.move_parts_raw.dots
-            ):
-                # subvar move is a sibling of the mainline move
-                temp_board = self.current.board.copy()
-                temp_board.pop()
-                print(
-                    "❗️ first subvar move is sibling to mainline move; "
-                    "figure out how to handle this..."
-                )
-                self.stats.mainline_siblings += 1
-                try:
-                    move_obj = temp_board.parse_san(block.move_parts_raw.san)
-                    temp_board.push(move_obj)
-                    print("✅ sibling move resolved! 🚀")
-                    self.stats.mainline_siblings_resolved += 1
-                except Exception:
-                    print("❌ sibling move didn't resolve")
+                # (2) sibling! e.g. mainline 1.e4, subvar (1.d4 d5)
+                if distance_from_root == 0:
+                    self.stats.root_siblings += 1
+                    # go back to try the sibling...
+                    self.current.board.pop()
+                    # will this always be 0 distance?
+                    sibling_move_parts_resolved, sibling_move_distance = try_move(
+                        self.current.board, block
+                    )
+                    if sibling_move_parts_resolved:
+                        print("👥 sibling move resolved! 🚀")
+                        self.stats.root_siblings_resolved += 1
+                        self.stats.resolved_move_distance[sibling_move_distance] += 1
+                        self.register_move(
+                            block,
+                            sibling_move_parts_resolved,
+                            sibling_move_distance,
+                            self.current.board.fen(),
+                        )
+                        resolved_blocks.append(block)
+                        self.index += 1
+                        continue
 
-                # TODO: more here in verifying if things resolved to "wrong" move
+                    # TODO: need to work out the try/register concept better --
+                    # e.g. trying a move may advance board state but what if we
+                    # don't register it?
+
+                    # TODO: consider this failure with bad pgn data
+                    # mainline 1.e4 subvar (2.d4 d5)
+                    # 2.d4 won't be detected as a sibling since distance != 0,
+                    # and after it fails, d5 will be treated as a valid black
+                    # first move, so...
+
+                    # how to handle failures -- seems like once we run out of
+                    # recovery options, we should include rest of blocks in the
+                    # subvar in resolved blocks without trying to resolve them -
+                    # we want to see them the rendered output but might be
+                    # confusing to have them partially resolved correctly? or
+                    # maybe interesting to see what happens and can refine later...
 
             # if not first:
             #     # another common case is "implied" subvariations, without parens
@@ -894,6 +906,18 @@ class PathFinder:
             #         resolved_blocks.append(block)
             #         continue
 
+            if move_parts_resolved:
+                # TODO: leftover "too far" distance to be handled...
+                # 😬 need much better handling here to make sure we're
+                # maintaining and reading board state properly...
+                self.register_move(
+                    block,
+                    move_parts_resolved,
+                    move_distance,
+                    self.current.board.fen(),
+                )
+
+            resolved_blocks.append(block)
             self.index += 1
 
         return self.blocks
