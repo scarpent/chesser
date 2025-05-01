@@ -12,6 +12,8 @@ from django.utils import timezone
 from chesser import util
 from chesser.models import Move
 
+AMBIGUOUS = -1
+
 annotations = {
     "none": "No annotation",
     "?": "? Poor",
@@ -452,10 +454,10 @@ class ParsedBlock:
     display_text: str = ""  # for normalized comments, moves
     move_parts_raw: Optional[MoveParts] = None
     move_parts_resolved: Optional[MoveParts] = None
-    raw_to_resolved_distance: int = -1  # distance between raw and resolved
+    raw_to_resolved_distance: int = AMBIGUOUS  # unknown to start
     # for move blocks: fen representing state after this move (normal link rendering)
-    # for start blocks: fen representing state before the sequence
-    # i.e. fenseq/@@StartFEN@@, and tells us to render ⏮️ as a link
+    # for start blocks: fen representing state before the sequence;
+    #                   i.e. fenseq/@@StartFEN@@, enables rendering ⏮️ as a link
     fen: str = ""
     depth: int = 0  # for subvar depth tracking
 
@@ -599,9 +601,12 @@ def get_resolved_move_distance(
     Dot types:
         "."   → white to move = ply = (move_num - 1) * 2
         "..." → black to move = ply = (move_num - 1) * 2 + 1
+
+    TODO: perhaps we shouldn't use "abs" here; we'll see if we care
+    about the direction of the move distance later
     """
     if raw_move_num is None or raw_dots not in (".", "..."):
-        return -1
+        return AMBIGUOUS
 
     def move_to_ply(num, dots):
         return (num - 1) * 2 + (1 if dots == "..." else 0)
@@ -785,12 +790,12 @@ class PathFinder:
             move_parts_resolved, move_distance = try_move(self.current.board, block)
 
             if move_parts_resolved:
-
                 self.stats.resolved_move_distance[move_distance] += 1
 
                 if move_distance < 1:
                     # distance = 0: no doubt this is the move we want
-                    # distance = -1: there's a good chance this is it, and maybe enough
+                    # distance = -1: AMBIGUOUS ➤ there's a good chance this
+                    #                is it, maybe enough to just go for it 🚀
                     self.register_move(
                         block,
                         move_parts_resolved,
