@@ -156,7 +156,7 @@ blockquote {
 }
 
 .status {
-  font-size: 30px;
+  font-size: 45px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -760,7 +760,7 @@ blockquote {
   width: 100%;
   gap: 5px;
   margin-bottom: 0;
-  margin-top: 5px;
+  /* margin-top: 5px; */
 }
 
 .button-container-home {
