@@ -493,9 +493,6 @@ class ResolveStats:
         default_factory=lambda: defaultdict(int)
     )
 
-    resolved_on_attempt: defaultdict[int, int] = field(
-        default_factory=lambda: defaultdict(int)
-    )
     matched_root_san: int = 0
     mainline_siblings: int = 0
     mainline_siblings_resolved: int = 0
@@ -520,9 +517,6 @@ class ResolveStats:
             f"Resolved move distance: {dict(sorted(self.resolved_move_distance.items()))}"  # noqa: E501
         )
 
-        print(
-            f"Resolved on attempt N: {dict(sorted(self.resolved_on_attempt.items()))}"
-        )
         print(f"Matched root san: {self.matched_root_san}")
         print(f"Discarded: {self.discarded}")
         print(f"Mainline siblings: {self.mainline_siblings}")
@@ -746,27 +740,26 @@ class PathFinder:
                 f"➤ {frame.board.fen()}"
             )
 
-    def bust_a_move(self, block: ParsedBlock, attempt: int = 1) -> bool:
-        # don't just stand there... 🎶
-
-        move_parts_resolved, move_distance = try_move(self.current.board, block)
-        if not move_parts_resolved:
-            return False
-
+    def register_move(
+        self,
+        block: ParsedBlock,
+        move_parts_resolved: MoveParts,
+        move_distance: int,
+        fen: str,
+    ):
         block.move_parts_resolved = move_parts_resolved
         block.raw_to_resolved_distance = move_distance
-        block.fen = self.current.board.fen()
+        block.fen = fen
 
         # I don't think we can decide on display text yet
 
         self.stats.moves_resolved += 1
-        self.stats.resolved_on_attempt[attempt] += 1
+        # self.stats.resolved_on_attempt[attempt] += 1
 
         self.current.parsed_moves.append(block)
-        print(f"✅ resolved move: {block.raw} ➤")
+        print(f"✅ registered move: {block.raw} ➤")
         print(f"\traw parts: {block.move_parts_raw}")
         print(f"\tresolved parts: {block.move_parts_resolved}")
-        return True
 
     def resolve_moves(self) -> list[ParsedBlock]:
 
@@ -799,26 +792,37 @@ class PathFinder:
             self.stats.moves_attempted += 1
             self.current.move_counter += 1  # whether pass or fail
 
-            # first, let's just try whatever the move is...
-            # perhaps most of the time it will be valid 🤞
-            move_played = self.bust_a_move(block, attempt=1)
+            move_parts_resolved, move_distance = try_move(self.current.board, block)
 
-            # however this will break our naive non-move number parsing:
-            # (1...e5 2.Nf3 {or} 1...c5 2.c3)
-            # c5 is a valid black second move
-            # we'll start looking at raw vs resolved to try being smart...
+            if move_parts_resolved:
 
-            if move_played:
-                self.stats.resolved_move_distance[block.raw_to_resolved_distance] += 1
-                if block.raw_to_resolved_distance == 0:
+                self.stats.resolved_move_distance[move_distance] += 1
+                if move_distance == 0:
                     self.stats.resolved_matches_raw_explicit += 1
-                elif block.raw_to_resolved_distance == -1:
+                elif move_distance == -1:
                     self.stats.resolved_matches_raw_implicit += 1
 
-            if move_played:
-                self.index += 1
-                resolved_blocks.append(block)
-                continue
+                if move_distance < 1:
+                    # distance = 0: no doubt this is the move we want
+                    # distance = -1: there's a good chance this is it, and maybe enough
+                    self.register_move(
+                        block,
+                        move_parts_resolved,
+                        move_distance,
+                        self.current.board.fen(),
+                    )
+                    self.index += 1
+                    resolved_blocks.append(block)
+                    continue
+
+                # TODO: here there be dragons... 🐉🐲
+
+            else:
+                pass
+
+            # consider...
+            # (1...e5 2.Nf3 {or} 1...c5 2.c3)
+            # c5 is a valid black second move, so we can't handle naively
 
             # wild explorations... keep in mind mainline move root vs other roots...
 
