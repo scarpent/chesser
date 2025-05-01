@@ -195,7 +195,7 @@
     console.log("variationData:", window.variationData); // Debugging
   </script>
 
-  <!-- module + dev caching bugbear calls for this prod redundant cache buster -->
+  <!-- dev caching bugbear calls for this prod redundant cache buster -->
   <script type="module">
     import { editApp } from "{% static 'js/edit.js' %}?v={{ BUILD_TIMESTAMP }}";
     window.editApp = editApp;

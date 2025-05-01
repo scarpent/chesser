@@ -55,7 +55,7 @@ export function quizApp() {
     }, // initQuiz()
 
     goToStartingPosition() {
-      this.status = "🟤🟤";
+      this.status = "🟤";
       // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {
@@ -190,21 +190,21 @@ export function quizApp() {
       if (correct) {
         // Green indicates that the move was successful, and purple
         // that the outcome of the quiz is still pending
-        this.status = "🟢🟢";
+        this.status = "🟢";
         this.playOpposingMove();
         this.annotateCircle(move.to, "green");
       } else if (answer.alt.includes(move.san)) {
         // Alt moves are playable moves; yellow means we won't fail you for it
-        this.status = "🟡🟢";
+        this.status = "🟡";
         this.annotateMissedMove(move.from, move.to, "yellow", "green");
       } else if (answer.alt_fail.includes(move.san)) {
         // Alt moves are playable moves; red means we will fail you for it
-        this.status = "🔴🟢";
+        this.status = "🔴";
         this.annotateMissedMove(move.from, move.to, "red", "green");
         this.failed = true;
       } else {
         // Complete fail (the move might be playable; but we haven't yet marked it so)
-        this.status = "🔴🔴";
+        this.status = "🔴";
         this.annotateMissedMove(move.from, move.to, "red", "red");
         this.failed = true;
       }
@@ -271,10 +271,12 @@ export function quizApp() {
     completeQuiz() {
       this.completed = true;
       this.showInfo = true;
-      // Green indicates that the last move was successful, which it *has* to be
-      // in order to complete the quiz; "extra study" will show up in red as *some*
-      // indication when the overall quiz was not completed successfully
-      this.status = "🟢🟢";
+      if (this.failed) {
+        // last move was successful (it has to be!) but overall quiz failed
+        this.status = "🟡";
+      } else {
+        this.status = "🟢";
+      }
 
       if (this.reviewData.extra_study) {
         console.log("extra study: not reporting result");

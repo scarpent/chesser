@@ -208,7 +208,7 @@
     console.log("reviewData:", window.reviewData);
   </script>
 
-  <!-- module + dev caching bugbear calls for this prod redundant cache buster -->
+  <!-- dev caching bugbear calls for this prod redundant cache buster -->
   <script type="module">
     import { quizApp } from "{% static 'js/quiz.js' %}?v={{ BUILD_TIMESTAMP }}";
     window.quizApp = quizApp;
