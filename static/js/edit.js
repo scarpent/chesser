@@ -259,6 +259,7 @@ export function editApp() {
         }
       }, 100);
     },
+
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
       const tag = event.target.tagName.toLowerCase();
@@ -267,6 +268,13 @@ export function editApp() {
         tag === "textarea" ||
         tag === "select" ||
         event.target.isContentEditable;
+
+      // 💾 Save shortcut: Cmd/Ctrl + S
+      if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+        event.preventDefault();
+        this.saveVariation(this.currentMoveIndex);
+        return;
+      }
 
       if (isFormInput) return; // skip navigation inside form elements
 
