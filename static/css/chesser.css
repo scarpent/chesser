@@ -1052,7 +1052,6 @@ more washed out with all the white paper */
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 50px;
-  padding-right: 10px; /* board is slightly offset, try to center */
   z-index: 15;
   pointer-events: none;
   user-select: none;

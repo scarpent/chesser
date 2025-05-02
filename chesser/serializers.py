@@ -483,7 +483,7 @@ class Chunk:
     data: str
 
 
-MoveParts = namedtuple("MoveParts", ["move_num", "dots", "san", "annotation"])
+MoveParts = namedtuple("MoveParts", ["num", "dots", "san", "annotation"])
 
 
 @dataclass
@@ -601,7 +601,7 @@ def get_move_parts(text: str) -> MoveParts:
     m = MOVE_PARTS_REGEX.search(text.strip())
     if m:
         return MoveParts(
-            move_num=int(m.group(1)) if m.group(1) else None,
+            num=int(m.group(1)) if m.group(1) else None,
             dots=m.group(2) or "",
             san=m.group(3) or "",
             annotation=m.group(4) or "",
@@ -611,7 +611,7 @@ def get_move_parts(text: str) -> MoveParts:
 
 
 def get_resolved_move_distance(
-    resolved_move_num, resolved_dots, raw_move_num, raw_dots
+    resolved_move_parts: MoveParts, raw_move_parts: MoveParts
 ):
     """
     Returns:
@@ -620,20 +620,20 @@ def get_resolved_move_distance(
         >0 ply distance otherwise
 
     Dot types:
-        "."   → white to move = ply = (move_num - 1) * 2
-        "..." → black to move = ply = (move_num - 1) * 2 + 1
+        "."   → white to move = ply = (move num - 1) * 2
+        "..." → black to move = ply = (move num - 1) * 2 + 1
 
     TODO: perhaps we shouldn't use "abs" here; we'll see if we care
     about the direction of the move distance later...
     """
-    if raw_move_num is None or raw_dots not in (".", "..."):
+    if raw_move_parts.num is None or raw_move_parts.dots not in (".", "..."):
         return AMBIGUOUS
 
     def move_to_ply(num, dots):
         return (num - 1) * 2 + (1 if dots == "..." else 0)
 
-    resolved_ply = move_to_ply(resolved_move_num, resolved_dots)
-    raw_ply = move_to_ply(raw_move_num, raw_dots)
+    resolved_ply = move_to_ply(resolved_move_parts.num, resolved_move_parts.dots)
+    raw_ply = move_to_ply(raw_move_parts.num, raw_move_parts.dots)
     return abs(resolved_ply - raw_ply)
 
 
@@ -659,17 +659,14 @@ def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
     # to figure out dots for move just played
 
     move_parts_resolved = MoveParts(
-        move_num=(board.ply() + 1) // 2,
+        num=(board.ply() + 1) // 2,
         dots="..." if board.turn else ".",
         san=san,
         annotation=block.move_parts_raw.annotation,
     )
 
     resolved_move_distance = get_resolved_move_distance(
-        move_parts_resolved.move_num,
-        move_parts_resolved.dots,
-        block.move_parts_raw.move_num,
-        block.move_parts_raw.dots,
+        move_parts_resolved, block.move_parts_raw
     )
 
     return move_parts_resolved, resolved_move_distance
@@ -698,7 +695,7 @@ class PathFinder:
         self.board = board
 
         # make a parsed move block for the mainline move -
-        # it will always have all the information: move_num, dots, san
+        # it will always have all the information: move num, dots, san
         move_parts = get_move_parts(move.move_verbose)
         root_block = ParsedBlock(
             type_="move",
@@ -868,10 +865,7 @@ class PathFinder:
                 #   e.g. mainline 1.e4, subvar (1.e4 e5)
                 #   discard the first subvar and keep going...
                 distance_from_root = get_resolved_move_distance(
-                    self.current.root_block.move_parts_resolved.move_num,
-                    self.current.root_block.move_parts_resolved.dots,
-                    block.move_parts_raw.move_num,
-                    block.move_parts_raw.dots,
+                    self.current.root_block.move_parts_resolved, block.move_parts_raw
                 )
                 # TODO how lenient should this be? we'll start more lenient
                 if matched_root_san and distance_from_root <= 1:
