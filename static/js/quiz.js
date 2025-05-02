@@ -56,7 +56,11 @@ export function quizApp() {
     }, // initQuiz()
 
     goToStartingPosition() {
-      this.status = "🟤";
+      if (this.failed) {
+        this.status = this.getQuizCompleteEmoji();
+      } else {
+        this.status = "🟤";
+      }
       // Go back two so we can play the first opposing move
       this.quizMoveIndex = this.variationData.start_index - 2;
       if (this.quizMoveIndex >= 0) {
@@ -566,7 +570,7 @@ export function quizApp() {
         "🏆", // L9
         "💎", // L10+
       ];
-      // others to think about: ☹️🤯
+      // others: ☹️🤯
       const failEmojis = [
         "🤷", // L0
         "😬", // L1
