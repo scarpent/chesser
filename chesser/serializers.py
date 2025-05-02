@@ -320,42 +320,6 @@ def generate_subvariations_html(move, parsed_blocks):
         f'data-mainline-index="{move.sequence}">{html}</div>'
     )
 
-    # remaining_text = move.text
-    # for san, fen in move_fen_map:
-    #     while True:
-    #         m = re.search(re.escape(san), remaining_text)
-    #         if m:
-    #             mstart = m.start()
-    #             mend = m.end()
-    #             html += remaining_text[:mstart]
-    #             remaining_text = remaining_text[mend:]
-    #             matched_move = m.group(0)
-    #             if is_in_comment(remaining_text):
-    #                 html += matched_move
-    #                 continue
-    #             else:
-    #                 counter += 1
-    #                 html += (
-    #                     f'<span class="move subvar-move" data-fen="{fen}" '
-    #                     f'data-index="{counter}">{matched_move}</span>'
-    #                 )
-    #                 break
-    #         else:
-    #             break
-
-    # html += f"{remaining_text.strip()}"
-    # if "<br/>" not in html:
-    #     # TODO: don't <br/> by block level things like <ul>
-    #     html = html.replace("\n", "<br/>")
-
-    # # much more to do here of course
-    # html = html.replace("<fenseq", " ⏮️ <fenseq")
-
-    # return (
-    #     '<div class="subvariations" '
-    #     f'data-mainline-index="{move.sequence}">{html}</div>'
-    # )
-
 
 # === Parser/Renderer v1 ====================================================
 
@@ -512,13 +476,14 @@ def flatten_move_fen_map(nested_list):
 
 # === Parser v2 =============================================================
 
-MoveParts = namedtuple("MoveParts", ["move_num", "dots", "san", "annotation"])
-
 
 @dataclass
 class Chunk:
     type_: Literal["comment", "move", "fenseq", "subvar"]
     data: str
+
+
+MoveParts = namedtuple("MoveParts", ["move_num", "dots", "san", "annotation"])
 
 
 @dataclass
@@ -536,14 +501,6 @@ class ParsedBlock:
     #                   i.e. fenseq/@@StartFEN@@, enables rendering ⏮️ as a link
     fen: str = ""
     depth: int = 0  # for subvar depth tracking
-
-
-@dataclass
-class RenderableBlock:
-    type_: Literal["comment", "move"]
-    html: str
-    raw: str
-    errors: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -567,8 +524,6 @@ class ResolveStats:
     root_siblings_resolved: int = 0
     discarded: int = 0
 
-    failure_blocks: list[str] = field(default_factory=list)
-
     def print_stats(self):
         print("\nParsing Stats Summary:\n")
         print(f"subvar total: {self.subvar_total}")
@@ -583,10 +538,6 @@ class ResolveStats:
         print(f"Root siblings: {self.root_siblings}")
         print(f"Root siblings resolved: {self.root_siblings_resolved}")
         print("\n")
-        if self.failure_blocks:
-            print(f"{len(self.failure_blocks)} failed blocks:")
-            for block in self.failure_blocks[:10]:  # Show first 10
-                self.stdout.write(f"  - {block}")
 
 
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
@@ -983,6 +934,9 @@ class PathFinder:
             #         self.index += 1
             #         resolved_blocks.append(block)
             #         continue
+
+            # should next try going back to start of each nested root
+            # in particular there might be a fenseq pattern...
 
             if move_parts_resolved:
                 # TODO: leftover "too far" distance to be handled...
