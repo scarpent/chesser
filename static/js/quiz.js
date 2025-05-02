@@ -558,13 +558,12 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     getQuizCompleteEmoji() {
-      // maybe change things up a bit and try animals later...
       const successEmojis = [
         "🔰", // L0
         "🌿", // L1
         "🪴", // L2
-        "🍏", // L3
-        "🍀", // L4
+        "🍀", // L3
+        "🐶", // L4
         "⭐️", // L5
         "🏵️", // L6
         "🔥", // L7
@@ -572,7 +571,6 @@ export function quizApp() {
         "🏆", // L9
         "💎", // L10+
       ];
-      // others: ☹️🤯
       const failEmojis = [
         "🤷", // L0
         "😬", // L1
