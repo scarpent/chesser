@@ -17,6 +17,7 @@ export function quizApp() {
     quizMoveIndex: 0,
     failed: false,
     completed: false,
+    quizCompleteOverlay: "", // emoji or empty string
 
     initQuiz() {
       const boardElement = document.getElementById("board");
@@ -271,12 +272,9 @@ export function quizApp() {
     completeQuiz() {
       this.completed = true;
       this.showInfo = true;
-      if (this.failed) {
-        // last move was successful (it has to be!) but overall quiz failed
-        this.status = "🟡";
-      } else {
-        this.status = "🟢";
-      }
+      // last move has to have succeeded to have completed the quiz; the board
+      // status emoji overlay will indicate if the overall quiz failed
+      this.status = "🟢";
 
       if (this.reviewData.extra_study) {
         console.log("extra study: not reporting result");
@@ -291,22 +289,36 @@ export function quizApp() {
       if (this.failed && !this.reviewData.extra_study) {
         this.reviewData.extra_study = true;
         this.showInfo = false;
-        this.restartQuiz();
+        // for this first forced re-review-extra-study, we want to maintain the
+        // failure state; for other restarts, we'll reset failed to get nicer feedback
+        // on our current effort
+        this.restartQuiz(true);
+        return;
       } else {
         // reveal arrows/circles for the last move
         const shapes = this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]";
         this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
       }
+      this.quizCompleteOverlay = this.getQuizCompleteEmoji();
     },
 
     //--------------------------------------------------------------------------------
-    restartQuiz() {
+    restartQuiz(stayFailed = false) {
       if (!this.variationData.moves) return;
       if (this.completed) {
-        this.reviewData.extra_study = true;
+        this.reviewData.extra_study = true; // whether forced or elective
       } else {
+        // this is the money, giving us the ability to restart e.g. because
+        // we feel like we were distracted and didn't *really* miss a move
         this.failed = false;
       }
+      // in general we want to start fresh on extra study, except
+      // for the forced re-review after failing a live/due quiz
+      if (this.reviewData.extra_study && !stayFailed) {
+        this.failed = false;
+      }
+
+      this.quizCompleteOverlay = "";
       this.chess.reset();
       this.goToStartingPosition();
       this.board.set({
@@ -537,6 +549,44 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     hasVariationData() {
       return this.variationData && Object.keys(this.variationData).length > 0;
+    },
+
+    //--------------------------------------------------------------------------------
+    getQuizCompleteEmoji() {
+      const successEmojis = [
+        "🔰", // L0
+        "🌱", // L1
+        "🪴", // L2
+        "🍏", // L3
+        "🍀", // L4
+        "⭐️", // L5
+        "🏵️", // L6
+        "🔥", // L7
+        "🤖", // L8
+        "🏆", // L9
+        "💎", // L10+
+      ];
+      // others to think about: ☹️🤯
+      const failEmojis = [
+        "🤷", // L0
+        "😬", // L1
+        "😞", // L2
+        "😮‍💨", // L3
+        "😢", // L4
+        "😠", // L5
+        "🥵", // L6
+        "😡", // L7
+        "🤬", // L8
+        "💀", // L9
+        "☠️", // L10+
+      ];
+      const level = Number(this.variationData?.level) || 0;
+      const idx = Math.min(level, successEmojis.length - 1);
+
+      if (this.failed) {
+        return failEmojis[idx];
+      }
+      return successEmojis[idx];
     },
 
     //--------------------------------------------------------------------------------

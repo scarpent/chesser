@@ -993,7 +993,7 @@ more washed out with all the white paper */
   scrollbar-color: #444444 var(--color-bg-dark);
 }
 
-/* ----------------------------------------- Landscape & Board Cover Overlay */
+/* -------------------------------------------- Landscape & Review Overlays */
 .board-cover-button {
   position: absolute;
   top: 50%;
@@ -1030,6 +1030,35 @@ more washed out with all the white paper */
 
 .board-cover-button:active {
   transform: translate(-50%, -50%) scale(0.92);
+}
+
+@keyframes quiz-pop {
+  0% {
+    transform: scale(0.6) translate(-50%, -50%);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) translate(-50%, -50%);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translate(-50%, -50%);
+  }
+}
+
+#quiz-complete-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 50px;
+  padding-right: 10px; /* board is slightly offset, try to center */
+  z-index: 15;
+  pointer-events: none;
+  user-select: none;
+  color: #aaffaa;
+  text-shadow: 2px 2px 4px #000;
+  animation: quiz-pop 0.6s ease-out;
 }
 
 .landscape-overlay {
