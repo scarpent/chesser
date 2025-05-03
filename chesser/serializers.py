@@ -660,49 +660,6 @@ def get_resolved_move_distance(
     return abs(resolved_ply - raw_ply)
 
 
-def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
-    """
-    Returns a resolved move parts and "move distance"
-    if successful, None, None if not.
-
-    Nothing changes with the original move block except
-    we'll add an error to it. (For now, anyway.)
-
-    TODO this should return as a "candidate move" that is a
-         copied block and the block can be updated with resolved
-         move parts and distance - the board also should be
-         copied, this would be trial only! this will be way cleaner
-         than passing separate values around, and worth any redundancy
-         in later *really* playing the moves...
-    """
-    san = block.move_parts_raw.san
-    try:
-        move_obj = board.parse_san(san)
-        board.push(move_obj)
-    except Exception:
-        block.log.append(
-            f"❌ Failed SAN parse/push: {san} | board move "
-            f"{board.fullmove_number}, white turn {board.turn}"
-        )
-        return None, None
-
-    # turn = True means it's white's move *now*, so we reverse things
-    # to figure out dots for move just played
-
-    move_parts_resolved = MoveParts(
-        num=(board.ply() + 1) // 2,
-        dots="..." if board.turn else ".",
-        san=san,
-        annotation=block.move_parts_raw.annotation,
-    )
-
-    resolved_move_distance = get_resolved_move_distance(
-        move_parts_resolved, block.move_parts_raw
-    )
-
-    return move_parts_resolved, resolved_move_distance
-
-
 @dataclass
 class StackFrame:
     board: chess.Board
@@ -746,6 +703,7 @@ class PathFinder:
     def current(self):
         return self.stack[-1]
 
+    # TODO: goes away?
     def get_next_move(self):
         if (
             self.index + 1 < self.end_of_list
@@ -782,21 +740,62 @@ class PathFinder:
             message = f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}"
             block.log.append(message)
 
-    def register_move(
-        self,
-        block: ParsedBlock,
-        move_parts_resolved: MoveParts,
-        move_distance: int,
-        fen: str,
-    ):
-        block.move_parts_resolved = move_parts_resolved
-        block.raw_to_resolved_distance = move_distance
-        block.fen = fen
-        block.log.append(
-            f"R ➤ {tuple(block.move_parts_raw)} ➤ {tuple(block.move_parts_resolved)}"
+    def try_move(self, block: ParsedBlock, pending: bool = False) -> ParsedBlock:
+        """
+        Returns a ParsedBlock that will be a copy of the original move block
+        if pending is True, although we'll let log list be linked.
+        """
+        if pending:
+            board = self.current.board.copy()
+            block = copy(block)
+        else:
+            board = self.current.board
+
+        san = block.move_parts_raw.san
+
+        try:
+            move_obj = board.parse_san(san)
+        except (
+            chess.IllegalMoveError,
+            chess.InvalidMoveError,
+            chess.AmbiguousMoveError,
+        ) as e:
+            block.log.append(
+                f"❌ parse_san {e}: {san} | board move "
+                f"{board.fullmove_number}, white turn {board.turn}"
+            )
+            return block
+
+        board.push(move_obj)
+
+        # turn = True means it's white's move *now*, so we reverse things
+        # to figure out dots for move just played
+
+        move_parts_resolved = MoveParts(
+            num=(board.ply() + 1) // 2,
+            dots="..." if board.turn else ".",
+            san=san,
+            annotation=block.move_parts_raw.annotation,
         )
-        self.stats.sundry["moves_resolved"] += 1
-        self.current.parsed_moves.append(block)
+
+        resolved_move_distance = get_resolved_move_distance(
+            move_parts_resolved, block.move_parts_raw
+        )
+
+        block.move_parts_resolved = move_parts_resolved
+        block.raw_to_resolved_distance = resolved_move_distance
+        block.fen = board.fen()
+
+        block.log.append(
+            f"{'P' if pending else 'R'} ➤ {tuple(block.move_parts_raw)} ➤ "
+            f"{tuple(block.move_parts_resolved)}"
+        )
+
+        if not pending:
+            self.stats.sundry["moves_resolved"] += 1
+            self.current.parsed_moves.append(block)
+
+        return block
 
     def resolve_moves(self) -> list[ParsedBlock]:
 
@@ -848,41 +847,34 @@ class PathFinder:
             # and delight our parser! but we should be able to handle this
             # with a little care...
 
-            # think of a manageably simple fallback system to be
-            # progressively more lenient while not gumming
-            # everything up in branching
-
             # TODO: there is a board state handling problem,
             # illustrated by #90.1659 - may be a rare case but
             # also great for forcing us to get it right
 
-            move_parts_resolved, move_distance = try_move(self.current.board, block)
+            pending_block = self.try_move(block, pending=True)
 
-            if move_parts_resolved:
+            if pending_block.move_parts_resolved:
+                pending_distance = pending_block.raw_to_resolved_distance
                 if self.current.move_counter == 1:
-                    self.stats.first_move_distances[move_distance] += 1
+                    self.stats.first_move_distances[pending_distance] += 1
                 else:
-                    self.stats.other_move_distances[move_distance] += 1
+                    self.stats.other_move_distances[pending_distance] += 1
 
-                raw = tuple(block.move_parts_raw)
-                resolved = tuple(move_parts_resolved)
+                raw = tuple(pending_block.move_parts_raw)
+                resolved = tuple(pending_block.move_parts_resolved)
 
-                if move_distance <= 1:
+                if pending_distance == 0:
                     # distance = 0: no doubt this is the move we want
                     # distance = -1: AMBIGUOUS ➤ there's a good chance this
                     #                is it, maybe enough to just go for it 🚀
                     # distance = 1: *maybe* okay, seems there are some number
                     #               of variations that are off by 1 ply
-                    self.register_move(
-                        block,
-                        move_parts_resolved,
-                        move_distance,
-                        self.current.board.fen(),
-                    )
+                    self.try_move(block, pending=False)
+                    pending_block = None
                     self.index += 1
                     resolved_blocks.append(block)
 
-                    if move_distance == 1:
+                    if block.raw_to_resolved_distance == 1:
                         block.log.append(
                             "📉 Distance off by 1 after resolving. Going with it... "
                             f"{raw} ➤ {resolved}"
@@ -906,31 +898,19 @@ class PathFinder:
                     #     break point
 
                     block.log.append(
-                        f"📌 Distance too far off after resolving: {move_distance}. "
-                        f"We'll not register it... {raw} ➤ {resolved}"
+                        "📌 Distance too far off after resolving: "
+                        f"{pending_distance}. "
+                        f"{raw} ➤ {resolved}"
                     )
-
-                # treat distance >2 as failed and go with regular recovery strategies
-                # should we deal with these first?
-
-                # TODO: make sure to deal with unregistered tried move!
-
-            # consider scenarios in order of likelihood?
+                    self.stats.sundry["distance_too_far"] += 1
 
             if matched_root_san := (
                 self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
             ):
                 self.stats.sundry["root_san_matched"] += 1
 
-            # TODO: more fun to be had in here... this is probably the time to
-            # decide on move display text...
-            # * if we discard a move, the following move should be "verbose"
-            # * moves following comments should also be verbose
-            # * etc - here we have the information -- so we have to work out
-            #   how to keep track of after comments, etc...
-
             # TODO: think about clean handling of move_parts_resolved/registered/etc...
-            if self.current.move_counter == 1 and not move_parts_resolved:
+            if self.current.move_counter == 1 and pending_block:
                 # two common scenarios:
                 # (1) the root move (usually the mainline move) is repeated,
                 #   e.g. mainline 1.e4, subvar (1.e4 e5)
@@ -951,22 +931,15 @@ class PathFinder:
                 # (2) sibling! e.g. mainline 1.e4, subvar (1.d4 d5)
                 if distance_from_root == 0:
                     self.stats.sundry["root_siblings"] += 1
-                    # go back to try the sibling...
-                    self.current.board.pop()
-                    # will this always be 0 distance?
-                    sibling_move_parts_resolved, sibling_move_distance = try_move(
-                        self.current.board, block
-                    )
-                    if sibling_move_parts_resolved:
+                    pending_block = self.try_move(block)
+                    if pending_block.move_parts_resolved:
                         block.log.append("👥 sibling move resolved 🔍️")
                         self.stats.sundry["root_siblings_resolved"] += 1
-                        self.stats.other_move_distances[sibling_move_distance] += 1
-                        self.register_move(
-                            block,
-                            sibling_move_parts_resolved,
-                            sibling_move_distance,
-                            self.current.board.fen(),
-                        )
+                        self.stats.other_move_distances[
+                            pending_block.raw_to_resolved_distance
+                        ] += 1
+                        self.try_move(block, pending=False)
+                        pending_block = None
                         resolved_blocks.append(block)
                         self.index += 1
                         continue
@@ -1003,16 +976,11 @@ class PathFinder:
             # should next try going back to start of each nested root
             # in particular there might be a fenseq pattern...
 
-            if move_parts_resolved:
+            if pending_block:
                 # TODO: leftover "too far" distance to be handled...
                 # 😬 need much better handling here to make sure we're
                 # maintaining and reading board state properly...
-                self.register_move(
-                    block,
-                    move_parts_resolved,
-                    move_distance,
-                    self.current.board.fen(),
-                )
+                self.try_move(block, pending=False)
 
             resolved_blocks.append(block)
             self.index += 1
