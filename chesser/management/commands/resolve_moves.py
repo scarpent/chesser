@@ -49,6 +49,7 @@ class Command(BaseCommand):
         # have to push all the mainline moves to maintain the board state
         for variation in variations.iterator():
             board = chess.Board()
+            print(f"🏵️  Variation {variation}")
             for move in variation.moves.iterator():
                 board.push_san(move.san)  # Mainline moves better be valid
                 if not move.text:
@@ -67,7 +68,8 @@ class Command(BaseCommand):
                 resolved_moves = path_finder.resolve_moves()
 
                 print(f"➡️  Mainline: {move.move_verbose}")
-                for resolved_move in resolved_moves:
-                    resolved_move.debug()
+                if variation_id:
+                    for resolved_move in resolved_moves:
+                        resolved_move.debug()
 
         return stats

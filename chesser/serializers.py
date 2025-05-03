@@ -545,7 +545,7 @@ class ResolveStats:
 
     def print_stats(self):
         print("\nParsing Stats Summary:\n")
-        for sun in self.sundry:
+        for sun in sorted(self.sundry.keys()):
             print(f"{sun}: {self.sundry[sun]}")
 
         depths = str(dict(sorted(self.subvar_depths.items())))
@@ -753,7 +753,7 @@ class PathFinder:
         if block.fen:
             # fenseq; let's try to mostly treat same as subvar
             chessboard = chess.Board(block.fen)
-            self.stats.sundry["fenseq"] += 1
+            self.stats.sundry["subfen"] += 1
         else:
             chessboard = self.current.board.copy()
             self.stats.sundry["subvar"] += 1
@@ -819,10 +819,21 @@ class PathFinder:
             else:  # move
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
-            self.stats.sundry["moves_attempted"] += 1
             # move count whether pass or fail; in particular we want to know
             # when we're on the first move of a subvar to compare against mainline
             self.current.move_counter += 1
+
+            if self.current.move_counter == 1:
+                label = "first"
+            else:
+                label = "other"
+
+            if block.move_parts_raw.num:
+                self.stats.sundry[f"{label}_moves_has_num"] += 1
+            dots = block.move_parts_raw.dots if block.move_parts_raw.dots else "none"
+            self.stats.sundry[f"{label}_moves_dots {dots}"] += 1
+
+            self.stats.sundry["moves_attempted"] += 1
 
             # TODO: we may be more careful here, first evaluating the move
             # parts before trying the move -- on the first move of the subvar
@@ -899,7 +910,7 @@ class PathFinder:
             if matched_root_san := (
                 self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
             ):
-                self.stats.sundry["matched_root_san"] += 1
+                self.stats.sundry["root_san_matched"] += 1
 
             # TODO: more fun to be had in here... this is probably the time to
             # decide on move display text...
@@ -919,7 +930,7 @@ class PathFinder:
                 )
                 # TODO how lenient should this be? we'll start more lenient
                 if matched_root_san and distance_from_root <= 1:
-                    self.stats.sundry["discarded"] += 1
+                    self.stats.sundry["discarded dupe"] += 1
                     print(
                         "🗑️  Discarding move block that has "
                         f"same san as previous: {block.move_parts_raw.san}"
