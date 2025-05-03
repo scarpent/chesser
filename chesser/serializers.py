@@ -532,38 +532,28 @@ class ParsedBlock:
 
 @dataclass
 class ResolveStats:
-    subvar_total: int = 0
-    fenseq_total: int = 0
-
-    moves_attempted: int = 0
-    moves_resolved: int = 0
-    moves_discarded: int = 0
-
-    max_subvar_depth: int = 0
+    sundry: dict[str, int] = field(default_factory=lambda: defaultdict(int))
 
     # tells us if implicit match (-1), explicit match (0), or how far off (1+)
-    resolved_move_distance: defaultdict[int, int] = field(
+    resolved_move_distances: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
 
-    matched_root_san: int = 0
-    root_siblings: int = 0
-    root_siblings_resolved: int = 0
-    discarded: int = 0
+    subvar_depths: defaultdict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
 
     def print_stats(self):
         print("\nParsing Stats Summary:\n")
-        print(f"subvar total: {self.subvar_total}")
-        print(f"fenseq total: {self.fenseq_total}")
-        print(f"moves attempted: {self.moves_attempted}")
-        print(f"moves resolved: {self.moves_resolved}")
-        print(f"Max subvar depth: {self.max_subvar_depth}")
-        move_distances = str(dict(sorted(self.resolved_move_distance.items())))
-        print(f"Resolved move distance: {move_distances}")
-        print(f"Matched root san: {self.matched_root_san}")
-        print(f"Discarded: {self.discarded}")
-        print(f"Root siblings: {self.root_siblings}")
-        print(f"Root siblings resolved: {self.root_siblings_resolved}")
+        for sun in self.sundry:
+            print(f"{sun}: {self.sundry[sun]}")
+
+        depths = str(dict(sorted(self.subvar_depths.items())))
+        print(f"subvar depths: {depths}")
+
+        move_distances = str(dict(sorted(self.resolved_move_distances.items())))
+        print(f"resolved move distances: {move_distances}")
+
         print("\n")
 
 
@@ -763,11 +753,11 @@ class PathFinder:
         if block.fen:
             # fenseq; let's try to mostly treat same as subvar
             chessboard = chess.Board(block.fen)
-            self.stats.fenseq_total += 1
+            self.stats.sundry["fenseq"] += 1
         else:
             chessboard = self.current.board.copy()
-            self.stats.subvar_total += 1
-            self.stats.max_subvar_depth = max(self.stats.max_subvar_depth, block.depth)
+            self.stats.sundry["subvar"] += 1
+            self.stats.subvar_depths[block.depth] += 1
 
         # I think a shallow copy is good enough for our purposes here
         if block.depth == 1 or not self.current.parsed_moves:
@@ -799,7 +789,7 @@ class PathFinder:
         block.log.append(
             f"R ➤ {tuple(block.move_parts_raw)} ➤ {tuple(block.move_parts_resolved)}"
         )
-        self.stats.moves_resolved += 1
+        self.stats.sundry["moves_resolved"] += 1
         self.current.parsed_moves.append(block)
 
     def resolve_moves(self) -> list[ParsedBlock]:
@@ -829,7 +819,7 @@ class PathFinder:
             else:  # move
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
-            self.stats.moves_attempted += 1
+            self.stats.sundry["moves_attempted"] += 1
             # move count whether pass or fail; in particular we want to know
             # when we're on the first move of a subvar to compare against mainline
             self.current.move_counter += 1
@@ -852,7 +842,7 @@ class PathFinder:
             move_parts_resolved, move_distance = try_move(self.current.board, block)
 
             if move_parts_resolved:
-                self.stats.resolved_move_distance[move_distance] += 1
+                self.stats.resolved_move_distances[move_distance] += 1
                 raw = tuple(block.move_parts_raw)
                 resolved = tuple(move_parts_resolved)
 
@@ -909,7 +899,7 @@ class PathFinder:
             if matched_root_san := (
                 self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
             ):
-                self.stats.matched_root_san += 1
+                self.stats.sundry["matched_root_san"] += 1
 
             # TODO: more fun to be had in here... this is probably the time to
             # decide on move display text...
@@ -929,7 +919,7 @@ class PathFinder:
                 )
                 # TODO how lenient should this be? we'll start more lenient
                 if matched_root_san and distance_from_root <= 1:
-                    self.stats.discarded += 1
+                    self.stats.sundry["discarded"] += 1
                     print(
                         "🗑️  Discarding move block that has "
                         f"same san as previous: {block.move_parts_raw.san}"
@@ -939,7 +929,7 @@ class PathFinder:
 
                 # (2) sibling! e.g. mainline 1.e4, subvar (1.d4 d5)
                 if distance_from_root == 0:
-                    self.stats.root_siblings += 1
+                    self.stats.sundry["root_siblings"] += 1
                     # go back to try the sibling...
                     self.current.board.pop()
                     # will this always be 0 distance?
@@ -948,8 +938,8 @@ class PathFinder:
                     )
                     if sibling_move_parts_resolved:
                         block.log.append("👥 sibling move resolved 🔍️")
-                        self.stats.root_siblings_resolved += 1
-                        self.stats.resolved_move_distance[sibling_move_distance] += 1
+                        self.stats.sundry["root_siblings_resolved"] += 1
+                        self.stats.resolved_move_distances[sibling_move_distance] += 1
                         self.register_move(
                             block,
                             sibling_move_parts_resolved,
