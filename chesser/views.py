@@ -596,7 +596,7 @@ def variation(request, variation_id=None):
             pk=variation_id,
         )
 
-    version = int(request.GET.get("v", 1))
+    version = int(request.GET.get("v", 2))
 
     variation_data = (
         serialize_variation(variation, all_data=True, version=version)
