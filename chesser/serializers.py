@@ -505,7 +505,6 @@ class ParsedBlock:
     # we started with chunk types: "comment", "subvar", "fenseq", "move"
     type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
-    errors: list[str] = field(default_factory=list)
     display_text: str = ""  # for normalized comments, moves
     move_parts_raw: Optional[MoveParts] = None
     move_parts_resolved: Optional[MoveParts] = None
@@ -515,6 +514,20 @@ class ParsedBlock:
     #                   i.e. fenseq/@@StartFEN@@, enables rendering ⏮️ as a link
     fen: str = ""
     depth: int = 0  # for subvar depth tracking
+    log: list[str] = field(default_factory=list)
+
+    def debug(self):
+        if self.type_ == "comment":
+            info = f"{{{self.raw[:10].strip()}...}}"
+        elif self.type_ in ["start", "end"]:
+            prefix = "🌳" if self.type_ == "start" else "🍂"
+            info = f"{prefix} subvar {self.depth} {self.fen}"
+        else:
+            info = self.raw
+
+        print(f"  • {self.type_} {info}")
+        for line in self.log:
+            print(f"    {line}")
 
 
 @dataclass
@@ -671,11 +684,9 @@ def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
         move_obj = board.parse_san(san)
         board.push(move_obj)
     except Exception:
-        print(f"❌ Failed to push move: {block.raw}")
-        # TODO: decide what to do with block error handling
-        block.errors.append(
-            f"Failed SAN during path finding: {san} | board move # "
-            f"{board.fullmove_number}, turn {board.turn}"
+        block.log.append(
+            f"❌ Failed SAN parse/push: {san} | board move "
+            f"{board.fullmove_number}, white turn {board.turn}"
         )
         return None, None
 
@@ -753,12 +764,10 @@ class PathFinder:
             # fenseq; let's try to mostly treat same as subvar
             chessboard = chess.Board(block.fen)
             self.stats.fenseq_total += 1
-            print("↘️  fenseq")
         else:
             chessboard = self.current.board.copy()
             self.stats.subvar_total += 1
             self.stats.max_subvar_depth = max(self.stats.max_subvar_depth, block.depth)
-            print(f"↘️  subvar (depth {block.depth})")
 
         # I think a shallow copy is good enough for our purposes here
         if block.depth == 1 or not self.current.parsed_moves:
@@ -770,10 +779,12 @@ class PathFinder:
         root_block.depth = block.depth
 
         self.stack.append(StackFrame(board=chessboard, root_block=root_block))
-        print("↘️  stack:")
+
+        block.log.append("stack")
         for frame in self.stack:
             fen = frame.board.fen()
-            print(f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}")
+            message = f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}"
+            block.log.append(message)
 
     def register_move(
         self,
@@ -785,16 +796,11 @@ class PathFinder:
         block.move_parts_resolved = move_parts_resolved
         block.raw_to_resolved_distance = move_distance
         block.fen = fen
-
-        # I don't think we can decide on display text yet
-
+        block.log.append(
+            f"R ➤ {tuple(block.move_parts_raw)} ➤ {tuple(block.move_parts_resolved)}"
+        )
         self.stats.moves_resolved += 1
-        # self.stats.resolved_on_attempt[attempt] += 1
-
         self.current.parsed_moves.append(block)
-        print(f"✅ registered move: {block.raw} ➤")
-        print(f"\traw: {tuple(block.move_parts_raw)}")
-        print(f"\tresolved: {tuple(block.move_parts_resolved)}")
 
     def resolve_moves(self) -> list[ParsedBlock]:
 
@@ -815,7 +821,6 @@ class PathFinder:
                 continue
 
             elif block.type_ == "end":
-                print("🪦 subvar end")
                 resolved_blocks.append(block)
                 self.stack.pop()
                 self.index += 1
@@ -867,8 +872,8 @@ class PathFinder:
                     resolved_blocks.append(block)
 
                     if move_distance == 1:
-                        block.errors.append(
-                            "Distance off by 1 after resolving. We'll go with it... "
+                        block.log.append(
+                            "📉 Distance off by 1 after resolving. Going with it... "
                             f"{raw} ➤ {resolved}"
                         )
                     continue
@@ -889,8 +894,8 @@ class PathFinder:
                     #     print(block.depth, self.mainline_move.text)
                     #     break point
 
-                    block.errors.append(
-                        f"Distance too far off after resolving: {move_distance}. "
+                    block.log.append(
+                        f"📌 Distance too far off after resolving: {move_distance}. "
                         f"We'll not register it... {raw} ➤ {resolved}"
                     )
 
@@ -942,7 +947,7 @@ class PathFinder:
                         self.current.board, block
                     )
                     if sibling_move_parts_resolved:
-                        print("👥 sibling move resolved! 🚀")
+                        block.log.append("👥 sibling move resolved 🔍️")
                         self.stats.root_siblings_resolved += 1
                         self.stats.resolved_move_distance[sibling_move_distance] += 1
                         self.register_move(

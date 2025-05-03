@@ -64,6 +64,10 @@ class Command(BaseCommand):
                     board.copy(),
                     stats,
                 )
-                path_finder.resolve_moves()
+                resolved_moves = path_finder.resolve_moves()
+
+                print(f"➡️  Mainline: {move.move_verbose}")
+                for resolved_move in resolved_moves:
+                    resolved_move.debug()
 
         return stats
