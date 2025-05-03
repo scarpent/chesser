@@ -535,7 +535,10 @@ class ResolveStats:
     sundry: dict[str, int] = field(default_factory=lambda: defaultdict(int))
 
     # tells us if implicit match (-1), explicit match (0), or how far off (1+)
-    resolved_move_distances: defaultdict[int, int] = field(
+    first_move_distances: defaultdict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
+    other_move_distances: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
 
@@ -551,8 +554,11 @@ class ResolveStats:
         depths = str(dict(sorted(self.subvar_depths.items())))
         print(f"subvar depths: {depths}")
 
-        move_distances = str(dict(sorted(self.resolved_move_distances.items())))
-        print(f"resolved move distances: {move_distances}")
+        move_distances = str(dict(sorted(self.first_move_distances.items())))
+        print(f"first move distances: {move_distances}")
+
+        move_distances = str(dict(sorted(self.other_move_distances.items())))
+        print(f"other move distances: {move_distances}")
 
         print("\n")
 
@@ -853,7 +859,11 @@ class PathFinder:
             move_parts_resolved, move_distance = try_move(self.current.board, block)
 
             if move_parts_resolved:
-                self.stats.resolved_move_distances[move_distance] += 1
+                if self.current.move_counter == 1:
+                    self.stats.first_move_distances[move_distance] += 1
+                else:
+                    self.stats.other_move_distances[move_distance] += 1
+
                 raw = tuple(block.move_parts_raw)
                 resolved = tuple(move_parts_resolved)
 
@@ -950,7 +960,7 @@ class PathFinder:
                     if sibling_move_parts_resolved:
                         block.log.append("👥 sibling move resolved 🔍️")
                         self.stats.sundry["root_siblings_resolved"] += 1
-                        self.stats.resolved_move_distances[sibling_move_distance] += 1
+                        self.stats.other_move_distances[sibling_move_distance] += 1
                         self.register_move(
                             block,
                             sibling_move_parts_resolved,
