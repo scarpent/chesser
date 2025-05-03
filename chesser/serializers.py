@@ -308,6 +308,14 @@ def generate_subvariations_html(move, parsed_blocks):
             resolved = "✅" if block.move_parts_resolved else "❌"
             html += f" {block.raw} {resolved} "
 
+            # how expensive is this? likely won't keep doing the
+            # board but should always include the parsed block for moves
+            try:
+                board = chess.Board(block.fen)
+            except Exception:
+                board = "(no board)"
+            html += f"<!-- {block}\n{board} -->"  # phew! this is useful
+
             # TODO: resolved vs not, etc.
 
             # html += (
@@ -644,6 +652,13 @@ def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
 
     Nothing changes with the original move block except
     we'll add an error to it. (For now, anyway.)
+
+    TODO this should return as a "candidate move" that is a
+         copied block and the block can be updated with resolved
+         move parts and distance - the board also should be
+         copied, this would be trial only! this will be way cleaner
+         than passing separate values around, and worth any redundancy
+         in later *really* playing the moves...
     """
     san = block.move_parts_raw.san
     try:
@@ -652,7 +667,10 @@ def try_move(board: chess.Board, block: ParsedBlock) -> Optional[MoveParts]:
     except Exception:
         print(f"❌ Failed to push move: {block.raw}")
         # TODO: decide what to do with block error handling
-        block.errors.append(f"Failed SAN during path finding: {san}")
+        block.errors.append(
+            f"Failed SAN during path finding: {san} | board move # "
+            f"{board.fullmove_number}, turn {board.turn}"
+        )
         return None, None
 
     # turn = True means it's white's move *now*, so we reverse things
@@ -705,7 +723,7 @@ class PathFinder:
             fen=board.fen(),
             depth=0,  # this is the root root! 🌳 no move block would naturally be < 1
         )
-        self.board_stack = [StackFrame(board=self.board.copy(), root_block=root_block)]
+        self.stack = [StackFrame(board=self.board.copy(), root_block=root_block)]
 
         self.stats = stats or ResolveStats()
         self.index = 0
@@ -713,7 +731,7 @@ class PathFinder:
 
     @property
     def current(self):
-        return self.board_stack[-1]
+        return self.stack[-1]
 
     def get_next_move(self):
         if (
@@ -745,9 +763,9 @@ class PathFinder:
         # the original root root will always remain 0
         root_block.depth = block.depth
 
-        self.board_stack.append(StackFrame(board=chessboard, root_block=root_block))
+        self.stack.append(StackFrame(board=chessboard, root_block=root_block))
         print("↘️  stack:")
-        for frame in self.board_stack:
+        for frame in self.stack:
             fen = frame.board.fen()
             print(f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}")
 
@@ -793,7 +811,7 @@ class PathFinder:
             elif block.type_ == "end":
                 print("🪦 subvar end")
                 resolved_blocks.append(block)
-                self.board_stack.pop()
+                self.stack.pop()
                 self.index += 1
                 continue
 
@@ -804,6 +822,21 @@ class PathFinder:
             # move count whether pass or fail; in particular we want to know
             # when we're on the first move of a subvar to compare against mainline
             self.current.move_counter += 1
+
+            # TODO: we may be more careful here, first evaluating the move
+            # parts before trying the move -- on the first move of the subvar
+            # we really want to catch matches with the mainline move root
+            # var #90 Ng3, Ngf1, has a syzygy of knight moves that confound
+            # and delight our parser! but we should be able to handle this
+            # with a little care...
+
+            # think of a manageably simple fallback system to be
+            # progressively more lenient while not gumming
+            # everything up in branching
+
+            # TODO: there is a board state handling problem,
+            # illustrated by #90.1659 - may be a rare case but
+            # also great for forcing us to get it right
 
             move_parts_resolved, move_distance = try_move(self.current.board, block)
 
@@ -834,6 +867,22 @@ class PathFinder:
                         )
                     continue
                 else:
+                    # example: chesser #1169, chessable #42465164 4...Nf6
+                    # issue with subvar parens -- looks like chessable self-heals;
+                    # maybe when we're on a new subvar and get this, we could
+                    # try ending the previous subvar?
+
+                    # example chesser #90, Ng3 -- Ngf1 fails and then resolves as
+                    # a sibling move -- next subvar we resolve Ng3 but not c5?
+                    #   move #1659 - interesting case of either knight reaching
+                    # g3 -- this illustrates getting it wrong where we accepted
+                    # off-by-one above and it breaks the subvar - will see if
+                    # we can be more discerning about this...
+
+                    # if move_distance > 2:
+                    #     print(block.depth, self.mainline_move.text)
+                    #     break point
+
                     block.errors.append(
                         f"Distance too far off after resolving: {move_distance}. "
                         f"We'll not register it... {raw} ➤ {resolved}"
