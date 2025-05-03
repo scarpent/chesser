@@ -290,7 +290,7 @@ def generate_variation_html(variation, version=1):
 
 
 def generate_subvariations_html(move, parsed_blocks):
-    counter = -1
+    counter = -1  # for unique data-index
     html = ""
     for block in parsed_blocks:
         if block.type_ == "comment":
@@ -300,13 +300,26 @@ def generate_subvariations_html(move, parsed_blocks):
 
         if block.type_ == "start":
             if block.fen:
-                html += "⏮️"
+                # html += "⏮️"
+                counter += 1
+                html += (
+                    f'<span class="move subvar-move" data-fen="{block.fen}" '
+                    f'data-index="{counter}">⏮️</span>'
+                )
             pass
 
         if block.type_ == "move":
-            counter += 1
-            resolved = "✅" if block.move_parts_resolved else "❌"
-            html += f" {block.raw} {resolved} "
+            resolved = "" if block.move_parts_resolved else " ❌"
+            if block.fen:
+                counter += 1
+                # trailing space here is consequential for wrapping
+                # need to work on overall whitespace/rendering of course
+                html += (
+                    f'<span class="move subvar-move" data-fen="{block.fen}" '
+                    f'data-index="{counter}">{block.raw}{resolved}</span> '
+                )
+            else:
+                html += f" {block.raw} {resolved} "
 
             # how expensive is this? likely won't keep doing the
             # board but should always include the parsed block for moves
@@ -315,13 +328,6 @@ def generate_subvariations_html(move, parsed_blocks):
             except Exception:
                 board = "(no board)"
             html += f"<!-- {block}\n{board} -->"  # phew! this is useful
-
-            # TODO: resolved vs not, etc.
-
-            # html += (
-            #     f'<span class="move subvar-move" data-fen="{fen}" '
-            #     f'data-index="{counter}">{matched_move}</span>'
-            # )
 
     return (
         '<div class="subvariations" '

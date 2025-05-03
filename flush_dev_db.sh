@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Absolute safety first, fail early and often
+# Safety first ➤ fail early and often
 set -euo pipefail
 
 DB_FILE="./data/chesser.sqlite3"
@@ -40,5 +40,5 @@ fi
 
 ./manage.py loaddata "$DB_BACKUP" --verbosity 3
 
-echo "🦸 Creating superuser..."
+echo "🦸‍♀️ Creating superuser..."
 ./manage.py createsuperuser
