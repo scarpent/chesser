@@ -72,11 +72,18 @@
             ></button>
           </template>
           <template x-if="reviewData.total_due_now == 0">
-            <button
-              title="Finish"
-              @click="window.location.href='/review/?finish=1'"
-              class="icon-complete icon-button"
-            ></button>
+            <div>
+              <button
+                title="Random Extra Study"
+                @click="window.location.href='/review/random/'"
+                class="icon-random icon-button"
+              ></button>
+              <button
+                title="Finish"
+                @click="window.location.href='/review/?finish=1'"
+                class="icon-complete icon-button"
+              ></button>
+            </div>
           </template>
         </div>
       </template>
