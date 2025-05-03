@@ -1,7 +1,7 @@
 import chess
 from django.core.management.base import BaseCommand
 
-from chesser.models import Variation
+from chesser.models import Move, Variation
 from chesser.serializers import (
     PathFinder,
     ResolveStats,
@@ -20,14 +20,25 @@ class Command(BaseCommand):
             type=int,
             help="Specific Variation ID to test (optional).",
         )
+        parser.add_argument(
+            "-m",
+            "--move",
+            type=int,
+            help="Specific Move ID to test (optional).",
+        )
 
     def handle(self, *args, **options):
         variation_id = options.get("variation")
-        stats = self.move_resolver_runner(variation_id=variation_id)
+        move_id = options.get("move")
+        stats = self.move_resolver_runner(variation_id=variation_id, move_id=move_id)
         stats.print_stats()
         return 0
 
-    def move_resolver_runner(self, variation_id=None):
+    def move_resolver_runner(self, variation_id=None, move_id=None):
+        if move_id:
+            move = Move.objects.filter(id=move_id).first()
+            if move:
+                variation_id = move.variation.id
         if variation_id:
             variations = Variation.objects.filter(id=variation_id)
         else:
@@ -35,11 +46,14 @@ class Command(BaseCommand):
 
         stats = ResolveStats()
 
+        # have to push all the mainline moves to maintain the board state
         for variation in variations.iterator():
             board = chess.Board()
             for move in variation.moves.iterator():
                 board.push_san(move.san)  # Mainline moves better be valid
                 if not move.text:
+                    continue
+                elif move_id and move.id != move_id:
                     continue
 
                 chunks = extract_ordered_chunks(move.text)
