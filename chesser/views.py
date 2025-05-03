@@ -114,6 +114,46 @@ def review(request, variation_id=None):
 
 
 def review_random(request):
+    """Weighted random from top 20 most failed variations in the past month."""
+
+    one_month_ago = timezone.now() - timezone.timedelta(days=30)
+
+    course_id = request.GET.get("course_id")
+    chapter_id = request.GET.get("chapter_id")
+
+    qs = Variation.objects.all()
+    if course_id:
+        qs = qs.filter(chapter__course_id=course_id)
+    if chapter_id:
+        qs = qs.filter(chapter_id=chapter_id)
+
+    failed_qs = (
+        qs.annotate(
+            recent_fails=Count(
+                "quiz_results",
+                filter=Q(
+                    quiz_results__datetime__gte=one_month_ago,
+                    quiz_results__passed=False,
+                ),
+            )
+        )
+        .filter(recent_fails__gt=0)
+        .order_by("-recent_fails")[:20]
+    )
+
+    failed_list = list(failed_qs)
+
+    if failed_list:
+        weights = [v.recent_fails for v in failed_list]
+        variation = random.choices(failed_list, weights=weights, k=1)[0]
+    else:
+        print("🎲 No recent failures; choosing from all")
+        variation = random.choice(list(qs))
+
+    return redirect("review_with_id", variation_id=variation.id)
+
+
+def review_random_old(request):
     """Select a random variation for review (extra study)
     We'll look for higher level variations that we haven't
     seen and won't see for a while."""
