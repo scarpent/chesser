@@ -581,8 +581,8 @@ export function quizApp() {
         "🥵", // L6
         "😡", // L7
         "🤬", // L8
-        "💀", // L9
-        "☠️", // L10+
+        "☠️", // L9
+        "🙈", // L10+
       ];
       const level = Number(this.variationData?.level) || 0;
       const idx = Math.min(level, successEmojis.length - 1);

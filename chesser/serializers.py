@@ -292,34 +292,34 @@ def generate_variation_html(variation, version=1):
 def generate_subvariations_html(move, parsed_blocks):
     counter = -1  # for unique data-index
     html = ""
+    previous_type = ""
     for block in parsed_blocks:
         if block.type_ == "comment":
             comment = block.display_text.replace("\n", "<br/>")
             html += f" {comment} "
-            continue
 
-        if block.type_ == "start":
-            if block.fen:
-                # html += "⏮️"
-                counter += 1
-                html += (
-                    f'<span class="move subvar-move" data-fen="{block.fen}" '
-                    f'data-index="{counter}">⏮️</span>'
-                )
-            pass
+        elif block.type_ == "start" and block.fen:
+            counter += 1
+            html += (
+                f'<span class="move subvar-move" data-fen="{block.fen}" '
+                f'data-index="{counter}">⏮️</span>'
+            )
 
-        if block.type_ == "move":
+        elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
+
+            move_text = block.move_verbose() if previous_type != "move" else block.raw
+
             if block.fen:
                 counter += 1
                 # trailing space here is consequential for wrapping
                 # need to work on overall whitespace/rendering of course
                 html += (
                     f'<span class="move subvar-move" data-fen="{block.fen}" '
-                    f'data-index="{counter}">{block.raw}{resolved}</span> '
+                    f'data-index="{counter}">{move_text}{resolved}</span> '
                 )
             else:
-                html += f" {block.raw} {resolved} "
+                html += f" {move_text} {resolved} "
 
             # how expensive is this? likely won't keep doing the
             # board but should always include the parsed block for moves
@@ -328,6 +328,8 @@ def generate_subvariations_html(move, parsed_blocks):
             except Exception:
                 board = "(no board)"
             html += f"<!-- {block}\n{board} -->"  # phew! this is useful
+
+        previous_type = block.type_
 
     return (
         '<div class="subvariations" '
@@ -500,6 +502,18 @@ class Chunk:
 MoveParts = namedtuple("MoveParts", ["num", "dots", "san", "annotation"])
 
 
+def assemble_move_parts(move_parts: MoveParts) -> str:
+    """
+    Assembles the move parts into a string representation.
+    """
+    num = str(move_parts.num) if move_parts.num else ""
+    dots = move_parts.dots
+    san = move_parts.san
+    annotation = move_parts.annotation
+
+    return f"{num}{dots}{san}{annotation}".strip()
+
+
 @dataclass
 class ParsedBlock:
     # we started with chunk types: "comment", "subvar", "fenseq", "move"
@@ -515,6 +529,34 @@ class ParsedBlock:
     fen: str = ""
     depth: int = 0  # for subvar depth tracking
     log: list[str] = field(default_factory=list)
+
+    @property
+    def is_resolved(self):
+        return self.type_ == "move" and self.move_parts_resolved is not None
+
+    def equals_raw(self, other):
+        nums_equal = (
+            self.move_parts_raw.num
+            and self.move_parts_raw.num == other.move_parts_raw.num
+        )
+        dots_equal = (
+            self.move_parts_raw.dots
+            and self.move_parts_raw.dots == other.move_parts_raw.dots
+        )
+        return (
+            self.type_ == other.type_ == "move"
+            and nums_equal
+            and dots_equal
+            and self.move_parts_raw.san == other.move_parts_raw.san
+        )
+
+    def move_verbose(self):
+        if self.move_parts_resolved:
+            return assemble_move_parts(self.move_parts_resolved)
+        elif self.move_parts_raw:
+            return assemble_move_parts(self.move_parts_raw)
+        else:
+            return self.raw
 
     def debug(self):
         if self.type_ == "comment":
@@ -797,6 +839,69 @@ class PathFinder:
 
         return block
 
+    def increment_move_count(self, block: ParsedBlock):
+        # move count whether pass or fail; in particular we want to know
+        # when we're on the first move of a subvar to compare against mainline
+        self.current.move_counter += 1
+
+        if self.current.move_counter == 1:
+            label = "first"
+        else:
+            label = "other"
+
+        if block.move_parts_raw.num:
+            self.stats.sundry[f"{label}_moves_has_num"] += 1
+        dots = block.move_parts_raw.dots if block.move_parts_raw.dots else "none"
+        self.stats.sundry[f"{label}_moves_dots {dots}"] += 1
+
+        self.stats.sundry["moves_attempted"] += 1
+
+    def is_duplicate_of_root_block(self, pending_block: ParsedBlock):
+        # e.g. mainline 1.e4, subvar (1.e4 e5)
+        if self.current.move_counter == 1 and pending_block.equals_raw(
+            self.current.root_block
+        ):
+            self.stats.sundry["discarded root dupe"] += 1
+            print(
+                "🗑️  Discarding move block same as root: "
+                f"{pending_block.move_parts_raw}"
+            )
+            return True
+        else:
+            return False
+
+    def get_root_sibling(self, pending_block: ParsedBlock):
+        # e.g. mainline 1.e4, subvar (1.d4 d5)
+        if self.current.move_counter == 1:
+            distance_from_root = get_resolved_move_distance(
+                self.current.root_block.move_parts_resolved,
+                pending_block.move_parts_raw,
+            )
+            if distance_from_root == 0:
+                self.stats.sundry["root_siblings"] += 1
+
+                try:
+                    pending_block.log.append("🥤 popping move to try sibling")
+                    self.current.board.pop()  # go back to try the sibling move
+                except IndexError:
+                    self.stats.sundry["root_sibling_pop_error"] += 1
+                    message = "❌ pop from empty list?"
+                    pending_block.log.append(message)
+                    print(message)
+
+                another_pending_block = self.try_move(pending_block, pending=True)
+
+                if another_pending_block.is_resolved:
+                    another_pending_block.log.append("👥 sibling move resolved 🔍️")
+                    self.stats.sundry["root_siblings_resolved"] += 1
+                    return self.try_move(another_pending_block)
+                else:
+                    another_pending_block.log.append(
+                        "❌ sibling move failed to resolve"
+                    )
+
+        return None
+
     def resolve_moves(self) -> list[ParsedBlock]:
 
         resolved_blocks = []
@@ -824,142 +929,77 @@ class PathFinder:
             else:  # move
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
-            # move count whether pass or fail; in particular we want to know
-            # when we're on the first move of a subvar to compare against mainline
-            self.current.move_counter += 1
-
-            if self.current.move_counter == 1:
-                label = "first"
-            else:
-                label = "other"
-
-            if block.move_parts_raw.num:
-                self.stats.sundry[f"{label}_moves_has_num"] += 1
-            dots = block.move_parts_raw.dots if block.move_parts_raw.dots else "none"
-            self.stats.sundry[f"{label}_moves_dots {dots}"] += 1
-
-            self.stats.sundry["moves_attempted"] += 1
-
-            # TODO: we may be more careful here, first evaluating the move
-            # parts before trying the move -- on the first move of the subvar
-            # we really want to catch matches with the mainline move root
-            # var #90 Ng3, Ngf1, has a syzygy of knight moves that confound
-            # and delight our parser! but we should be able to handle this
+            # TODO: var #90 Ng3, Ngf1, has a syzygy of knight moves that confound
+            # and delight our parser! even if rare we should be able to handle this
             # with a little care...
 
             # TODO: there is a board state handling problem,
             # illustrated by #90.1659 - may be a rare case but
             # also great for forcing us to get it right
 
+            self.increment_move_count(block)
             pending_block = self.try_move(block, pending=True)
 
-            if pending_block.move_parts_resolved:
+            if pending_block.is_resolved:
                 pending_distance = pending_block.raw_to_resolved_distance
                 if self.current.move_counter == 1:
                     self.stats.first_move_distances[pending_distance] += 1
                 else:
                     self.stats.other_move_distances[pending_distance] += 1
 
-                raw = tuple(pending_block.move_parts_raw)
-                resolved = tuple(pending_block.move_parts_resolved)
+            if self.is_duplicate_of_root_block(pending_block):
+                self.index += 1
+                continue
 
-                if pending_distance == 0:
-                    # distance = 0: no doubt this is the move we want
-                    # distance = -1: AMBIGUOUS ➤ there's a good chance this
-                    #                is it, maybe enough to just go for it 🚀
-                    # distance = 1: *maybe* okay, seems there are some number
-                    #               of variations that are off by 1 ply
-                    self.try_move(block, pending=False)
-                    pending_block = None
-                    self.index += 1
-                    resolved_blocks.append(block)
+            if root_sibling := self.get_root_sibling(pending_block):
+                resolved_blocks.append(root_sibling)
+                self.index += 1
+                continue
 
-                    if block.raw_to_resolved_distance == 1:
-                        block.log.append(
-                            "📉 Distance off by 1 after resolving. Going with it... "
-                            f"{raw} ➤ {resolved}"
-                        )
-                    continue
-                else:
-                    # example: chesser #1169, chessable #42465164 4...Nf6
-                    # issue with subvar parens -- looks like chessable self-heals;
-                    # maybe when we're on a new subvar and get this, we could
-                    # try ending the previous subvar?
+            # if pending_block.is_resolved:
+            #     raw = tuple(pending_block.move_parts_raw)
+            #     resolved = tuple(pending_block.move_parts_resolved)
 
-                    # example chesser #90, Ng3 -- Ngf1 fails and then resolves as
-                    # a sibling move -- next subvar we resolve Ng3 but not c5?
-                    #   move #1659 - interesting case of either knight reaching
-                    # g3 -- this illustrates getting it wrong where we accepted
-                    # off-by-one above and it breaks the subvar - will see if
-                    # we can be more discerning about this...
+            #     if pending_distance == 0:
+            #         # distance = 0: no doubt this is the move we want
+            #         # distance = -1: AMBIGUOUS ➤ there's a good chance this
+            #         #                is it, maybe enough to just go for it 🚀
+            #         # distance = 1: *maybe* okay, seems there are some number
+            #         #               of variations that are off by 1 ply
+            #         self.try_move(block, pending=False)
+            #         pending_block = None
+            #         self.index += 1
+            #         resolved_blocks.append(block)
 
-                    # if move_distance > 2:
-                    #     print(block.depth, self.mainline_move.text)
-                    #     break point
+            #         if block.raw_to_resolved_distance == 1:
+            #             block.log.append(
+            #                 "📉 Distance off by 1 after resolving. Going with it... "
+            #                 f"{raw} ➤ {resolved}"
+            #             )
+            #         continue
+            #     else:
+            #         # example: chesser #1169, chessable #42465164 4...Nf6
+            #         # issue with subvar parens -- looks like chessable self-heals;
+            #         # maybe when we're on a new subvar and get this, we could
+            #         # try ending the previous subvar?
 
-                    block.log.append(
-                        "📌 Distance too far off after resolving: "
-                        f"{pending_distance}. "
-                        f"{raw} ➤ {resolved}"
-                    )
-                    self.stats.sundry["distance_too_far"] += 1
+            #         # example chesser #90, Ng3 -- Ngf1 fails and then resolves as
+            #         # a sibling move -- next subvar we resolve Ng3 but not c5?
+            #         #   move #1659 - interesting case of either knight reaching
+            #         # g3 -- this illustrates getting it wrong where we accepted
+            #         # off-by-one above and it breaks the subvar - will see if
+            #         # we can be more discerning about this...
 
-            if matched_root_san := (
-                self.current.root_block.move_parts_raw.san == block.move_parts_raw.san
-            ):
-                self.stats.sundry["root_san_matched"] += 1
+            #         # if move_distance > 2:
+            #         #     print(block.depth, self.mainline_move.text)
+            #         #     break point
 
-            # TODO: think about clean handling of move_parts_resolved/registered/etc...
-            if self.current.move_counter == 1 and pending_block:
-                # two common scenarios:
-                # (1) the root move (usually the mainline move) is repeated,
-                #   e.g. mainline 1.e4, subvar (1.e4 e5)
-                #   discard the first subvar and keep going...
-                distance_from_root = get_resolved_move_distance(
-                    self.current.root_block.move_parts_resolved, block.move_parts_raw
-                )
-                # TODO how lenient should this be? we'll start more lenient
-                if matched_root_san and distance_from_root <= 1:
-                    self.stats.sundry["discarded dupe"] += 1
-                    print(
-                        "🗑️  Discarding move block that has "
-                        f"same san as previous: {block.move_parts_raw.san}"
-                    )
-                    self.index += 1
-                    continue
-
-                # (2) sibling! e.g. mainline 1.e4, subvar (1.d4 d5)
-                if distance_from_root == 0:
-                    self.stats.sundry["root_siblings"] += 1
-                    pending_block = self.try_move(block)
-                    if pending_block.move_parts_resolved:
-                        block.log.append("👥 sibling move resolved 🔍️")
-                        self.stats.sundry["root_siblings_resolved"] += 1
-                        self.stats.other_move_distances[
-                            pending_block.raw_to_resolved_distance
-                        ] += 1
-                        self.try_move(block, pending=False)
-                        pending_block = None
-                        resolved_blocks.append(block)
-                        self.index += 1
-                        continue
-
-                    # TODO: need to work out the try/register concept better --
-                    # e.g. trying a move may advance board state but what if we
-                    # don't register it?
-
-                    # TODO: consider this failure with bad pgn data
-                    # mainline 1.e4 subvar (2.d4 d5)
-                    # 2.d4 won't be detected as a sibling since distance != 0,
-                    # and after it fails, d5 will be treated as a valid black
-                    # first move, so...
-
-                    # how to handle failures -- seems like once we run out of
-                    # recovery options, we should include rest of blocks in the
-                    # subvar in resolved blocks without trying to resolve them -
-                    # we want to see them the rendered output but might be
-                    # confusing to have them partially resolved correctly? or
-                    # maybe interesting to see what happens and can refine later...
+            #         block.log.append(
+            #             "📌 Distance too far off after resolving: "
+            #             f"{pending_distance}. "
+            #             f"{raw} ➤ {resolved}"
+            #         )
+            #         self.stats.sundry["distance_too_far"] += 1
 
             # if not first:
             #     # another common case is "implied" subvariations, without parens
@@ -976,12 +1016,12 @@ class PathFinder:
             # should next try going back to start of each nested root
             # in particular there might be a fenseq pattern...
 
-            if pending_block:
-                # TODO: leftover "too far" distance to be handled...
-                # 😬 need much better handling here to make sure we're
-                # maintaining and reading board state properly...
-                self.try_move(block, pending=False)
+            # if pending_block:
+            #     # TODO: leftover "too far" distance to be handled...
+            #     # 😬 need much better handling here to make sure we're
+            #     # maintaining and reading board state properly...
 
+            self.try_move(block, pending=False)
             resolved_blocks.append(block)
             self.index += 1
 
