@@ -534,6 +534,15 @@ class ParsedBlock:
     def is_resolved(self):
         return self.type_ == "move" and self.move_parts_resolved is not None
 
+    @property
+    def is_valid_move(self):
+        return self.type_ == "move" and self.move_parts_resolved is not None
+
+    def clone(self):
+        new = copy(self)
+        new.log = self.log.copy()
+        return new
+
     def equals_raw(self, other):
         nums_equal = (
             self.move_parts_raw.num
@@ -783,17 +792,10 @@ class PathFinder:
             block.log.append(message)
 
     def try_move(self, block: ParsedBlock, pending: bool = False) -> ParsedBlock:
-        """
-        Returns a ParsedBlock that will be a copy of the original move block
-        if pending is True, although we'll let log list be linked.
-        """
-        if pending:
-            board = self.current.board.copy()
-            block = copy(block)
-        else:
-            board = self.current.board
+        block_to_use = block.clone() if pending else block
+        board = self.current.board.copy() if pending else self.current.board
 
-        san = block.move_parts_raw.san
+        san = block_to_use.move_parts_raw.san
 
         try:
             move_obj = board.parse_san(san)
@@ -802,7 +804,7 @@ class PathFinder:
             chess.InvalidMoveError,
             chess.AmbiguousMoveError,
         ) as e:
-            block.log.append(
+            block_to_use.log.append(
                 f"❌ parse_san {e}: {san} | board move "
                 f"{board.fullmove_number}, white turn {board.turn}"
             )
@@ -824,20 +826,20 @@ class PathFinder:
             move_parts_resolved, block.move_parts_raw
         )
 
-        block.move_parts_resolved = move_parts_resolved
-        block.raw_to_resolved_distance = resolved_move_distance
-        block.fen = board.fen()
+        block_to_use.move_parts_resolved = move_parts_resolved
+        block_to_use.raw_to_resolved_distance = resolved_move_distance
+        block_to_use.fen = board.fen()
 
-        block.log.append(
-            f"{'P' if pending else 'R'} ➤ {tuple(block.move_parts_raw)} ➤ "
-            f"{tuple(block.move_parts_resolved)}"
+        block_to_use.log.append(
+            f"R ➤ {tuple(block.move_parts_raw)} ➤ "
+            f"{tuple(block_to_use.move_parts_resolved)}"
         )
 
         if not pending:
             self.stats.sundry["moves_resolved"] += 1
-            self.current.parsed_moves.append(block)
+            self.current.parsed_moves.append(block_to_use)
 
-        return block
+        return block_to_use
 
     def increment_move_count(self, block: ParsedBlock):
         # move count whether pass or fail; in particular we want to know
