@@ -528,7 +528,7 @@ class ParsedBlock:
     log: list[str] = field(default_factory=list)
 
     @property
-    def is_valid_move(self):
+    def is_playable(self):
         return self.type_ == "move" and self.move_parts_resolved is not None
 
     def clone(self):
@@ -699,6 +699,10 @@ def get_resolved_move_distance(
     def move_to_ply(num, dots):
         return (num - 1) * 2 + (1 if dots == "..." else 0)
 
+    if resolved_move_parts is None:
+        print("dangit")  # TODO fix this...
+        return -999
+
     resolved_ply = move_to_ply(resolved_move_parts.num, resolved_move_parts.dots)
     raw_ply = move_to_ply(raw_move_parts.num, raw_move_parts.dots)
     return abs(resolved_ply - raw_ply)
@@ -710,7 +714,7 @@ class StackFrame:
     root_block: ParsedBlock
     move_counter: int = 0  # pass or fail
     # only resolved moves are added to this list
-    parsed_moves: list[ParsedBlock] = field(default_factory=list)
+    stack_blocks: list[ParsedBlock] = field(default_factory=list)
 
     board_previous: Optional[chess.Board] = field(init=False)
 
@@ -725,7 +729,6 @@ class StackFrame:
 
 
 class PathFinder:
-
     def __init__(
         self,
         blocks: list[ParsedBlock],
@@ -779,10 +782,10 @@ class PathFinder:
             self.stats.sundry["subvar"] += 1
             self.stats.subvar_depths[block.depth] += 1
 
-        if block.depth == 1 or not self.current.parsed_moves:
+        if block.depth == 1 or not self.current.stack_blocks:
             root_block = self.current.root_block.clone()
         else:  # else use the last of current resolved moves
-            root_block = self.current.parsed_moves[-1].clone()
+            root_block = self.current.stack_blocks[-1].clone()
 
         # the original root root will always remain 0
         root_block.depth = block.depth
@@ -795,11 +798,10 @@ class PathFinder:
             message = f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}"
             block.log.append(message)
 
-    def try_move(self, block: ParsedBlock, pending: bool = False) -> ParsedBlock:
-        block_to_use = block.clone() if pending else block
-        board = self.current.board.copy() if pending else self.current.board
-
-        san = block_to_use.move_parts_raw.san
+    def parse_move(self, block: ParsedBlock) -> ParsedBlock:
+        clone = block.clone()
+        board = self.current.board.copy()
+        san = clone.move_parts_raw.san
 
         try:
             move_obj = board.parse_san(san)
@@ -808,13 +810,14 @@ class PathFinder:
             chess.InvalidMoveError,
             chess.AmbiguousMoveError,
         ) as e:
-            block_to_use.log.append(
+            clone.log.append(
                 f"❌ parse_san {e}: {san} | board move "
                 f"{board.fullmove_number}, white turn {board.turn}"
             )
-            return block
+            return clone
 
         board.push(move_obj)
+        self.stats.sundry["moves resolved"] += 1
 
         # turn = True means it's white's move *now*, so we reverse things
         # to figure out dots for move just played
@@ -823,27 +826,41 @@ class PathFinder:
             num=(board.ply() + 1) // 2,
             dots="..." if board.turn else ".",
             san=san,
-            annotation=block.move_parts_raw.annotation,
+            annotation=clone.move_parts_raw.annotation,
         )
 
         resolved_move_distance = get_resolved_move_distance(
-            move_parts_resolved, block.move_parts_raw
+            move_parts_resolved, clone.move_parts_raw
         )
 
-        block_to_use.move_parts_resolved = move_parts_resolved
-        block_to_use.raw_to_resolved_distance = resolved_move_distance
-        block_to_use.fen = board.fen()
+        clone.move_parts_resolved = move_parts_resolved
+        clone.raw_to_resolved_distance = resolved_move_distance
+        clone.fen = board.fen()
 
-        block_to_use.log.append(
-            f"R ➤ {tuple(block.move_parts_raw)} ➤ "
-            f"{tuple(block_to_use.move_parts_resolved)}"
+        clone.log.append(
+            f"Resolved ➤ {tuple(clone.move_parts_raw)} ➤ "
+            f"{tuple(clone.move_parts_resolved)}"
         )
 
-        if not pending:
-            self.stats.sundry["moves_resolved"] += 1
-            self.current.parsed_moves.append(block_to_use)
+        return clone
 
-        return block_to_use
+    def push_move(self, block: ParsedBlock):
+        if block.is_playable:
+            try:
+                move_obj = self.current.board.parse_san(block.move_parts_raw.san)
+            except Exception:
+                # TODO we don't expect this if we're properly parsing/pushing/etc,
+                # but it's happening with many variations today, e.g. #881 6.Qc1
+                print(
+                    f"🚨 Error parsing move {block.move_parts_raw.san} "
+                    f"({block.move_parts_raw})"
+                )
+                self.stats.sundry["push_move error"] += 1  # about 25 of these
+            else:
+                self.current.board.push(move_obj)
+                self.stats.sundry["moves pushed"] += 1
+
+        self.current.stack_blocks.append(block)
 
     def increment_move_count(self, block: ParsedBlock):
         # move count whether pass or fail; in particular we want to know
@@ -856,47 +873,44 @@ class PathFinder:
             label = "other"
 
         if block.move_parts_raw.num:
-            self.stats.sundry[f"{label}_moves_has_num"] += 1
+            self.stats.sundry[f"{label} moves has num"] += 1
         dots = block.move_parts_raw.dots if block.move_parts_raw.dots else "none"
-        self.stats.sundry[f"{label}_moves_dots {dots}"] += 1
+        self.stats.sundry[f"{label} moves dots {dots}"] += 1
 
-        self.stats.sundry["moves_attempted"] += 1
+        self.stats.sundry["moves evaluated"] += 1
 
-    def is_duplicate_of_root_block(self, pending_block: ParsedBlock):
+    def is_duplicate_of_root_block(self, block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.e4 e5)
-        if self.current.move_counter == 1 and pending_block.equals_raw(
-            self.current.root_block
-        ):
+        if self.current.move_counter == 1 and block.equals_raw(self.current.root_block):
             self.stats.sundry["discarded root dupe"] += 1
-            print(
-                "🗑️  Discarding move block same as root: "
-                f"{pending_block.move_parts_raw}"
-            )
+            print("🗑️  Discarding move block same as root: " f"{block.move_parts_raw}")
             return True
         else:
             return False
 
-    def get_root_sibling(self, pending_block: ParsedBlock):
+    def get_root_sibling(self, block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.d4 d5)
-        if self.current.move_counter == 1 and self.current.board_previous:
+        if (
+            self.current.move_counter == 1
+            and self.current.board_previous
+            and self.current.root_block.is_playable
+        ):
             distance_from_root = get_resolved_move_distance(
                 self.current.root_block.move_parts_resolved,
-                pending_block.move_parts_raw,
+                block.move_parts_raw,
             )
             if distance_from_root == 0:
-                self.stats.sundry["root_siblings"] += 1
+                self.stats.sundry["root siblings"] += 1
                 self.current.board = self.current.board_previous.copy()
 
-                another_pending_block = self.try_move(pending_block, pending=True)
+                pending_block = self.parse_move(block)
 
-                if another_pending_block.is_valid_move:
-                    another_pending_block.log.append("👥 sibling move resolved 🔍️")
-                    self.stats.sundry["root_siblings_resolved"] += 1
-                    return self.try_move(another_pending_block)
+                if pending_block.is_playable:
+                    pending_block.log.append("👥 sibling move resolved 🔍️")
+                    self.stats.sundry["root siblings resolved"] += 1
+                    return pending_block
                 else:
-                    another_pending_block.log.append(
-                        "❌ sibling move failed to resolve"
-                    )
+                    pending_block.log.append("❌ sibling move failed to resolve")
 
         return None
 
@@ -904,7 +918,7 @@ class PathFinder:
         if append:
             self.resolved_blocks.append(append)
 
-            if append.is_valid_move:
+            if append.is_playable:
                 pending_distance = append.raw_to_resolved_distance
                 if self.current.move_counter == 1:
                     self.stats.first_move_distances[pending_distance] += 1
@@ -945,6 +959,8 @@ class PathFinder:
             "implied" subvariations
             e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
 
+            #881 6.Qc1 - we're not properly dealing with consecutive sibling subvars?
+
             <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
 
             variation 754, move 14950, mainline 2.Nc3
@@ -955,18 +971,19 @@ class PathFinder:
             """  # noqa: E501
 
             self.increment_move_count(block)
-            pending_block = self.try_move(block, pending=True)
+            pending_block = self.parse_move(block)
 
             if self.is_duplicate_of_root_block(pending_block):
                 self.advance_to_next_block(append=None)
                 continue
 
             if root_sibling := self.get_root_sibling(pending_block):
+                self.push_move(root_sibling)
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
-            self.try_move(block, pending=False)
-            self.advance_to_next_block(append=block)
+            self.push_move(pending_block)
+            self.advance_to_next_block(append=pending_block)
 
         # could have a checksum of len self.blocks - a discarded count
         return self.resolved_blocks
