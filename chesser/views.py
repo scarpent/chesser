@@ -596,6 +596,19 @@ def edit(request, variation_id=None):
     return render(request, "edit.html", context)
 
 
+def get_normalized_shapes(shapes):
+    """JSON stringify on frontend will strip out spaces; let's put them back"""
+    try:
+        shapes_list = json.loads(shapes) if shapes else []
+    except json.JSONDecodeError:
+        print(f"⚠️  Invalid shapes JSON: {shapes!r}")
+        shapes_list = []
+    if not shapes_list:
+        return ""
+    else:
+        return json.dumps(shapes_list, separators=(", ", ": "))
+
+
 @csrf_exempt
 def save_variation(request):
     if request.method == "POST":
@@ -607,15 +620,13 @@ def save_variation(request):
         variation.start_move = data["start_move"]
         variation.save()
 
-        # TODO: remove parens inside <fenseq> tags
-
         for idx, move in enumerate(variation.moves.all()):
             move.san = data["moves"][idx]["san"]
             move.annotation = data["moves"][idx]["annotation"]
             move.text = data["moves"][idx]["text"]
             move.alt = data["moves"][idx]["alt"]
             move.alt_fail = data["moves"][idx]["alt_fail"]
-            move.shapes = data["moves"][idx]["shapes"]
+            move.shapes = get_normalized_shapes(data["moves"][idx]["shapes"])
             move.save()
 
         return JsonResponse({"status": "success"})
