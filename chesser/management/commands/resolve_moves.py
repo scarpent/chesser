@@ -69,10 +69,11 @@ class Command(BaseCommand):
 
                 # this is a bit confusing when we follow other prints
                 # during processing that will seem out of order with this
-                print(f"➡️  Block Notes, Mainline: {move.move_verbose}")
-                if variation_id:
+
+                if variation_id and resolved_moves:
+                    print(f"🪵  Block Log, Mainline: {move.move_verbose}")
                     for resolved_move in resolved_moves:
                         resolved_move.debug()
-                print(f"🪦 End Block Notes, Mainline: {move.move_verbose}")
+                    print(f"🪦 End Block Log {move.move_verbose}")
 
         return stats

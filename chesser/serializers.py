@@ -802,6 +802,9 @@ class PathFinder:
                 f"❌ parse_san {e}: {san} | board move "
                 f"{board.fullmove_number}, white turn {board.turn}"
             )
+            # seems plausible that an already parsed move could be handed in,
+            # having been made illegal on its journey, so we should unresolve it
+            clone.move_parts_resolved = None
             return clone
 
         board.push(move_obj)
@@ -838,11 +841,12 @@ class PathFinder:
                 move_obj = self.current.board.parse_san(block.move_parts_raw.san)
             except Exception:
                 # TODO we don't expect this if we're properly parsing/pushing/etc,
-                # but it's happening with many variations today, e.g. #881 6.Qc1
-                print(
-                    f"🚨 Error parsing move {block.move_parts_raw.san} "
-                    f"({block.move_parts_raw})"
-                )
+                # but it's happening with many variations today, e.g. #881 6.Qc1 -
+                # that one is a broken subvar; not sure if a bug in our stack/subvar
+                # handling
+                move_parts = tuple(block.move_parts_raw)
+                message = f"🚨 Error on parse_san during push_move {move_parts}"
+                block.log.append(message)
                 self.stats.sundry["push_move error"] += 1  # about 25 of these
             else:
                 self.current.board.push(move_obj)
@@ -884,8 +888,7 @@ class PathFinder:
             and self.current.root_block.is_playable
         ):
             distance_from_root = get_resolved_move_distance(
-                self.current.root_block.move_parts_resolved,
-                block.move_parts_raw,
+                self.current.root_block.move_parts_resolved, block.move_parts_raw
             )
             if distance_from_root == 0:
                 self.stats.sundry["root siblings"] += 1
@@ -947,7 +950,9 @@ class PathFinder:
             "implied" subvariations
             e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
 
-            #881 6.Qc1 - this is a broken subvar and one I'm not sure we should try fixing on the fly, although we *might* end trying different subvar searching strategies between subvars, since it may be common enough that it would be great if we could smartly handle it
+            #881 6.Qc1 move id 17638 - this is a broken subvar and one I'm not sure we should try fixing on the fly, although we *might* end trying different subvar searching strategies between subvars, since it may be common enough that it would be great if we could smartly handle it
+            6.Qc1 (6.Nc3 6...Nxc3)(6.Qa5) should be 6...Qa5 and also shouldn't be a new subvar
+                consider that one considered strategy is to go back to mainline root, but that would break things here! (keep gathering cases...) (this is a good case for root sibling...)
 
             <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
 
@@ -961,6 +966,15 @@ class PathFinder:
             self.increment_move_count(block)
             pending_block = self.parse_move(block)
 
+            if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
+                # let's be strict to get a better feel for the data....
+                self.stats.sundry["strictly: initial dist > 1"] += 1
+                self.current.stack_blocks.append(block)
+                self.advance_to_next_block(append=pending_block)
+                continue
+
+            # "handled" cases ------------------------------------------------
+
             if self.is_duplicate_of_root_block(pending_block):
                 self.advance_to_next_block(append=None)
                 continue
@@ -970,7 +984,24 @@ class PathFinder:
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
-            self.push_move(pending_block)
+            # fall through ---------------------------------------------------
+
+            # until we handle more cases above, this is going to be error prone
+
+            # temporarily being more strict with requiring < 1 distance; later
+            # we can probably repair a lot of cases but for now we want to
+            # see where things are failing...
+
+            if (
+                pending_block.is_playable
+                and pending_block.raw_to_resolved_distance <= 1
+            ):
+                self.push_move(pending_block)
+            else:
+                # this is encapsulated in push_move; keep stacking! 📚️
+                self.stats.sundry["strictly: thru fall dist > 1"] += 1
+                self.current.stack_blocks.append(block)
+
             self.advance_to_next_block(append=pending_block)
 
         # could have a checksum of len self.blocks - a discarded count
