@@ -741,6 +741,7 @@ class PathFinder:
         stats: Optional[ResolveStats] = None,
     ):
         self.blocks = blocks
+        self.resolved_blocks = []
         self.mainline_move = move
         self.board = board
 
@@ -906,28 +907,36 @@ class PathFinder:
 
         return None
 
-    def resolve_moves(self) -> list[ParsedBlock]:
+    def advance_to_next_block(self, append: Optional[ParsedBlock] = None):
+        if append:
+            self.resolved_blocks.append(append)
 
-        resolved_blocks = []
+            if append.is_resolved:
+                pending_distance = append.raw_to_resolved_distance
+                if self.current.move_counter == 1:
+                    self.stats.first_move_distances[pending_distance] += 1
+                else:
+                    self.stats.other_move_distances[pending_distance] += 1
+
+        self.index += 1
+
+    def resolve_moves(self) -> list[ParsedBlock]:
 
         while self.index < self.end_of_list:
             block = self.blocks[self.index]
 
             if block.type_ == "comment":
-                resolved_blocks.append(block)
-                self.index += 1
+                self.advance_to_next_block(append=block)
                 continue
 
             elif block.type_ == "start":
                 self.handle_start_block(block)
-                resolved_blocks.append(block)
-                self.index += 1
+                self.advance_to_next_block(append=block)
                 continue
 
             elif block.type_ == "end":
-                resolved_blocks.append(block)
                 self.stack.pop()
-                self.index += 1
+                self.advance_to_next_block(append=block)
                 continue
 
             else:  # move
@@ -944,20 +953,19 @@ class PathFinder:
             self.increment_move_count(block)
             pending_block = self.try_move(block, pending=True)
 
-            if pending_block.is_resolved:
-                pending_distance = pending_block.raw_to_resolved_distance
-                if self.current.move_counter == 1:
-                    self.stats.first_move_distances[pending_distance] += 1
-                else:
-                    self.stats.other_move_distances[pending_distance] += 1
+            # if pending_block.is_resolved:
+            #     pending_distance = pending_block.raw_to_resolved_distance
+            #     if self.current.move_counter == 1:
+            #         self.stats.first_move_distances[pending_distance] += 1
+            #     else:
+            #         self.stats.other_move_distances[pending_distance] += 1
 
             if self.is_duplicate_of_root_block(pending_block):
-                self.index += 1
+                self.advance_to_next_block(append=None)
                 continue
 
             if root_sibling := self.get_root_sibling(pending_block):
-                resolved_blocks.append(root_sibling)
-                self.index += 1
+                self.advance_to_next_block(append=root_sibling)
                 continue
 
             # if pending_block.is_resolved:
@@ -1026,11 +1034,10 @@ class PathFinder:
             #     # maintaining and reading board state properly...
 
             self.try_move(block, pending=False)
-            resolved_blocks.append(block)
-            self.index += 1
+            self.advance_to_next_block(append=block)
 
         # could have a checksum of len self.blocks - a discarded count
-        return resolved_blocks
+        return self.resolved_blocks
 
 
 """
