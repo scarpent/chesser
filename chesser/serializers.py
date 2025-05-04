@@ -507,9 +507,18 @@ class ParsedBlock:
     # we started with chunk types: "comment", "subvar", "fenseq", "move"
     type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
-    display_text: str = ""  # for normalized comments, moves
+    display_text: str = ""
+    # raw comes from a move as it appears in a subvar, it may or may not have
+    # a move number and dots, e.g. 1.e4 or e4 or 1...e5 or e5
     move_parts_raw: Optional[MoveParts] = None
+    # resolved moves have had their SAN run through a chess.Board and *if*
+    # they were valid, will have been "resolved" with a move number and dots
+    # to tell us exactly what ply/move we're on; it's possible that after
+    # "playing" the SAN, we ended up on a different move number/dots than
+    # expected! then we can look at "distance" to see the state of things
     move_parts_resolved: Optional[MoveParts] = None
+    # use distance to make decisions about path and in some cases repair broken subvars
+    # AMBIGUOUS means we don't know: maybe we resolved to 1...e5 but only had e5
     raw_to_resolved_distance: int = AMBIGUOUS  # unknown to start
     # for move blocks: fen representing state after this move (normal link rendering)
     # for start blocks: fen representing state before the sequence;
@@ -517,10 +526,6 @@ class ParsedBlock:
     fen: str = ""
     depth: int = 0  # for subvar depth tracking
     log: list[str] = field(default_factory=list)
-
-    @property
-    def is_resolved(self):
-        return self.type_ == "move" and self.move_parts_resolved is not None
 
     @property
     def is_valid_move(self):
@@ -729,7 +734,7 @@ class PathFinder:
         stats: Optional[ResolveStats] = None,
     ):
         self.blocks = blocks
-        self.resolved_blocks = []
+        self.resolved_blocks = []  # "finished" blocks, whether or not truly "resolved"
         self.mainline_move = move
         self.board = board
 
@@ -884,7 +889,7 @@ class PathFinder:
 
                 another_pending_block = self.try_move(pending_block, pending=True)
 
-                if another_pending_block.is_resolved:
+                if another_pending_block.is_valid_move:
                     another_pending_block.log.append("👥 sibling move resolved 🔍️")
                     self.stats.sundry["root_siblings_resolved"] += 1
                     return self.try_move(another_pending_block)
@@ -899,7 +904,7 @@ class PathFinder:
         if append:
             self.resolved_blocks.append(append)
 
-            if append.is_resolved:
+            if append.is_valid_move:
                 pending_distance = append.raw_to_resolved_distance
                 if self.current.move_counter == 1:
                     self.stats.first_move_distances[pending_distance] += 1
