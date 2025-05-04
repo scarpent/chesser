@@ -79,6 +79,7 @@ def serialize_variation(variation, all_data=False, version=1):
 
         moves.append(
             {
+                "move_id": move.id,
                 "san": move.san,
                 "annotation": move.annotation,
                 "move_verbose": move.move_verbose,
@@ -119,6 +120,7 @@ def serialize_variation_to_import_format(variation):
         "start_move": variation.start_move,
         "moves": [
             {
+                "move_id": m.id,
                 "move_num": m.move_num,
                 "san": m.san,
                 "annotation": m.annotation or "",

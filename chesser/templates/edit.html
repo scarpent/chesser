@@ -181,6 +181,13 @@
               @click.prevent="scrollToMoveBlock(0)"
             ></button>
           </div>
+          <div>
+            <a
+              :href="'/admin/chesser/move/' + move.move_id + '/change/'"
+              target="_blank"
+              x-text="'#' + move.move_id"
+            ></a>
+          </div>
         </div>
       </div>
     </template>
