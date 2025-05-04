@@ -100,7 +100,6 @@ def serialize_variation(variation, all_data=False, version=1):
 
 
 def serialize_variation_to_import_format(variation):
-    # TODO: export quiz history, too? perhaps optionally...
     return {
         "variation_id": variation.id,
         "source": variation.source,
@@ -284,8 +283,6 @@ def generate_variation_html(variation, version=1):
         if version != 2:
             board.push_san(move.san)  # Mainline moves better be valid
 
-    html = htmlize_chessable_tags(html)
-
     return html
 
 
@@ -340,14 +337,6 @@ def generate_subvariations_html(move, parsed_blocks):
 # === Parser/Renderer v1 ====================================================
 
 
-# TODO: this goes away after cleanup is all done and import also cleans
-def htmlize_chessable_tags(html):
-    html = html.replace("@@SANStart@@", "<b>").replace("@@SANEnd@@", "</b>")
-    html = html.replace("@@ul@@", "<ul>").replace("@@/ul@@", "</ul>")
-    html = html.replace("@@li@@", "<li>").replace("@@/li@@", "</li>")
-    return html
-
-
 def generate_subvariations_html_v1(move, move_fen_map):
     """
     {sicilian}
@@ -387,7 +376,6 @@ def generate_subvariations_html_v1(move, move_fen_map):
 
     html += f"{remaining_text.strip()}"
     if "<br/>" not in html:
-        # TODO: don't <br/> by block level things like <ul>
         html = html.replace("\n", "<br/>")
 
     # much more to do here of course
@@ -942,23 +930,27 @@ class PathFinder:
             else:  # move
                 assert block.type_ == "move", f"Unexpected block type: {block.type_}"
 
-            # TODO: var #90 Ng3, Ngf1, has a syzygy of knight moves that confound
-            # and delight our parser! even if rare we should be able to handle this
-            # with a little care...
+            """
+            TODO: examples
 
-            # TODO: there is a board state handling problem,
-            # illustrated by #90.1659 - may be a rare case but
-            # also great for forcing us to get it right
+            90.1659 Ng3, Ngf1, has a syzygy of knight moves that are a good test
+
+            chesser #1169, chessable #42465164 4...Nf6 issue with subvar parens -- looks like chessable self-heals; maybe when we're on a new subvar and get this, we could try ending the previous subvar?
+
+            "implied" subvariations
+            e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+
+            <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
+
+            variation 754, move 14950, mainline 2.Nc3
+            <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.d4 d5 2.c4 e6 3.Nc3 {...} 2.Nc3 {...} 2...Nf6 {...}</fenseq>
+
+            variation 754, move 14958, mainline 6.f3
+            <fenseq data-fen="rn1qkb1r/pp2pppp/5n2/3p4/3P1Bb1/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6">6.Nf3 Nc6 {...} 6.Qd2 {, but after} 6...Nc6 {, they will probably play} 7.f3 {anyway, which transposes to 6.f3 after all.}</fenseq>
+            """  # noqa: E501
 
             self.increment_move_count(block)
             pending_block = self.try_move(block, pending=True)
-
-            # if pending_block.is_resolved:
-            #     pending_distance = pending_block.raw_to_resolved_distance
-            #     if self.current.move_counter == 1:
-            #         self.stats.first_move_distances[pending_distance] += 1
-            #     else:
-            #         self.stats.other_move_distances[pending_distance] += 1
 
             if self.is_duplicate_of_root_block(pending_block):
                 self.advance_to_next_block(append=None)
@@ -968,114 +960,11 @@ class PathFinder:
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
-            # if pending_block.is_resolved:
-            #     raw = tuple(pending_block.move_parts_raw)
-            #     resolved = tuple(pending_block.move_parts_resolved)
-
-            #     if pending_distance == 0:
-            #         # distance = 0: no doubt this is the move we want
-            #         # distance = -1: AMBIGUOUS ➤ there's a good chance this
-            #         #                is it, maybe enough to just go for it 🚀
-            #         # distance = 1: *maybe* okay, seems there are some number
-            #         #               of variations that are off by 1 ply
-            #         self.try_move(block, pending=False)
-            #         pending_block = None
-            #         self.index += 1
-            #         resolved_blocks.append(block)
-
-            #         if block.raw_to_resolved_distance == 1:
-            #             block.log.append(
-            #                 "📉 Distance off by 1 after resolving. Going with it... "
-            #                 f"{raw} ➤ {resolved}"
-            #             )
-            #         continue
-            #     else:
-            #         # example: chesser #1169, chessable #42465164 4...Nf6
-            #         # issue with subvar parens -- looks like chessable self-heals;
-            #         # maybe when we're on a new subvar and get this, we could
-            #         # try ending the previous subvar?
-
-            #         # example chesser #90, Ng3 -- Ngf1 fails and then resolves as
-            #         # a sibling move -- next subvar we resolve Ng3 but not c5?
-            #         #   move #1659 - interesting case of either knight reaching
-            #         # g3 -- this illustrates getting it wrong where we accepted
-            #         # off-by-one above and it breaks the subvar - will see if
-            #         # we can be more discerning about this...
-
-            #         # if move_distance > 2:
-            #         #     print(block.depth, self.mainline_move.text)
-            #         #     break point
-
-            #         block.log.append(
-            #             "📌 Distance too far off after resolving: "
-            #             f"{pending_distance}. "
-            #             f"{raw} ➤ {resolved}"
-            #         )
-            #         self.stats.sundry["distance_too_far"] += 1
-
-            # if not first:
-            #     # another common case is "implied" subvariations, without parens
-            #     # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
-            #     # 2.Nc3 will work if we pop 2.Nf3...
-            #     print("🛠️  implied subvar? undoing move and trying again")
-            #     self.current.board.pop()
-            #     move_played = self.bust_a_move(block, attempt=2)
-            #     if move_played:
-            #         self.index += 1
-            #         resolved_blocks.append(block)
-            #         continue
-
-            # should next try going back to start of each nested root
-            # in particular there might be a fenseq pattern...
-
-            # if pending_block:
-            #     # TODO: leftover "too far" distance to be handled...
-            #     # 😬 need much better handling here to make sure we're
-            #     # maintaining and reading board state properly...
-
             self.try_move(block, pending=False)
             self.advance_to_next_block(append=block)
 
         # could have a checksum of len self.blocks - a discarded count
         return self.resolved_blocks
-
-
-"""
-former ActiveFenseq notes/comments/examples...
-
-things to consider and handle if we can; when things fail...
-* try going back to start of fenseq
-* to end of previous subvar
-* to mainline
-* try other things!
-
-<fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
-
-variation 754, move 14950, mainline 2.Nc3
-<fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.d4 d5 2.c4 e6 3.Nc3 {...} 2.Nc3 {...} 2...Nf6 {...}</fenseq>
-
-variation 754, move 14958, mainline 6.f3
-<fenseq data-fen="rn1qkb1r/pp2pppp/5n2/3p4/3P1Bb1/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6">6.Nf3 Nc6 {...} 6.Qd2 {, but after} 6...Nc6 {, they will probably play} 7.f3 {anyway, which transposes to 6.f3 after all.}</fenseq>
-
-after pushing the move:
-
-ipdb> board.ply()
-1
-ipdb> board.fullmove_number  # but this doesn't seem to be "right"?
-1
-ipdb> board.turn  # white = True, black = False
-False
-ipdb> board.peek()
-Move.from_uci('e2e4')
-
-before pushing:
-
-board.san(move_obj)
-
-...
-
-board.pop() to undo the move
-"""  # noqa: E501
 
 
 def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
