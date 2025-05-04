@@ -719,6 +719,17 @@ class StackFrame:
     # only resolved moves are added to this list
     parsed_moves: list[ParsedBlock] = field(default_factory=list)
 
+    board_previous: Optional[chess.Board] = field(init=False)
+
+    def __post_init__(self):
+        # make previous move handy for sibling checking
+        self.board_previous = self.board.copy()
+        try:
+            self.board_previous.pop()
+        except IndexError:
+            # either the starting position or a fenseq with no prior moves
+            self.board_previous = None
+
 
 class PathFinder:
 
@@ -774,11 +785,10 @@ class PathFinder:
             self.stats.sundry["subvar"] += 1
             self.stats.subvar_depths[block.depth] += 1
 
-        # I think a shallow copy is good enough for our purposes here
         if block.depth == 1 or not self.current.parsed_moves:
-            root_block = copy(self.current.root_block)
+            root_block = self.current.root_block.clone()
         else:  # else use the last of current resolved moves
-            root_block = copy(self.current.parsed_moves[-1])
+            root_block = self.current.parsed_moves[-1].clone()
 
         # the original root root will always remain 0
         root_block.depth = block.depth
@@ -874,22 +884,14 @@ class PathFinder:
 
     def get_root_sibling(self, pending_block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.d4 d5)
-        if self.current.move_counter == 1:
+        if self.current.move_counter == 1 and self.current.board_previous:
             distance_from_root = get_resolved_move_distance(
                 self.current.root_block.move_parts_resolved,
                 pending_block.move_parts_raw,
             )
             if distance_from_root == 0:
                 self.stats.sundry["root_siblings"] += 1
-
-                try:
-                    pending_block.log.append("🥤 popping move to try sibling")
-                    self.current.board.pop()  # go back to try the sibling move
-                except IndexError:
-                    self.stats.sundry["root_sibling_pop_error"] += 1
-                    message = "❌ pop from empty list?"
-                    pending_block.log.append(message)
-                    print(message)
+                self.current.board = self.current.board_previous.copy()
 
                 another_pending_block = self.try_move(pending_block, pending=True)
 
