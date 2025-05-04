@@ -67,9 +67,12 @@ class Command(BaseCommand):
                 )
                 resolved_moves = path_finder.resolve_moves()
 
-                print(f"➡️  Mainline: {move.move_verbose}")
+                # this is a bit confusing when we follow other prints
+                # during processing that will seem out of order with this
+                print(f"➡️  Block Notes, Mainline: {move.move_verbose}")
                 if variation_id:
                     for resolved_move in resolved_moves:
                         resolved_move.debug()
+                print(f"🪦 End Block Notes, Mainline: {move.move_verbose}")
 
         return stats

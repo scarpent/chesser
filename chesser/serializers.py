@@ -691,19 +691,15 @@ def get_resolved_move_distance(
     Dot types:
         "."   → white to move = ply = (move num - 1) * 2
         "..." → black to move = ply = (move num - 1) * 2 + 1
-
-    TODO: perhaps we shouldn't use "abs" here; we'll see if we care
-    about the direction of the move distance later...
     """
     if raw_move_parts.num is None or raw_move_parts.dots not in (".", "..."):
         return AMBIGUOUS
+    elif resolved_move_parts is None:
+        err = f"resolved_move_parts not provided; raw_move_parts = {raw_move_parts}"
+        raise ValueError(err)
 
     def move_to_ply(num, dots):
         return (num - 1) * 2 + (1 if dots == "..." else 0)
-
-    if resolved_move_parts is None:
-        print("dangit")  # TODO fix this...
-        return -999
 
     resolved_ply = move_to_ply(resolved_move_parts.num, resolved_move_parts.dots)
     raw_ply = move_to_ply(raw_move_parts.num, raw_move_parts.dots)
@@ -763,16 +759,6 @@ class PathFinder:
     @property
     def current(self):
         return self.stack[-1]
-
-    # TODO: goes away?
-    def get_next_move(self):
-        if (
-            self.index + 1 < self.end_of_list
-            and self.blocks[self.index + 1].type_ == "move"
-        ):
-            return self.blocks[self.index + 1]
-        else:
-            return None
 
     def handle_start_block(self, block: ParsedBlock):
         if block.fen:
@@ -961,7 +947,7 @@ class PathFinder:
             "implied" subvariations
             e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
 
-            #881 6.Qc1 - we're not properly dealing with consecutive sibling subvars?
+            #881 6.Qc1 - this is a broken subvar and one I'm not sure we should try fixing on the fly, although we *might* end trying different subvar searching strategies between subvars, since it may be common enough that it would be great if we could smartly handle it
 
             <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">1.c4 e6 2.Nf3 d5 3.b3 { or } 1.c4 e6 2.Nf3 d5 3.g3 Nf6 4.b3 {...} 1.c4 e6 2.Nf3 d5 3.b3 {...} 3...d4 {...}</fenseq>
 
