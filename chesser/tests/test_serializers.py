@@ -494,7 +494,7 @@ def test_parse_fenseq_chunk_invalid():
 )
 def test_get_move_parsed_block(text, move_num, dots, san, annotation):
     block = serializers.get_move_parsed_block(text, depth=0)
-    assert block.move_parts_raw.move_num == move_num
+    assert block.move_parts_raw.num == move_num
     assert block.move_parts_raw.dots == dots
     assert block.move_parts_raw.san == san
     assert block.move_parts_raw.annotation == annotation
