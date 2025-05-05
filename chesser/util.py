@@ -88,3 +88,39 @@ def get_common_move_prefix_html(mainline_moves_str, previous_moves, use_class=Tr
     common_span = f"<span {attribute}>{common_moves} </span>" if common_moves else ""
 
     return f"{common_span} {rest_moves}".strip(), current_moves
+
+
+def normalize_notation(moves):
+    """
+    normalize move strings, e.g. 1. e4 e5 2. Nf3 ➤ 1.e4 e5 2.Nf3
+
+    will *also* fix really messed up strings like: 1. e4e52. Bc4Nf63. d3c6
+
+    move string must start with a number and at least one dot
+    """
+    regex = r"""(?x)
+        ^(                                          # one big capture
+            (?:
+                \d+\.+                              # move number + dots
+                |
+                [a-h](?:x[a-h])?[1-8](?:=[QRNB])?   # pawn
+                |
+                [RNQBK][a-h1-8]?x?[a-h][1-8]        # pieces
+                |
+                O-O(?:-O)?                          # castles
+            )
+            [+#]?                                   # check/mate
+        )"""
+
+    old_string = moves.strip()
+    new_string = ""
+
+    while True:
+        m = re.match(regex, old_string)
+        if not m:
+            break
+        space = "" if m.group()[-1] == "." else " "
+        new_string += f"{m.group()}{space}"
+        old_string = old_string[m.end() :].strip()  # noqa: E203
+
+    return new_string.strip()

@@ -94,6 +94,11 @@ def import_variation(import_data, end_move=None):
     if not mainline:
         raise ValueError("Mainline not found or empty")
 
+    normalized_mainline = util.normalize_notation(mainline)
+    if normalized_mainline != mainline:
+        print(f"Normalized mainline: {normalized_mainline}")
+        mainline = normalized_mainline
+
     end_index = 1000
     if end_move:
         # 1.e4 e5 2.Nf3 Nc6

@@ -1,6 +1,5 @@
 import json
 import random
-import re
 from collections import defaultdict
 from datetime import datetime
 from itertools import groupby
@@ -431,18 +430,24 @@ def clone(request):
     form_data = request.POST
     variation_id = int(form_data.get("original_variation_id"))
     variation_title = form_data.get("clone_variation_title", "").strip()
-    # TODO: normalize the move string, make sure no spaces between # and SAN
+
     new_variation = form_data.get("clone_mainline", "").strip()
     if not variation_title or not new_variation:
         return handle_clone_errors(
             request, form_data, "New variation title or moves not given"
         )
-    new_variation = re.sub(r"\s+", " ", new_variation)  # get rid of extra spaces
+
+    normalized_variation = util.normalize_notation(new_variation)
+    if normalized_variation != new_variation:
+        normalized_label = " (normalized)"
+        new_variation = normalized_variation
+    else:
+        normalized_label = ""
 
     variation_link = f'<a href="/variation/{variation_id}/">#{variation_id}</a>'
     messages.success(request, mark_safe(f"🧬 Cloning Variation {variation_link}"))
     messages.success(request, f"🧬 Title: {variation_title}")
-    messages.success(request, f"🧬 Moves: {new_variation}")
+    messages.success(request, f"🧬 Moves{normalized_label}: {new_variation}")
 
     variation = get_object_or_404(Variation, pk=variation_id)
     import_data = serialize_variation_to_import_format(variation)
