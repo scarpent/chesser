@@ -344,7 +344,7 @@ def get_final_move_simple_subvariations_html(variation):
         previous_type = block.type_
 
     if html:
-        html = f'<h3 style="color: greenyellow">{move.move_verbose}</h3>\n{html}'
+        html = f"<h3>{move.move_verbose}</h3>\n{html}"
 
     return html
 

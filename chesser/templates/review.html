@@ -139,40 +139,43 @@
         reset counter
       </a>
     </template>
-    <template x-if="showInfo && variationData.title">
-      <div class="review-info-container">
-        <div class="chapter-title">
-          <a
-            :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
-            ><span x-text="variationData.chapter"></span
-          ></a>
-          <span> ➤ </span>
-          <span x-text="variationData.title"></span> (#<span
-            x-text="variationData.variation_id"
-          ></span
-          >)
-        </div>
-        <div class="variation-state-info">
-          <span x-show="completed" x-text="'Level ➤ ' + variationData.level"></span
-          >&nbsp;&nbsp;&nbsp;
-          <span
-            x-show="completed"
-            x-text="'Last ➤ ' + variationData.time_since_last_review"
-          ></span>
-        </div>
-        <div
-          x-show="completed"
-          x-text="variationData.mainline"
-          class="mainline-moves"
-        ></div>
-      </div>
-    </template>
 
-    <template x-if="showInfo && completed && reviewData.final_move_html">
-      <div class="final-move">
-        <p x-html="reviewData.final_move_html"></p>
-      </div>
-    </template>
+    <div class="review-section-wrapper">
+      <template x-if="showInfo && variationData.title">
+        <div class="review-info-container">
+          <div class="chapter-title">
+            <a
+              :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
+              ><span x-text="variationData.chapter"></span
+            ></a>
+            <span> ➤ </span>
+            <span x-text="variationData.title"></span> (#<span
+              x-text="variationData.variation_id"
+            ></span
+            >)
+          </div>
+          <div class="variation-state-info">
+            <span x-show="completed" x-text="'Level ➤ ' + variationData.level"></span
+            >&nbsp;&nbsp;&nbsp;
+            <span
+              x-show="completed"
+              x-text="'Last ➤ ' + variationData.time_since_last_review"
+            ></span>
+          </div>
+          <div
+            x-show="completed"
+            x-text="variationData.mainline"
+            class="mainline-moves"
+          ></div>
+        </div>
+      </template>
+
+      <template x-if="showInfo && completed && reviewData.final_move_html">
+        <div class="final-move">
+          <p x-html="reviewData.final_move_html"></p>
+        </div>
+      </template>
+    </div>
 
     <template x-if="!hasVariationData()">
       <div class="button-container button-container-home">
