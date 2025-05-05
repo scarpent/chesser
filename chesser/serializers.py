@@ -260,15 +260,6 @@ def generate_variation_html(variation, version=1):
             if version == 2:
                 parsed_blocks = get_parsed_blocks(move, board.copy())
                 subvar_html = generate_subvariations_html(move, parsed_blocks)
-
-                # subvar_html = render_parsed_blocks(parsed_blocks, board.copy())
-
-                # blocks = [
-                #     f"<p style='padding: 4px; border: 1px solid #ccc'>{block}</p>"
-                #     for block in parsed_blocks
-                # ]
-                # subvar_html = f"<p>{move.text}</p>{'\n'.join(blocks)}"
-
             else:  # v1
                 moves_with_fen = extract_moves_with_fen(board.copy(), move)
                 subvar_html = generate_subvariations_html_v1(move, moves_with_fen)

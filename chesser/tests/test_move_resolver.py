@@ -489,6 +489,7 @@ def test_get_move_parsed_block(text, move_num, dots, san, annotation):
 @pytest.mark.parametrize(
     "text, expected",
     [
+        ("", (None, "", "", "")),
         ("e4", (None, "", "e4", "")),
         ("  e4  ", (None, "", "e4", "")),
         ("1.e4", (1, ".", "e4", "")),
@@ -499,6 +500,7 @@ def test_get_move_parsed_block(text, move_num, dots, san, annotation):
         ("999", (999, "", "", "")),
         ("___", (None, "", "", "___")),
         ("14.O-O-O!!", (14, ".", "O-O-O", "!!")),
+        ("78. Ke3 !", (78, ".", "Ke3", "!")),
     ],
 )
 def test_get_move_parts(text, expected):

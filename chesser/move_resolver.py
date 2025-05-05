@@ -172,7 +172,7 @@ MOVE_PARTS_REGEX = re.compile(
     (                       #
       [a-zA-Z]              # first san char must be a letter e4, Ba3, ...
       [a-zA-Z0-9-=]*        # allows for O-O and a8=Q
-      [a-zA-Z0-9]           # last san char usually a a number but could be cap
+      [a-zA-Z0-9]           # last san char usually a number but could be cap
                             # OQRNB (we'll be easy with a-zA-Z, still)
     )?                      # optional san
     ([^a-zA-Z0-9]*)$        # optional trailing annotation, including + and #
@@ -212,7 +212,7 @@ def get_move_parts(text: str) -> MoveParts:
             num=int(m.group(1)) if m.group(1) else None,
             dots=m.group(2) or "",
             san=m.group(3) or "",
-            annotation=m.group(4) or "",
+            annotation=m.group(4).strip() or "",
         )
     else:
         return MoveParts(None, "", text.strip(), "")
