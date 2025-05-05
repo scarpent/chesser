@@ -410,9 +410,9 @@ class PathFinder:
         self.current.move_counter += 1
         label = "first" if self.current.move_counter == 1 else "other"
         if block.move_parts_raw.num:
-            self.stats.sundry[f"{label} moves has num"] += 1
+            self.stats.sundry[f"~ {label} moves has num"] += 1
         dots = block.move_parts_raw.dots if block.move_parts_raw.dots else "none"
-        self.stats.sundry[f"{label} moves dots {dots}"] += 1
+        self.stats.sundry[f"~ {label} moves dots {dots}"] += 1
         self.stats.sundry["moves evaluated"] += 1
 
     def attach_log_to_previous_start_block(self, log_message: str):
@@ -427,7 +427,7 @@ class PathFinder:
         if self.current.move_counter == 1 and block.equals_raw(self.current.root_block):
             # we'll update stats and log this even though we're not *doing*
             # the discarding in here; it just seems cleaner to keep here
-            self.stats.sundry["discarded root dupe"] += 1
+            self.stats.sundry["➤ root dupe discarded"] += 1
             self.attach_log_to_previous_start_block(
                 "🗑️  Discarding move block same as root: " f"{block.move_parts_raw}"
             )
@@ -446,14 +446,14 @@ class PathFinder:
                 self.current.root_block.move_parts_resolved, block.move_parts_raw
             )
             if distance_from_root == 0:
-                self.stats.sundry["root siblings"] += 1
+                self.stats.sundry["➤ root siblings"] += 1
                 self.current.board = self.current.board_previous.copy()
 
                 pending_block = self.parse_move(block)
 
                 if pending_block.is_playable:
                     pending_block.log.append("👥 sibling move resolved 🔍️")
-                    self.stats.sundry["root siblings resolved"] += 1
+                    self.stats.sundry["➤ root siblings resolved"] += 1
                     return pending_block
                 else:
                     pending_block.log.append("❌ sibling move failed to resolve")
@@ -469,6 +469,7 @@ class PathFinder:
         # we need a counterpart to equals_raw to check for same move num/dots
         # but not same san, and maybe we compare current raw to previous resolved
         block.log.append("↗️  alternate move check will happen here ↗️")
+        self.stats.sundry["➤ alternate move getter/checker"] += 1
         return None
 
     def advance_to_next_block(self, append: Optional[ParsedBlock] = None):
@@ -536,7 +537,7 @@ class PathFinder:
                 # let's be strict to get a better feel for the data, off by
                 # more than one will need special handling and we'll apply
                 # that in order below, for now we just pass it through
-                self.stats.sundry["strictly: initial dist > 1"] += 1
+                self.stats.sundry["➤ strictly: initial dist > 1"] += 1
                 self.pass_through_move(pending_block)
                 self.advance_to_next_block(append=pending_block)
                 continue
@@ -572,7 +573,7 @@ class PathFinder:
             ):
                 self.push_move(pending_block)
             else:
-                self.stats.sundry["strictly: thru fall dist > 1"] += 1
+                self.stats.sundry["➤ strictly: thru fall dist > 1"] += 1
                 self.pass_through_move(pending_block)
 
             self.advance_to_next_block(append=pending_block)

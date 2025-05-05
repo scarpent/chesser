@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import chess
 from django.core.management.base import BaseCommand
 
@@ -46,6 +48,8 @@ class Command(BaseCommand):
 
         stats = ResolveStats()
 
+        start = datetime.now()
+
         # have to push all the mainline moves to maintain the board state
         for variation in variations.iterator():
             board = chess.Board()
@@ -76,5 +80,9 @@ class Command(BaseCommand):
                     for resolved_move in resolved_moves:
                         resolved_move.debug()
                     print(f"🪦 End {move.move_verbose}")
+
+        end = datetime.now()
+        print(f"\n➡️  Start: {start.isoformat()}")
+        print(f"⏱️  Duration: {(end - start).total_seconds():.1f} seconds")
 
         return stats
