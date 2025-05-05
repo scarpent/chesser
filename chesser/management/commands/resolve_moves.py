@@ -44,7 +44,7 @@ class Command(BaseCommand):
         if variation_id:
             variations = Variation.objects.filter(id=variation_id)
         else:
-            variations = Variation.objects.all()
+            variations = Variation.objects.all().order_by("id")
 
         stats = ResolveStats()
 
