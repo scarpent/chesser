@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import Literal, Optional
 
 import chess
-import chess.pgn
 
 from chesser.models import Move
 
@@ -32,9 +31,7 @@ MoveParts = namedtuple("MoveParts", ["num", "dots", "san", "annotation"])
 
 
 def assemble_move_parts(move_parts: MoveParts) -> str:
-    """
-    Assembles the move parts into a string representation.
-    """
+    """Create "verbose" string representation."""
     num = str(move_parts.num) if move_parts.num else ""
     dots = move_parts.dots
     san = move_parts.san
@@ -79,6 +76,7 @@ class ParsedBlock:
 
     def equals_raw(self, other):
         # pre-resolved moves have num/dots/san and are the same
+        # other than annotations which are ignored here
         nums_equal = (
             self.move_parts_raw.num
             and self.move_parts_raw.num == other.move_parts_raw.num
@@ -118,6 +116,7 @@ class ParsedBlock:
 
 @dataclass
 class ResolveStats:
+    # ad hoc stats, just needs a unique label to count
     sundry: dict[str, int] = field(default_factory=lambda: defaultdict(int))
 
     # tells us if implicit match (-1), explicit match (0), or how far off (1+)
@@ -127,7 +126,6 @@ class ResolveStats:
     other_move_distances: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
-
     subvar_depths: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
@@ -194,6 +192,7 @@ def get_move_parts(text: str) -> MoveParts:
 
     - Extracts optional move number (e.g. "1" from "1.e4", "1. e4" "1...e5")
     - Extracts dots following the number ("." or "..." or "........" & so on)
+      (currently: not allowing spaces between number and dots)
     - Extracts the SAN (Standard Algebraic Notation) portion
     - Extracts any trailing annotation (e.g. "+", "#", "!?", etc.)
     - Strips any leading/trailing whitespace from the SAN
@@ -213,7 +212,7 @@ def get_move_parts(text: str) -> MoveParts:
             num=int(m.group(1)) if m.group(1) else None,
             dots=m.group(2) or "",
             san=m.group(3) or "",
-            annotation=m.group(4).strip() or "",
+            annotation=(m.group(4) or "").strip(),
         )
     else:
         return MoveParts(None, "", text.strip(), "")

@@ -2,7 +2,6 @@ import json
 import re
 
 import chess
-import chess.pgn
 from django.utils import timezone
 
 from chesser import util

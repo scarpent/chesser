@@ -505,3 +505,7 @@ def test_get_move_parsed_block(text, move_num, dots, san, annotation):
 )
 def test_get_move_parts(text, expected):
     assert move_resolver.get_move_parts(text) == expected
+
+    m = move_resolver.MOVE_PARTS_REGEX.search(text.strip())
+    assert m is not None
+    assert m.lastindex == 4  # Ensures group(4) always exists
