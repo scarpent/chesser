@@ -78,6 +78,7 @@ class ParsedBlock:
         return new
 
     def equals_raw(self, other):
+        # pre-resolved moves have num/dots/san and are the same
         nums_equal = (
             self.move_parts_raw.num
             and self.move_parts_raw.num == other.move_parts_raw.num
@@ -414,11 +415,22 @@ class PathFinder:
         self.stats.sundry[f"{label} moves dots {dots}"] += 1
         self.stats.sundry["moves evaluated"] += 1
 
+    def attach_log_to_previous_start_block(self, log_message: str):
+        # go backwards through resolved blocks until we find a start block
+        for block in self.resolved_blocks[::-1]:
+            if block.type_ == "start":
+                block.log.append(log_message)
+                break
+
     def is_duplicate_of_root_block(self, block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.e4 e5)
         if self.current.move_counter == 1 and block.equals_raw(self.current.root_block):
+            # we'll update stats and log this even though we're not *doing*
+            # the discarding in here; it just seems cleaner to keep here
             self.stats.sundry["discarded root dupe"] += 1
-            print("🗑️  Discarding move block same as root: " f"{block.move_parts_raw}")
+            self.attach_log_to_previous_start_block(
+                "🗑️  Discarding move block same as root: " f"{block.move_parts_raw}"
+            )
             return True
         else:
             return False
@@ -446,6 +458,17 @@ class PathFinder:
                 else:
                     pending_block.log.append("❌ sibling move failed to resolve")
 
+        return None
+
+    def get_alternate_move(self, block: ParsedBlock):
+        # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+        # ➤ we'll say it must be a "full" move, with num and dots, so we cna
+        #   properly assess relationship
+        # ➤ should we only count it as an alternate if it follows a comment?
+
+        # we need a counterpart to equals_raw to check for same move num/dots
+        # but not same san, and maybe we compare current raw to previous resolved
+        block.log.append("↗️  alternate move check will happen here ↗️")
         return None
 
     def advance_to_next_block(self, append: Optional[ParsedBlock] = None):
@@ -529,6 +552,12 @@ class PathFinder:
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
+            # if alternate move
+            if alternate_move := self.get_alternate_move(pending_block):
+                self.push_move(alternate_move)
+                self.advance_to_next_block(append=alternate_move)
+                continue
+
             # fall through ---------------------------------------------------
 
             # until we handle more cases above, this is going to be error prone
@@ -556,11 +585,8 @@ def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
     i = 0
     depth = 0
 
-    while i < len(chunks):
+    while i < len(chunks):  # ➡️ Every branch must advance `i`
         chunk = chunks[i]
-        # print(f"🔍 Parsing chunk: {chunk.type_} ➤ {chunk.data.strip()[:40]}...")
-
-        # ➡️ Every branch must advance `i`
 
         if chunk.type_ == "subvar":
             if chunk.data.startswith("START"):

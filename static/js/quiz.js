@@ -572,10 +572,10 @@ export function quizApp() {
         "💎", // L10+
       ];
       const failEmojis = [
-        "🤷", // L0
+        "🔰", // L0 - it's okay, we're just beginning!
         "😬", // L1
         "😞", // L2
-        "😮‍💨", // L3
+        "😦", // L3
         "😢", // L4
         "😠", // L5
         "🥵", // L6

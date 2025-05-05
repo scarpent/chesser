@@ -67,8 +67,9 @@ class Command(BaseCommand):
                 )
                 resolved_moves = path_finder.resolve_moves()
 
-                # this is a bit confusing when we follow other prints
-                # during processing that will seem out of order with this
+                # in general we're trying to keep all resolver messages
+                # attached to block logs so we can print out here and
+                # read the whole story in sequence
 
                 if variation_id and resolved_moves:
                     print(f"🪵 Block Log, Mainline: {move.move_verbose}")
