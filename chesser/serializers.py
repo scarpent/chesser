@@ -711,8 +711,8 @@ class StackFrame:
     board: chess.Board
     root_block: ParsedBlock
     move_counter: int = 0  # pass or fail
-    # only resolved moves are added to this list
-    stack_blocks: list[ParsedBlock] = field(default_factory=list)
+    # resolved moves AND passed through moves are added here
+    resolved_stack: list[ParsedBlock] = field(default_factory=list)
 
     board_previous: Optional[chess.Board] = field(init=False)
 
@@ -770,10 +770,11 @@ class PathFinder:
             self.stats.sundry["subvar"] += 1
             self.stats.subvar_depths[block.depth] += 1
 
-        if block.depth == 1 or not self.current.stack_blocks:
+        if block.depth == 1 or not self.current.resolved_stack:
             root_block = self.current.root_block.clone()
-        else:  # else use the last of current resolved moves
-            root_block = self.current.stack_blocks[-1].clone()
+        else:  # else use the last of current resolved moves, or could
+            # be a passed through move where things will be expected to 🧨
+            root_block = self.current.resolved_stack[-1].clone()
 
         # the original root root will always remain 0
         root_block.depth = block.depth
@@ -787,6 +788,7 @@ class PathFinder:
             block.log.append(message)
 
     def parse_move(self, block: ParsedBlock) -> ParsedBlock:
+        assert block.type_ == "move"
         clone = block.clone()
         board = self.current.board.copy()
         san = clone.move_parts_raw.san
@@ -836,6 +838,7 @@ class PathFinder:
         return clone
 
     def push_move(self, block: ParsedBlock):
+        assert block.type_ == "move"
         if block.is_playable:
             try:
                 move_obj = self.current.board.parse_san(block.move_parts_raw.san)
@@ -852,7 +855,14 @@ class PathFinder:
                 self.current.board.push(move_obj)
                 self.stats.sundry["moves pushed"] += 1
 
-        self.current.stack_blocks.append(block)
+        self.current.resolved_stack.append(block)
+
+    def pass_through_move(self, block: ParsedBlock):
+        assert block.type_ == "move"
+        # this is a counterpart to push_move, to share
+        # its resolved stack side effect
+        self.stats.sundry["moves passed thru"] += 1
+        self.current.resolved_stack.append(block)
 
     def increment_move_count(self, block: ParsedBlock):
         # move count whether pass or fail; in particular we want to know
@@ -967,9 +977,11 @@ class PathFinder:
             pending_block = self.parse_move(block)
 
             if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
-                # let's be strict to get a better feel for the data....
+                # let's be strict to get a better feel for the data, off by
+                # more than one will need special handling and we'll apply
+                # that in order below, for now we just pass it through
                 self.stats.sundry["strictly: initial dist > 1"] += 1
-                self.current.stack_blocks.append(block)
+                self.pass_through_move(pending_block)
                 self.advance_to_next_block(append=pending_block)
                 continue
 
@@ -988,9 +1000,9 @@ class PathFinder:
 
             # until we handle more cases above, this is going to be error prone
 
-            # temporarily being more strict with requiring < 1 distance; later
+            # temporarily more strict with requiring < 1 distance; later
             # we can probably repair a lot of cases but for now we want to
-            # see where things are failing...
+            # see where things are failing, so we just pass through those > 0
 
             if (
                 pending_block.is_playable
@@ -998,13 +1010,11 @@ class PathFinder:
             ):
                 self.push_move(pending_block)
             else:
-                # this is encapsulated in push_move; keep stacking! 📚️
                 self.stats.sundry["strictly: thru fall dist > 1"] += 1
-                self.current.stack_blocks.append(block)
+                self.pass_through_move(pending_block)
 
             self.advance_to_next_block(append=pending_block)
 
-        # could have a checksum of len self.blocks - a discarded count
         return self.resolved_blocks
 
 
