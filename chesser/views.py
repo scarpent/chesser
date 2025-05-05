@@ -138,7 +138,7 @@ def review_random(request):
             )
         )
         .filter(recent_fails__gt=0)
-        .order_by("-recent_fails")[:20]
+        .order_by("-recent_fails")[:40]
     )
 
     failed_list = list(failed_qs)
