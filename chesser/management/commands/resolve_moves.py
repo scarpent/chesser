@@ -71,9 +71,9 @@ class Command(BaseCommand):
                 # during processing that will seem out of order with this
 
                 if variation_id and resolved_moves:
-                    print(f"🪵  Block Log, Mainline: {move.move_verbose}")
+                    print(f"🪵 Block Log, Mainline: {move.move_verbose}")
                     for resolved_move in resolved_moves:
                         resolved_move.debug()
-                    print(f"🪦 End Block Log {move.move_verbose}")
+                    print(f"🪦 End {move.move_verbose}")
 
         return stats

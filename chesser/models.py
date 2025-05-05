@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import UniqueConstraint
 from django.utils import timezone
 
@@ -116,6 +116,7 @@ class Variation(models.Model):
         ply = self.start_move * 2
         return ply - 2 if self.chapter.course.color == "white" else ply - 1
 
+    @transaction.atomic
     def handle_quiz_result(self, passed):
         previous_level = self.level if self.level >= 0 else 0
         new_level = previous_level + 1 if passed else 1
@@ -187,7 +188,8 @@ class Move(models.Model):
     alt = models.TextField(null=True, blank=True)  # e.g. d4, Nf3, c4
     alt_fail = models.TextField(null=True, blank=True)  # ["f4", "b3", "g3"]
     # chessground drawable shapes (arrows/circles are implied by origin/dest)
-    # e.g. [{"orig":"f4","brush":"green"},{"orig":"c5","dest":"d3","brush":"red"}]
+    # e.g. [{"orig": "f4", "brush":"green"},
+    #       {"orig": "c5", "dest": "d3", "brush": "red"}]
     shapes = models.TextField(null=True, blank=True)
 
     class Meta:
