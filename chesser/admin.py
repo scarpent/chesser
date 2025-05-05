@@ -108,7 +108,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     )
     list_filter = ("chapter",)
     inlines = [MoveInline, QuizResultInline]
-    readonly_fields = ("created_at",)
+    readonly_fields = ("created_at", "view_on_site_link")
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -122,6 +122,15 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     def clickable_title(self, obj):
         link = reverse("admin:chesser_variation_change", args=[obj.id])
         return format_html('<a href="{}">{}</a>', link, obj.title)
+
+    @admin.display(description="View on site")
+    def view_on_site_link(self, obj):
+        if not obj.id:
+            return ""
+        url = reverse("variation", args=[obj.id])
+        return format_html(
+            '<a href="{}" target="_blank">Variation #{}</a>', url, obj.id
+        )
 
 
 @admin.register(Move)
