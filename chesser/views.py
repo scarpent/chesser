@@ -97,15 +97,17 @@ def review(request, variation_id=None):
         if request.GET.get("finish") == "1":
             return redirect("home")
         variation_data = {}
+        final_move_html = ""
     else:
         variation_data = serialize_variation(variation)
+        final_move_html = get_final_move_simple_subvariations_html(variation)
 
     total_due_now, total_due_soon = Variation.due_counts()
     review_data = {
         "extra_study": extra_study,
         "total_due_now": total_due_now,
         "total_due_soon": total_due_soon,
-        "final_move_html": get_final_move_simple_subvariations_html(variation),
+        "final_move_html": final_move_html,
     }
 
     context = {
