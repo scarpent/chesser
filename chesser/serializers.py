@@ -326,11 +326,15 @@ def generate_subvariations_html(move, parsed_blocks):
 def get_final_move_simple_subvariations_html(variation):
     html = ""
     previous_type = ""
+    move = None
 
     # advance board to the final move
     board = chess.Board()
     for move in variation.moves.iterator():
         board.push_san(move.san)  # Mainline moves better be valid
+
+    if not move:
+        return html
 
     parsed_blocks = get_parsed_blocks(move, board.copy())
 

@@ -162,7 +162,6 @@ export function quizApp() {
           return;
         }
       }, 250); // 0.25 second delay
-      // (Later: maybe 1 second for first move? shorter for subsequent?)
     },
 
     //--------------------------------------------------------------------------------
@@ -589,7 +588,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     nothingToSeeHere(boardElement) {
-      if (!this.hasVariationData()) {
+      if (!this.hasVariationData() || !this.variationData.moves) {
         this.status = "😌";
         this.board = window.Chessground(boardElement, {
           viewOnly: true,
