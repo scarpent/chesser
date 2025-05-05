@@ -282,12 +282,15 @@ def generate_subvariations_html(move, parsed_blocks):
             comment = block.display_text.replace("\n", "<br/>")
             html += f" {comment} "
 
-        elif block.type_ == "start" and block.fen:
-            counter += 1
-            html += (
-                f'<span class="move subvar-move" data-fen="{block.fen}" '
-                f'data-index="{counter}">⏮️</span>'
-            )
+        elif block.type_ == "start":
+            # TODO: formatting decisions, should level 2+ subvars get newlines, etc...
+            html += f"<!-- Start Block Log: {block.log} -->"
+            if block.fen:
+                counter += 1
+                html += (
+                    f'<span class="move subvar-move" data-fen="{block.fen}" '
+                    f'data-index="{counter}">⏮️</span>'
+                )
 
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
