@@ -168,9 +168,9 @@
       </div>
     </template>
 
-    <template x-if="showInfo && completed && finalMove().text">
+    <template x-if="showInfo && completed && reviewData.final_move_html">
       <div class="final-move">
-        <p x-text="finalMove().move_verbose + ' ' + finalMove().text"></p>
+        <p x-html="reviewData.final_move_html"></p>
       </div>
     </template>
 

@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from chesser import importer, util
 from chesser.models import Chapter, Course, QuizResult, Variation
 from chesser.serializers import (
+    get_final_move_simple_subvariations_html,
     serialize_variation,
     serialize_variation_to_import_format,
 )
@@ -104,6 +105,7 @@ def review(request, variation_id=None):
         "extra_study": extra_study,
         "total_due_now": total_due_now,
         "total_due_soon": total_due_soon,
+        "final_move_html": get_final_move_simple_subvariations_html(variation),
     }
 
     context = {

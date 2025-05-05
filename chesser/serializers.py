@@ -323,6 +323,32 @@ def generate_subvariations_html(move, parsed_blocks):
     )
 
 
+def get_final_move_simple_subvariations_html(variation):
+    html = ""
+    previous_type = ""
+
+    # advance board to the final move
+    board = chess.Board()
+    for move in variation.moves.iterator():
+        board.push_san(move.san)  # Mainline moves better be valid
+
+    parsed_blocks = get_parsed_blocks(move, board.copy())
+
+    for block in parsed_blocks:
+        if block.type_ == "comment":
+            comment = block.display_text.replace("\n", "<br/>")
+            html += f" {comment} "
+        elif block.type_ == "move":
+            move_text = block.move_verbose() if previous_type != "move" else block.raw
+            html += f" {move_text} "
+        previous_type = block.type_
+
+    if html:
+        html = f'<h3 style="color: greenyellow">{move.move_verbose}</h3>\n{html}'
+
+    return html
+
+
 # === Parser/Renderer v1 ====================================================
 
 
