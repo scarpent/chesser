@@ -2,7 +2,7 @@ import chess
 from django.core.management.base import BaseCommand
 
 from chesser.models import Move, Variation
-from chesser.serializers import (
+from chesser.move_resolver import (
     PathFinder,
     ResolveStats,
     extract_ordered_chunks,
