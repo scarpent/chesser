@@ -164,7 +164,7 @@ class ResolveStats:
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     chunks = extract_ordered_chunks(move.text)
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
-    pathfinder = PathFinder(parsed_blocks, move, board)
+    pathfinder = PathFinder(parsed_blocks, move.id, move.move_verbose, board)
     resolved_blocks = pathfinder.resolve_moves()
     return resolved_blocks
 
@@ -282,21 +282,24 @@ class PathFinder:
     def __init__(
         self,
         blocks: list[ParsedBlock],
-        move: Move,
+        move_id: int,
+        move_verbose: str,
         board: chess.Board,
         stats: Optional[ResolveStats] = None,
     ):
         self.blocks = blocks
         self.resolved_blocks = []  # "finished" blocks, whether or not truly "resolved"
-        self.mainline_move = move
+        self.move_id = move_id
         self.board = board
 
         # make a parsed move block for the mainline move -
-        # it will always have all the information: move num, dots, san
-        move_parts = get_move_parts(move.move_verbose)
+        # it should always have all the information: move num, dots, san
+        move_parts = get_move_parts(move_verbose)
+        assert move_parts.num and move_parts.dots and move_parts.san
+
         root_block = ParsedBlock(
             type_="move",
-            raw=move.move_verbose,
+            raw=move_verbose,
             move_parts_raw=move_parts,
             move_parts_resolved=move_parts,
             fen=board.fen(),
@@ -528,8 +531,7 @@ class PathFinder:
                     message = "↔️  implied subvar found: {} ➤ {}"
                     block.log.append(message.format(previous, current))
 
-                    # move_id = self.mainline_move.id
-                    # print(f"ALT move# {move_id}: {previous} ➤ {current}")
+                    # print(f"ALT move# {self.move_id}: {previous} ➤ {current}")
 
                     try:
                         self.current.board.pop()

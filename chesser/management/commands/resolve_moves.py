@@ -65,7 +65,8 @@ class Command(BaseCommand):
                 parsed_blocks = get_parsed_blocks_first_pass(chunks)
                 path_finder = PathFinder(
                     parsed_blocks,
-                    move,
+                    move.id,
+                    move.move_verbose,
                     board.copy(),
                     stats,
                 )
