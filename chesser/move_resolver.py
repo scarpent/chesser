@@ -476,7 +476,7 @@ class PathFinder:
 
         return None
 
-    def is_implied_subvar_move(self, block: ParsedBlock):
+    def get_implied_subvar_move(self, block: ParsedBlock):
         """
         e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
              (1.e4 e5 {or} 1...d5)
@@ -627,7 +627,7 @@ class PathFinder:
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
-            if alternate_move := self.is_implied_subvar_move(pending_block):
+            if alternate_move := self.get_implied_subvar_move(pending_block):
                 self.push_move(alternate_move)
                 self.advance_to_next_block(append=alternate_move)
                 continue
