@@ -282,24 +282,24 @@ class PathFinder:
     def __init__(
         self,
         blocks: list[ParsedBlock],
-        move_id: int,
-        move_verbose: str,
+        mainline_move_id: int,
+        mainline_move_verbose: str,
         board: chess.Board,
         stats: Optional[ResolveStats] = None,
     ):
         self.blocks = blocks
         self.resolved_blocks = []  # "finished" blocks, whether or not truly "resolved"
-        self.move_id = move_id
+        self.mainline_move_id = mainline_move_id
         self.board = board
 
         # make a parsed move block for the mainline move -
         # it should always have all the information: move num, dots, san
-        move_parts = get_move_parts(move_verbose)
+        move_parts = get_move_parts(mainline_move_verbose)
         assert move_parts.num and move_parts.dots and move_parts.san
 
         root_block = ParsedBlock(
             type_="move",
-            raw=move_verbose,
+            raw=mainline_move_verbose,
             move_parts_raw=move_parts,
             move_parts_resolved=move_parts,
             fen=board.fen(),
@@ -531,7 +531,7 @@ class PathFinder:
                     message = "↔️  implied subvar found: {} ➤ {}"
                     block.log.append(message.format(previous, current))
 
-                    # print(f"ALT move# {self.move_id}: {previous} ➤ {current}")
+                    # print(f"ALT move# {self.mainline_move_id}: {previous} ➤ {current}")  # noqa: E501
 
                     try:
                         self.current.board.pop()
