@@ -74,9 +74,23 @@ class ParsedBlock:
         new.log = self.log.copy()
         return new
 
+    def unresolve(self):
+        """
+        if an already parsed/playable is found to be invalid, we can reset
+        """
+        self.move_parts_resolved = None
+        self.raw_to_resolved_distance = AMBIGUOUS
+        self.fen = ""
+        self.log.append("⛔️ unresolving move")
+        return self
+
     def equals_raw(self, other):
-        # pre-resolved moves have num/dots/san and are the same
-        # other than annotations which are ignored here
+        """
+        pre-resolved moves have num/dots/san and are the same
+        other than annotations which are ignored here
+
+        TODO maybe this doesn't need to be a helper if only used in one place
+        """
         nums_equal = (
             self.move_parts_raw.num
             and self.move_parts_raw.num == other.move_parts_raw.num
@@ -252,11 +266,10 @@ class StackFrame:
     move_counter: int = 0  # pass or fail
     # resolved moves AND passed through moves are added here
     resolved_stack: list[ParsedBlock] = field(default_factory=list)
-
+    # make previous move handy for sibling checking
     board_previous: Optional[chess.Board] = field(init=False)
 
     def __post_init__(self):
-        # make previous move handy for sibling checking
         self.board_previous = self.board.copy()
         try:
             self.board_previous.pop()
@@ -343,9 +356,7 @@ class PathFinder:
                 f"❌ parse_san {e}: {san} | board move "
                 f"{board.fullmove_number}, white turn {board.turn}"
             )
-            # seems plausible that an already parsed move could be handed in,
-            # having been made illegal on its journey, so we should unresolve it
-            clone.move_parts_resolved = None
+            clone.unresolve()
             return clone
 
         board.push(move_obj)
@@ -435,7 +446,13 @@ class PathFinder:
             return False
 
     def get_root_sibling(self, block: ParsedBlock):
-        # e.g. mainline 1.e4, subvar (1.d4 d5)
+        """
+        e.g. mainline 1.e4, subvar (1.d4 d5)
+
+        this assumes we've already ruled out `block` as a
+        duplicate of the root block, so now to see if it's
+        a sibling; i.e. same move number/dots as the root
+        """
         if (
             self.current.move_counter == 1
             and self.current.board_previous
@@ -459,16 +476,68 @@ class PathFinder:
 
         return None
 
-    def get_alternate_move(self, block: ParsedBlock):
-        # e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
-        # ➤ we'll say it must be a "full" move, with num and dots, so we cna
-        #   properly assess relationship
-        # ➤ should we only count it as an alternate if it follows a comment?
+    def is_implied_subvar_move(self, block: ParsedBlock):
+        """
+        e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+             (1.e4 e5 {or} 1...d5)
 
-        # we need a counterpart to equals_raw to check for same move num/dots
-        # but not same san, and maybe we compare current raw to previous resolved
-        block.log.append("↗️  alternate move check will happen here ↗️")
-        self.stats.sundry["➤ alternate move getter/checker"] += 1
+        we might think of these as "alternate moves" but that might be
+        confusing with alt and alt_fail concept for viable mainline alts
+
+        and it's not *just* an alternate move, things could continue:
+            (2.Nf3 {or} 2.Nc3 Nf6 3.f4)
+
+        this is sort of related to root sibling, right? but it needs special
+        handling (these might be mostly my own hacky chessable subvars since
+        it allowed this kind of structure in the editor)
+
+        ➤ we'll say the alt must be a "full" move, with num and dots,
+          so we can properly assess relationship with previous resolved move
+
+        ➤ should we only count it as an alternate if it follows a comment?
+          probably yes, there should be *some* rules -- we shouldn't
+          expect any old lined up moves to do any damn thing they want
+        """
+
+        # is it safe to consider both resolved blocks and resolved stack,
+        # if we want to examine last move as comment (resolved stack is only
+        # for moves, resolved blocks will have comments, too) - we'd also
+        # like to stay within a subvar which I think will be the case if there
+        # is resolved stack...
+        comment_previous = self.resolved_blocks[-1].type_ == "comment"
+        if comment_previous and self.current.resolved_stack:
+            self.stats.sundry["➤ implied subvar? (has comment/stack)"] += 1
+
+            previous_block = self.current.resolved_stack[-1].clone()
+            # TODO decide if this comparison makes sense as a ParsedBlock helper
+            if resolved := previous_block.move_parts_resolved:
+                if (
+                    resolved.num == block.move_parts_raw.num
+                    and resolved.dots == block.move_parts_raw.dots
+                    and resolved.san != block.move_parts_raw.san
+                ):
+                    # the current move must have all the information "raw"
+                    # so we know that it is a candidate alternate to previous
+                    # (note that the current move may or may not be playable,
+                    # and if it *is* resolved/playable, it would have flipped
+                    # sides, being a legal move for the opposite side...)
+                    self.stats.sundry["➤ implied subvar found"] += 1
+
+                    previous = assemble_move_parts(resolved)
+                    current = assemble_move_parts(block.move_parts_raw)
+                    message = "↔️  implied subvar found: {} ➤ {}"
+                    block.log.append(message.format(previous, current))
+
+                    # move_id = self.mainline_move.id
+                    # print(f"ALT move# {move_id}: {previous} ➤ {current}")
+
+                    try:
+                        self.current.board.pop()
+                    except IndexError:
+                        return None
+
+                    return self.parse_move(block)
+
         return None
 
     def advance_to_next_block(self, append: Optional[ParsedBlock] = None):
@@ -513,8 +582,14 @@ class PathFinder:
 
             chesser #1169, chessable #42465164 4...Nf6 issue with subvar parens -- looks like chessable self-heals; maybe when we're on a new subvar and get this, we could try ending the previous subvar?
 
-            "implied" subvariations
+            "implied" subvariations? "alternate moves"
             e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
+
+            #996.19782
+            {Nxe5 is most popular, but dxe4 is also played a lot and a better move.}
+            (4...dxe4 5.Bb5! Bd7 6.Bxc6 {or}) (6.Nxd7 {
+            Qh5 also good.} )
+                ➤ when rendered looks like a broken alternate move situation but it's subvar related - so, another path to try an alternate move of last move of previous subvar? (also should just try continuing?)
 
             #881 6.Qc1 move id 17638 - this is a broken subvar and one I'm not sure we should try fixing on the fly, although we *might* end trying different subvar searching strategies between subvars, since it may be common enough that it would be great if we could smartly handle it
             6.Qc1 (6.Nc3 6...Nxc3)(6.Qa5) should be 6...Qa5 and also shouldn't be a new subvar
@@ -552,11 +627,12 @@ class PathFinder:
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
-            # if alternate move
-            if alternate_move := self.get_alternate_move(pending_block):
+            if alternate_move := self.is_implied_subvar_move(pending_block):
                 self.push_move(alternate_move)
                 self.advance_to_next_block(append=alternate_move)
                 continue
+
+            # look for other places to match things end/start subvar, etc
 
             # fall through ---------------------------------------------------
 
