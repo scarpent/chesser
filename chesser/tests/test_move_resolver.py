@@ -1,3 +1,4 @@
+import chess
 import pytest
 
 from chesser import move_resolver
@@ -306,7 +307,7 @@ def make_comment_block(raw, display, depth=0):
     )
 
 
-def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
+def make_move_block(raw, move_num, dots, san, depth=1, fen="", ann=""):
     return ParsedBlock(
         type_="move",
         raw=raw,
@@ -336,8 +337,8 @@ def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
             ],
             [
                 ParsedBlock(type_="start", depth=1),
-                make_move_block("1.e4", 1, ".", "e4", depth=1),
-                make_move_block("e5", None, "", "e5", depth=1),
+                make_move_block("1.e4", 1, ".", "e4"),
+                make_move_block("e5", None, "", "e5"),
                 ParsedBlock(type_="end", depth=1),
             ],
         ),
@@ -352,7 +353,7 @@ def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
             ],
             [
                 ParsedBlock(type_="start", depth=1),
-                make_move_block("1.e4", 1, ".", "e4", depth=1),
+                make_move_block("1.e4", 1, ".", "e4"),
                 ParsedBlock(type_="start", depth=2),
                 make_move_block("1... d5", 1, "...", "d5", depth=2),
                 ParsedBlock(type_="end", depth=2),
@@ -372,8 +373,8 @@ def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
             [
                 make_comment_block("hello ", "hello ", depth=0),
                 ParsedBlock(type_="start", depth=1),
-                make_move_block("1.e4", 1, ".", "e4", depth=1),
-                make_move_block("e5", None, "", "e5", depth=1),
+                make_move_block("1.e4", 1, ".", "e4"),
+                make_move_block("e5", None, "", "e5"),
                 make_comment_block(" world", " world", depth=1),
                 ParsedBlock(type_="end", depth=1),
                 make_comment_block("!<br/>", "!\n", depth=0),
@@ -385,9 +386,9 @@ def make_move_block(raw, move_num, dots, san, depth, fen="", ann=""):
             ],
             [
                 ParsedBlock(type_="start", depth=1, fen="..."),
-                make_move_block("1.e4", 1, ".", "e4", depth=1),
-                make_move_block("e5", None, "", "e5", depth=1),
-                make_move_block("2. Nf3", 2, ".", "Nf3", depth=1),
+                make_move_block("1.e4", 1, ".", "e4"),
+                make_move_block("e5", None, "", "e5"),
+                make_move_block("2. Nf3", 2, ".", "Nf3"),
                 ParsedBlock(type_="end", depth=1),
             ],
         ),
@@ -430,12 +431,12 @@ def test_parse_fenseq_chunk_with_comments():
 
     expected = [
         ParsedBlock(type_="start", fen="start_fen", depth=1),
-        make_move_block("1.e4", 1, ".", "e4", depth=1),
+        make_move_block("1.e4", 1, ".", "e4"),
         make_comment_block("{comment}", "comment"),
-        make_move_block("e5", None, "", "e5", depth=1),
-        make_move_block("2.Nf3", 2, ".", "Nf3", depth=1),
+        make_move_block("e5", None, "", "e5"),
+        make_move_block("2.Nf3", 2, ".", "Nf3"),
         make_comment_block("{another comment}", "another comment"),
-        make_move_block("2...Nc6", 2, "...", "Nc6", depth=1),
+        make_move_block("2...Nc6", 2, "...", "Nc6"),
         ParsedBlock(type_="end", depth=1),
     ]
     assert blocks == expected
@@ -509,3 +510,64 @@ def test_get_move_parts(text, expected):
     m = move_resolver.MOVE_PARTS_REGEX.search(text.strip())
     assert m is not None
     assert m.lastindex == 4  # Ensures group(4) always exists
+
+
+def wrap_with_subvar(blocks, depth=1):
+    # later can add fenseq handling with fen on start
+    # maybe let's not handle nesting, and just apply depth to everything
+    start_block = ParsedBlock(type_="start", depth=depth)
+    end_block = ParsedBlock(type_="end", depth=depth)
+    for block in blocks:
+        if block.type_ in ("move", "comment"):
+            block.depth = depth
+    blocks.insert(0, start_block)
+    blocks.append(end_block)
+
+
+def test_resolve_moves_basic_pipeline_handling():
+    parsed_blocks = [make_comment_block("{hi}", "hi")]
+    wrap_with_subvar(parsed_blocks, depth=2)
+
+    path_finder = move_resolver.PathFinder(
+        parsed_blocks, 123, "1.e4", chess.Board(), None
+    )
+
+    blocks = path_finder.resolve_moves()
+
+    assert len(blocks) == 3
+    assert blocks[0].type_ == "start"
+    assert blocks[0].fen == ""
+    assert blocks[1].type_ == "comment"
+    assert blocks[1].raw == "{hi}"
+    assert blocks[2].type_ == "end"
+    assert all(b.depth == 2 for b in blocks)
+
+
+def get_board_after_moves(moves):
+    board = chess.Board()
+    for move in moves.split():
+        board.push_san(move)
+    return board
+
+
+def get_fen_after_moves(moves):
+    board = get_board_after_moves(moves)
+    return board.fen()
+
+
+def test_resolve_moves_subvar_continues_from_root():
+    """
+    Test that subvar continues from the root move.
+    """
+    parsed_blocks = [make_move_block("1...e5", 1, "...", "e5", fen="")]
+    wrap_with_subvar(parsed_blocks)
+    path_finder = move_resolver.PathFinder(
+        parsed_blocks, 123, "1.e4", get_board_after_moves("e4"), None
+    )
+
+    blocks = path_finder.resolve_moves()
+
+    assert len(blocks) == 3
+    assert blocks[1].type_ == "move"
+    assert blocks[1].fen == get_fen_after_moves("e4 e5")
+    assert tuple(blocks[1].move_parts_resolved) == (1, "...", "e5", "")
