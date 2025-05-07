@@ -6,23 +6,17 @@ from chesser.move_resolver import Chunk, MoveParts, ParsedBlock
 
 
 def make_comment_block(raw, display, depth=1):
-    return ParsedBlock(
-        type_="comment",
-        raw=raw,
-        display_text=display,
-        depth=depth,
-    )
+    return ParsedBlock(type_="comment", raw=raw, display_text=display, depth=depth)
 
 
 def make_move_block(raw, fen="", depth=1):
     """relying on a core function of the move resolving engine"""
-    return ParsedBlock(
-        type_="move",
-        raw=raw,
-        move_parts_raw=move_resolver.get_move_parts(raw),
-        fen=fen,
-        depth=depth,
-    )
+    mpr = move_resolver.get_move_parts(raw)
+    return ParsedBlock(type_="move", raw=raw, move_parts_raw=mpr, fen=fen, depth=depth)
+
+
+def make_subvar_block(type_, fen="", depth=1):
+    return ParsedBlock(type_=type_, fen=fen, depth=depth)
 
 
 @pytest.mark.parametrize(
@@ -337,10 +331,10 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
                 Chunk("subvar", "END 1"),
             ],
             [
-                ParsedBlock(type_="start", depth=1),
+                make_subvar_block("start"),
                 make_move_block("1.e4"),
                 make_move_block("e5"),
-                ParsedBlock(type_="end", depth=1),
+                make_subvar_block("end"),
             ],
         ),
         (
@@ -353,12 +347,12 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
                 Chunk("subvar", "END 1"),
             ],
             [
-                ParsedBlock(type_="start", depth=1),
+                make_subvar_block("start"),
                 make_move_block("1.e4"),
-                ParsedBlock(type_="start", depth=2),
+                make_subvar_block("start", depth=2),
                 make_move_block("1... d5", depth=2),
-                ParsedBlock(type_="end", depth=2),
-                ParsedBlock(type_="end", depth=1),
+                make_subvar_block("end", depth=2),
+                make_subvar_block("end"),
             ],
         ),
         (
@@ -373,11 +367,11 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
             ],
             [
                 make_comment_block("hello ", "hello ", depth=0),
-                ParsedBlock(type_="start", depth=1),
+                make_subvar_block("start"),
                 make_move_block("1.e4"),
                 make_move_block("e5"),
                 make_comment_block(" world", " world"),
-                ParsedBlock(type_="end", depth=1),
+                make_subvar_block("end"),
                 make_comment_block("!<br/>", "!\n", depth=0),
             ],
         ),
@@ -386,11 +380,11 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
                 Chunk("fenseq", "<fenseq data-fen='...'>1.e4 e5 2. Nf3</fenseq>"),
             ],
             [
-                ParsedBlock(type_="start", depth=1, fen="..."),
+                make_subvar_block("start", fen="..."),
                 make_move_block("1.e4"),
                 make_move_block("e5"),
                 make_move_block("2. Nf3"),
-                ParsedBlock(type_="end", depth=1),
+                make_subvar_block("end"),
             ],
         ),
     ],
@@ -431,14 +425,14 @@ def test_parse_fenseq_chunk_with_comments():
     blocks = move_resolver.parse_fenseq_chunk(test_input)
 
     expected = [
-        ParsedBlock(type_="start", fen="start_fen", depth=1),
+        make_subvar_block("start", fen="start_fen"),
         make_move_block("1.e4"),
         make_comment_block("{comment}", "comment"),
         make_move_block("e5"),
         make_move_block("2.Nf3"),
         make_comment_block("{another comment}", "another comment"),
         make_move_block("2...Nc6"),
-        ParsedBlock(type_="end", depth=1),
+        make_subvar_block("end"),
     ]
     assert blocks == expected
 
@@ -547,8 +541,8 @@ def test_get_resolved_move_distance_invalid():
 
 def wrap_with_subvar(blocks, depth=1):
     # later can add fenseq handling with fen on start
-    start_block = ParsedBlock(type_="start", depth=depth)
-    end_block = ParsedBlock(type_="end", depth=depth)
+    start_block = make_subvar_block("start", depth=depth)
+    end_block = make_subvar_block("end", depth=depth)
     for block in blocks:
         if block.type_ == "start":
             depth += 1
