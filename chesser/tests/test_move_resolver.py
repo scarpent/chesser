@@ -2,7 +2,7 @@ import chess
 import pytest
 
 from chesser import move_resolver
-from chesser.move_resolver import Chunk, ParsedBlock
+from chesser.move_resolver import Chunk, MoveParts, ParsedBlock
 
 
 def make_comment_block(raw, display, depth=0):
@@ -14,11 +14,12 @@ def make_comment_block(raw, display, depth=0):
     )
 
 
-def make_move_block(raw, move_num, dots, san, depth=1, fen="", ann=""):
+def make_move_block(raw, fen="", depth=1):
+    """relying on a core function of the move resolving engine"""
     return ParsedBlock(
         type_="move",
         raw=raw,
-        move_parts_raw=move_resolver.MoveParts(move_num, dots, san, ann),
+        move_parts_raw=move_resolver.get_move_parts(raw),
         fen=fen,
         depth=depth,
     )
@@ -337,8 +338,8 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
             ],
             [
                 ParsedBlock(type_="start", depth=1),
-                make_move_block("1.e4", 1, ".", "e4"),
-                make_move_block("e5", None, "", "e5"),
+                make_move_block("1.e4"),
+                make_move_block("e5"),
                 ParsedBlock(type_="end", depth=1),
             ],
         ),
@@ -353,9 +354,9 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
             ],
             [
                 ParsedBlock(type_="start", depth=1),
-                make_move_block("1.e4", 1, ".", "e4"),
+                make_move_block("1.e4"),
                 ParsedBlock(type_="start", depth=2),
-                make_move_block("1... d5", 1, "...", "d5", depth=2),
+                make_move_block("1... d5", depth=2),
                 ParsedBlock(type_="end", depth=2),
                 ParsedBlock(type_="end", depth=1),
             ],
@@ -373,8 +374,8 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
             [
                 make_comment_block("hello ", "hello ", depth=0),
                 ParsedBlock(type_="start", depth=1),
-                make_move_block("1.e4", 1, ".", "e4"),
-                make_move_block("e5", None, "", "e5"),
+                make_move_block("1.e4"),
+                make_move_block("e5"),
                 make_comment_block(" world", " world", depth=1),
                 ParsedBlock(type_="end", depth=1),
                 make_comment_block("!<br/>", "!\n", depth=0),
@@ -386,9 +387,9 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
             ],
             [
                 ParsedBlock(type_="start", depth=1, fen="..."),
-                make_move_block("1.e4", 1, ".", "e4"),
-                make_move_block("e5", None, "", "e5"),
-                make_move_block("2. Nf3", 2, ".", "Nf3"),
+                make_move_block("1.e4"),
+                make_move_block("e5"),
+                make_move_block("2. Nf3"),
                 ParsedBlock(type_="end", depth=1),
             ],
         ),
@@ -431,12 +432,12 @@ def test_parse_fenseq_chunk_with_comments():
 
     expected = [
         ParsedBlock(type_="start", fen="start_fen", depth=1),
-        make_move_block("1.e4", 1, ".", "e4"),
+        make_move_block("1.e4"),
         make_comment_block("{comment}", "comment"),
-        make_move_block("e5", None, "", "e5"),
-        make_move_block("2.Nf3", 2, ".", "Nf3"),
+        make_move_block("e5"),
+        make_move_block("2.Nf3"),
         make_comment_block("{another comment}", "another comment"),
-        make_move_block("2...Nc6", 2, "...", "Nc6"),
+        make_move_block("2...Nc6"),
         ParsedBlock(type_="end", depth=1),
     ]
     assert blocks == expected
@@ -512,6 +513,35 @@ def test_get_move_parts(text, expected):
     assert m.lastindex == 4  # Ensures group(4) always exists
 
 
+@pytest.mark.parametrize(
+    "resolved_num, resolved_dots, raw_num, raw_dots, expected",
+    [
+        (1, ".", 1, ".", 0),
+        (1, "...", 1, "...", 0),
+        (2, ".", 1, ".", 2),
+        (2, "...", 1, "...", 2),
+        (2, "...", 1, ".", 3),
+        (1, "...", None, "...", -1),
+        (1, "...", 1, "....", -1),
+    ],
+)
+def test_get_resolved_move_distance(
+    resolved_num, resolved_dots, raw_num, raw_dots, expected
+):
+    resolved = MoveParts(resolved_num, resolved_dots, "e4", "")
+    raw = MoveParts(raw_num, raw_dots, "e4", "")
+    result = move_resolver.get_resolved_move_distance(resolved, raw)
+    assert result == expected
+
+
+def test_get_resolved_move_distance_invalid():
+    resolved = None
+    raw = MoveParts(1, "...", "e5", "")
+    with pytest.raises(ValueError) as excinfo:
+        move_resolver.get_resolved_move_distance(resolved, raw)
+    assert "resolved_move_parts not provided; raw_move_parts =" in str(excinfo.value)
+
+
 # ================================================ the core of the resolution!
 
 
@@ -526,16 +556,13 @@ def wrap_with_subvar(blocks, depth=1):
     return [start_block] + blocks + [end_block]
 
 
-def get_board_after_moves(moves):
+def get_boards_after_moves(moves: str):
     board = chess.Board()
-    for move in moves.split():
-        board.push_san(move)
-    return board
-
-
-def get_fen_after_moves(moves):
-    board = get_board_after_moves(moves)
-    return board.fen()
+    index = {}
+    for san in moves.split():
+        board.push_san(san)
+        index[san] = board.copy()
+    return index
 
 
 def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
@@ -544,8 +571,9 @@ def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
 
 
 def test_resolve_moves_basic_pipeline_handling():
+    boards = get_boards_after_moves("e4")
     parsed_blocks = wrap_with_subvar([make_comment_block("{hi}", "hi")], depth=2)
-    path_finder = make_pathfinder(parsed_blocks, "1.e4", get_board_after_moves("e4"))
+    path_finder = make_pathfinder(parsed_blocks, "1.e4", boards["e4"])
 
     blocks = path_finder.resolve_moves()
 
@@ -559,17 +587,13 @@ def test_resolve_moves_basic_pipeline_handling():
 
 
 def test_resolve_moves_subvar_continues_from_root():
-    """
-    Test that subvar continues from the root move.
-    """
-    parsed_blocks = wrap_with_subvar(
-        [make_move_block("1...e5", 1, "...", "e5", fen="")]
-    )
-    path_finder = make_pathfinder(parsed_blocks, "1.e4", get_board_after_moves("e4"))
+    boards = get_boards_after_moves("e4 e5")
+    parsed_blocks = wrap_with_subvar([make_move_block("1...e5")])
+    path_finder = make_pathfinder(parsed_blocks, "1.e4", boards["e4"])
 
     blocks = path_finder.resolve_moves()
 
     assert len(blocks) == 3
     assert blocks[1].type_ == "move"
-    assert blocks[1].fen == get_fen_after_moves("e4 e5")
+    assert blocks[1].fen == boards["e5"].fen()
     assert tuple(blocks[1].move_parts_resolved) == (1, "...", "e5", "")
