@@ -5,6 +5,25 @@ from chesser import move_resolver
 from chesser.move_resolver import Chunk, ParsedBlock
 
 
+def make_comment_block(raw, display, depth=0):
+    return ParsedBlock(
+        type_="comment",
+        raw=raw,
+        display_text=display,
+        depth=depth,
+    )
+
+
+def make_move_block(raw, move_num, dots, san, depth=1, fen="", ann=""):
+    return ParsedBlock(
+        type_="move",
+        raw=raw,
+        move_parts_raw=move_resolver.MoveParts(move_num, dots, san, ann),
+        fen=fen,
+        depth=depth,
+    )
+
+
 @pytest.mark.parametrize(
     "text,expected_chunks",
     [
@@ -298,25 +317,6 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
     assert block.depth == depth
 
 
-def make_comment_block(raw, display, depth=0):
-    return ParsedBlock(
-        type_="comment",
-        raw=raw,
-        display_text=display,
-        depth=depth,
-    )
-
-
-def make_move_block(raw, move_num, dots, san, depth=1, fen="", ann=""):
-    return ParsedBlock(
-        type_="move",
-        raw=raw,
-        move_parts_raw=move_resolver.MoveParts(move_num, dots, san, ann),
-        fen=fen,
-        depth=depth,
-    )
-
-
 @pytest.mark.parametrize(
     "chunks, expected",
     [
@@ -512,6 +512,9 @@ def test_get_move_parts(text, expected):
     assert m.lastindex == 4  # Ensures group(4) always exists
 
 
+# ================================================ the core of the resolution!
+
+
 def wrap_with_subvar(blocks, depth=1):
     # later can add fenseq handling with fen on start
     # maybe let's not handle nesting, and just apply depth to everything
@@ -520,27 +523,7 @@ def wrap_with_subvar(blocks, depth=1):
     for block in blocks:
         if block.type_ in ("move", "comment"):
             block.depth = depth
-    blocks.insert(0, start_block)
-    blocks.append(end_block)
-
-
-def test_resolve_moves_basic_pipeline_handling():
-    parsed_blocks = [make_comment_block("{hi}", "hi")]
-    wrap_with_subvar(parsed_blocks, depth=2)
-
-    path_finder = move_resolver.PathFinder(
-        parsed_blocks, 123, "1.e4", chess.Board(), None
-    )
-
-    blocks = path_finder.resolve_moves()
-
-    assert len(blocks) == 3
-    assert blocks[0].type_ == "start"
-    assert blocks[0].fen == ""
-    assert blocks[1].type_ == "comment"
-    assert blocks[1].raw == "{hi}"
-    assert blocks[2].type_ == "end"
-    assert all(b.depth == 2 for b in blocks)
+    return [start_block] + blocks + [end_block]
 
 
 def get_board_after_moves(moves):
@@ -555,15 +538,34 @@ def get_fen_after_moves(moves):
     return board.fen()
 
 
+def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
+    board = board or chess.Board()
+    return move_resolver.PathFinder(blocks, move_id, mainline_verbose, board, None)
+
+
+def test_resolve_moves_basic_pipeline_handling():
+    parsed_blocks = wrap_with_subvar([make_comment_block("{hi}", "hi")], depth=2)
+    path_finder = make_pathfinder(parsed_blocks, "1.e4", get_board_after_moves("e4"))
+
+    blocks = path_finder.resolve_moves()
+
+    assert len(blocks) == 3
+    assert blocks[0].type_ == "start"
+    assert blocks[0].fen == ""
+    assert blocks[1].type_ == "comment"
+    assert blocks[1].raw == "{hi}"
+    assert blocks[2].type_ == "end"
+    assert all(b.depth == 2 for b in blocks)
+
+
 def test_resolve_moves_subvar_continues_from_root():
     """
     Test that subvar continues from the root move.
     """
-    parsed_blocks = [make_move_block("1...e5", 1, "...", "e5", fen="")]
-    wrap_with_subvar(parsed_blocks)
-    path_finder = move_resolver.PathFinder(
-        parsed_blocks, 123, "1.e4", get_board_after_moves("e4"), None
+    parsed_blocks = wrap_with_subvar(
+        [make_move_block("1...e5", 1, "...", "e5", fen="")]
     )
+    path_finder = make_pathfinder(parsed_blocks, "1.e4", get_board_after_moves("e4"))
 
     blocks = path_finder.resolve_moves()
 
