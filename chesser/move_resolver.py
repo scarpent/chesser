@@ -765,6 +765,7 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
                     type_="comment",
                     raw=chunk.data,
                     display_text=chunk.data.strip("{}"),
+                    depth=DEPTH,
                 )
             )
         elif chunk.type_ == "subvar":

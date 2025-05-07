@@ -5,7 +5,7 @@ from chesser import move_resolver
 from chesser.move_resolver import Chunk, MoveParts, ParsedBlock
 
 
-def make_comment_block(raw, display, depth=0):
+def make_comment_block(raw, display, depth=1):
     return ParsedBlock(
         type_="comment",
         raw=raw,
@@ -327,7 +327,7 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
                 Chunk("comment", " \n \n "),
                 Chunk("comment", "2  3"),
             ],
-            [make_comment_block("1 \n \n 2  3", "1\n\n2 3")],
+            [make_comment_block("1 \n \n 2  3", "1\n\n2 3", depth=0)],
         ),
         (
             [
@@ -376,7 +376,7 @@ def test_get_cleaned_comment_parsed_block(raw, depth, expected_display):
                 ParsedBlock(type_="start", depth=1),
                 make_move_block("1.e4"),
                 make_move_block("e5"),
-                make_comment_block(" world", " world", depth=1),
+                make_comment_block(" world", " world"),
                 ParsedBlock(type_="end", depth=1),
                 make_comment_block("!<br/>", "!\n", depth=0),
             ],
@@ -542,18 +542,27 @@ def test_get_resolved_move_distance_invalid():
     assert "resolved_move_parts not provided; raw_move_parts =" in str(excinfo.value)
 
 
-# ================================================ the core of the resolution!
+# ==================================================== move resolution helpers
 
 
 def wrap_with_subvar(blocks, depth=1):
     # later can add fenseq handling with fen on start
-    # maybe let's not handle nesting, and just apply depth to everything
     start_block = ParsedBlock(type_="start", depth=depth)
     end_block = ParsedBlock(type_="end", depth=depth)
     for block in blocks:
-        if block.type_ in ("move", "comment"):
-            block.depth = depth
+        if block.type_ == "start":
+            depth += 1
+        block.depth = depth
+        if block.type_ == "end":
+            depth -= 1
     return [start_block] + blocks + [end_block]
+
+
+def make_subvar_from_sans(moves_string: str, depth=1):
+    # could also {add comments} and chunk accordingly...
+    sans = moves_string.split()
+    blocks = [make_move_block(san, depth=depth) for san in sans]
+    return wrap_with_subvar(blocks, depth=depth)
 
 
 def get_boards_after_moves(moves: str):
@@ -568,6 +577,20 @@ def get_boards_after_moves(moves: str):
 def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
     board = board or chess.Board()
     return move_resolver.PathFinder(blocks, move_id, mainline_verbose, board, None)
+
+
+def get_resolved_moves(blocks: list[ParsedBlock]):
+    # move verbose will use raw move parts or just raw if no resolved;
+    # consider if we only want to look at resolved
+    # assemble_move_parts(self.move_parts_resolved)
+    return [b.move_verbose() for b in blocks if b.type_ == "move"]
+
+
+def get_move_fens(blocks: list[ParsedBlock]):
+    return [b.fen for b in blocks if b.type_ == "move" and b.fen]
+
+
+# ====================================================== move resolution tests
 
 
 def test_resolve_moves_basic_pipeline_handling():
@@ -586,7 +609,7 @@ def test_resolve_moves_basic_pipeline_handling():
     assert all(b.depth == 2 for b in blocks)
 
 
-def test_resolve_moves_subvar_continues_from_root():
+def test_resolve_moves_subvar_continues_from_white_root():
     boards = get_boards_after_moves("e4 e5")
     parsed_blocks = wrap_with_subvar([make_move_block("1...e5")])
     path_finder = make_pathfinder(parsed_blocks, "1.e4", boards["e4"])
@@ -597,3 +620,13 @@ def test_resolve_moves_subvar_continues_from_root():
     assert blocks[1].type_ == "move"
     assert blocks[1].fen == boards["e5"].fen()
     assert tuple(blocks[1].move_parts_resolved) == (1, "...", "e5", "")
+
+
+def test_resolve_moves_subvar_continues_from_black_root():
+    boards = get_boards_after_moves("e4 e5")
+    blocks = make_subvar_from_sans("2.Nf3 Nc6 3.d4")
+    pf = make_pathfinder(blocks, "1...e5", boards["e5"])
+
+    resolved = pf.resolve_moves()
+
+    assert get_resolved_moves(resolved) == ["2.Nf3", "2...Nc6", "3.d4"]
