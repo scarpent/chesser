@@ -548,6 +548,10 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0):
     ( 1.e4 {comment} 1...e5 )   no spaces in comments to make it easier to parse
     ( 1.e4 ( 1.d4 2.d5 ) 1...e5 )
     (F<fen> 1.d4 d5)            anything after F is used as a fen, to emulate fenseq
+
+    outer parens are optional; they'll be added around the whole pgn_string
+    only if no parens are found; we can test things out of a subvar, too:
+    {comment} ( 1.e4 e5 ) {comment}
     """
     if "(" not in pgn_string:
         pgn_string = f"( {pgn_string} )"
@@ -568,9 +572,9 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0):
         else:
             blocks.append(make_move_block(bit, depth=depth))
 
-        assert depth >= 0, "Unbalanced parentheses in PGN string"
+        assert depth >= 0, "Unbalanced parens in pgn string"
 
-    assert depth == starting_depth, "Unbalanced parentheses in PGN string"
+    assert depth == starting_depth, "Unbalanced parens in pgn string"
 
     return blocks
 
@@ -678,8 +682,16 @@ def test_resolve_moves_basic_pipeline_handling():
     assert all(b.depth == 2 for b in blocks)
 
 
-def test_resolve_moves_subvar_continues_from_white_root():
-    boards = get_boards_after_moves("e4 e5")
+def test_resolve_moves_subvar_continues():
+    """
+    Simple scenario of subvar first move directly
+    following root move, whether from mainline or subvar.
+
+    Simple stuff to confirm basic building blocks, we hope.
+    """
+    boards = get_boards_after_moves("e4 e5")  # reference boards
+
+    # white mainline root directly to black subvar move
     parsed_blocks = get_parsed_blocks_from_string("1...e5")
     pf = make_pathfinder(parsed_blocks, "1.e4", boards["e4"])
 
@@ -690,12 +702,26 @@ def test_resolve_moves_subvar_continues_from_white_root():
     assert blocks[1].fen == boards["e5"].fen()
     assert tuple(blocks[1].move_parts_resolved) == (1, "...", "e5", "")
 
-
-def test_resolve_moves_subvar_continues_from_black_root():
-    boards = get_boards_after_moves("e4 e5")
+    # black mainline root directly to white subvar move
     blocks = get_parsed_blocks_from_string("2.Nf3 Nc6 3.d4")
     pf = make_pathfinder(blocks, "1...e5", boards["e5"])
 
     resolved = pf.resolve_moves()
 
     assert get_resolved_moves(resolved) == ["2.Nf3", "2...Nc6", "3.d4"]
+
+    # white subvar to black subvar direct (behavior should be the same)
+    blocks = get_parsed_blocks_from_string("( 1...e5 2.Nf3 ( 2...Nc6 ) )")
+    pf = make_pathfinder(blocks, "1.e4", boards["e4"])
+
+    blocks = pf.resolve_moves()
+
+    assert get_resolved_moves(blocks) == ["1...e5", "2.Nf3", "2...Nc6"]
+
+    # black subvar to white subvar direct
+    blocks = get_parsed_blocks_from_string("( 2.Nf3 Nc6 ( 3.d4 ) )")
+    pf = make_pathfinder(blocks, "1...e5", boards["e5"])
+
+    blocks = pf.resolve_moves()
+
+    assert get_resolved_moves(blocks) == ["2.Nf3", "2...Nc6", "3.d4"]
