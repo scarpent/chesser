@@ -590,6 +590,18 @@ def get_boards_after_moves(moves: str):
     return index
 
 
+def merge_boards(*move_strings):
+    """
+    If we're careful with our test cases, we can combine multiple
+    variations into one set of reference boards. We just have to make
+    sure we don't have a san that resolves to more than one board!
+    """
+    merged = {}
+    for moves in move_strings:
+        merged.update(get_boards_after_moves(moves))
+    return merged
+
+
 def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
     board = board or chess.Board()
     return move_resolver.PathFinder(blocks, move_id, mainline_verbose, board, None)
@@ -618,12 +630,25 @@ def resolve_subvar(move_str, root_move_str, root_board):
     return pf.resolve_moves()
 
 
-def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
+def assert_resolved_moves(
+    *,
+    boards,
+    root_move,
+    root_board,
+    move_str,
+    expected,
+    expected_fens=None,
+):
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_resolved_moves(blocks) == expected
-    sans = " ".join(expected)
-    sans = re.sub(r"\b\d+\.+", "", sans)
-    assert_expected_fens(boards, blocks, sans)
+    if not expected_fens:
+        sans = " ".join(expected)
+        sans = re.sub(r"\b\d+\.+", "", sans)
+        assert_expected_fens(boards, blocks, sans)
+    else:
+        assert (
+            get_move_fens(blocks) == expected_fens
+        ), f"\nExpected: {expected_fens}\nActual:   {get_move_fens(blocks)}"
 
 
 # ============================================================= test the tests
@@ -770,3 +795,48 @@ def test_resolve_moves_discards_dupe_root_in_subvar():
         move_str="( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )",
         expected=["2.c4", "2...e6", "3.Nc3"],
     )
+
+    # just to see that 2...e6 first resolves fine, too
+    # even though we normally wouldn't encounter this
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...d5",
+        root_board=boards["d5"],
+        move_str="( 1...d5 2.c4 2...e6 ( 2...e6 3.Nc3 ) )",
+        expected=["2.c4", "2...e6", "3.Nc3"],
+    )
+
+
+def test_resolve_moves_with_root_sibling():
+    # white mainline root with sibling and white subvar root with sibling
+    boards = merge_boards("e4", "d4 d5 c4", "d4 d5 Nf3 Nf6")  # reference boards
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1.d4 d5 2.c4 ( 2.Nf3 Nf6 ) )",
+        expected=["1.d4", "1...d5", "2.c4", "2.Nf3", "2...Nf6"],
+    )
+
+    # white fails to resolve sibling
+    # shows that "resolved" moves can have invalid "pass-through" moves
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4",
+        root_board=boards["d4"],
+        move_str="( 1.Re7 d5 )",
+        expected=["1.Re7", "d5"],
+        expected_fens=["", ""],
+    )
+
+    # black mainline root with sibling and black subvar root with sibling
+    boards = merge_boards("d4 d5", "d4 e5 dxe5 Nc6", "d4 e5 dxe5 d6 exd6")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...d5",
+        root_board=boards["d5"],
+        move_str="( 1...e5 2.dxe5 Nc6 ( 2...d6 exd6 ) )",
+        expected=["1...e5", "2.dxe5", "2...Nc6", "2...d6", "3.exd6"],
+    )
+
+    # TODO: test for failed black
