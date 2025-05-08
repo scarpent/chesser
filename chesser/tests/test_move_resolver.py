@@ -655,11 +655,11 @@ def resolve_subvar(move_str, root_move_str, root_board):
 def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
     """
     boards: Dict of reference board states after moves, provides starting
-            states (boards) for mainline moves, and fens.
+            states (boards) for mainline sans, and fens for those positions.
 
     root_move: The mainline move that is the root of all "move.text"
                subvars. This will be a proper fully resolved move,
-            less annotation, e.g.: 1.e4 or 1...e5
+               less annotation, e.g.: 1.e4 or 1...e5
 
     root_board: The chess.Board state after the mainline root_move
 
@@ -750,10 +750,14 @@ def test_get_parsed_moves_from_string():
 
 def test_resolve_moves_disambiguation_unhandled():
     """This builds a position where both White and Black
-    play Nxd4, which is unhandled today and should produce a mismatch.
+    play Nxd4, which is unhandled in the test harness today,
+    and should produce a mismatch.
+
     We expect the second Nxd4 to overwrite the first in boards lookup.
     """
     boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nxd4")
+
+    expected = ["1...e5", "2.Nf3", "2...Nc6", "3.d4", "3...exd4", "4.Nxd4", "4...Nxd4"]
 
     with pytest.raises(AssertionError) as excinfo:
         assert_resolved_moves(
@@ -761,15 +765,7 @@ def test_resolve_moves_disambiguation_unhandled():
             root_move="1.e4",
             root_board=boards["e4"],
             move_str="( 1...e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nxd4 )",
-            expected=[
-                "1...e5",
-                "2.Nf3",
-                "2...Nc6",
-                "3.d4",
-                "3...exd4",
-                "4.Nxd4",
-                "4...Nxd4",
-            ],
+            expected=expected,
         )
 
     assert "Expected FENs" in str(excinfo.value)
@@ -873,8 +869,9 @@ def test_resolve_moves_discards_dupe_root_in_subvar():
 
 
 def test_resolve_moves_with_root_sibling():
-    # white mainline root with sibling and white subvar root with sibling
     boards = merge_boards("e4", "d4 d5 c4", "d4 d5 Nf3 Nf6")  # reference boards
+
+    # white mainline root with sibling and white subvar root with sibling
     assert_resolved_moves(
         boards=boards,
         root_move="1.e4",
@@ -893,8 +890,9 @@ def test_resolve_moves_with_root_sibling():
         expected=["1.BAD", "LAD"],
     )
 
-    # black mainline root with sibling and black subvar root with sibling
     boards = merge_boards("d4 d5 c4 e6", "d4 e5 dxe5 Nc6", "d4 e5 dxe5 d6 exd6")
+
+    # black mainline root with sibling and black subvar root with sibling
     assert_resolved_moves(
         boards=boards,
         root_move="1...d5",
