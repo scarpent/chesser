@@ -618,6 +618,11 @@ def get_move_fens(blocks: list[ParsedBlock]):
     return [b.fen for b in blocks if b.type_ == "move"]
 
 
+def get_fens_from_sans(boards, sans_str):
+    # specify exastly which sans we want fens for
+    return [boards[san].fen() if san in boards else "" for san in sans_str.split()]
+
+
 def assert_expected_fens(boards, blocks, sans_str):
     expected = [boards[san].fen() for san in sans_str.split()]
     actual = get_move_fens(blocks)
@@ -630,25 +635,16 @@ def resolve_subvar(move_str, root_move_str, root_board):
     return pf.resolve_moves()
 
 
-def assert_resolved_moves(
-    *,
-    boards,
-    root_move,
-    root_board,
-    move_str,
-    expected,
-    expected_fens=None,
-):
+def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_resolved_moves(blocks) == expected
-    if not expected_fens:
-        sans = " ".join(expected)
-        sans = re.sub(r"\b\d+\.+", "", sans)
-        assert_expected_fens(boards, blocks, sans)
-    else:
-        assert (
-            get_move_fens(blocks) == expected_fens
-        ), f"\nExpected: {expected_fens}\nActual:   {get_move_fens(blocks)}"
+
+    sans = " ".join(expected)
+    sans = re.sub(r"\b\d+\.+", "", sans)
+    expected_fens = get_fens_from_sans(boards, sans)
+    assert (
+        get_move_fens(blocks) == expected_fens
+    ), f"\nExpected: {expected_fens}\nActual:   {get_move_fens(blocks)}"
 
 
 # ============================================================= test the tests
@@ -824,13 +820,12 @@ def test_resolve_moves_with_root_sibling():
         boards=boards,
         root_move="1.d4",
         root_board=boards["d4"],
-        move_str="( 1.Re7 d5 )",
-        expected=["1.Re7", "d5"],
-        expected_fens=["", ""],
+        move_str="( 1.Re7 Ba1 )",
+        expected=["1.Re7", "Ba1"],
     )
 
     # black mainline root with sibling and black subvar root with sibling
-    boards = merge_boards("d4 d5", "d4 e5 dxe5 Nc6", "d4 e5 dxe5 d6 exd6")
+    boards = merge_boards("d4 d5 c4 e6", "d4 e5 dxe5 Nc6", "d4 e5 dxe5 d6 exd6")
     assert_resolved_moves(
         boards=boards,
         root_move="1...d5",
@@ -839,4 +834,11 @@ def test_resolve_moves_with_root_sibling():
         expected=["1...e5", "2.dxe5", "2...Nc6", "2...d6", "3.exd6"],
     )
 
-    # TODO: test for failed black
+    # black fails to resolve sibling (a level deeper)
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4",
+        root_board=boards["d4"],
+        move_str="( 1...d5 2.c4 e6 ( 2...Rg3 ) )",
+        expected=["1...d5", "2.c4", "2...e6", "2...Rg3"],
+    )
