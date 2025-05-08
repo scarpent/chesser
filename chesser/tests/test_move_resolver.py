@@ -601,7 +601,13 @@ def get_resolved_moves(blocks: list[ParsedBlock]):
 
 
 def get_move_fens(blocks: list[ParsedBlock]):
-    return [b.fen for b in blocks if b.type_ == "move" and b.fen]
+    return [b.fen for b in blocks if b.type_ == "move"]
+
+
+def assert_expected_fens(boards, blocks, sans_str):
+    expected = [boards[san].fen() for san in sans_str.split()]
+    actual = get_move_fens(blocks)
+    assert actual == expected, f"\nExpected: {expected}\nActual:   {actual}"
 
 
 # ============================================================= test the tests
@@ -689,57 +695,47 @@ def test_resolve_moves_subvar_continues():
 
     Simple stuff to confirm basic building blocks, we hope.
     """
-    boards = get_boards_after_moves("e4 e5")  # reference boards
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")  # reference boards
 
     # white mainline root directly to black subvar move
     parsed_blocks = get_parsed_blocks_from_string("1...e5")
     pf = make_pathfinder(parsed_blocks, "1.e4", boards["e4"])
-
     blocks = pf.resolve_moves()
-
-    assert len(blocks) == 3
-    assert blocks[1].type_ == "move"
-    assert blocks[1].fen == boards["e5"].fen()
-    assert tuple(blocks[1].move_parts_resolved) == (1, "...", "e5", "")
+    assert get_resolved_moves(blocks) == ["1...e5"]
+    assert_expected_fens(boards, blocks, "e5")
 
     # black mainline root directly to white subvar move
     blocks = get_parsed_blocks_from_string("2.Nf3 Nc6 3.d4")
     pf = make_pathfinder(blocks, "1...e5", boards["e5"])
-
     resolved = pf.resolve_moves()
-
     assert get_resolved_moves(resolved) == ["2.Nf3", "2...Nc6", "3.d4"]
+    assert_expected_fens(boards, resolved, "Nf3 Nc6 d4")
 
     # white subvar to black subvar direct (behavior should be the same)
     blocks = get_parsed_blocks_from_string("( 1...e5 2.Nf3 ( 2...Nc6 ) )")
     pf = make_pathfinder(blocks, "1.e4", boards["e4"])
-
     blocks = pf.resolve_moves()
-
     assert get_resolved_moves(blocks) == ["1...e5", "2.Nf3", "2...Nc6"]
+    assert_expected_fens(boards, blocks, "e5 Nf3 Nc6")
 
     # black subvar to white subvar direct
     blocks = get_parsed_blocks_from_string("( 2.Nf3 Nc6 ( 3.d4 ) )")
     pf = make_pathfinder(blocks, "1...e5", boards["e5"])
-
     blocks = pf.resolve_moves()
-
     assert get_resolved_moves(blocks) == ["2.Nf3", "2...Nc6", "3.d4"]
+    assert_expected_fens(boards, blocks, "Nf3 Nc6 d4")
 
 
 def test_resolve_moves_discards_dupe_root_in_subvar():
-    boards = get_boards_after_moves("d4 d5")  # reference boards
+    boards = get_boards_after_moves("d4 d5 c4 e6 Nc3")  # reference boards
 
     # # white dupes
     parsed_blocks = get_parsed_blocks_from_string("( 1.d4 d5 2.c4 ( 2.c4 e6 ) )")
     pf = make_pathfinder(parsed_blocks, "1.d4", boards["d4"])
-
     blocks = pf.resolve_moves()
-
     assert len(blocks) == 7
     assert get_resolved_moves(blocks) == ["1...d5", "2.c4", "2...e6"]
-
-    # good test case, shows a problem with block.equals_raw(self.current.root_block)
+    assert_expected_fens(boards, blocks, "d5 c4 e6")
 
     # black dupes
     parsed_blocks = get_parsed_blocks_from_string("( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )")
@@ -747,3 +743,4 @@ def test_resolve_moves_discards_dupe_root_in_subvar():
     blocks = pf.resolve_moves()
     assert len(blocks) == 7
     assert get_resolved_moves(blocks) == ["2.c4", "2...e6", "3.Nc3"]
+    assert_expected_fens(boards, blocks, "c4 e6 Nc3")
