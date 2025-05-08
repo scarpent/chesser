@@ -1,4 +1,5 @@
 import re
+from collections import Counter
 
 import chess
 import pytest
@@ -617,12 +618,32 @@ def get_resolved_moves(blocks: list[ParsedBlock]):
 def assert_expected_fens(boards, blocks, expected):
     sans = " ".join(expected)
     sans = re.sub(r"\b\d+\.+", "", sans)
-    # Map expected SANs to FENs via reference boards, with fallback for unplayables
-    expected_fens = [boards[san].fen() if san in boards else "" for san in sans.split()]
+    expected_sans = sans.split()
+
+    # 🔍 Detect duplicate SANs (potentially ambiguous)
+    duplicates = [san for san, count in Counter(expected_sans).items() if count > 1]
+    if duplicates:
+        print(f"⚠️  Duplicate SANs detected in expected list: {', '.join(duplicates)}")
+
+    expected_fens = [
+        boards[san].fen() if san in boards else "" for san in expected_sans
+    ]
     move_fens = [b.fen for b in blocks if b.type_ == "move"]
-    assert (
-        move_fens == expected_fens
-    ), f"\nExpected: {expected_fens}\nActual:   {move_fens}"
+
+    if move_fens != expected_fens:
+        expected_lines = [
+            f"{san:<8} ➤ {fen}" for san, fen in zip(expected_sans, expected_fens)
+        ]
+        actual_lines = [
+            f"{b.move_verbose():<8} ➤ {b.fen}" for b in blocks if b.type_ == "move"
+        ]
+
+        expected_display = "\n".join(expected_lines)
+        actual_display = "\n".join(actual_lines)
+
+        raise AssertionError(
+            f"\nExpected FENs:\n{expected_display}\n\nActual FENs:\n{actual_display}"
+        )
 
 
 def resolve_subvar(move_str, root_move_str, root_board):
@@ -725,6 +746,33 @@ def test_get_parsed_moves_from_string():
         "1...d5",
         "2.Nf3",
     ], "Resolved moves should match expected values"
+
+
+def test_resolve_moves_disambiguation_unhandled():
+    """This builds a position where both White and Black
+    play Nxd4, which is unhandled today and should produce a mismatch.
+    We expect the second Nxd4 to overwrite the first in boards lookup.
+    """
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nxd4")
+
+    with pytest.raises(AssertionError) as excinfo:
+        assert_resolved_moves(
+            boards=boards,
+            root_move="1.e4",
+            root_board=boards["e4"],
+            move_str="( 1...e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nxd4 )",
+            expected=[
+                "1...e5",
+                "2.Nf3",
+                "2...Nc6",
+                "3.d4",
+                "3...exd4",
+                "4.Nxd4",
+                "4...Nxd4",
+            ],
+        )
+
+    assert "Expected FENs" in str(excinfo.value)
 
 
 # ====================================================== move resolution tests
