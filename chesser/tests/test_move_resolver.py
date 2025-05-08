@@ -614,19 +614,15 @@ def get_resolved_moves(blocks: list[ParsedBlock]):
     return [b.move_verbose() for b in blocks if b.type_ == "move"]
 
 
-def get_move_fens(blocks: list[ParsedBlock]):
-    return [b.fen for b in blocks if b.type_ == "move"]
-
-
-def get_fens_from_sans(boards, sans_str):
-    # specify exastly which sans we want fens for
-    return [boards[san].fen() if san in boards else "" for san in sans_str.split()]
-
-
-def assert_expected_fens(boards, blocks, sans_str):
-    expected = [boards[san].fen() for san in sans_str.split()]
-    actual = get_move_fens(blocks)
-    assert actual == expected, f"\nExpected: {expected}\nActual:   {actual}"
+def assert_expected_fens(boards, blocks, expected):
+    sans = " ".join(expected)
+    sans = re.sub(r"\b\d+\.+", "", sans)
+    # Map expected SANs to FENs via reference boards, with fallback for unplayables
+    expected_fens = [boards[san].fen() if san in boards else "" for san in sans.split()]
+    move_fens = [b.fen for b in blocks if b.type_ == "move"]
+    assert (
+        move_fens == expected_fens
+    ), f"\nExpected: {expected_fens}\nActual:   {move_fens}"
 
 
 def resolve_subvar(move_str, root_move_str, root_board):
@@ -636,15 +632,40 @@ def resolve_subvar(move_str, root_move_str, root_board):
 
 
 def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
+    """
+    boards: Dict of reference board states after moves, provides starting
+            states (boards) for mainline moves, and fens.
+
+    root_move: The mainline move that is the root of all "move.text"
+               subvars. This will be a proper fully resolved move,
+            less annotation, e.g.: 1.e4 or 1...e5
+
+    root_board: The chess.Board state after the mainline root_move
+
+    move_str: A Structured test move string with moves and comments,
+              following rules in get_parsed_blocks_from_string.
+
+              Can use all-caps SANs (e.g. BAD, 4...LAD) to mark expected
+              unplayable moves. They'll pass move parsing and be obvious.
+
+              Moves must be quite normalized, no spaces, obvs.
+
+    expected: List of expected moves. These are the best moves we can
+              extract from the resolved moves, whether fully resolved
+              and playable or just raw moves that may or may not be valid
+
+              e.g.:
+                ( 1.e4 e5 ) -> ["1.e4", "1...e5"]
+                ( 1.e4 e5 ( 1...d5 ) ) -> ["1.e4", "1...e5", "1...d5"]
+                ( 1.e4 e5 ( 1...BAD ) {comment} ) -> ["1.e4", "e5", "1...BAD"]
+
+              Also uses sans to look up fens for all of the valid board
+              states. Note that you must have unique sans for either side,
+              this won't handle a sequence like 4.Nxd4 Nxd4 in the Scotch.
+    """
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_resolved_moves(blocks) == expected
-
-    sans = " ".join(expected)
-    sans = re.sub(r"\b\d+\.+", "", sans)
-    expected_fens = get_fens_from_sans(boards, sans)
-    assert (
-        get_move_fens(blocks) == expected_fens
-    ), f"\nExpected: {expected_fens}\nActual:   {get_move_fens(blocks)}"
+    assert_expected_fens(boards, blocks, expected)
 
 
 # ============================================================= test the tests
@@ -820,8 +841,8 @@ def test_resolve_moves_with_root_sibling():
         boards=boards,
         root_move="1.d4",
         root_board=boards["d4"],
-        move_str="( 1.Re7 Ba1 )",
-        expected=["1.Re7", "Ba1"],
+        move_str="( 1.BAD LAD )",
+        expected=["1.BAD", "LAD"],
     )
 
     # black mainline root with sibling and black subvar root with sibling
@@ -839,6 +860,6 @@ def test_resolve_moves_with_root_sibling():
         boards=boards,
         root_move="1.d4",
         root_board=boards["d4"],
-        move_str="( 1...d5 2.c4 e6 ( 2...Rg3 ) )",
-        expected=["1...d5", "2.c4", "2...e6", "2...Rg3"],
+        move_str="( 1...d5 2.c4 e6 ( 2...BAD ) )",
+        expected=["1...d5", "2.c4", "2...e6", "2...BAD"],
     )
