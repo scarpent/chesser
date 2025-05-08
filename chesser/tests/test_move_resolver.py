@@ -1,3 +1,5 @@
+import re
+
 import chess
 import pytest
 
@@ -610,6 +612,20 @@ def assert_expected_fens(boards, blocks, sans_str):
     assert actual == expected, f"\nExpected: {expected}\nActual:   {actual}"
 
 
+def resolve_subvar(move_str, root_move_str, root_board):
+    blocks = get_parsed_blocks_from_string(move_str)
+    pf = make_pathfinder(blocks, root_move_str, root_board)
+    return pf.resolve_moves()
+
+
+def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
+    blocks = resolve_subvar(move_str, root_move, root_board)
+    assert get_resolved_moves(blocks) == expected
+    sans = " ".join(expected)
+    sans = re.sub(r"\b\d+\.+", "", sans)
+    assert_expected_fens(boards, blocks, sans)
+
+
 # ============================================================= test the tests
 
 
@@ -698,49 +714,59 @@ def test_resolve_moves_subvar_continues():
     boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")  # reference boards
 
     # white mainline root directly to black subvar move
-    parsed_blocks = get_parsed_blocks_from_string("1...e5")
-    pf = make_pathfinder(parsed_blocks, "1.e4", boards["e4"])
-    blocks = pf.resolve_moves()
-    assert get_resolved_moves(blocks) == ["1...e5"]
-    assert_expected_fens(boards, blocks, "e5")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1...e5 )",
+        expected=["1...e5"],
+    )
 
     # black mainline root directly to white subvar move
-    blocks = get_parsed_blocks_from_string("2.Nf3 Nc6 3.d4")
-    pf = make_pathfinder(blocks, "1...e5", boards["e5"])
-    resolved = pf.resolve_moves()
-    assert get_resolved_moves(resolved) == ["2.Nf3", "2...Nc6", "3.d4"]
-    assert_expected_fens(boards, resolved, "Nf3 Nc6 d4")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...e5",
+        root_board=boards["e5"],
+        move_str="2.Nf3 Nc6 3.d4",
+        expected=["2.Nf3", "2...Nc6", "3.d4"],
+    )
 
     # white subvar to black subvar direct (behavior should be the same)
-    blocks = get_parsed_blocks_from_string("( 1...e5 2.Nf3 ( 2...Nc6 ) )")
-    pf = make_pathfinder(blocks, "1.e4", boards["e4"])
-    blocks = pf.resolve_moves()
-    assert get_resolved_moves(blocks) == ["1...e5", "2.Nf3", "2...Nc6"]
-    assert_expected_fens(boards, blocks, "e5 Nf3 Nc6")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1...e5 2.Nf3 ( 2...Nc6 ) )",
+        expected=["1...e5", "2.Nf3", "2...Nc6"],
+    )
 
     # black subvar to white subvar direct
-    blocks = get_parsed_blocks_from_string("( 2.Nf3 Nc6 ( 3.d4 ) )")
-    pf = make_pathfinder(blocks, "1...e5", boards["e5"])
-    blocks = pf.resolve_moves()
-    assert get_resolved_moves(blocks) == ["2.Nf3", "2...Nc6", "3.d4"]
-    assert_expected_fens(boards, blocks, "Nf3 Nc6 d4")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...e5",
+        root_board=boards["e5"],
+        move_str="( 2.Nf3 Nc6 ( 3.d4 ) )",
+        expected=["2.Nf3", "2...Nc6", "3.d4"],
+    )
 
 
 def test_resolve_moves_discards_dupe_root_in_subvar():
     boards = get_boards_after_moves("d4 d5 c4 e6 Nc3")  # reference boards
 
-    # # white dupes
-    parsed_blocks = get_parsed_blocks_from_string("( 1.d4 d5 2.c4 ( 2.c4 e6 ) )")
-    pf = make_pathfinder(parsed_blocks, "1.d4", boards["d4"])
-    blocks = pf.resolve_moves()
-    assert len(blocks) == 7
-    assert get_resolved_moves(blocks) == ["1...d5", "2.c4", "2...e6"]
-    assert_expected_fens(boards, blocks, "d5 c4 e6")
+    # # white dupes, two levels
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4",
+        root_board=boards["d4"],
+        move_str="( 1.d4 d5 2.c4 ( 2.c4 e6 ) )",
+        expected=["1...d5", "2.c4", "2...e6"],
+    )
 
-    # black dupes
-    parsed_blocks = get_parsed_blocks_from_string("( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )")
-    pf = make_pathfinder(parsed_blocks, "1...d5", boards["d5"])
-    blocks = pf.resolve_moves()
-    assert len(blocks) == 7
-    assert get_resolved_moves(blocks) == ["2.c4", "2...e6", "3.Nc3"]
-    assert_expected_fens(boards, blocks, "c4 e6 Nc3")
+    # black dupes, two levels
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...d5",
+        root_board=boards["d5"],
+        move_str="( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )",
+        expected=["2.c4", "2...e6", "3.Nc3"],
+    )
