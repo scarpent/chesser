@@ -65,6 +65,10 @@ class ParsedBlock:
     depth: int = 0  # for subvar depth tracking
     log: list[str] = field(default_factory=list)
 
+    def __str__(self):
+        resolved = tuple(self.move_parts_resolved) if self.move_parts_resolved else "⛔️"
+        return f"{self.type_} {self.raw} ➤ {self.display_text} {tuple(self.move_parts_raw)} ➤ {resolved} = {self.raw_to_resolved_distance} {self.fen} D{self.depth} {self.log}"  # noqa: E501
+
     @property
     def is_playable(self):
         return self.type_ == "move" and self.move_parts_resolved is not None
@@ -84,27 +88,31 @@ class ParsedBlock:
         self.log.append("⛔️ unresolving move")
         return self
 
-    def equals_raw(self, other):
+    def equals_previous(self, other):
         """
-        pre-resolved moves have num/dots/san and are the same
-        other than annotations which are ignored here
+        To say one move is equal to previous, the previous move will need
+        to be resolved/playable. The current move (self) should be totally
+        equal if also/resolved playable, but otherwise just has to match
+        san. First use is to check if subvar first move is a duplicate of
+        the "root block". (I'm uncertain of the naming or placement of this
+        function.)
 
-        TODO maybe this doesn't need to be a helper if only used in one place
+        Imagine we're resolving:
+
+        ( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )
+
+        The first e6 resolves to 2...e6 and we have a good match with the
+        second, but the raw of the first won't match. The first e6 becomes
+        the root block, and in normal processing that will always be
+        resolved. If not, things have already broken down with subvar.
         """
-        nums_equal = (
-            self.move_parts_raw.num
-            and self.move_parts_raw.num == other.move_parts_raw.num
-        )
-        dots_equal = (
-            self.move_parts_raw.dots
-            and self.move_parts_raw.dots == other.move_parts_raw.dots
-        )
-        return (
-            self.type_ == other.type_ == "move"
-            and nums_equal
-            and dots_equal
-            and self.move_parts_raw.san == other.move_parts_raw.san
-        )
+        if not other.is_playable:
+            return False
+
+        if self.is_playable:
+            return self.move_parts_resolved == other.move_parts_resolved
+
+        return self.move_parts_raw.san == other.move_parts_resolved.san
 
     def move_verbose(self):
         if self.move_parts_resolved:
@@ -327,7 +335,7 @@ class PathFinder:
 
         if block.depth == 1 or not self.current.resolved_stack:
             root_block = self.current.root_block.clone()
-        else:  # else use the last of current resolved moves, or could
+        else:  # else use the last of current resolved/playable moves, or could
             # be a passed through move where things will be expected to 🧨
             root_block = self.current.resolved_stack[-1].clone()
 
@@ -437,7 +445,9 @@ class PathFinder:
 
     def is_duplicate_of_root_block(self, block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.e4 e5)
-        if self.current.move_counter == 1 and block.equals_raw(self.current.root_block):
+        if self.current.move_counter == 1 and block.equals_previous(
+            self.current.root_block
+        ):
             # we'll update stats and log this even though we're not *doing*
             # the discarding in here; it just seems cleaner to keep here
             self.stats.sundry["➤ root dupe discarded"] += 1

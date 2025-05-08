@@ -725,3 +725,25 @@ def test_resolve_moves_subvar_continues():
     blocks = pf.resolve_moves()
 
     assert get_resolved_moves(blocks) == ["2.Nf3", "2...Nc6", "3.d4"]
+
+
+def test_resolve_moves_discards_dupe_root_in_subvar():
+    boards = get_boards_after_moves("d4 d5")  # reference boards
+
+    # # white dupes
+    parsed_blocks = get_parsed_blocks_from_string("( 1.d4 d5 2.c4 ( 2.c4 e6 ) )")
+    pf = make_pathfinder(parsed_blocks, "1.d4", boards["d4"])
+
+    blocks = pf.resolve_moves()
+
+    assert len(blocks) == 7
+    assert get_resolved_moves(blocks) == ["1...d5", "2.c4", "2...e6"]
+
+    # good test case, shows a problem with block.equals_raw(self.current.root_block)
+
+    # black dupes
+    parsed_blocks = get_parsed_blocks_from_string("( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )")
+    pf = make_pathfinder(parsed_blocks, "1...d5", boards["d5"])
+    blocks = pf.resolve_moves()
+    assert len(blocks) == 7
+    assert get_resolved_moves(blocks) == ["2.c4", "2...e6", "3.Nc3"]
