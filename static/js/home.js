@@ -79,7 +79,6 @@ export function nextDueTimer() {
         }
         if (data?.upcoming) {
           window.homeData.upcoming = data.upcoming;
-          console.log("🔄  updated homeData.upcoming:", data.upcoming);
         }
       } catch (err) {
         console.error("❌ Failed to refresh next due from server:", err);
