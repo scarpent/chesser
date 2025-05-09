@@ -49,7 +49,7 @@ export function homeApp() {
   };
 }
 
-// Kind of unruly but it's fun
+// Kind of unruly but it's fun; this whole thing could be removed with little impact
 export function nextDueTimer() {
   return {
     label: window.homeData.next_due,
@@ -58,13 +58,16 @@ export function nextDueTimer() {
 
     initCountdown() {
       this.setNextDue(this.label);
+
+      // One-time fetch on first load; ensures fresh data after PWA
+      // splash screen; cooldown timer ensures it's not excessive
+      this.refreshFromServer();
     },
 
     async refreshFromServer() {
       const now = Date.now();
       // time in milliseconds
       if (now - this.lastRefreshed < 30 * 1000) {
-        console.log("⏱️ Skipping nextDue refresh (cooldown active)");
         return;
       }
       this.lastRefreshed = now;
@@ -72,7 +75,6 @@ export function nextDueTimer() {
       try {
         const response = await fetch("/home-upcoming/");
         const data = await response.json();
-        // console.log("✅ Upcoming data from server:", data);
 
         if (data?.next_due) {
           this.setNextDue(data.next_due);
@@ -88,7 +90,6 @@ export function nextDueTimer() {
     setNextDue(label) {
       this.clearCountdown();
       this.label = label;
-      console.log(`⏱️ setNextDue: ${label}`);
 
       const match = label.match(/Next: (?:(\d+)m)? ?(?:(\d+)s)?/);
       if (!match) return;
@@ -100,7 +101,7 @@ export function nextDueTimer() {
       if (value === 0 || value > 5 * 60) return;
 
       const tick = () => {
-        // console.log("🚀 Countdown");
+        // console.log("⏱️ Countdown");
 
         if (value-- > 1) {
           const m = Math.floor(value / 60);
