@@ -73,7 +73,19 @@ export function nextDueTimer() {
       this.lastRefreshed = now;
 
       try {
-        const response = await fetch("/home-upcoming/");
+        const courseId = this.homeData.nav?.course_id;
+        const chapterId = this.homeData.nav?.chapter_id;
+        console.log("🔄 Refreshing next due from server", {
+          courseId: courseId,
+          chapterId: chapterId,
+        });
+        let url = "/home-upcoming/";
+        const params = [];
+        if (courseId) params.push(`course_id=${courseId}`);
+        if (chapterId) params.push(`chapter_id=${chapterId}`);
+        if (params.length) url += "?" + params.join("&");
+
+        const response = await fetch(url);
         const data = await response.json();
 
         if (data?.next_due) {

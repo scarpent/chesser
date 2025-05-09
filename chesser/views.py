@@ -673,6 +673,8 @@ def variation(request, variation_id=None):
 
 
 def home_upcoming(request, course_id=None, chapter_id=None):
+    course_id = request.GET.get("course_id")
+    chapter_id = request.GET.get("chapter_id")
     home_view = HomeView(course_id=course_id, chapter_id=chapter_id, upcoming_only=True)
     return JsonResponse(home_view.data)
 
