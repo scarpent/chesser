@@ -9,7 +9,7 @@ class LoginRequiredMiddleware:
     def __call__(self, request):
         # Skip the login check for admin and login URLs
         if not request.user.is_authenticated:
-            if request.path not in [settings.LOGIN_URL, "/admin/", "/favicon.ico"]:
+            if request.path not in [settings.LOGIN_URL, "/admin/"]:
                 return redirect(settings.LOGIN_URL)
         response = self.get_response(request)
         return response
