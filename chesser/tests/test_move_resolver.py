@@ -839,6 +839,16 @@ def test_resolve_moves_subvar_continues():
         expected=["2.Nf3", "2...Nc6", "3.d4"],
     )
 
+    # test independent continuing subvars
+    boards = merge_boards("e4 e5 Nf3", "e4 d5 exd5")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1...e5 2.Nf3 ) {comment} ( 1...d5 2.exd5 )",
+        expected=["1...e5", "2.Nf3", "1...d5", "2.exd5"],
+    )
+
 
 def test_resolve_moves_discards_dupe_root_in_subvar():
     boards = get_boards_after_moves("d4 d5 c4 e6 Nc3")  # reference boards
@@ -912,6 +922,16 @@ def test_resolve_moves_with_root_sibling():
         root_board=boards["d4"],
         move_str="( 1...d5 2.c4 e6 ( 2...BAD ) )",
         expected=["1...d5", "2.c4", "2...e6", "2...BAD"],
+    )
+
+    # independent subvars with root siblings
+    boards = merge_boards("d4", "e4 e5", "b3 d5")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4",
+        root_board=boards["d4"],
+        move_str="( 1.e4 e5 ) ( 1.b3 d5 )",
+        expected=["1.e4", "1...e5", "1.b3", "1...d5"],
     )
 
 
