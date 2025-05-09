@@ -162,6 +162,7 @@
     id="next-due"
     x-data="nextDueTimer()"
     x-init="initCountdown()"
+    @next-due-refresh.window="refreshFromServer()"
     x-text="label"
   ></div>
 
@@ -308,10 +309,15 @@
 
   <!-- dev caching bugbear calls for this redundant in prod cache buster -->
   <script type="module">
-    import { homeApp } from "{% static 'js/home.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import {
+      homeApp,
+      nextDueTimer,
+    } from "{% static 'js/home.js' %}?v={{ BUILD_TIMESTAMP }}";
     window.homeApp = homeApp;
+    window.nextDueTimer = nextDueTimer;
     document.addEventListener("alpine:init", () => {
       Alpine.data("homeApp", homeApp);
+      Alpine.data("nextDueTimer", nextDueTimer);
     });
   </script>
 

@@ -4,6 +4,16 @@ export function homeApp() {
 
     initHome() {
       this.scrollToVariationIfNeeded();
+
+      // test in console document.dispatchEvent(new Event("visibilitychange"));
+      this.$nextTick(() => {
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") {
+            // console.log("➡️  Dispatching next-due-refresh");
+            window.dispatchEvent(new CustomEvent("next-due-refresh"));
+          }
+        });
+      });
     },
 
     //--------------------------------------------------------------------------------
@@ -36,40 +46,78 @@ export function homeApp() {
 
       window.location.href = url;
     },
+  };
+}
 
-    //--------------------------------------------------------------------------------
-    nextDueTimer() {
-      return {
-        originalText: window.homeData.next_due,
-        label: window.homeData.next_due,
+// Kind of unruly but it's fun
+export function nextDueTimer() {
+  return {
+    label: window.homeData.next_due,
+    timerId: null,
+    lastRefreshed: Date.now(),
 
-        initCountdown() {
-          const match = this.originalText.match(/Next: (?:(\d+)m)? ?(?:(\d+)s)?/);
-          if (!match) return;
+    initCountdown() {
+      this.setNextDue(this.label);
+    },
 
-          const minutes = match[1] ? parseInt(match[1], 10) : 0;
-          const seconds = match[2] ? parseInt(match[2], 10) : 0;
+    async refreshFromServer() {
+      const now = Date.now();
+      if (now - this.lastRefreshed < 60000) {
+        console.log("⏱️ Skipping nextDue refresh (cooldown active)");
+        return;
+      }
+      this.lastRefreshed = now;
 
-          if (minutes > 4) return;
+      try {
+        const response = await fetch("/home-upcoming/");
+        const data = await response.json();
+        // console.log("✅ Upcoming data from server:", data);
 
-          let value = minutes * 60 + seconds;
-          if (value === 0) return;
+        if (data?.next_due) {
+          this.setNextDue(data.next_due);
+        }
+      } catch (err) {
+        console.error("❌ Failed to refresh next due from server:", err);
+      }
+    },
 
-          const tick = () => {
-            if (value-- > 1) {
-              const m = Math.floor(value / 60);
-              const s = value % 60;
-              const timeLabel = m > 0 ? `${m}m ${s}s` : `${s}  🧨`;
-              this.label = `⏰ Next: ${timeLabel}`;
-              setTimeout(tick, 1000);
-            } else {
-              this.label = "⏰ Next: 🚀 Now!";
-            }
-          };
+    setNextDue(label) {
+      this.clearCountdown();
+      this.label = label;
+      console.log(`⏱️ setNextDue: ${label}`);
 
-          tick();
-        },
+      const match = label.match(/Next: (?:(\d+)m)? ?(?:(\d+)s)?/);
+      if (!match) return;
+
+      const minutes = match[1] ? parseInt(match[1], 10) : 0;
+      const seconds = match[2] ? parseInt(match[2], 10) : 0;
+      let value = minutes * 60 + seconds;
+
+      if (value === 0 || value > 5 * 60) return;
+
+      const tick = () => {
+        // console.log("🚀 Countdown");
+
+        if (value-- > 1) {
+          const m = Math.floor(value / 60);
+          const s = value % 60;
+          const timeLabel = m > 0 ? `${m}m ${s}s` : `${s}  🧨`;
+          this.label = `⏰ Next: ${timeLabel}`;
+          this.timerId = setTimeout(tick, 1000);
+        } else {
+          this.label = "⏰ Next: 🚀 Now!";
+          this.timerId = null;
+        }
       };
+
+      tick();
+    },
+
+    clearCountdown() {
+      if (this.timerId) {
+        clearTimeout(this.timerId);
+        this.timerId = null;
+      }
     },
   };
 }
