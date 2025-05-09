@@ -80,7 +80,7 @@ export function nextDueTimer() {
           this.setNextDue(data.next_due);
         }
         if (data?.upcoming) {
-          window.homeData.upcoming = data.upcoming;
+          this.homeData.upcoming = [...data.upcoming]; // cloning to force reactivity
         }
       } catch (err) {
         console.error("❌ Failed to refresh next due from server:", err);
@@ -112,6 +112,10 @@ export function nextDueTimer() {
         } else {
           this.label = "⏰ Next: 🚀 Now!";
           this.timerId = null;
+
+          setTimeout(() => {
+            this.refreshFromServer();
+          }, 10_000);
         }
       };
 
