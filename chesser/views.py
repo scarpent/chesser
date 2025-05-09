@@ -27,7 +27,11 @@ from chesser.serializers import (
 
 def home(request, course_id=None, chapter_id=None):
     home_view = HomeView(course_id=course_id, chapter_id=chapter_id)
-    return render(request, "home.html", home_view.data)
+    return render(
+        request,
+        "home.html",
+        {"home_data_json": json.dumps(home_view.home_data)},
+    )
 
 
 def service_worker(request):
@@ -668,23 +672,31 @@ def variation(request, variation_id=None):
     return render(request, "variation.html", context)
 
 
+def home_upcoming(request, course_id=None, chapter_id=None):
+    home_view = HomeView(course_id=course_id, chapter_id=chapter_id, upcoming_only=True)
+    return JsonResponse(home_view.data)
+
+
 class HomeView:
-    def __init__(self, course_id=None, chapter_id=None):
+    def __init__(self, course_id=None, chapter_id=None, upcoming_only=False):
         self.now = timezone.now()
 
         self.course_id = course_id
         self.chapter_id = chapter_id
 
-        home_stuff = {
-            "nav": self.get_course_links(),
-            "recent": self.get_recently_reviewed(),
-            "recently_added": self.get_recently_added(),
+        self.home_data = {
             "next_due": self.get_next_due(),
             "upcoming": self.get_upcoming_time_planner(),
-            "levels": self.get_level_report(),
         }
-
-        self.home_data = {"home_data": json.dumps(home_stuff)}
+        if not upcoming_only:
+            self.home_data.update(
+                {
+                    "nav": self.get_course_links(),
+                    "recent": self.get_recently_reviewed(),
+                    "recently_added": self.get_recently_added(),
+                    "levels": self.get_level_report(),
+                }
+            )
 
     @property
     def data(self):

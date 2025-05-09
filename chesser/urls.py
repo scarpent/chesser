@@ -18,6 +18,7 @@ urlpatterns = [
     path("service-worker.js", views.service_worker, name="service-worker"),
     path("error/", views.trigger_error),
     path("", views.home, name="home"),
+    path("home-upcoming/", views.home_upcoming, name="home_upcoming"),
     path("course/<int:course_id>/", views.home, name="course_view"),
     path(
         "course/<int:course_id>/chapter/<int:chapter_id>/",
