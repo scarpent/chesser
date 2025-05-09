@@ -551,6 +551,8 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0):
     ( 1.e4 {comment} 1...e5 )   no spaces in comments to make it easier to parse
     ( 1.e4 ( 1.d4 2.d5 ) 1...e5 )
     (F<fen> 1.d4 d5)            anything after F is used as a fen, to emulate fenseq
+                                (spaces won't work since we split on them - convert
+                                 them to underscores)
 
     outer parens are optional; they'll be added around the whole pgn_string
     only if no parens are found; we can test things out of a subvar, too:
@@ -565,7 +567,7 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0):
     for bit in bits:
         if bit.startswith("("):
             depth += 1
-            fen = bit[2:] if bit.startswith("(F") else ""
+            fen = bit[2:].replace("_", " ") if bit.startswith("(F") else ""
             blocks.append(make_subvar_block("start", fen=fen, depth=depth))
         elif bit.startswith(")"):
             blocks.append(make_subvar_block("end", depth=depth))
@@ -687,6 +689,7 @@ def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_resolved_moves(blocks) == expected
     assert_expected_fens(boards, blocks, expected)
+    return blocks
 
 
 # ============================================================= test the tests
@@ -800,13 +803,14 @@ def test_resolve_moves_subvar_continues():
     boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")  # reference boards
 
     # white mainline root directly to black subvar move
-    assert_resolved_moves(
+    blocks = assert_resolved_moves(
         boards=boards,
         root_move="1.e4",
         root_board=boards["e4"],
         move_str="( 1...e5 )",
         expected=["1...e5"],
     )
+    assert blocks[0].fen == ""
 
     # black mainline root directly to white subvar move
     assert_resolved_moves(
@@ -909,3 +913,22 @@ def test_resolve_moves_with_root_sibling():
         move_str="( 1...d5 2.c4 e6 ( 2...BAD ) )",
         expected=["1...d5", "2.c4", "2...e6", "2...BAD"],
     )
+
+
+def test_resolve_moves_fenseq():
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 Nxd4")
+    # 1.e4 e5 2.Nf3 Nc6 ➤
+    fen = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    encoded_fen = fen.replace(" ", "_")
+
+    resolved_blocks = assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str=f"(F{encoded_fen} 3.d4 Nxd4 )",
+        expected=["3.d4", "3...Nxd4"],
+    )
+
+    assert len(resolved_blocks) == 4
+    assert resolved_blocks[0].type_ == "start"
+    assert resolved_blocks[0].fen == fen
