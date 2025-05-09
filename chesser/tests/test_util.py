@@ -2,6 +2,28 @@ import pytest
 
 from chesser import util
 
+
+def test_clean_html_removes_disallowed_tags_and_attributes():
+    raw = """
+        <p>hello <script>alert("bad")</script></p>
+        <a href="javascript:alert('xss')" onclick="evil()">link</a>
+        <span class="sneaky" style="color:red">hi</span>
+        <fenseq data-fen="startpos">sequence</fenseq>
+        <a href="https://safe.com">safe</a>
+    """
+    cleaned = util.clean_html(raw)
+
+    assert "<script>" not in cleaned
+    assert "javascript:" not in cleaned
+    assert "onclick=" not in cleaned
+    assert "class=" not in cleaned
+    assert "style=" not in cleaned
+
+    assert "<fenseq data-fen=" in cleaned
+    assert '<a href="https://safe.com"' in cleaned
+    assert "<p>" in cleaned
+
+
 fix_notation_game = "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6 6.Be3 Bg7 7.f3 Nc6 8.Qd2 O-O 9.O-O-O d5 10.Kb1 Nxd4 11.e5 Nf5 12.exf6 Bxf6 13.Nxd5 Qxd5 14.Qxd5 Nxe3 15.Qd3 Nxd1 16.Qxd1 Be6 17.Bb5 a6 18.Ba4 b5 19.Bb3 Bxb3 20.axb3 a5 21.Ka2 a4 22.b4 Rfc8 23.Ka3 Rd8 24.Qe2 Rd5 25.Rd1 Rad8 26.Rxd5 Rxd5 27.f4 h5 28.g3 e6 29.h3 Kg7 30.c3 Kg8 31.Qe4 Kg7 32.Qe3 Kg8 33.Qb6 Kg7 34.Qc6 Rd1 35.Ka2 Rd5 36.g4 hxg4 37.hxg4 Kf8 38.Kb1 Kg7 39.Kc2 Kg8 40.c4 bxc4 41.b5 a3 42.bxa3 c3 43.b6 Rd2+ 44.Kc1 Rb2 45.b7 Bd4 46.Qc8+ Kh7 47.b8=Q Be3+ 48.Kd1 c2+ 49.Qxc2 Rxb8 50.f5 exf5 51.Qh2+"  # noqa: E501
 
 

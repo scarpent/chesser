@@ -16,6 +16,8 @@ whitenoise
 boto3
 # advanced python scheduler for backups
 apscheduler
+# html sanitizer (0.2.19 changed to url_schemes= clean attrib)
+nh3>=0.2.19
 
 # https://github.com/niklasf/python-chess/
 chess

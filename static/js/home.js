@@ -66,10 +66,7 @@ export function nextDueTimer() {
 
     async refreshFromServer() {
       const now = Date.now();
-      // time in milliseconds
-      if (now - this.lastRefreshed < 30 * 1000) {
-        return;
-      }
+      if (now - this.lastRefreshed < 30 * 1000) return; // time in milliseconds
       this.lastRefreshed = now;
 
       try {
@@ -92,7 +89,8 @@ export function nextDueTimer() {
           this.setNextDue(data.next_due);
         }
         if (data?.upcoming) {
-          this.homeData.upcoming = [...data.upcoming]; // cloning to force reactivity
+          // cloning to force reactivity, although not sure if needed
+          this.homeData.upcoming = [...data.upcoming];
         }
       } catch (err) {
         console.error("❌ Failed to refresh next due from server:", err);

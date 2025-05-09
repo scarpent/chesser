@@ -1,12 +1,36 @@
 import re
 from datetime import datetime, timezone
 
+import nh3
 from django.utils.timesince import timesince
 from django.utils.timezone import localtime
 
 BEGINNING_OF_TIME = 0  # 1970-01-01T00:00:00
 END_OF_TIME = 253402300799
 END_OF_TIME_STR = "9999-12-31T23:59:59"
+
+# fmt: off
+ALLOWED_TAGS = {
+    "b", "i", "u", "em", "strong", "a", "p", "br", "ul", "ol", "li",
+    "code", "pre", "blockquote", "fenseq",
+}
+# fmt: on
+
+ALLOWED_ATTRIBUTES = {
+    "a": {"href", "title", "target"},
+    "fenseq": {
+        "data-fen",
+    },
+}
+
+
+def clean_html(text):
+    return nh3.clean(
+        text,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        url_schemes={"http", "https", "mailto"},
+    )
 
 
 def strip_move_numbers(move_str):
