@@ -3,23 +3,16 @@ const CACHE_NAME = "chesser-cache";
 // const urlsToPrecache = [];
 
 self.addEventListener("install", (event) => {
-  console.log("📦 Installing service worker...");
+  // console.log("📦 Installing service worker...");
 
   // immediately activate after install 🚀
   // consider revisiting this if we ever do more complicated
   // things and don't want different states across tabs
   self.skipWaiting();
-
-  // event.waitUntil(
-  //   caches.open(CACHE_NAME).then((cache) => {
-  //     console.log("📦 Precaching offline page...");
-  //     return cache.addAll(urlsToPrecache);
-  //   })
-  // );
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("🚀 Service Worker: Activated");
+  // console.log("🚀 Service Worker: Activated");
   event.waitUntil(
     caches
       .keys()
