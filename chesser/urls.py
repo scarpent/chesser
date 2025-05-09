@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import path
+from django.views.generic import RedirectView
 
 from chesser import views
 
@@ -46,4 +48,12 @@ urlpatterns = [
     path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
     path("variations-table/", views.variations_table, name="variations_table"),
     path("stats/", views.stats, name="stats"),
+    # avoid seeing 404s in rare cases browser tries to get favicon.ico
+    # from root instead of specificed icons path; this is a fallback ico
+    path(
+        "favicon.ico",
+        RedirectView.as_view(
+            url=staticfiles_storage.url("favicon.ico"), permanent=False
+        ),
+    ),
 ]
