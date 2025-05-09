@@ -1,3 +1,10 @@
+function buildNavQueryString(nav) {
+  const params = [];
+  if (nav?.course_id) params.push(`course_id=${nav.course_id}`);
+  if (nav?.chapter_id) params.push(`chapter_id=${nav.chapter_id}`);
+  return params.length ? "?" + params.join("&") : "";
+}
+
 export function homeApp() {
   return {
     homeData: homeData,
@@ -35,15 +42,7 @@ export function homeApp() {
 
     //--------------------------------------------------------------------------------
     goToRandomReview() {
-      const course = this.homeData.nav.course_id;
-      const chapter = this.homeData.nav.chapter_id;
-      let url = "/review/random/";
-
-      const params = [];
-      if (course) params.push(`course_id=${course}`);
-      if (chapter) params.push(`chapter_id=${chapter}`);
-      if (params.length) url += "?" + params.join("&");
-
+      const url = "/review/random/" + buildNavQueryString(this.homeData.nav);
       window.location.href = url;
     },
   };
@@ -70,18 +69,8 @@ export function nextDueTimer() {
       this.lastRefreshed = now;
 
       try {
-        const courseId = this.homeData.nav?.course_id;
-        const chapterId = this.homeData.nav?.chapter_id;
-        console.log("🔄 Refreshing next due from server", {
-          courseId: courseId,
-          chapterId: chapterId,
-        });
-        let url = "/home-upcoming/";
-        const params = [];
-        if (courseId) params.push(`course_id=${courseId}`);
-        if (chapterId) params.push(`chapter_id=${chapterId}`);
-        if (params.length) url += "?" + params.join("&");
-
+        const url = "/home-upcoming/" + buildNavQueryString(this.homeData.nav);
+        console.log(`🔄 Refreshing next due from server ${url}`);
         const response = await fetch(url);
         const data = await response.json();
 
