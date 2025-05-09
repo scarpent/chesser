@@ -62,7 +62,8 @@ export function nextDueTimer() {
 
     async refreshFromServer() {
       const now = Date.now();
-      if (now - this.lastRefreshed < 60000) {
+      // time in milliseconds
+      if (now - this.lastRefreshed < 30 * 1000) {
         console.log("⏱️ Skipping nextDue refresh (cooldown active)");
         return;
       }
@@ -75,6 +76,10 @@ export function nextDueTimer() {
 
         if (data?.next_due) {
           this.setNextDue(data.next_due);
+        }
+        if (data?.upcoming) {
+          window.homeData.upcoming = data.upcoming;
+          console.log("🔄  updated homeData.upcoming:", data.upcoming);
         }
       } catch (err) {
         console.error("❌ Failed to refresh next due from server:", err);
