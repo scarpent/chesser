@@ -163,7 +163,10 @@ def add_alt_shapes_to_moves(moves_list):
                     alt_move = board.parse_san(alt_move)
                     add_alt_shape(shapes, alt_move, "yellow")
                 except ValueError:
-                    print(f"Ignoring invalid alt move: {alt_move}")
+                    print(
+                        f"Ignoring invalid alt move: {alt_move} "
+                        f"(#{move_dict['move_id']} {move_dict['move_verbose']})"
+                    )
 
         if alt_fail_moves := parse_san_moves(move_dict["alt_fail"]):
             for alt_fail_move in alt_fail_moves:
@@ -171,7 +174,10 @@ def add_alt_shapes_to_moves(moves_list):
                     alt_fail_move = board.parse_san(alt_fail_move)
                     add_alt_shape(shapes, alt_fail_move, "red")
                 except ValueError:
-                    print(f"Ignoring invalid alt fail move: {alt_fail_move}")
+                    print(
+                        f"Ignoring invalid alt fail move: {alt_fail_move} "
+                        f"(#{move_dict['move_id']} {move_dict['move_verbose']})"
+                    )
 
         move = board.push_san(move_dict["san"])
         if shapes:
