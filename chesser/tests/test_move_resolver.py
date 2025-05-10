@@ -610,9 +610,9 @@ def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
     return move_resolver.PathFinder(blocks, move_id, mainline_verbose, board, None)
 
 
-def get_resolved_moves(blocks: list[ParsedBlock]):
-    # move verbose will use raw move parts or just raw if no resolved;
-    # consider if we only want to look at resolved
+def get_verbose_sans_list(blocks: list[ParsedBlock]):
+    # move verbose will use raw move parts or just raw if
+    # no resolved; consider if we only want to look at resolved
     # assemble_move_parts(self.move_parts_resolved)
     return [b.move_verbose() for b in blocks if b.type_ == "move"]
 
@@ -665,7 +665,7 @@ def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
 
     root_board: The chess.Board state after the mainline root_move
 
-    move_str: A Structured test move string with moves and comments,
+    move_str: A structured test move string with moves and comments,
               following rules in get_parsed_blocks_from_string.
 
               Can use all-caps SANs (e.g. BAD, 4...LAD) to mark expected
@@ -687,7 +687,7 @@ def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
               this won't handle a sequence like 4.Nxd4 Nxd4 in the Scotch.
     """
     blocks = resolve_subvar(move_str, root_move, root_board)
-    assert get_resolved_moves(blocks) == expected
+    assert get_verbose_sans_list(blocks) == expected
     assert_expected_fens(boards, blocks, expected)
     return blocks
 
@@ -743,7 +743,7 @@ def test_get_parsed_moves_from_string():
         for block, expected in zip(parsed_blocks, expected)
     ), "Block types and depths should match expected values"
 
-    assert get_resolved_moves(parsed_blocks) == [
+    assert get_verbose_sans_list(parsed_blocks) == [
         "1.e4",
         "e5",
         "1...d5",
