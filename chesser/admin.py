@@ -52,7 +52,11 @@ class MoveInline(admin.TabularInline):
 
     @admin.display(description="ID")
     def move_id(self, obj):
-        return obj.id
+        if not obj.id:
+            return ""
+
+        url = reverse("admin:chesser_move_change", args=[obj.id])
+        return format_html('<a href="{}">{}</a>', url, obj.id)
 
 
 class VariationInline(admin.TabularInline):
@@ -137,6 +141,20 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("san", "annotation", "move_num", "variation")
     list_filter = ("variation",)
+    readonly_fields = ("view_on_site_link",)
+
+    @admin.display(description="View on site")
+    def view_on_site_link(self, obj):
+        if not obj.id:
+            return ""
+
+        variation_id = obj.variation.id
+        idx = obj.sequence
+        url = reverse("variation", args=[variation_id]) + f"?idx={idx}"
+
+        return format_html(
+            '<a href="{}" target="_blank">Variation #{}</a>', url, variation_id
+        )
 
 
 @admin.register(QuizResult)

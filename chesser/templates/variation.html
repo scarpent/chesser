@@ -19,7 +19,7 @@
 {% block content %}
 <body
   x-data="variationApp()"
-  x-init="initVariation()"
+  x-init="initVariation(); document.title = 'Var #' + variationData.variation_id"
   @keydown.window="handleKeyNavigation($event)"
 >
   <div id="outer-container" x-cloak>
