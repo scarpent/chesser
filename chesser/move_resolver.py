@@ -381,11 +381,7 @@ class PathFinder:
 
         try:
             move_obj = board.parse_san(san)
-        except (
-            chess.IllegalMoveError,
-            chess.InvalidMoveError,
-            chess.AmbiguousMoveError,
-        ) as e:
+        except ValueError as e:
             clone.log.append(
                 f"❌ parse_san {e}: {san} | board move "
                 f"{board.fullmove_number}, white turn {board.turn}"

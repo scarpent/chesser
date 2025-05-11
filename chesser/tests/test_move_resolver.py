@@ -968,13 +968,13 @@ def test_resolve_moves_with_root_sibling():
     boards = merge_boards("d4 d5 c4 e6", "d4 e5 dxe5 Nc6", "d4 e5 dxe5 d6 exd6")
 
     # # black mainline root with sibling and black subvar root with sibling
-    # assert_resolved_moves(
-    #     boards=boards,
-    #     root_move="1...d5",
-    #     root_board=boards["d5"],
-    #     move_str="( 1...e5 2.dxe5 Nc6 ( 2...d6 exd6 ) )",
-    #     expected=["1...e5", "2.dxe5", "2...Nc6", "2...d6", "3.exd6"],
-    # )
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...d5",
+        root_board=boards["d5"],
+        move_str="( 1...e5 2.dxe5 Nc6 ( 2...d6 exd6 ) )",
+        expected=["1...e5", "2.dxe5", "2...Nc6", "2...d6", "3.exd6"],
+    )
 
     # black fails to resolve sibling (a level deeper)
     assert_resolved_moves(
@@ -987,13 +987,13 @@ def test_resolve_moves_with_root_sibling():
 
     # independent subvars with root siblings
     boards = merge_boards("d4", "e4 e5", "b3 d5")
-    # assert_resolved_moves(
-    #     boards=boards,
-    #     root_move="1.d4",
-    #     root_board=boards["d4"],
-    #     move_str="( 1.e4 e5 ) ( 1.b3 d5 )",
-    #     expected=["1.e4", "1...e5", "1.b3", "1...d5"],
-    # )
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4",
+        root_board=boards["d4"],
+        move_str="( 1.e4 e5 ) ( 1.b3 d5 )",
+        expected=["1.e4", "1...e5", "1.b3", "1...d5"],
+    )
 
 
 def test_resolve_moves_fenseq():
