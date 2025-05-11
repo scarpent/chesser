@@ -617,13 +617,10 @@ def get_verbose_sans_list(blocks: list[ParsedBlock]):
     return [b.move_verbose for b in blocks if b.type_ == "move"]
 
 
-def assert_expected_fens(boards, blocks, expected):
-    sans = " ".join(expected)
-    sans = re.sub(r"\b\d+\.+", "", sans)
-    expected_sans = sans.split()
-
+def assert_expected_fens(boards, blocks, expected_sans):
     # 🔍 Detect duplicate SANs (potentially ambiguous)
-    duplicates = [san for san, count in Counter(expected_sans).items() if count > 1]
+    nonempty_sans = [san for san in expected_sans if san.strip()]
+    duplicates = [san for san, count in Counter(nonempty_sans).items() if count > 1]
     if duplicates:
         print(f"⚠️  Duplicate SANs detected in expected list: {', '.join(duplicates)}")
 
@@ -661,13 +658,14 @@ def assert_resolved_moves(
     root_board,
     move_str,
     expected,
-    expected_playable=None,
+    expected_fens_san_keys=None,  # keys to the boards dict
 ):
     """
-    boards: Dict of reference board states after moves, provides starting
-            states (boards) for mainline sans, and fens for those positions.
-            All sans must be unique. Any sans in `expected` will require
-            those resolved move fens to match the fens in this dict!
+    boards: A dict of SANs to chess.Board objects. These serve as
+            reference board states after moves, providing a starting
+            board for mainline sans, and fens for those positions.
+            All sans must be unique. We don't handle here a sequence
+            like 4.Nxd4 Nxd4 in the Scotch.
 
     root_move: The mainline move that is the root of all "move.text"
                subvars. This will be a proper fully resolved move,
@@ -692,28 +690,28 @@ def assert_resolved_moves(
                 ( 1.e4 e5 ( 1...d5 ) ) -> ["1.e4", "1...e5", "1...d5"]
                 ( 1.e4 e5 ( 1...BAD ) {comment} ) -> ["1.e4", "e5", "1...BAD"]
 
-              Also uses sans to look up fens for all of the valid board
-              states. Note that you must have unique sans for either side,
-              this won't handle a sequence like 4.Nxd4 Nxd4 in the Scotch.
+              And then it can also determine expected fens for these moves if
+              expected_fens is not provided, whether or not they resolve.
+              (Works well for many tests, but when there's more ambiguity it
+              may be tricky to interpret results/errors.)
 
-    expected_playable: if we want move clarity on what moves were resolved
-                       as playable; this is knowable by the fen assertion
-                       working -- it will properly handle missing fens, but
-                       it might not be clear looking at the test; it's good
-                       to stick with bad SANs like BAD where it makes sense,
-                       but sometimes (often?) we'll need to test real sans
-                       that may verify some ambiguity, etc
+    expected_fens_san_keys: A list of SANs to look up reference FEN strings
+                 for playable moves, and empty strings for unplayable moves.
+
+                 If this is omitted, everything in expected should be properly
+                 resolve as a fen or "" based on sans extracted from `expected`.
+
+                 Even if expected tells the tale, this can be good for clarity.
     """
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_verbose_sans_list(blocks) == expected
-    assert_expected_fens(boards, blocks, expected)
 
-    if expected_playable:
-        playable_moves = [b.is_playable for b in blocks if b.type_ == "move"]
-        assert playable_moves == expected_playable, (
-            f"\nExpected playable: {expected_playable}"
-            f"\nActual playable:   {playable_moves}"
-        )
+    if not expected_fens_san_keys:
+        sans = " ".join(expected)
+        sans = re.sub(r"\b\d+\.+", "", sans)  # remove numbers and dots
+        expected_fens_san_keys = sans.split()  # really, the san keys to boards dict
+
+    assert_expected_fens(boards, blocks, expected_fens_san_keys)
 
     return blocks
 
@@ -817,6 +815,32 @@ def test_resolve_moves_basic_pipeline_handling():
     assert blocks[1].raw == "{hi}"
     assert blocks[2].type_ == "end"
     assert all(b.depth == 2 for b in blocks)
+
+
+def test_unresolved_moves_are_passed_through():
+    boards = get_boards_after_moves("e4")
+    boards = merge_boards("e4", "Nf3", "d4")
+
+    # things can resolve unexpectedly with bad moves
+    # (although a bug may be lurking here, too)
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1.a8 e5 2.Nf3 Nc6 d4 )",
+        expected=["1.a8", "e5", "1.Nf3", "Nc6", "1.d4"],
+        expected_fens_san_keys=["", "", "Nf3", "", "d4"],
+    )
+
+    # nothing resolved, all pass-through
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1.SAD BAD 2.LAD NOT RAD )",
+        expected=["1.SAD", "BAD", "2.LAD", "NOT", "RAD"],
+        expected_fens_san_keys=["", "", "", "", ""],
+    )
 
 
 def test_resolve_moves_subvar_continues():
@@ -982,29 +1006,20 @@ def test_resolve_moves_fenseq():
 
 
 def test_resolve_moves_fenseq_does_not_do_normal_first_move_things():
-    """
-    We have to get clever with our board set up here for these cases;
-    it works, but it may expose that our test harness needs to better
-    handle things like this; this will probably be confusing later
-    """
     fen_e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
     encoded_fen = fen_e4.replace(" ", "_")
 
     boards = get_boards_after_moves("e4 e5")
-    # we don't want e4 as a valid board, it would resolve with a fen
-    # when the actual move is unresolved and has no fen (but we had to
-    # include it in `boards` as part of a valid sequence, of course)
-    valid_boards = {"e5": boards["e5"]}
 
     # doesn't discard duplicate root move; we require fenseq to be
     # cleaner than that
     assert_resolved_moves(
-        boards=valid_boards,
+        boards=boards,
         root_move="1.e4",
         root_board=boards["e4"],
         move_str=f"(F{encoded_fen} 1.e4 e5 )",
         expected=["1.e4", "1...e5"],
-        expected_playable=[False, True],
+        expected_fens_san_keys=["", "e5"],
     )
 
     # doesn't resolve sibling move since it's not a "real root",
@@ -1017,7 +1032,7 @@ def test_resolve_moves_fenseq_does_not_do_normal_first_move_things():
         root_board=boards["e4"],
         move_str=f"(F{encoded_fen} 1.d4 )",
         expected=["1.d4"],
-        expected_playable=[False],
+        expected_fens_san_keys=[""],
     )
 
 
@@ -1047,7 +1062,7 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
         root_board=boards["e5"],
         move_str="( 2.Nf3 {or} 2.Nc3 2.Nf6 )",
         expected=["2.Nf3", "2.Nc3", "2...Nf6"],
-        expected_playable=[True, True, True],
+        expected_fens_san_keys=["Nf3", "Nc3", "Nf6"],
     )
 
     assert_resolved_moves(
@@ -1056,6 +1071,7 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
         root_board=boards["e5"],
         move_str="( 2.Nf3 {or} 2.Nc3 {or} 2.d4 )",
         expected=["2.Nf3", "2.Nc3", "2.d4"],
+        expected_fens_san_keys=["Nf3", "Nc3", "d4"],
     )
 
     # previous move unresolved, exits out of implied subvar check
@@ -1065,7 +1081,7 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
         root_board=boards["e4"],
         move_str="( 1...BAD {or} 1...d5 )",
         expected=["1...BAD", "1...d5"],
-        expected_playable=[False, True],
+        expected_fens_san_keys=["", "d5"],
     )
 
     # normal subvar sequence, enters implied check but falls through
@@ -1075,4 +1091,5 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
         root_board=boards["e5"],
         move_str="( 2.Nf3 {or} 2...Nc6 )",
         expected=["2.Nf3", "2...Nc6"],
+        expected_fens_san_keys=["Nf3", "Nc6"],
     )

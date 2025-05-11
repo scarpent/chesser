@@ -71,7 +71,14 @@ class ParsedBlock:
 
     @property
     def is_playable(self):
-        return self.type_ == "move" and self.move_parts_resolved is not None
+        if not self.type_ == "move" or self.move_parts_resolved is None:
+            return False
+
+        assert (
+            self.fen != "" if self.move_parts_resolved else ""
+        ), "fen should be set when move_parts_resolved is set"
+
+        return True
 
     def clone(self):
         new = copy(self)
