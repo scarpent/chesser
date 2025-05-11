@@ -300,6 +300,8 @@ def generate_subvariations_html(move, parsed_blocks):
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
 
+            # maybe instead of block.raw we will look at move parts raw/resolved to
+            # see what we have...
             move_text = block.move_verbose() if previous_type != "move" else block.raw
 
             if block.fen:

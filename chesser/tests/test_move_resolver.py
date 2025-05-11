@@ -614,7 +614,7 @@ def get_verbose_sans_list(blocks: list[ParsedBlock]):
     # move verbose will use raw move parts or just raw if
     # no resolved; consider if we only want to look at resolved
     # assemble_move_parts(self.move_parts_resolved)
-    return [b.move_verbose() for b in blocks if b.type_ == "move"]
+    return [b.move_verbose for b in blocks if b.type_ == "move"]
 
 
 def assert_expected_fens(boards, blocks, expected):
@@ -637,7 +637,7 @@ def assert_expected_fens(boards, blocks, expected):
             f"{san:<8} ➤ {fen}" for san, fen in zip(expected_sans, expected_fens)
         ]
         actual_lines = [
-            f"{b.move_verbose():<8} ➤ {b.fen}" for b in blocks if b.type_ == "move"
+            f"{b.move_verbose:<8} ➤ {b.fen}" for b in blocks if b.type_ == "move"
         ]
 
         expected_display = "\n".join(expected_lines)
@@ -654,7 +654,15 @@ def resolve_subvar(move_str, root_move_str, root_board):
     return pf.resolve_moves()
 
 
-def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
+def assert_resolved_moves(
+    *,
+    boards,
+    root_move,
+    root_board,
+    move_str,
+    expected,
+    expected_playable=None,
+):
     """
     boards: Dict of reference board states after moves, provides starting
             states (boards) for mainline sans, and fens for those positions.
@@ -685,10 +693,26 @@ def assert_resolved_moves(*, boards, root_move, root_board, move_str, expected):
               Also uses sans to look up fens for all of the valid board
               states. Note that you must have unique sans for either side,
               this won't handle a sequence like 4.Nxd4 Nxd4 in the Scotch.
+
+    expected_playable: if we want move clarity on what moves were resolved
+                       as playable; this is knowable by the fen assertio
+                       working -- it will properly handle missing fens, but
+                       it might not be clear looking at the test; perhaps
+                       better to stick with bad SANs like BAD, but eventually
+                       may need real world bad examples
+
     """
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_verbose_sans_list(blocks) == expected
     assert_expected_fens(boards, blocks, expected)
+
+    if expected_playable:
+        playable_moves = [b.is_playable for b in blocks if b.type_ == "move"]
+        assert playable_moves == expected_playable, (
+            f"\nExpected playable: {expected_playable}"
+            f"\nActual playable:   {playable_moves}"
+        )
+
     return blocks
 
 
@@ -952,3 +976,60 @@ def test_resolve_moves_fenseq():
     assert len(resolved_blocks) == 4
     assert resolved_blocks[0].type_ == "start"
     assert resolved_blocks[0].fen == fen
+
+
+def test_resolve_moves_implied_subvar_slash_alternate_move():
+    """
+    {alternate move}
+    (2.Nf3 {or} 2.Nc3)
+    (2.Nf3 {or} 2.Nc3 2.Nf6)
+    (2.Nf3 {or} 2.Nc3 {or} 2.d4)
+    """
+    boards = merge_boards("e4 e5 Nf3 Nc6", "e4 e5 Nc3 Nf6", "e4 e5 d4", "e4 d5")
+
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...e5",
+        root_board=boards["e5"],
+        move_str="( 2.Nf3 {or} 2.Nc3 )",
+        expected=["2.Nf3", "2.Nc3"],
+    )
+
+    # we don't treat 2.Nf6 as an implied subvar since it doesn't follow
+    # a comment; in this case it *does* get resolved as a black move
+    # (under the current parser regime)
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...e5",
+        root_board=boards["e5"],
+        move_str="( 2.Nf3 {or} 2.Nc3 2.Nf6 )",
+        expected=["2.Nf3", "2.Nc3", "2...Nf6"],
+        expected_playable=[True, True, True],
+    )
+
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1...e5",
+        root_board=boards["e5"],
+        move_str="( 2.Nf3 {or} 2.Nc3 {or} 2.d4 )",
+        expected=["2.Nf3", "2.Nc3", "2.d4"],
+    )
+
+    # previous move unresolved, exits out of implied subvar check
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str="( 1...BAD {or} 1...d5 )",
+        expected=["1...BAD", "1...d5"],
+        expected_playable=[False, True],
+    )
+
+    # normal subvar sequence, enters implied check but falls through
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e5",
+        root_board=boards["e5"],
+        move_str="( 2.Nf3 {or} 2...Nc6 )",
+        expected=["2.Nf3", "2...Nc6"],
+    )

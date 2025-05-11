@@ -114,7 +114,10 @@ class ParsedBlock:
 
         return self.move_parts_raw.san == other.move_parts_resolved.san
 
+    @property
     def move_verbose(self):
+        if not self.type_ == "move":
+            return ""
         if self.move_parts_resolved:
             return assemble_move_parts(self.move_parts_resolved)
         elif self.move_parts_raw:
@@ -276,6 +279,7 @@ class StackFrame:
     resolved_stack: list[ParsedBlock] = field(default_factory=list)
     # make previous move handy for sibling checking
     board_previous: Optional[chess.Board] = field(init=False)
+    is_fenseq: bool = False
 
     def __post_init__(self):
         self.board_previous = self.board.copy()
@@ -324,8 +328,8 @@ class PathFinder:
         return self.stack[-1]
 
     def handle_start_block(self, block: ParsedBlock):
-        if block.fen:
-            # fenseq; let's try to mostly treat same as subvar
+        is_fenseq = True if block.fen else False
+        if is_fenseq:
             chessboard = chess.Board(block.fen)
             self.stats.sundry["subfen"] += 1
         else:
@@ -333,6 +337,8 @@ class PathFinder:
             self.stats.sundry["subvar"] += 1
             self.stats.subvar_depths[block.depth] += 1
 
+        if is_fenseq:
+            root_block = ParsedBlock(type_="move", fen=block.fen)
         if block.depth == 1 or not self.current.resolved_stack:
             root_block = self.current.root_block.clone()
         else:  # else use the last of current resolved/playable moves, or could
@@ -342,7 +348,13 @@ class PathFinder:
         # the original root root will always remain 0
         root_block.depth = block.depth
 
-        self.stack.append(StackFrame(board=chessboard, root_block=root_block))
+        self.stack.append(
+            StackFrame(
+                board=chessboard,
+                root_block=root_block,
+                is_fenseq=is_fenseq,
+            )
+        )
 
         block.log.append("stack")
         for frame in self.stack:
@@ -445,8 +457,10 @@ class PathFinder:
 
     def is_duplicate_of_root_block(self, block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.e4 e5)
-        if self.current.move_counter == 1 and block.equals_previous(
-            self.current.root_block
+        if (
+            self.current.move_counter == 1
+            and not self.current.is_fenseq  # we expect an orderly sequence here
+            and block.equals_previous(self.current.root_block)
         ):
             # we'll update stats and log this even though we're not *doing*
             # the discarding in here; it just seems cleaner to keep here
@@ -468,6 +482,7 @@ class PathFinder:
         """
         if (
             self.current.move_counter == 1
+            and not self.current.is_fenseq
             and self.current.board_previous
             and self.current.root_block.is_playable
         ):
@@ -549,6 +564,8 @@ class PathFinder:
                         return None
 
                     return self.parse_move(block)
+            else:
+                self.stats.sundry["➤ implied subvar? (previous not resolved)"] += 1
 
         return None
 
@@ -618,6 +635,11 @@ class PathFinder:
 
             self.increment_move_count(block)
             pending_block = self.parse_move(block)
+
+            # useful debugging info
+            # print([b.x or b.type_ for b in self.resolved_blocks])
+            # print([b.move_verbose for b in self.current.resolved_stack])
+            # break point()
 
             if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
                 # let's be strict to get a better feel for the data, off by
