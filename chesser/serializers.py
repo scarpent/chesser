@@ -302,7 +302,7 @@ def generate_subvariations_html(move, parsed_blocks):
 
             # maybe instead of block.raw we will look at move parts raw/resolved to
             # see what we have...
-            move_text = block.move_verbose() if previous_type != "move" else block.raw
+            move_text = block.move_verbose if previous_type != "move" else block.raw
 
             if block.fen:
                 counter += 1
@@ -351,7 +351,7 @@ def get_final_move_simple_subvariations_html(variation):
             comment = block.display_text.replace("\n", "<br/>")
             html += f" {comment} "
         elif block.type_ == "move":
-            move_text = block.move_verbose() if previous_type != "move" else block.raw
+            move_text = block.move_verbose if previous_type != "move" else block.raw
             html += f" {move_text} "
         previous_type = block.type_
 

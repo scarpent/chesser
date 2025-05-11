@@ -666,6 +666,8 @@ def assert_resolved_moves(
     """
     boards: Dict of reference board states after moves, provides starting
             states (boards) for mainline sans, and fens for those positions.
+            All sans must be unique. Any sans in `expected` will require
+            those resolved move fens to match the fens in this dict!
 
     root_move: The mainline move that is the root of all "move.text"
                subvars. This will be a proper fully resolved move,
@@ -695,12 +697,12 @@ def assert_resolved_moves(
               this won't handle a sequence like 4.Nxd4 Nxd4 in the Scotch.
 
     expected_playable: if we want move clarity on what moves were resolved
-                       as playable; this is knowable by the fen assertio
+                       as playable; this is knowable by the fen assertion
                        working -- it will properly handle missing fens, but
-                       it might not be clear looking at the test; perhaps
-                       better to stick with bad SANs like BAD, but eventually
-                       may need real world bad examples
-
+                       it might not be clear looking at the test; it's good
+                       to stick with bad SANs like BAD where it makes sense,
+                       but sometimes (often?) we'll need to test real sans
+                       that may verify some ambiguity, etc
     """
     blocks = resolve_subvar(move_str, root_move, root_board)
     assert get_verbose_sans_list(blocks) == expected
@@ -960,10 +962,11 @@ def test_resolve_moves_with_root_sibling():
 
 
 def test_resolve_moves_fenseq():
-    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 Nxd4")
     # 1.e4 e5 2.Nf3 Nc6 ➤
-    fen = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
-    encoded_fen = fen.replace(" ", "_")
+    fen_Nc6 = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    encoded_fen = fen_Nc6.replace(" ", "_")
+
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 Nxd4")
 
     resolved_blocks = assert_resolved_moves(
         boards=boards,
@@ -975,7 +978,47 @@ def test_resolve_moves_fenseq():
 
     assert len(resolved_blocks) == 4
     assert resolved_blocks[0].type_ == "start"
-    assert resolved_blocks[0].fen == fen
+    assert resolved_blocks[0].fen == fen_Nc6
+
+
+def test_resolve_moves_fenseq_does_not_do_normal_first_move_things():
+    """
+    We have to get clever with our board set up here for these cases;
+    it works, but it may expose that our test harness needs to better
+    handle things like this; this will probably be confusing later
+    """
+    fen_e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+    encoded_fen = fen_e4.replace(" ", "_")
+
+    boards = get_boards_after_moves("e4 e5")
+    # we don't want e4 as a valid board, it would resolve with a fen
+    # when the actual move is unresolved and has no fen (but we had to
+    # include it in `boards` as part of a valid sequence, of course)
+    valid_boards = {"e5": boards["e5"]}
+
+    # doesn't discard duplicate root move; we require fenseq to be
+    # cleaner than that
+    assert_resolved_moves(
+        boards=valid_boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str=f"(F{encoded_fen} 1.e4 e5 )",
+        expected=["1.e4", "1...e5"],
+        expected_playable=[False, True],
+    )
+
+    # doesn't resolve sibling move since it's not a "real root",
+    # and fenseqs aren't as flexible as regular subvars; here we've
+    # excluded d4 from the boards since it's never resolved/valid
+    boards = get_boards_after_moves("e4")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"],
+        move_str=f"(F{encoded_fen} 1.d4 )",
+        expected=["1.d4"],
+        expected_playable=[False],
+    )
 
 
 def test_resolve_moves_implied_subvar_slash_alternate_move():
@@ -997,7 +1040,7 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
 
     # we don't treat 2.Nf6 as an implied subvar since it doesn't follow
     # a comment; in this case it *does* get resolved as a black move
-    # (under the current parser regime)
+    # (under the current parser regime, at least...)
     assert_resolved_moves(
         boards=boards,
         root_move="1...e5",

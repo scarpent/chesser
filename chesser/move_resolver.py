@@ -341,7 +341,7 @@ class PathFinder:
             # handle fenseq differently where needed, e.g. bypassing dupe
             # root and sibling checks
             root_block = ParsedBlock(type_="move", fen=block.fen)
-        if block.depth == 1 or not self.current.resolved_stack:
+        elif block.depth == 1 or not self.current.resolved_stack:
             root_block = self.current.root_block.clone()
         else:  # else use the last of current resolved/playable moves, or could
             # be a passed through move where things will be expected to 🧨
@@ -634,7 +634,7 @@ class PathFinder:
             pending_block = self.parse_move(block)
 
             # useful debugging info
-            # print([b.x or b.type_ for b in self.resolved_blocks])
+            # print([b.move_verbose or b.type_ for b in self.resolved_blocks])
             # print([b.move_verbose for b in self.current.resolved_stack])
 
             if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
