@@ -21,9 +21,6 @@ def make_subvar_block(type_, fen="", depth=1):
     return ParsedBlock(type_=type_, fen=fen, depth=depth)
 
 
-# ==================================================== move resolution helpers
-
-
 def get_parsed_blocks_from_string(pgn_string: str, depth=0):
     """
     Takes a structured PGN string and returns a list of ParsedBlock objects.
@@ -96,9 +93,12 @@ def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
 
 
 def get_verbose_sans_list(blocks: list[ParsedBlock]):
-    # move verbose will use raw move parts or just raw if
-    # no resolved; consider if we only want to look at resolved
-    # assemble_move_parts(self.move_parts_resolved)
+    """
+    ParsedBlock.move_verbose will look for and return in order:
+    1) assembed move parts resolved (num/dots/san/annotations)
+    2) assembled move parts raw (whatever parts are available)
+    3) raw
+    """
     return [b.move_verbose for b in blocks if b.type_ == "move"]
 
 
