@@ -1,25 +1,17 @@
-import re
-from collections import Counter
-
-import chess
 import pytest
 
 from chesser import move_resolver
-from chesser.move_resolver import Chunk, MoveParts, ParsedBlock
-
-
-def make_comment_block(raw, display, depth=1):
-    return ParsedBlock(type_="comment", raw=raw, display_text=display, depth=depth)
-
-
-def make_move_block(raw, fen="", depth=1):
-    """relying on a core function of the move resolving engine"""
-    mpr = move_resolver.get_move_parts(raw)
-    return ParsedBlock(type_="move", raw=raw, move_parts_raw=mpr, fen=fen, depth=depth)
-
-
-def make_subvar_block(type_, fen="", depth=1):
-    return ParsedBlock(type_=type_, fen=fen, depth=depth)
+from chesser.move_resolver import Chunk, MoveParts
+from chesser.tests import (
+    assert_resolved_moves,
+    get_boards_after_moves,
+    get_parsed_blocks_from_string,
+    make_comment_block,
+    make_move_block,
+    make_pathfinder,
+    make_subvar_block,
+    merge_boards,
+)
 
 
 @pytest.mark.parametrize(
@@ -539,311 +531,20 @@ def test_get_resolved_move_distance_invalid():
     assert "resolved_move_parts not provided; raw_move_parts =" in str(excinfo.value)
 
 
-# ==================================================== move resolution helpers
-
-
-def get_parsed_blocks_from_string(pgn_string: str, depth=0):
-    """
-    Takes a structured PGN string and returns a list of ParsedBlock objects.
-
-    e.g.
-    ( 1.e4 e5 )                 spaces are required for chunking things
-    ( 1.e4 {comment} 1...e5 )   no spaces in comments to make it easier to parse
-    ( 1.e4 ( 1.d4 2.d5 ) 1...e5 )
-    (F<fen> 1.d4 d5)            anything after F is used as a fen, to emulate fenseq
-                                (spaces won't work since we split on them - convert
-                                 them to underscores)
-
-    outer parens are optional; they'll be added around the whole pgn_string
-    only if no parens are found; we can test things out of a subvar, too:
-    {comment} ( 1.e4 e5 ) {comment}
-    """
-    if "(" not in pgn_string:
-        pgn_string = f"( {pgn_string} )"
-
-    starting_depth = depth
-    blocks = []
-    bits = pgn_string.split()
-    for bit in bits:
-        if bit.startswith("("):
-            depth += 1
-            fen = bit[2:].replace("_", " ") if bit.startswith("(F") else ""
-            blocks.append(make_subvar_block("start", fen=fen, depth=depth))
-        elif bit.startswith(")"):
-            blocks.append(make_subvar_block("end", depth=depth))
-            depth -= 1
-        elif bit.startswith("{"):
-            blocks.append(make_comment_block(bit, bit[1:-1], depth=depth))
-        else:
-            blocks.append(make_move_block(bit, depth=depth))
-
-        assert depth >= 0, "Unbalanced parens in pgn string"
-
-    assert depth == starting_depth, "Unbalanced parens in pgn string"
-
-    return blocks
-
-
-def get_boards_after_moves(moves: str):
-    board = chess.Board()
-    index = {}
-    for san in moves.split():
-        board.push_san(san)
-        index.setdefault(san, []).append(board.copy())
-    return index
-
-
-def merge_boards(*move_strings: str) -> dict[str, list[chess.Board]]:
-    """
-    Merge multiple SAN sequences into a dict of SAN → list[Board].
-
-    Keeps all occurrences to support duplicate SANs like Nxd4 Nxd4.
-    Test harness will resolve them by order; extras are harmless.
-    """
-    merged = {}
-    for moves in move_strings:
-        new = get_boards_after_moves(moves)
-        for san, boards in new.items():
-            merged.setdefault(san, []).extend(boards)
-    return merged
-
-
-def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
-    board = board or chess.Board()
-    return move_resolver.PathFinder(blocks, move_id, mainline_verbose, board, None)
-
-
-def get_verbose_sans_list(blocks: list[ParsedBlock]):
-    # move verbose will use raw move parts or just raw if
-    # no resolved; consider if we only want to look at resolved
-    # assemble_move_parts(self.move_parts_resolved)
-    return [b.move_verbose for b in blocks if b.type_ == "move"]
-
-
-def assert_expected_fens(boards, blocks, expected_sans):
-    """
-    Asserts that the list of move blocks has FENs matching those expected
-    from the reference board positions in `boards`.
-
-    Parameters:
-    ----------
-    boards : dict[str, list[chess.Board]]
-        A mapping of SAN → list of Board objects, in the order they occurred.
-        This supports scenarios where the same SAN appears multiple times in
-        a variation (e.g., 4.Nxd4 Nxd4 in the Scotch).
-
-    blocks : list[ParsedBlock]
-        The resolved blocks from the parser. We will pull all 'move' blocks
-        and check their .fen values.
-
-    expected_sans : list[str]
-        The expected simple sans, one per move block. These can be derived
-        from verbose move strings as they are in assert_resolved_moves(), or
-        just supplied when we need to indicate unresolved fen-less moves.
-
-    Behavior:
-    --------
-    - For each SAN in `expected_sans`, we look up the corresponding
-      board in the `boards` dictionary.
-    - If the same SAN appears multiple times, we use a Counter to track
-      which index to pull from the list — this disambiguates duplicate SANs.
-    - If the SAN is not found or the index is out of range, we insert an
-      empty string for comparison.
-
-    Example:
-    --------
-    Suppose this sequence:
-
-        moves = "e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nxd4"
-
-    Produces this dictionary from `get_boards_after_moves()`:
-
-        boards = {
-            "e4": [<Board1>],
-            "e5": [<Board2>],
-            "Nf3": [<Board3>],
-            "Nc6": [<Board4>],
-            "d4": [<Board5>],
-            "exd4": [<Board6>],
-            "Nxd4": [<Board7>, <Board8>]  # White and Black Nxd4
-        }
-
-    And your expected sans are:
-
-        expected_sans = ["e5", "Nf3", "Nc6", "d4", "exd4", "Nxd4", "Nxd4"]
-
-    This function will:
-        - Track each SAN using Counter()
-        - Lookup:
-            boards["e5"][0]
-            boards["Nf3"][0]
-            ...
-            boards["Nxd4"][0]  ← White
-            boards["Nxd4"][1]  ← Black
-
-    And assert that the corresponding move blocks have matching `.fen` values.
-    """
-
-    # 🔁 Resolve each SAN to its FEN using positionally disambiguated list
-    counters = Counter()
-    expected_fens = []
-    for san in expected_sans:
-        if not san.strip():
-            expected_fens.append("")
-            continue
-        board_list = boards.get(san, [])
-        idx = counters[san]
-        board = board_list[idx] if idx < len(board_list) else None
-        expected_fens.append(board.fen() if board else "")
-        counters[san] += 1
-
-    move_fens = [b.fen for b in blocks if b.type_ == "move"]
-
-    if move_fens != expected_fens:
-        expected_lines = [
-            f"{san:<8} ➤ {fen}" for san, fen in zip(expected_sans, expected_fens)
-        ]
-        actual_lines = [
-            f"{b.move_verbose:<8} ➤ {b.fen}" for b in blocks if b.type_ == "move"
-        ]
-
-        raise AssertionError(
-            f"\nExpected FENs:\n{chr(10).join(expected_lines)}\n\n"
-            f"Actual FENs:\n{chr(10).join(actual_lines)}"
-        )
-
-
-def resolve_subvar(move_str, root_move_str, root_board):
-    blocks = get_parsed_blocks_from_string(move_str)
-    pf = make_pathfinder(blocks, root_move_str, root_board)
-    return pf.resolve_moves()
-
-
-def assert_resolved_moves(
-    *,
-    boards,
-    root_move,
-    root_board,
-    move_str,
-    expected,
-    expected_fens_san_keys=None,  # keys to the boards dict
-):
-    """
-    boards: A dict of SANs ➤ list[chess.Board] mappings. These serve
-            as reference board states after moves, providing a starting
-            board for mainline sans, and fens for those positions.
-            Duplicate SANs are supported and resolved in positional
-            order via Counter-based indexing during FEN matching.
-            (We can handle the Scotch 4.Nxd4 Nxd4 with this.)
-
-    root_move: The mainline move that is the root of all "move.text"
-               subvars. This will be a proper fully resolved move,
-               less annotation, e.g.: 1.e4 or 1...e5
-
-    root_board: The chess.Board state after the mainline root_move
-
-    move_str: A structured test move string with moves and comments,
-              following rules in get_parsed_blocks_from_string.
-
-              Can use all-caps SANs (e.g. BAD, 4...LAD) to mark expected
-              unplayable moves. They'll pass move parsing and be obvious.
-
-              Moves must be quite normalized, no spaces, obvs.
-
-    expected: List of expected moves. These are the best moves we can
-              extract from the resolved moves, whether fully resolved
-              and playable or just raw moves that may or may not be valid
-
-              e.g.:
-                ( 1.e4 e5 ) -> ["1.e4", "1...e5"]
-                ( 1.e4 e5 ( 1...d5 ) ) -> ["1.e4", "1...e5", "1...d5"]
-                ( 1.e4 e5 ( 1...BAD ) {comment} ) -> ["1.e4", "e5", "1...BAD"]
-
-              And then it can also determine expected fens for these moves
-              if expected_fens_san_keys is not provided, whether or not they
-              resolve. (Works well for many tests, but when there's more
-              ambiguity it may be tricky to interpret results/errors.)
-
-    expected_fens_san_keys: A list of SANs to look up reference FEN strings
-                 for playable moves, and empty strings for unplayable moves.
-
-                 If this is omitted, everything in expected should be properly
-                 resolve as a fen or "" based on sans extracted from `expected`.
-
-                 Even if expected tells the tale, this can be good for clarity.
-                 And sometimes this will be requird to get it right, e.g. in:
-                 test_resolve_moves_fenseq_does_not_do_normal_first_move_things
-    """
-    blocks = resolve_subvar(move_str, root_move, root_board)
-    verbose_sans = get_verbose_sans_list(blocks)
-    assert verbose_sans == expected, f"\nExpected: {expected}\nActual:   {verbose_sans}"
-
-    if not expected_fens_san_keys:
-        sans = " ".join(expected)
-        sans = re.sub(r"\b\d+\.+", "", sans)  # remove numbers and dots
-        expected_fens_san_keys = sans.split()  # really, the san keys to boards dict
-
-    assert_expected_fens(boards, blocks, expected_fens_san_keys)
-
-    return blocks
-
-
-# ============================================================= test the tests
-
-
-def test_get_parsed_moves_from_string():
-    parsed_blocks = get_parsed_blocks_from_string(
-        "{argle} ( 1.e4 e5 2.Nf3 {bargle} 2...Nc6 ) {goodbye}"
-    )
-
-    assert all(
-        isinstance(block, ParsedBlock) for block in parsed_blocks
-    ), "All blocks should be ParsedBlock instances"
-
-    expected_types = "comment start move move move comment move end comment".split()
-    assert len(parsed_blocks) == len(expected_types)
-    assert all(
-        block.type_ == expected
-        for block, expected in zip(parsed_blocks, expected_types)
-    ), "Block types should match expected values"
-
-    expected_depths = "0 1 1 1 1 1 1 1 0".split()
-    assert all(
-        block.depth == int(expected)
-        for block, expected in zip(parsed_blocks, expected_depths)
-    ), "Block depths should match expected values"
-
-    parsed_blocks = get_parsed_blocks_from_string("(Fabc 1.e4 e5 )")
-    assert len(parsed_blocks) == 4
-    assert parsed_blocks[0].type_ == "start"
-    assert parsed_blocks[0].fen == "abc"
-    assert parsed_blocks[1].type_ == "move"
-    assert parsed_blocks[2].type_ == "move"
-    assert parsed_blocks[3].type_ == "end"
-
-    parsed_blocks = get_parsed_blocks_from_string("( 1.e4 e5 ( 1...d5 ) 2.Nf3 )")
-
-    assert len(parsed_blocks) == 8
-    expected = [
-        ("start", 1),
-        ("move", 1),
-        ("move", 1),
-        ("start", 2),
-        ("move", 2),
-        ("end", 2),
-        ("move", 1),
-        ("end", 1),
-    ]
-    assert all(
-        (block.type_, block.depth) == expected
-        for block, expected in zip(parsed_blocks, expected)
-    ), "Block types and depths should match expected values"
-
-    # fmt: off
-    assert get_verbose_sans_list(parsed_blocks) == [
-        "1.e4", "e5", "1...d5", "2.Nf3",
-    ], "Resolved moves should match expected values"
-    # fmt: on
+def test_resolve_moves_basic_pipeline_handling():
+    boards = get_boards_after_moves("e4")
+    parsed_blocks = get_parsed_blocks_from_string("{hi}", depth=1)
+    path_finder = make_pathfinder(parsed_blocks, "1.e4", boards["e4"][0])
+
+    blocks = path_finder.resolve_moves()
+
+    assert len(blocks) == 3
+    assert blocks[0].type_ == "start"
+    assert blocks[0].fen == ""
+    assert blocks[1].type_ == "comment"
+    assert blocks[1].raw == "{hi}"
+    assert blocks[2].type_ == "end"
+    assert all(b.depth == 2 for b in blocks)
 
 
 def test_resolve_moves_disambiguation_handled():
@@ -860,23 +561,26 @@ def test_resolve_moves_disambiguation_handled():
     # fmt: on
 
 
-# ====================================================== move resolution tests
+def test_assert_expected_fens_provides_nice_assertion_error():
+    """
+    kind of a "test the test" test but we'll do it here instead
+    of test_test_helpers.py so we don't have to import more stuff
+    """
+    boards = get_boards_after_moves("e4 e5 Nf3")
 
+    with pytest.raises(AssertionError) as excinfo:
+        assert_resolved_moves(
+            boards=boards,
+            root_move="1.e4",
+            root_board=boards["e4"][0],
+            move_str="( 1...e5 2.Nf3 )",
+            expected=["1...e5", "2.Nf3"],
+            expected_fens_san_keys=["e5", "ERR"],
+        )
 
-def test_resolve_moves_basic_pipeline_handling():
-    boards = get_boards_after_moves("e4")
-    parsed_blocks = get_parsed_blocks_from_string("{hi}", depth=1)
-    path_finder = make_pathfinder(parsed_blocks, "1.e4", boards["e4"][0])
+    expected = "\nExpected FENs:\ne5       ➤ rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2\nERR      ➤ \n\nActual FENs:\n1...e5   ➤ rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2\n2.Nf3    ➤ rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"  # noqa: E501
 
-    blocks = path_finder.resolve_moves()
-
-    assert len(blocks) == 3
-    assert blocks[0].type_ == "start"
-    assert blocks[0].fen == ""
-    assert blocks[1].type_ == "comment"
-    assert blocks[1].raw == "{hi}"
-    assert blocks[2].type_ == "end"
-    assert all(b.depth == 2 for b in blocks)
+    assert str(excinfo.value) == expected
 
 
 def test_unresolved_moves_are_passed_through():
