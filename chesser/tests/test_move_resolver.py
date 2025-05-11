@@ -130,16 +130,16 @@ def test_extract_ordered_chunks_assertions():
                 Chunk("comment", "{ more text...}"),
             ],
         ),
-        (  # known fixable paren imbalance
-            "(1.e4 {test}<fenseq>1.e4</fenseq>",
-            [
-                Chunk("subvar", "START 1"),
-                Chunk("move", "1.e4"),
-                Chunk("comment", "{test}"),
-                Chunk("subvar", "END 1"),
-                Chunk("fenseq", "<fenseq>1.e4</fenseq>"),
-            ],
-        ),
+        # (  # known fixable paren imbalance
+        #     "(1.e4 {test}<fenseq>1.e4</fenseq>",
+        #     [
+        #         Chunk("subvar", "START 1"),
+        #         Chunk("move", "1.e4"),
+        #         Chunk("comment", "{test}"),
+        #         Chunk("subvar", "END 1"),
+        #         Chunk("fenseq", "<fenseq>1.e4</fenseq>"),
+        #     ],
+        # ),
     ],
 )
 def test_extract_ordered_chunks_fenseq(text, expected):
@@ -862,4 +862,30 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
         root_board=boards["e5"][0],
         move_str="( 2.Nf3 {or} 2...Nc6 )",
         expected=["2.Nf3", "2...Nc6"],
+    )
+
+
+def test_known_open_subvar_leading_to_fenseq_pattern():
+    """
+    This open subvar leading to fenseq was previously our only
+    trigger of "❌  Unbalanced parens, depth". Those were manually
+    fixed, but even if our janky chessable pipeline export/import
+    process brings more in, we should generally handle this fine.
+    We don't worry too much about subvar bookkeeping for endings.
+    We just want to resolve moves. And fenseqs are easy to handle
+    as their own new thing independent of what's happened before.
+    """
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")
+    fen_Nc6 = (
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"  # noqa: E501
+    )
+    encoded_fen = fen_Nc6.replace(" ", "_")
+
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str=f"( 1...e5 (F{encoded_fen} 3.d4 )",
+        move_str_unbalanced=True,
+        expected=["1...e5", "3.d4"],
     )

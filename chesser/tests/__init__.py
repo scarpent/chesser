@@ -21,7 +21,7 @@ def make_subvar_block(type_, fen="", depth=1):
     return ParsedBlock(type_=type_, fen=fen, depth=depth)
 
 
-def get_parsed_blocks_from_string(pgn_string: str, depth=0):
+def get_parsed_blocks_from_string(pgn_string: str, depth=0, move_str_unbalanced=False):
     """
     Takes a structured PGN string and returns a list of ParsedBlock objects.
 
@@ -36,6 +36,9 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0):
     outer parens are optional; they'll be added around the whole pgn_string
     only if no parens are found; we can test things out of a subvar, too:
     {comment} ( 1.e4 e5 ) {comment}
+
+    move_str_unbalanced allows us to test deliberately unbalanced PGN strings,
+    but we have to be deliberate about it!
     """
     if "(" not in pgn_string:
         pgn_string = f"( {pgn_string} )"
@@ -56,9 +59,11 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0):
         else:
             blocks.append(make_move_block(bit, depth=depth))
 
-        assert depth >= 0, "Unbalanced parens in pgn string"
+        if move_str_unbalanced is False:
+            assert depth >= 0, "Unbalanced parens in pgn string"
 
-    assert depth == starting_depth, "Unbalanced parens in pgn string"
+    if move_str_unbalanced is False:
+        assert depth == starting_depth, "Unbalanced parens in pgn string"
 
     return blocks
 
@@ -195,68 +200,94 @@ def assert_expected_fens(boards, blocks, expected_sans):
         )
 
 
-def resolve_subvar(move_str, root_move_str, root_board):
-    blocks = get_parsed_blocks_from_string(move_str)
+def resolve_subvar(move_str, root_move_str, root_board, move_str_unbalanced=False):
+    blocks = get_parsed_blocks_from_string(
+        move_str, move_str_unbalanced=move_str_unbalanced
+    )
     pf = make_pathfinder(blocks, root_move_str, root_board)
     return pf.resolve_moves()
 
 
 def assert_resolved_moves(
     *,
-    boards,
-    root_move,
-    root_board,
-    move_str,
-    expected,
-    expected_fens_san_keys=None,  # keys to the boards dict
+    boards: dict[str, list[chess.Board]],
+    root_move: str,
+    root_board: chess.Board,
+    move_str: str,
+    move_str_unbalanced: bool = False,
+    expected: list[str],
+    expected_fens_san_keys: list[str] = None,
 ):
     """
-    boards: A dict of SANs ➤ list[chess.Board] mappings. These serve
-            as reference board states after moves, providing a starting
-            board for mainline sans, and fens for those positions.
-            Duplicate SANs are supported and resolved in positional
-            order via Counter-based indexing during FEN matching.
-            (We can handle the Scotch 4.Nxd4 Nxd4 with this.)
+    boards:
+        A dict of SANs ➤ board mappings. These serve
+        as reference board states after moves, providing a starting
+        board for mainline sans, and fens for those positions.
+        Duplicate SANs are supported and resolved in positional
+        order via Counter-based indexing during FEN matching.
+        (We can handle the Scotch 4.Nxd4 Nxd4 with this.)
 
-    root_move: The mainline move that is the root of all "move.text"
-               subvars. This will be a proper fully resolved move,
-               less annotation, e.g.: 1.e4 or 1...e5
+    root_move:
+        The mainline move that is the root of all "move.text"
+        subvars. This will be a proper fully resolved move,
+        less annotation, e.g.: 1.e4 or 1...e5
 
-    root_board: The chess.Board state after the mainline root_move
+    root_board:
+        The board state after the mainline root_move.
 
-    move_str: A structured test move string with moves and comments,
-              following rules in get_parsed_blocks_from_string.
+    move_str:
+        A structured test move string with moves and comments,
+        following rules in get_parsed_blocks_from_string.
 
-              Can use all-caps SANs (e.g. BAD, 4...LAD) to mark expected
-              unplayable moves. They'll pass move parsing and be obvious.
+        Can use all-caps SANs (e.g. BAD, 4...LAD) to mark expected
+        unplayable moves. They'll pass move parsing and be obvious.
 
-              Moves must be quite normalized, no spaces, obvs.
+        Moves must be quite normalized, no spaces, obvs. Balanced
+        subvar farens are required unless allow_unbalanced is True.
 
-    expected: List of expected moves. These are the best moves we can
-              extract from the resolved moves, whether fully resolved
-              and playable or just raw moves that may or may not be valid
+            move_str_unbalanced:
+        If True, allows parsing of a deliberately unbalanced `move_str`
+        (e.g. an open subvar not closed before a fenseq). This is only for
+        tests and has no effect on the move parser itself.
 
-              e.g.:
-                ( 1.e4 e5 ) -> ["1.e4", "1...e5"]
-                ( 1.e4 e5 ( 1...d5 ) ) -> ["1.e4", "1...e5", "1...d5"]
-                ( 1.e4 e5 ( 1...BAD ) {comment} ) -> ["1.e4", "e5", "1...BAD"]
+        If True, allows tests to pass in intentionally unbalanced PGN-like
+        strings (e.g. open subvars not closed). This flag is strictly for the
+        test harness and disables the default assertion that checks for
+        matching parentheses in the parsed blocks.
 
-              And then it can also determine expected fens for these moves
-              if expected_fens_san_keys is not provided, whether or not they
-              resolve. (Works well for many tests, but when there's more
-              ambiguity it may be tricky to interpret results/errors.)
+        This is useful when importing known edge-case strings (e.g. from
+        Chessable pipelines) that lead into fenseq blocks or similar recovery
+        cases. It does NOT affect the underlying move parser behavior.
 
-    expected_fens_san_keys: A list of SANs to look up reference FEN strings
-                 for playable moves, and empty strings for unplayable moves.
+    expected:
+        List of expected moves. These are the best moves we can
+        extract from the resolved moves, whether fully resolved
+        and playable or just raw moves that may or may not be valid
 
-                 If this is omitted, everything in expected should be properly
-                 resolve as a fen or "" based on sans extracted from `expected`.
+        e.g.:
+        ( 1.e4 e5 ) -> ["1.e4", "1...e5"]
+        ( 1.e4 e5 ( 1...d5 ) ) -> ["1.e4", "1...e5", "1...d5"]
+        ( 1.e4 e5 ( 1...BAD ) {comment} ) -> ["1.e4", "e5", "1...BAD"]
 
-                 Even if expected tells the tale, this can be good for clarity.
-                 And sometimes this will be requird to get it right, e.g. in:
-                 test_resolve_moves_fenseq_does_not_do_normal_first_move_things
+        And then it can also determine expected fens for these moves
+        if expected_fens_san_keys is not provided, whether or not they
+        resolve. (Works well for many tests, but when there's more
+        ambiguity it may be tricky to interpret results/errors.)
+
+    expected_fens_san_keys:
+        A list of SANs to look up reference FEN strings
+        for playable moves, and empty strings for unplayable moves.
+
+        If this is omitted, everything in expected should be properly
+        resolve as a fen or "" based on sans extracted from `expected`.
+
+        Even if expected tells the tale, this can be good for clarity.
+        And sometimes this will be requird to get it right, e.g. in:
+        test_resolve_moves_fenseq_does_not_do_normal_first_move_things
     """
-    blocks = resolve_subvar(move_str, root_move, root_board)
+    blocks = resolve_subvar(
+        move_str, root_move, root_board, move_str_unbalanced=move_str_unbalanced
+    )
     verbose_sans = get_verbose_sans_list(blocks)
     assert verbose_sans == expected, f"\nExpected: {expected}\nActual:   {verbose_sans}"
 

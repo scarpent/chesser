@@ -900,17 +900,9 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
             chunks.append(Chunk("comment", text[token_start : i + 1]))  # noqa: E203
             token_start = None
             mode = "neutral" if paren_depth < 1 else "subvar"
-
-            if (
-                mode == "subvar"
-                and paren_depth == 1
-                and text[i + 1 :].lstrip().startswith("<fenseq")  # noqa: E203
-            ):
-                print(f"✅  Fixing known unbalanced parens: {text[i:][:60]}")
-                # no need to flush token; we're following the already appended comment
-                chunks.append(Chunk("subvar", "END 1"))
-                paren_depth = 0
-                mode = "neutral"
+            # Previously was a known unbalanced parens fixer here, removed
+            # after commit a4952a9; now this is handled fine later and has
+            # a nice test case (this comment itself should go away soon).
 
         # Subvar start
         elif c == "(" and mode == "neutral":
