@@ -365,10 +365,18 @@ class PathFinder:
             message = f"\t{frame.root_block.raw} ➤ {frame.root_block.depth} ➤ {fen}"
             block.log.append(message)
 
-    def parse_move(self, block: ParsedBlock) -> ParsedBlock:
+    def parse_move(
+        self,
+        block: ParsedBlock,
+        board: Optional[chess.Board] = None,
+    ) -> ParsedBlock:
+        """
+        This is for evaluating moves and should change nothing with
+        incoming block and board.
+        """
         assert block.type_ == "move"
         clone = block.clone()
-        board = self.current.board.copy()
+        board = board.copy() if board else self.current.board.copy()
         san = clone.move_parts_raw.san
 
         try:
@@ -491,9 +499,7 @@ class PathFinder:
             )
             if distance_from_root == 0:
                 self.stats.sundry["➤ root siblings"] += 1
-                self.current.board = self.current.board_previous.copy()
-
-                pending_block = self.parse_move(block)
+                pending_block = self.parse_move(block, self.current.board_previous)
 
                 if pending_block.is_playable:
                     pending_block.log.append("👥 sibling move resolved 🔍️")
@@ -660,6 +666,7 @@ class PathFinder:
                 continue
 
             if root_sibling := self.get_root_sibling(pending_block):
+                self.current.board = self.current.board_previous.copy()
                 self.push_move(root_sibling)
                 self.advance_to_next_block(append=root_sibling)
                 continue
