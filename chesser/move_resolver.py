@@ -274,12 +274,11 @@ def get_resolved_move_distance(
 class StackFrame:
     board: chess.Board
     root_block: ParsedBlock
-    move_counter: int = 0  # pass or fail
+    move_counter: int = 0  # pass or fail, we really only care about the first move
     # resolved moves AND passed through moves are added here
     resolved_stack: list[ParsedBlock] = field(default_factory=list)
     # make previous move handy for sibling checking
     board_previous: Optional[chess.Board] = field(init=False)
-    is_fenseq: bool = False
 
     def __post_init__(self):
         self.board_previous = self.board.copy()
@@ -338,6 +337,9 @@ class PathFinder:
             self.stats.subvar_depths[block.depth] += 1
 
         if is_fenseq:
+            # non-playable placeholder root block for fenseq allows us to
+            # handle fenseq differently where needed, e.g. bypassing dupe
+            # root and sibling checks
             root_block = ParsedBlock(type_="move", fen=block.fen)
         if block.depth == 1 or not self.current.resolved_stack:
             root_block = self.current.root_block.clone()
@@ -348,13 +350,7 @@ class PathFinder:
         # the original root root will always remain 0
         root_block.depth = block.depth
 
-        self.stack.append(
-            StackFrame(
-                board=chessboard,
-                root_block=root_block,
-                is_fenseq=is_fenseq,
-            )
-        )
+        self.stack.append(StackFrame(board=chessboard, root_block=root_block))
 
         block.log.append("stack")
         for frame in self.stack:
@@ -457,10 +453,8 @@ class PathFinder:
 
     def is_duplicate_of_root_block(self, block: ParsedBlock):
         # e.g. mainline 1.e4, subvar (1.e4 e5)
-        if (
-            self.current.move_counter == 1
-            and not self.current.is_fenseq  # we expect an orderly sequence here
-            and block.equals_previous(self.current.root_block)
+        if self.current.move_counter == 1 and block.equals_previous(
+            self.current.root_block
         ):
             # we'll update stats and log this even though we're not *doing*
             # the discarding in here; it just seems cleaner to keep here
@@ -482,7 +476,6 @@ class PathFinder:
         """
         if (
             self.current.move_counter == 1
-            and not self.current.is_fenseq
             and self.current.board_previous
             and self.current.root_block.is_playable
         ):
@@ -561,6 +554,10 @@ class PathFinder:
                     try:
                         self.current.board.pop()
                     except IndexError:
+                        # this shouldn't happen - would be good to let it fail louder
+                        # but we really don't want move resolution to fail at all: we're
+                        # just making a best effort...
+                        block.log.append("🚨 Unable to pop() board for implied subvar")
                         return None
 
                     return self.parse_move(block)
@@ -639,7 +636,6 @@ class PathFinder:
             # useful debugging info
             # print([b.x or b.type_ for b in self.resolved_blocks])
             # print([b.move_verbose for b in self.current.resolved_stack])
-            # break point()
 
             if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
                 # let's be strict to get a better feel for the data, off by
