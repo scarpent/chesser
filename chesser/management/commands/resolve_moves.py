@@ -37,6 +37,7 @@ class Command(BaseCommand):
         return 0
 
     def move_resolver_runner(self, variation_id=None, move_id=None):
+        show_progress = False
         if move_id:
             move = Move.objects.filter(id=move_id).first()
             if move:
@@ -45,6 +46,7 @@ class Command(BaseCommand):
             variations = Variation.objects.filter(id=variation_id)
         else:
             variations = Variation.objects.all().order_by("id")
+            show_progress = True
 
         stats = ResolveStats()
 
@@ -52,6 +54,8 @@ class Command(BaseCommand):
 
         # have to push all the mainline moves to maintain the board state
         for variation in variations.iterator():
+            if show_progress:
+                print(f"🏵️  Variation {variation.id}", end="\r")
             board = chess.Board()
             # print(f"🏵️  Variation {variation}")
             for move in variation.moves.iterator():
