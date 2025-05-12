@@ -296,6 +296,8 @@ def generate_subvariations_html(move, parsed_blocks):
                     f'<span class="move subvar-move" data-fen="{block.fen}" '
                     f'data-index="{counter}">⏮️</span>'
                 )
+            elif block.depth > 1:
+                html += "➤"
 
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
@@ -339,7 +341,9 @@ def get_final_move_simple_subvariations_html(variation):
     # advance board to the final move
     board = chess.Board()
     for move in variation.moves.iterator():
-        board.push_san(move.san)  # Mainline moves better be valid
+        # Mainline moves better be valid
+        # (but maybe should still fall back...)
+        board.push_san(move.san)
 
     if not move:
         return html
