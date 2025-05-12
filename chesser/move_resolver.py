@@ -95,32 +95,6 @@ class ParsedBlock:
         self.log.append("⛔️ unresolving move")
         return self
 
-    def equals_previous(self, other):
-        """
-        To say one move is equal to previous, the previous move will need
-        to be resolved/playable. The current move (self) should be totally
-        equal if also/resolved playable, but otherwise just has to match
-        san. First use is to check if subvar first move is a duplicate of
-        the "root block". (I'm uncertain of the naming or placement of this
-        function.)
-
-        Imagine we're resolving:
-
-        ( 1...d5 2.c4 e6 ( 2...e6 3.Nc3 ) )
-
-        The first e6 resolves to 2...e6 and we have a good match with the
-        second, but the raw of the first won't match. The first e6 becomes
-        the root block, and in normal processing that will always be
-        resolved. If not, things have already broken down with subvar.
-        """
-        if not other.is_playable:
-            return False
-
-        if self.is_playable:
-            return self.move_parts_resolved == other.move_parts_resolved
-
-        return self.move_parts_raw.san == other.move_parts_resolved.san
-
     @property
     def move_verbose(self):
         if not self.type_ == "move":
@@ -463,10 +437,25 @@ class PathFinder:
                 break
 
     def is_duplicate_of_root_block(self, block: ParsedBlock):
-        # e.g. mainline 1.e4, subvar (1.e4 e5)
-        if self.current.move_counter == 1 and block.equals_previous(
-            self.current.root_block
-        ):
+        """
+        e.g. mainline 1.e4, subvar (1.e4 e5)
+             mainline 1...e4, subvar (1...e4 e5)
+
+        In order to accurately determine if a dupe, we'll assume/require that
+        the subvar starts with a "fully qualified" move, i.e. with a move number
+        and dots. We'll only say it's a match if the raw move parts are equal
+        to a resolved root block move. 1.e4 == 1.e4 and 1...e5==1.e5 but
+        1...e4 != e4, if that's all we have is a san for the move.
+
+        (have also tried other comparisons, but 941 of 941 discarded dupe
+        examples on 12 May 2025 all matched with just this check)
+        """
+        this_raw_equals_root_resolved = (
+            self.current.root_block.is_playable
+            and block.move_parts_raw == self.current.root_block.move_parts_resolved
+        )
+
+        if self.current.move_counter == 1 and (this_raw_equals_root_resolved):
             # we'll update stats and log this even though we're not *doing*
             # the discarding in here; it just seems cleaner to keep here
             self.stats.sundry["➤ root dupe discarded"] += 1

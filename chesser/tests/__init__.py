@@ -126,7 +126,9 @@ def assert_expected_fens(boards, blocks, expected_sans):
     expected_sans : list[str]
         The expected simple sans, one per move block. These can be derived
         from verbose move strings as they are in assert_resolved_moves(), or
-        just supplied when we need to indicate unresolved fen-less moves.
+        just supplied when we need to indicate unresolved fen-less moves. Can
+        include a trailing index to explicitly specify which board to use for
+        comparison (e.g., "Nxd4/0" or "Nxd4/1").
 
     Behavior:
     --------
@@ -178,8 +180,16 @@ def assert_expected_fens(boards, blocks, expected_sans):
         if not san.strip():
             expected_fens.append("")
             continue
+
+        # find current index, allowing override with "/<index>"
+        if "/" in san and san.rsplit("/", 1)[1].isdigit():
+            base_san, idx_str = san.rsplit("/", 1)
+            idx = int(idx_str)
+            san = base_san
+        else:
+            idx = counters[san]
+
         board_list = boards.get(san, [])
-        idx = counters[san]
         board = board_list[idx] if idx < len(board_list) else None
         expected_fens.append(board.fen() if board else "")
         counters[san] += 1
@@ -284,6 +294,13 @@ def assert_resolved_moves(
         Even if expected tells the tale, this can be good for clarity.
         And sometimes this will be requird to get it right, e.g. in:
         test_resolve_moves_fenseq_does_not_do_normal_first_move_things
+
+        We can *further* specify exactly what fens we want by including
+        the index with the san in this format: "Nxd4/0" or "Nxd4/1",
+        where the number is the index in the list of boards for that san.
+
+        This helps disambiguate cases were all moves aren't included in
+        resolved moves.
     """
     blocks = resolve_subvar(
         move_str, root_move, root_board, move_str_unbalanced=move_str_unbalanced

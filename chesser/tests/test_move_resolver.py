@@ -625,7 +625,7 @@ def test_resolve_moves_subvar_continues():
 
     Simple stuff to confirm basic building blocks, we hope.
     """
-    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")  # reference boards
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")
 
     # white mainline root directly to black subvar move
     blocks = assert_resolved_moves(
@@ -676,9 +676,9 @@ def test_resolve_moves_subvar_continues():
 
 
 def test_resolve_moves_discards_dupe_root_in_subvar():
-    boards = get_boards_after_moves("d4 d5 c4 e6 Nc3")  # reference boards
+    boards = get_boards_after_moves("d4 d5 c4 e6 Nc3")
 
-    # # white dupes, two levels
+    # white dupes, two levels
     assert_resolved_moves(
         boards=boards,
         root_move="1.d4",
@@ -707,8 +707,72 @@ def test_resolve_moves_discards_dupe_root_in_subvar():
     )
 
 
+def test_resolve_moves_discard_dupe_root_plain_san_is_unhandled():
+    """if a subvar doesn't start without a "fully qualified" verbose
+    move, we won't discard it as a dupe root, but note that we still
+    might be able to resolve following moves properly. Leaving it
+    visible in rendered subvar alerts us to data issue to be fixed."""
+    boards = get_boards_after_moves("e4 e5")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str="( e4 e5 )",
+        expected=["e4", "1...e5"],
+        expected_fens_san_keys=["", "e5"],
+    )
+
+
+def test_resolve_moves_dupe_root_is_a_playable_move_for_opposing_side():
+    """
+    E.g. Variation #1069, Move #21325 7...Be6
+    When we first try the simple san Be6 on the board after 7...Be6
+    was played, it will resolve as valid move 8.Be6. It ends up
+    resolving as a sibling move and doesn't break the linking, but it
+    doesn't discard the dupe.
+    """
+
+    # black mainline
+    moves = "e4 e5 Nf3 Nc6 c3 d5 Qa4 f6 exd5 Qxd5 Bc4 Qe4+ Kf1 Be6 d3"
+    boards = get_boards_after_moves(moves)
+    assert_resolved_moves(
+        boards=boards,
+        root_move="7...Be6",
+        root_board=boards["Be6"][0],
+        move_str="( 7...Be6 8.d3 )",
+        expected=["8.d3"],
+        expected_fens_san_keys=["d3"],
+    )
+
+    # with 1.e4 e5 2.Nf3 Nc6 3.d4 Nxd4 4.Nxd4, when we try applying
+    # 3...Nxd4 in a subvar as just the plain Nxd4, it will resolve
+    # as 4.Nxd4, which is possible...
+
+    # black mainline
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 Nxd4 Nxd4")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="3...Nxd4",
+        root_board=boards["Nxd4"][0],
+        move_str="( 3...Nxd4 4.Nxd4 )",
+        expected=["4.Nxd4"],
+        expected_fens_san_keys=["Nxd4/1"],
+    )
+
+    # white mainline
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nxd4")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="4.Nxd4",
+        root_board=boards["Nxd4"][0],
+        move_str="( 4.Nxd4 Nxd4 )",  # 4.Nxd4 resolves as 4...Nxd4 but is handled
+        expected=["4...Nxd4"],
+        expected_fens_san_keys=["Nxd4/1"],
+    )
+
+
 def test_resolve_moves_with_root_sibling():
-    boards = merge_boards("e4", "d4 d5 c4", "d4 d5 Nf3 Nf6")  # reference boards
+    boards = merge_boards("e4", "d4 d5 c4", "d4 d5 Nf3 Nf6")
 
     # # white mainline root with sibling and white subvar root with sibling
     assert_resolved_moves(
