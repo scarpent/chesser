@@ -135,6 +135,9 @@ class ResolveStats:
     subvar_depths: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
+    implied_subvar_to_root_distances: defaultdict[int, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
 
     def print_stats(self):
         print("\nParsing Stats Summary:\n")
@@ -149,6 +152,11 @@ class ResolveStats:
 
         move_distances = str(dict(sorted(self.other_move_distances.items())))
         print(f"other move distances: {move_distances}")
+
+        implied_distances = str(
+            dict(sorted(self.implied_subvar_to_root_distances.items()))
+        )
+        print(f"root to implied subvar distances: {implied_distances}")
 
         print("\n")
 
@@ -236,6 +244,9 @@ def get_resolved_move_distance(
     Dot types:
         "."   → white to move = ply = (move num - 1) * 2
         "..." → black to move = ply = (move num - 1) * 2 + 1
+
+    This can compare two resolved move parts easily enough, too.
+    We should come up with less confusing names and concepts.
     """
     if raw_move_parts.num is None or raw_move_parts.dots not in (".", "..."):
         return AMBIGUOUS
@@ -495,7 +506,7 @@ class PathFinder:
 
         return None
 
-    def get_implied_subvar_move(self, block: ParsedBlock):
+    def get_implied_subvar(self, block: ParsedBlock):
         """
         e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
              (1.e4 e5 {or} 1...d5)
@@ -505,6 +516,8 @@ class PathFinder:
 
         and it's not *just* an alternate move, things could continue:
             (2.Nf3 {or} 2.Nc3 Nf6 3.f4)
+
+        (and there may be other cases, too, jumping back to root...)
 
         this is sort of related to root sibling, right? but it needs special
         handling (these might be mostly my own hacky chessable subvars since
@@ -540,7 +553,7 @@ class PathFinder:
                     # (note that the current move may or may not be playable,
                     # and if it *is* resolved/playable, it would have flipped
                     # sides, being a legal move for the opposite side...)
-                    self.stats.sundry["➤ implied subvar found"] += 1
+                    self.stats.sundry["➤ implied subvar found (prev move)"] += 1
 
                     previous = assemble_move_parts(resolved)
                     current = assemble_move_parts(block.move_parts_raw)
@@ -559,6 +572,19 @@ class PathFinder:
                         return None
 
                     return self.parse_move(block)
+                else:
+                    self.stats.sundry["➤ implied subvar? (prev no match)"] += 1
+                    # print(
+                    #     f"previous: {previous_block.move_verbose}, current: {block.move_verbose}"  # noqa: E501
+                    # )
+                    if self.current.root_block.is_playable:
+                        distance = get_resolved_move_distance(
+                            self.current.root_block.move_parts_resolved,
+                            block.move_parts_raw,
+                        )
+                        self.stats.implied_subvar_to_root_distances[distance] += 1
+                    else:
+                        self.stats.sundry["➤ implied subvar? (root not resolved)"] += 1
             else:
                 self.stats.sundry["➤ implied subvar? (previous not resolved)"] += 1
 
@@ -657,10 +683,17 @@ class PathFinder:
                 self.advance_to_next_block(append=root_sibling)
                 continue
 
-            if alternate_move := self.get_implied_subvar_move(pending_block):
+            if alternate_move := self.get_implied_subvar(pending_block):
                 self.push_move(alternate_move)
                 self.advance_to_next_block(append=alternate_move)
                 continue
+
+            """
+            TODO: can get_implied_subvar be generalized to handle other
+                  things like:
+                    (1.e4 e5 2.Nf3 {or} 1.e4 d5 2.exd5)
+                  also need to see if these are common enough to handle...
+            """
 
             # look for other places to match things end/start subvar, etc
 
