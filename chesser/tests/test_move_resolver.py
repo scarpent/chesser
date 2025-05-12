@@ -726,10 +726,11 @@ def test_resolve_moves_discard_dupe_root_plain_san_is_unhandled():
 def test_resolve_moves_dupe_root_is_a_playable_move_for_opposing_side():
     """
     E.g. Variation #1069, Move #21325 7...Be6
+
     When we first try the simple san Be6 on the board after 7...Be6
     was played, it will resolve as valid move 8.Be6. It ends up
     resolving as a sibling move and doesn't break the linking, but it
-    doesn't discard the dupe.
+    doesn't discard the dupe. This test confirms that we now handle it.
     """
 
     # black mainline
