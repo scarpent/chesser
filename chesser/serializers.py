@@ -308,7 +308,7 @@ def generate_subvariations_html(move, parsed_blocks):
 
             if block.fen:
                 counter += 1
-                # trailing space here is consequential for wrapping
+                # trailing space here is consequential for wrapping;
                 # need to work on overall whitespace/rendering of course
                 html += (
                     f'<span class="move subvar-move" data-fen="{block.fen}" '

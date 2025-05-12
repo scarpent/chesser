@@ -45,7 +45,7 @@ class ParsedBlock:
     # we started with chunk types: "comment", "subvar", "fenseq", "move"
     type_: Literal["comment", "start", "end", "move"]
     raw: str = ""
-    display_text: str = ""
+    display_text: str = ""  # only used for comments
     # raw comes from a move as it appears in a subvar, it may or may not have
     # a move number and dots, e.g. 1.e4 or e4 or 1...e5 or e5
     move_parts_raw: Optional[MoveParts] = None
@@ -635,6 +635,7 @@ class PathFinder:
             # print([b.move_verbose or b.type_ for b in self.resolved_blocks])
             # print([b.move_verbose for b in self.current.resolved_stack])
 
+            # in progress: try to keep tests out of this block until later...
             if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
                 # let's be strict to get a better feel for the data, off by
                 # more than one will need special handling and we'll apply
@@ -760,7 +761,6 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
         re.DOTALL,
     )
     # "fenseq" type blocks should always match or they'd already be "comment" type
-    # assert match, f"Invalid fenseq chunk: {raw}"
     if not match:
         print(f"🚨 Invalid fenseq block: {raw}")
         return []

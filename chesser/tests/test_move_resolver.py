@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 
 from chesser import move_resolver
@@ -439,11 +441,11 @@ def test_parse_fenseq_chunk_empty():
     )
 
 
-def test_parse_fenseq_chunk_invalid():
-    try:
-        move_resolver.parse_fenseq_chunk("<fenseq>1.e4 e5</fenseq>")
-    except AssertionError as e:
-        assert "Invalid fenseq chunk" in str(e)
+@mock.patch("chesser.move_resolver.print")
+def test_parse_fenseq_chunk_invalid(mock_print):
+    expected = "<fenseq>1.e4 e5</fenseq>"
+    move_resolver.parse_fenseq_chunk(expected)
+    mock_print.assert_called_once_with(f"🚨 Invalid fenseq block: {expected}")
 
 
 @pytest.mark.parametrize(
@@ -849,8 +851,8 @@ def test_resolve_moves_fenseq_does_not_do_normal_first_move_things():
     fen_e4 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
     encoded_fen = fen_e4.replace(" ", "_")
 
-    # doesn't discard duplicate root move; we require fenseq to be
-    # cleaner than that
+    # doesn't discard duplicate root move; fenseq is treated
+    # independently of the rest of the subvar
     boards = get_boards_after_moves("e4 e5")
     assert_resolved_moves(
         boards=boards,
@@ -862,8 +864,8 @@ def test_resolve_moves_fenseq_does_not_do_normal_first_move_things():
     )
 
     # doesn't resolve sibling move since it's not a "real root",
-    # and fenseqs aren't as flexible as regular subvars; here we've
-    # excluded d4 from the boards since it's never resolved/valid
+    # and fenseqs aren't as flexible as regular subvars; d4 is
+    # never resolved/valid
     boards = get_boards_after_moves("e4")
     assert_resolved_moves(
         boards=boards,
@@ -932,12 +934,8 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
 
 def test_known_open_subvar_leading_to_fenseq_pattern():
     """
-    This open subvar leading to fenseq was previously our only
-    trigger of "❌  Unbalanced parens, depth". Those were manually
-    fixed, but even if our janky chessable pipeline export/import
-    process brings more in, we should generally handle this fine.
     We don't worry too much about subvar bookkeeping for closing
-    out the subvar. We just want to resolve moves. And fenseqs are
+    out the subvar. We just want to resolve moves. Fenseqs are
     easy to handle as their own new thing independent of what's
     happened before.
     """
