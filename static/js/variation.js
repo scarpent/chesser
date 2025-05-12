@@ -186,7 +186,7 @@ export function variationApp() {
         !isNaN(parentMainlineIndex) &&
         this.mainlineMoveIndex !== parentMainlineIndex
       ) {
-        this.jumpToMainlineMove(parentMainlineIndex);
+        this.jumpToMainlineMove(parentMainlineIndex, true);
       }
 
       const subvarMoves = this.getSubvarMoves();
@@ -195,6 +195,8 @@ export function variationApp() {
       if (clickedIndex !== -1) {
         this.subvarMoveIndex = clickedIndex;
         this.updateBoardForSubvar(moveElement);
+      } else {
+        this.updateBoard(); // not sure how we'd get here, but is this a good fallback?
       }
     },
 
@@ -253,14 +255,14 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
-    jumpToMainlineMove(index) {
+    jumpToMainlineMove(index, skipBoardUpdate = false) {
       if (index < 0 || index >= this.variationData.moves.length) return;
       this.chess.reset();
       for (let i = 0; i <= index; i++) {
         this.chess.move(this.variationData.moves[i].san);
       }
       this.mainlineMoveIndex = index;
-      this.updateBoard();
+      if (!skipBoardUpdate) this.updateBoard();
     },
 
     //--------------------------------------------------------------------------------
