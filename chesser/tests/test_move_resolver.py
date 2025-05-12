@@ -871,14 +871,13 @@ def test_known_open_subvar_leading_to_fenseq_pattern():
     trigger of "❌  Unbalanced parens, depth". Those were manually
     fixed, but even if our janky chessable pipeline export/import
     process brings more in, we should generally handle this fine.
-    We don't worry too much about subvar bookkeeping for endings.
-    We just want to resolve moves. And fenseqs are easy to handle
-    as their own new thing independent of what's happened before.
+    We don't worry too much about subvar bookkeeping for closing
+    out the subvar. We just want to resolve moves. And fenseqs are
+    easy to handle as their own new thing independent of what's
+    happened before.
     """
     boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4")
-    fen_Nc6 = (
-        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"  # noqa: E501
-    )
+    fen_Nc6 = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
     encoded_fen = fen_Nc6.replace(" ", "_")
 
     assert_resolved_moves(

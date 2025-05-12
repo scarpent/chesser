@@ -37,8 +37,8 @@ def get_parsed_blocks_from_string(pgn_string: str, depth=0, move_str_unbalanced=
     only if no parens are found; we can test things out of a subvar, too:
     {comment} ( 1.e4 e5 ) {comment}
 
-    move_str_unbalanced allows us to test deliberately unbalanced PGN strings,
-    but we have to be deliberate about it!
+    move_str_unbalanced allows us to test deliberately unbalanced
+    PGN strings, but we have to be deliberate about it!
     """
     if "(" not in pgn_string:
         pgn_string = f"( {pgn_string} )"
