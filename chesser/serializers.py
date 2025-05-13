@@ -287,6 +287,9 @@ def generate_subvariations_html(move, parsed_blocks):
             comment = block.display_text.replace("\n", "<br/>")
             html += f" {comment} "
 
+            # TODO: start adding paragraph handling -- this is the place to
+            # check for block elements like <ol> and handle appropriately
+
         elif block.type_ == "start":
             # TODO: formatting decisions, should level 2+ subvars get newlines, etc...
             html += f"<!-- Start Block Log: {block.log} -->"

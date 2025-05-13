@@ -573,10 +573,22 @@ class PathFinder:
 
                     return self.parse_move(block)
                 else:
+                    if block.move_parts_raw.dots == "":
+                        current_subvar = [b.raw for b in self.current.resolved_stack]
+                        print(
+                            f"#{self.mainline_move_id} ➤ {self.current.root_block.raw} ➤ {current_subvar}"  # noqa: E501
+                        )
+
                     self.stats.sundry["➤ implied subvar? (prev no match)"] += 1
                     # print(
                     #     f"previous: {previous_block.move_verbose}, current: {block.move_verbose}"  # noqa: E501
                     # )
+                    self.stats.sundry[
+                        f"➤ implied subvar current block playable? {block.is_playable}"
+                    ] += 1
+                    self.stats.sundry[  # 5/13: 2024 have dots, 16 don't
+                        f"➤ implied subvar current block has dots? {block.move_parts_raw.dots != ''}"  # noqa: E501
+                    ] += 1
                     if self.current.root_block.is_playable:
                         distance = get_resolved_move_distance(
                             self.current.root_block.move_parts_resolved,

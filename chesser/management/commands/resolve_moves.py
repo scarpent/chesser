@@ -55,9 +55,10 @@ class Command(BaseCommand):
         # have to push all the mainline moves to maintain the board state
         for variation in variations.iterator():
             if show_progress:
-                print(f"🏵️  Variation {variation.id}", end="\r")
+                pass
+                # print(f"🏵️  Variation {variation.id}", end="\r")
+                # print(f"🏵️  Variation {variation.id}")
             board = chess.Board()
-            # print(f"🏵️  Variation {variation}")
             for move in variation.moves.iterator():
                 board.push_san(move.san)  # Mainline moves better be valid
                 if not move.text:
