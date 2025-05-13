@@ -1056,7 +1056,7 @@ def stats(request):
 
         yield "</table></div>"
 
-        # Daily Summary (last 14 days)
+        # Daily Summary
         yield "<div class='levels-container'><h2>Daily Summary (Last 14 Days)</h2>"
         yield "<table><tr>"
         yield "<th style='padding: 4px; text-align: right'>Date</th><th style='padding: 4px; text-align: right'>Result</th>"  # noqa: E501
@@ -1064,7 +1064,7 @@ def stats(request):
             yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
         yield "</tr>"
 
-        days = 14
+        days = 8
         level_totals = defaultdict(int)
         total_passed_all_days = 0
         total_reviewed_all_days = 0
@@ -1128,7 +1128,7 @@ def stats(request):
 
         yield "</table></div>"
 
-        # Upcoming Reviews (next 14 days)
+        # Upcoming Reviews
         yield "<div class='reviews-container'><h2>Upcoming Reviews (Next 14 Days)</h2>"
         yield "<table><tr><th style='padding: 4px; text-align: right'>Date</th>"
         for label in level_labels:
@@ -1136,7 +1136,7 @@ def stats(request):
         yield "<th style='padding: 4px; text-align: right'>Total</th></tr>"
 
         today = timezone.localtime().date()
-        for offset in range(14):
+        for offset in range(30):
             day = today + timezone.timedelta(days=offset)
             day_start = timezone.make_aware(datetime.combine(day, datetime.min.time()))
             day_end = day_start + timezone.timedelta(days=1)
