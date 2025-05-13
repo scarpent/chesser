@@ -11,7 +11,7 @@ END_OF_TIME_STR = "9999-12-31T23:59:59"
 
 # fmt: off
 ALLOWED_TAGS = {
-    "b", "i", "u", "em", "strong", "a", "p", "br", "ul", "ol", "li",
+    "b", "i", "u", "em", "strong", "a", "br", "ul", "ol", "li",
     "code", "pre", "blockquote", "fenseq",
 }
 # fmt: on
