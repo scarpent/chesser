@@ -135,15 +135,6 @@ class ResolveStats:
     subvar_depths: defaultdict[int, int] = field(
         default_factory=lambda: defaultdict(int)
     )
-    implied_subvar_to_root_distances: defaultdict[int, int] = field(
-        default_factory=lambda: defaultdict(int)
-    )
-    implied_subvar_current_distances: defaultdict[int, int] = field(
-        default_factory=lambda: defaultdict(int)
-    )
-    implied_subvar_previous_to_current_distances: defaultdict[int, int] = field(
-        default_factory=lambda: defaultdict(int)
-    )
 
     def print_stats(self):
         print("\nParsing Stats Summary:\n")
@@ -158,23 +149,6 @@ class ResolveStats:
 
         move_distances = str(dict(sorted(self.other_move_distances.items())))
         print(f"other move distances: {move_distances}")
-
-        implied_distances = str(
-            dict(sorted(self.implied_subvar_to_root_distances.items()))
-        )
-        print(f"root to implied subvar distances: {implied_distances}")
-
-        implied_current_distances = str(
-            dict(sorted(self.implied_subvar_current_distances.items()))
-        )
-        print(f"implied subvar current (itself) distances: {implied_current_distances}")
-
-        implied_previous_distances = str(
-            dict(sorted(self.implied_subvar_previous_to_current_distances.items()))
-        )
-        print(
-            f"implied subvar previous ➤ current distances: {implied_previous_distances}"
-        )
 
         print("\n")
 
@@ -541,7 +515,7 @@ class PathFinder:
 
         if pending_block.is_playable:
             pending_block.log.append("🔄 fenseq restart found 🔍️")
-            self.stats.sundry["➤ fenseq restarts found"] += 1
+            self.stats.sundry["➤ implied subvar fenseq restarts found"] += 1
             return pending_block
         else:
             pending_block.log.append("🤷 not a fenseq restart")
@@ -579,7 +553,7 @@ class PathFinder:
         # is resolved stack...
         comment_previous = self.resolved_blocks[-1].type_ == "comment"
         if comment_previous and self.current.resolved_stack:
-            self.stats.sundry["➤ implied subvar? (has comment/stack)"] += 1
+            # self.stats.sundry["➤ implied subvar? (has comment/stack)"] += 1
 
             previous_block = self.current.resolved_stack[-1].clone()
             # TODO decide if this comparison makes sense as a ParsedBlock helper
@@ -617,19 +591,7 @@ class PathFinder:
                     # current_subvar = [b.raw for b in self.current.resolved_stack]
 
                     if not block.is_playable:
-                        distance = get_resolved_move_distance(
-                            previous_resolved_parts, block.move_parts_raw
-                        )
-                        self.stats.implied_subvar_previous_to_current_distances[
-                            distance
-                        ] += 1
-
-                        # this may be our best bet for finding alternate paths...
-
-                        # don't look for root dupes here -- we're further in so
-                        # wouldn't want them to be discarded -- they'll reorient
-                        # ourselves; instead we can let them be handled like a sibling
-
+                        # more later with seeing if playable moves look dubious?
                         if not self.current.root_block.is_playable:  # fenseq
                             self.stats.sundry["➤ implied subvar? (fenseq found)"] += 1
                             pending_block = self.get_fenseq_restart(block)
@@ -646,27 +608,6 @@ class PathFinder:
                                 # )
 
                                 return pending_block
-
-                    self.stats.sundry["➤ implied subvar? (prev no match)"] += 1
-                    self.stats.sundry[
-                        f"➤ implied subvar current block playable? {block.is_playable}"
-                    ] += 1
-
-                    self.stats.sundry[  # 5/13: 2024 have dots, 16 don't
-                        f"➤ implied subvar current block has dots? {block.move_parts_raw.dots != ''}"  # noqa: E501
-                    ] += 1
-                    if self.current.root_block.is_playable:
-                        distance = get_resolved_move_distance(
-                            self.current.root_block.move_parts_resolved,
-                            block.move_parts_raw,
-                        )
-                        self.stats.implied_subvar_to_root_distances[distance] += 1
-                    else:
-                        self.stats.sundry[
-                            "➤ implied subvar? (root not playable; therefore a fenseq?)"
-                        ] += 1
-            else:
-                self.stats.sundry["➤ implied subvar? (previous not resolved)"] += 1
 
         return None
 
