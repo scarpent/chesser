@@ -84,7 +84,7 @@ class Command(BaseCommand):
                 if variation_id and resolved_moves:
                     print(f"🪵 Block Log, Mainline: {move.move_verbose}")
                     for resolved_move in resolved_moves:
-                        resolved_move.debug()
+                        print(resolved_move.get_debug_info())
                     print(f"🪦 End {move.move_verbose}")
 
         end = datetime.now()

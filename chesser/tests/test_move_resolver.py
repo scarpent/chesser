@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from chesser import move_resolver
-from chesser.move_resolver import Chunk, MoveParts
+from chesser.move_resolver import Chunk, MoveParts, ParsedBlock
 from chesser.tests import (
     assert_resolved_moves,
     get_boards_after_moves,
@@ -536,8 +536,48 @@ def test_get_resolved_move_distance_invalid():
     assert "resolved_move_parts not provided; raw_move_parts =" in str(excinfo.value)
 
 
+def test_parsed_block_str():
+    block = make_move_block("1.e4")
+    assert str(block) == "move 1.e4 ➤  (1, '.', 'e4', '') ➤ ⛔️ = -1  D1 []"
+
+    boards = get_boards_after_moves("e4 e5")
+
+    blocks = assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str="( 1...e5 )",
+        expected=["1...e5"],
+    )
+
+    assert (
+        str(blocks[1])
+        == """move 1...e5 ➤  (1, '...', 'e5', '') ➤ (1, '...', 'e5', '') = 0 rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2 D1 ["Resolved ➤ (1, '...', 'e5', '') ➤ (1, '...', 'e5', '')"]"""  # noqa: E501
+    )
+
+
+def test_parsed_block_move_verbose():
+    assert ParsedBlock(type_="comment", raw="hello").move_verbose == ""
+    assert ParsedBlock(type_="move", raw="abc").move_verbose == "abc"
+    move_parts_raw = MoveParts(None, "", "e6", "!")
+    assert (
+        ParsedBlock(type_="move", raw="abc", move_parts_raw=move_parts_raw).move_verbose
+        == "e6!"
+    )
+    move_parts_resolved = MoveParts(1, "...", "e6", "!")
+    assert (
+        ParsedBlock(
+            type_="move",
+            raw="abc",
+            move_parts_raw=move_parts_raw,
+            move_parts_resolved=move_parts_resolved,
+        ).move_verbose
+        == "1...e6!"
+    )
+
+
 def test_resolve_moves_basic_pipeline_handling():
-    boards = get_boards_after_moves("e4")
+    boards = get_boards_after_moves("e4 e5")
     parsed_blocks = get_parsed_blocks_from_string("{hi}", depth=1)
     path_finder = make_pathfinder(parsed_blocks, "1.e4", boards["e4"][0])
 
@@ -550,6 +590,24 @@ def test_resolve_moves_basic_pipeline_handling():
     assert blocks[1].raw == "{hi}"
     assert blocks[2].type_ == "end"
     assert all(b.depth == 2 for b in blocks)
+
+
+def test_parsed_block_get_debug_info():
+    boards = get_boards_after_moves("e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nxd4")
+
+    # fmt: off
+    blocks = assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str="( 1...e5 {hi} )",
+        expected=["1...e5"],
+    )
+
+    assert "start 🌳 subvar 1" in blocks[0].get_debug_info()
+    assert "move 1...e5" in blocks[1].get_debug_info()
+    assert "hi" in blocks[2].get_debug_info()
+    assert "end 🍂 subvar 1" in blocks[3].get_debug_info()
 
 
 def test_resolve_moves_disambiguation_handled():

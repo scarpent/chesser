@@ -86,9 +86,7 @@ class ParsedBlock:
         return new
 
     def unresolve(self):
-        """
-        if an already parsed/playable is found to be invalid, we can reset
-        """
+        """if an already parsed/playable is found to be invalid, we can reset"""
         self.move_parts_resolved = None
         self.raw_to_resolved_distance = AMBIGUOUS
         self.fen = ""
@@ -106,7 +104,7 @@ class ParsedBlock:
         else:
             return self.raw
 
-    def debug(self):
+    def get_debug_info(self):
         if self.type_ == "comment":
             info = f"{{{self.raw[:10].strip()}...}}"
         elif self.type_ in ["start", "end"]:
@@ -115,9 +113,11 @@ class ParsedBlock:
         else:
             info = self.raw
 
-        print(f"  • {self.type_} {info}")
+        info = f"  • {self.type_} {info}"
         for line in self.log:
-            print(f"    {line}")
+            info += f"\n    {line}"
+
+        return info
 
 
 @dataclass
@@ -568,6 +568,8 @@ class PathFinder:
         if not previous_resolved_parts:
             # TODO: or maybe we can try the jump back *here*, too?
             # or try other subvar searching strategies?
+            # (if so, we'd not return here, and we'd check for previous
+            # resolved parts in this next block...)
             return None
 
         # TODO decide on a helper for these comparisons;
