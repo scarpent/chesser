@@ -405,10 +405,10 @@ class PathFinder:
                 # but it's happening with many variations today, e.g. #881 6.Qc1
                 # move id 17638 - that one is a broken subvar - should find out
                 # if it's a bug or needs a guard, etc.
+                self.stats.sundry["push_move error 🚨🚨"] += 1
                 move_parts = tuple(block.move_parts_raw)
                 message = f"🚨 Error on parse_san during push_move {move_parts}"
                 block.log.append(message)
-                self.stats.sundry["push_move error 🚨🚨"] += 1
             else:
                 self.current.board.push(move_obj)
                 self.stats.sundry["moves pushed"] += 1
@@ -417,9 +417,11 @@ class PathFinder:
 
     def pass_through_move(self, block: ParsedBlock):
         assert block.type_ == "move"
-        # this is a counterpart to push_move, to share
-        # its resolved stack side effect
+        # this is a counterpart to push_move, to share its resolved stack
+        # side effect; the move may or may not be valid/playable
         self.stats.sundry["moves passed thru"] += 1
+        message = "⚽️ passing through"
+        block.log.append(message)
         self.current.resolved_stack.append(block)
 
     def increment_move_count(self, block: ParsedBlock):
@@ -526,78 +528,81 @@ class PathFinder:
 
     def get_implied_subvar(self, block: ParsedBlock):
         """
+        Within a subvariation, for moves that follow a comment, we might
+        follow alternate paths, kind of an "implied subvariation". Moves
+        following comments should always be "fully qualified" with move
+        number and dots, so we can properly assess things like the
+        relationship to the previous move. But it might work with a simple san.
+
         This does a lot for what seems like a little, but this behavior
         is used often enough in chessable subvariations that we'll want
-        to handle it, however distorted at this end of the telephone line.
+        to handle it. Fenseqs in particular, derived from @@StartFEN@@,
+        may be weirdly handled since their rules weren't really known,
+        and may have gotten quite garbled in export/import transit.
+
+        In regular subvariations and in fenseqs, there can be alternate
+        moves within a subvar (not to be confused with alt and alt_fail
+        moves in areview/quiz context):
 
         e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
              (1.e4 e5 {or} 1...d5)
+             <fenseq data-fen="...">1.e4 e5 2.Nf3 {or} 2.Nc3</fenseq>
 
-        we might think of these as "alternate moves" but that might be
-        confusing with alt and alt_fail concept for viable mainline alts
-
-        and it's not *just* an alternate move, things could continue:
+        It's not *just* an alternate move, things could continue:
             (2.Nf3 {or} 2.Nc3 Nf6 3.f4)
 
-        (and there may be other cases, too, jumping back to root...)
+        In fenseqs we might also jump back to the start of the fenseq:
 
-        this is sort of related to root sibling, right? but it needs special
-        handling (these might be mostly my own hacky chessable subvars since
-        it allowed this kind of structure in the editor)
+        <fenseq data-fen="...">1.e4 e5 2.Nf3 {or} 1.d4 d5 2.c4</fenseq>
 
-        ➤ we'll say the alt must be a "full" move, with num and dots,
-          so we can properly assess relationship with previous resolved move
-
-        ➤ we should only do all this for moves following a comment -
-          there should be *some* rules -- we shouldn't expect any old lined
-          up moves to do any damn thing they want
+        Kind of like the root sibling concept that we limit to first moves.
+        We could eventually try this restart on regular subvars, too.
         """
-
-        # is it safe to consider both resolved blocks and resolved stack,
-        # if we want to examine last move as comment (resolved stack is only
-        # for moves, resolved blocks will have comments, too) - we'd also
-        # like to stay within a subvar which I think will be the case if there
-        # is resolved stack...
         comment_previous = self.resolved_blocks[-1].type_ == "comment"
-        if comment_previous and self.current.resolved_stack:
-            # self.stats.sundry["➤ implied subvar? (has comment/stack)"] += 1
+        if not comment_previous or not self.current.resolved_stack:
+            return None
+        # self.stats.sundry["➤ implied subvar? (has comment/stack)"] += 1
 
-            previous_block = self.current.resolved_stack[-1].clone()
-            # TODO decide on a helper for these comparisons when things are more settled
-            if previous_resolved_parts := previous_block.move_parts_resolved:
-                if (
-                    previous_resolved_parts.num == block.move_parts_raw.num
-                    and previous_resolved_parts.dots == block.move_parts_raw.dots
-                    and previous_resolved_parts.san != block.move_parts_raw.san
-                ):
-                    # the current move must have all the information "raw"
-                    # so we know that it is a candidate alternate to previous
-                    # (note that the current move may or may not be playable,
-                    # and if it *is* resolved/playable, it would have flipped
-                    # sides, being a legal move for the opposite side...)
-                    self.stats.sundry["➤ implied subvar found (prev move)"] += 1
+        previous_block = self.current.resolved_stack[-1].clone()
+        previous_resolved_parts = previous_block.move_parts_resolved
+        if not previous_resolved_parts:
+            # TODO: or maybe we can try the jump back *here*, too?
+            # or try other subvar searching strategies?
+            return None
 
-                    previous = assemble_move_parts(previous_resolved_parts)
-                    current = assemble_move_parts(block.move_parts_raw)
-                    message = "↔️  implied subvar found: {} ➤ {}"
-                    block.log.append(message.format(previous, current))
+        # TODO decide on a helper for these comparisons;
+        # The current move must have all the information "raw"
+        # so we know that it is a candidate alternate to previous
+        if (
+            previous_resolved_parts.num == block.move_parts_raw.num
+            and previous_resolved_parts.dots == block.move_parts_raw.dots
+            and previous_resolved_parts.san != block.move_parts_raw.san
+        ):
+            # (note that the current move may or may not be playable,
+            # and if it *is* resolved/playable, it would have flipped
+            # sides, being a legal move for the opposite side...)
+            self.stats.sundry["➤ implied subvar found (prev move)"] += 1
 
-                    try:
-                        self.current.board.pop()
-                    except IndexError:  # this shouldn't happen, but we'll carry on
-                        block.log.append("🚨 Unable to pop() board for implied subvar")
-                        return None
+            previous = assemble_move_parts(previous_resolved_parts)
+            current = assemble_move_parts(block.move_parts_raw)
+            message = "↔️  implied subvar found: {} ➤ {}"
+            block.log.append(message.format(previous, current))
 
-                    return self.parse_move(block)
+            try:
+                self.current.board.pop()
+            except IndexError:  # this shouldn't happen, but we'll carry on
+                block.log.append("🚨 Unable to pop() board for implied subvar")
+                return None
 
-                elif not block.is_playable and not self.current.root_block.is_playable:
-                    self.stats.sundry["➤ implied subvar? (fenseq)"] += 1
-                    pending_block, pending_board = self.get_fenseq_restart(block)
-                    if pending_board:
-                        self.current.board = pending_board
-                    return pending_block
+            return self.parse_move(block)
 
-        return None
+        elif not block.is_playable and not self.current.root_block.is_playable:
+            # TODO: eventually we may want to this with regular subvars, too...
+            self.stats.sundry["➤ implied subvar? (fenseq)"] += 1
+            pending_block, pending_board = self.get_fenseq_restart(block)
+            if pending_board:
+                self.current.board = pending_board
+            return pending_block
 
     def advance_to_next_block(self, append: Optional[ParsedBlock] = None):
         if append:
