@@ -15,6 +15,9 @@ from chesser.tests import (
     merge_boards,
 )
 
+START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+ENCODED_START_FEN = START_FEN.replace(" ", "_")
+
 
 @pytest.mark.parametrize(
     "text,expected_chunks",
@@ -929,6 +932,49 @@ def test_resolve_moves_implied_subvar_slash_alternate_move():
         root_board=boards["e5"][0],
         move_str="( 2.Nf3 {or} 2...Nc6 )",
         expected=["2.Nf3", "2...Nc6"],
+    )
+
+
+def test_resolve_moves_implied_subvar_fenseq_alternate_move():
+    # same resolving mechanism for fenseq alternate moves as with regular subvar
+    boards = merge_boards("e4 e5 Nf3", "e4 e5 Nc3", "e4 e5 Bc4")
+
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str=f"(F{ENCODED_START_FEN} " + "1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.Bc4 )",
+        expected=["1.e4", "1...e5", "2.Nf3", "2.Nc3", "2.Bc4"],
+    )
+
+
+def test_resolve_moves_implied_subvar_fenseq_restart():
+    boards = merge_boards("e4 d5 exd5 Qxd5", "e3 d5")
+
+    # this sequence catches an early bug where self.current.board wasn't being
+    # updated after finding a restart; 1.e3 would work but not 1...d5
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str=f"(F{ENCODED_START_FEN} " + "1.e4 d5 2.exd5 {or} 1.e3 d5 )",
+        expected=["1.e4", "1...d5", "2.exd5", "1.e3", "1...d5"],
+    )
+
+    # this one doesn't restart; 4.Rh8 is invalid; but! Qxd5 resolves when we
+    # just go ahead and pass through remaining moves to see what happens...
+    # (using 2.Qxd5 results in a move distance < 2, which gets passed through;
+    # if we used 4.Qxd5 it would have a greater distance and still be passed
+    # through, but it would hit the check at the top of the move resolution
+    # chain and be passed through there; for now we want to stay out of that
+    # block in our tests)
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str=f"(F{ENCODED_START_FEN} " + "1.e4 d5 2.exd5 {or} 4.Rh8 2.Qxd5 )",
+        expected=["1.e4", "1...d5", "2.exd5", "4.Rh8", "2...Qxd5"],
+        expected_fens_san_keys=["e4", "d5", "exd5", "", "Qxd5"],
     )
 
 

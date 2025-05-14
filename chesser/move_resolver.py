@@ -408,7 +408,7 @@ class PathFinder:
                 move_parts = tuple(block.move_parts_raw)
                 message = f"🚨 Error on parse_san during push_move {move_parts}"
                 block.log.append(message)
-                self.stats.sundry["push_move error"] += 1  # about 25 of these
+                self.stats.sundry["push_move error 🚨🚨"] += 1
             else:
                 self.current.board.push(move_obj)
                 self.stats.sundry["moves pushed"] += 1
@@ -499,7 +499,9 @@ class PathFinder:
 
         return None
 
-    def get_fenseq_restart(self, block: ParsedBlock):
+    def get_fenseq_restart(
+        self, block: ParsedBlock
+    ) -> tuple[Optional[ParsedBlock], Optional[chess.Board]]:
         """
         more of a go for it mode if we're in a fenseq 😈
 
@@ -517,10 +519,10 @@ class PathFinder:
         if pending_block.is_playable:
             pending_block.log.append("🔄 fenseq restart found 🔍️")
             self.stats.sundry["➤ implied subvar fenseq restarts found"] += 1
-            return pending_block
+            return pending_block, board
         else:
             pending_block.log.append("🤷 not a fenseq restart")
-            return None
+            return None, None
 
     def get_implied_subvar(self, block: ParsedBlock):
         """
@@ -590,7 +592,9 @@ class PathFinder:
 
                 elif not block.is_playable and not self.current.root_block.is_playable:
                     self.stats.sundry["➤ implied subvar? (fenseq)"] += 1
-                    pending_block = self.get_fenseq_restart(block)
+                    pending_block, pending_board = self.get_fenseq_restart(block)
+                    if pending_board:
+                        self.current.board = pending_board
                     return pending_block
 
         return None
@@ -670,9 +674,8 @@ class PathFinder:
             # in progress: try to keep tests out of this block until later...
             if pending_block.is_playable and pending_block.raw_to_resolved_distance > 1:
                 # let's be strict to get a better feel for the data, off by
-                # more than one will need special handling and we'll apply
-                # that in order below, for now we just pass it through (and
-                # perhaps long term, too, and let it be handled at the end)
+                # more than one may need special handling that will be handled
+                # below, but for now we'll just pass through "as is"
                 self.stats.sundry["➤ strictly: initial dist > 1"] += 1
                 self.pass_through_move(pending_block)
                 self.advance_to_next_block(append=pending_block)
