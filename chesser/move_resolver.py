@@ -503,9 +503,10 @@ class PathFinder:
         """
         more of a go for it mode if we're in a fenseq 😈
 
-        this is a sibling-like thing but makes way more sense to
-        think of it as a fenseq restart, just going back to the start
-        and seeing if that works...
+        this is a sibling-like thing but makes sense to think of
+        it as a restart, just going back to the start and seeing
+        if that works. (This could work for regular subvars, too,
+        but we'll wait.)
         """
         assert self.current.root_block.is_playable is False  # fenseq
         board = chess.Board(self.current.root_block.fen)
@@ -523,6 +524,10 @@ class PathFinder:
 
     def get_implied_subvar(self, block: ParsedBlock):
         """
+        This does a lot for what seems like a little, but this behavior
+        is used often enough in chessable subvariations that we'll want
+        to handle it, however distorted at this end of the telephone line.
+
         e.g. (1.e4 e5 2.Nf3 {or} 2.Nc3 {or} 2.d4)
              (1.e4 e5 {or} 1...d5)
 
@@ -556,7 +561,7 @@ class PathFinder:
             # self.stats.sundry["➤ implied subvar? (has comment/stack)"] += 1
 
             previous_block = self.current.resolved_stack[-1].clone()
-            # TODO decide if this comparison makes sense as a ParsedBlock helper
+            # TODO decide on a helper for these comparisons when things are more settled
             if previous_resolved_parts := previous_block.move_parts_resolved:
                 if (
                     previous_resolved_parts.num == block.move_parts_raw.num
@@ -575,39 +580,18 @@ class PathFinder:
                     message = "↔️  implied subvar found: {} ➤ {}"
                     block.log.append(message.format(previous, current))
 
-                    # print(f"ALT move# {self.mainline_move_id}: {previous} ➤ {current}")  # noqa: E501
-
                     try:
                         self.current.board.pop()
-                    except IndexError:
-                        # this shouldn't happen - would be good to let it fail louder
-                        # but we really don't want move resolution to fail at all: we're
-                        # just making a best effort...
+                    except IndexError:  # this shouldn't happen, but we'll carry on
                         block.log.append("🚨 Unable to pop() board for implied subvar")
                         return None
 
                     return self.parse_move(block)
-                else:
-                    # current_subvar = [b.raw for b in self.current.resolved_stack]
 
-                    if not block.is_playable:
-                        # more later with seeing if playable moves look dubious?
-                        if not self.current.root_block.is_playable:  # fenseq
-                            self.stats.sundry["➤ implied subvar? (fenseq found)"] += 1
-                            pending_block = self.get_fenseq_restart(block)
-                            if pending_block:
-
-                                # variation_id = Move.objects.get(
-                                #     id=self.mainline_move_id
-                                # ).variation.id
-                                # print(
-                                #     f"Var # {variation_id} Move #{self.mainline_move_id} ➤ {self.current.root_block.raw} ➤ {current_subvar}"  # noqa: E501
-                                # )
-                                # print(
-                                #     f"http://localhost:8000/variation/{variation_id}/"
-                                # )
-
-                                return pending_block
+                elif not block.is_playable and not self.current.root_block.is_playable:
+                    self.stats.sundry["➤ implied subvar? (fenseq)"] += 1
+                    pending_block = self.get_fenseq_restart(block)
+                    return pending_block
 
         return None
 
