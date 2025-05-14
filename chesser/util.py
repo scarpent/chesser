@@ -15,6 +15,7 @@ ALLOWED_TAGS = {
     "code", "pre", "blockquote", "fenseq",
 }
 # fmt: on
+BLOCK_TAGS = {"ul", "ol", "li", "pre", "blockquote"}
 
 ALLOWED_ATTRIBUTES = {
     "a": {"href", "title", "target"},

@@ -25,6 +25,11 @@ annotations = {
     "-+": "-+ Black Decisive",
 }
 
+BLOCK_TAG_RE = re.compile(
+    rf"</?({'|'.join(util.BLOCK_TAGS)})\b[^>]*>",
+    re.IGNORECASE,
+)
+
 
 def serialize_variation(variation, all_data=False):
     color = variation.chapter.course.color
@@ -273,14 +278,8 @@ def generate_subvariations_html(move, parsed_blocks):
     previous_type = ""
     for block in parsed_blocks:
         if block.type_ == "comment":
-            comment = block.display_text.replace("\n", "<br/>")
-            html += f" {comment} "
-
-            # TODO: start adding paragraph handling -- this is the place to
-            # check for block elements like <ol> and handle appropriately
-
+            html += get_subvariation_comment_html(block)
         elif block.type_ == "start":
-            # TODO: formatting decisions, should level 2+ subvars get newlines, etc...
             html += f"<!-- Start Block Log: {block.log} -->"
             if block.fen:
                 counter += 1
@@ -319,10 +318,20 @@ def generate_subvariations_html(move, parsed_blocks):
 
         previous_type = block.type_
 
+    html = f"<p>{html}</p>"
+
     return (
         '<div class="subvariations" '
         f'data-mainline-index="{move.sequence}">{html}</div>'
     )
+
+
+def get_subvariation_comment_html(block):
+    # first handle html block elements...
+    html = block.display_text
+
+    html = html.replace("\n", "<br/>")
+    return f" {html} "
 
 
 def get_final_move_simple_subvariations_html(variation):
@@ -355,3 +364,82 @@ def get_final_move_simple_subvariations_html(variation):
         html = f"<h3>{move.move_verbose}</h3>\n{html}"
 
     return html
+
+
+def is_block_element(chunk: str) -> bool:
+    tag_match = re.match(r"<(/)?(\w+)", chunk.strip())
+    if not tag_match:
+        return False
+    tag = tag_match.group(2).lower()
+    return tag in util.BLOCK_TAGS
+
+
+def render_chunks_with_br(chunks):
+    output = []
+    in_paragraph = False
+
+    for chunk in chunks:
+        if is_block_element(chunk):
+            if in_paragraph:
+                output.append("</p>")
+                in_paragraph = False
+            output.append(chunk)
+        else:
+            if not in_paragraph:
+                output.append("<p>")
+                in_paragraph = True
+            chunk_with_br = chunk.replace("\n", "<br/>")
+            output.append(chunk_with_br)
+
+    if in_paragraph:
+        output.append("</p>")
+
+    return "".join(output)
+
+
+def chunk_html_for_wrapping(text: str) -> list[str]:
+    """
+    Splits input HTML into chunks:
+    - Inline content (text and inline tags), possibly with newlines
+    - Block elements like <ul>...</ul> or <pre>...</pre>
+
+    Preserves tag structure — safe to post-process with <p> and <br/>.
+    """
+    chunks = []
+    pos = 0
+    length = len(text)
+
+    while pos < length:
+        match = BLOCK_TAG_RE.search(text, pos)
+        if not match:
+            # No more block tags; the rest is inline
+            chunks.append(text[pos:])
+            break
+
+        start = match.start()
+        if start > pos:
+            # Add preceding inline text
+            chunks.append(text[pos:start])
+
+        # Find the full block tag content (including closing tag)
+        tag = match.group(0)
+        tag_name = match.group(1).lower()
+
+        if tag.startswith(f"<{tag_name}"):
+            # Need to find the corresponding closing tag
+            close_tag = f"</{tag_name}>"
+            close_pos = text.find(close_tag, match.end())
+            if close_pos == -1:
+                # Malformed? Just grab the opening tag and move on
+                chunks.append(tag)
+                pos = match.end()
+            else:
+                end_pos = close_pos + len(close_tag)
+                chunks.append(text[match.start() : end_pos])  # noqa: E203
+                pos = end_pos
+        else:
+            # Stray closing tag? Treat it as-is
+            chunks.append(tag)
+            pos = match.end()
+
+    return [chunk for chunk in chunks if chunk.strip()]
