@@ -278,7 +278,9 @@ def generate_subvariations_html(move, parsed_blocks):
     previous_type = ""
     for block in parsed_blocks:
         if block.type_ == "comment":
-            html += get_subvariation_comment_html(block)
+            # html += get_subvariation_comment_html(block)
+            chunks = chunk_html_for_wrapping(block.display_text)
+            html += render_chunks_with_br(chunks)
         elif block.type_ == "start":
             html += f"<!-- Start Block Log: {block.log} -->"
             if block.fen:
@@ -326,10 +328,8 @@ def generate_subvariations_html(move, parsed_blocks):
     )
 
 
-def get_subvariation_comment_html(block):
-    # first handle html block elements...
+def get_subvariation_comment_html(block):  # this is going away
     html = block.display_text
-
     html = html.replace("\n", "<br/>")
     return f" {html} "
 
@@ -376,7 +376,7 @@ def is_block_element(chunk: str) -> bool:
 
 def render_chunks_with_br(chunks):
     output = []
-    in_paragraph = False
+    in_paragraph = True  # assuming an eventual wrapping <p> tag
 
     for chunk in chunks:
         if is_block_element(chunk):
@@ -391,8 +391,8 @@ def render_chunks_with_br(chunks):
             chunk_with_br = chunk.replace("\n", "<br/>")
             output.append(chunk_with_br)
 
-    if in_paragraph:
-        output.append("</p>")
+    if not in_paragraph:
+        output.append("<p>")  # TODO: make sure to look for possible <p></p>
 
     return "".join(output)
 
