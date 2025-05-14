@@ -26,7 +26,7 @@ annotations = {
 }
 
 
-def serialize_variation(variation, all_data=False, version=1):
+def serialize_variation(variation, all_data=False):
     color = variation.chapter.course.color
 
     now = timezone.now()
@@ -36,7 +36,7 @@ def serialize_variation(variation, all_data=False, version=1):
     time_until_next_review = util.format_time_until(now, variation.next_review)
 
     source_html = get_source_html(variation.source) if all_data else None
-    html = generate_variation_html(variation, version=version) if all_data else None
+    html = generate_variation_html(variation) if all_data else None
     url_moves = "_".join([move.san for move in variation.moves.all()])
     # we'll add current fen/index in UI
     lichess_url = f"https://lichess.org/analysis/pgn/{url_moves}?color={color}&#"
@@ -227,7 +227,7 @@ def get_source_html(source):
     return mine + original
 
 
-def generate_variation_html(variation, version=1):
+def generate_variation_html(variation):
     html = ""
     white_to_move = True
     beginning_of_move_group = True
@@ -255,25 +255,14 @@ def generate_variation_html(variation, version=1):
             f'data-index="{move.sequence}">{move_str}</span>'
         )
 
-        # v2 expects mainline move will already be played
-        if version == 2:
-            board.push_san(move.san)  # Mainline moves better be valid
+        board.push_san(move.san)  # Mainline moves better be valid
 
         if move.text:
             beginning_of_move_group = True
-
-            if version == 2:
-                parsed_blocks = get_parsed_blocks(move, board.copy())
-                subvar_html = generate_subvariations_html(move, parsed_blocks)
-            else:  # v1
-                moves_with_fen = extract_moves_with_fen(board.copy(), move)
-                subvar_html = generate_subvariations_html_v1(move, moves_with_fen)
+            parsed_blocks = get_parsed_blocks(move, board.copy())
+            subvar_html = generate_subvariations_html(move, parsed_blocks)
 
             html += f"</h3>{subvar_html}"
-
-        # v1 had this at the end of the loop for some reason
-        if version != 2:
-            board.push_san(move.san)  # Mainline moves better be valid
 
     return html
 
@@ -366,147 +355,3 @@ def get_final_move_simple_subvariations_html(variation):
         html = f"<h3>{move.move_verbose}</h3>\n{html}"
 
     return html
-
-
-# === Parser/Renderer v1 ====================================================
-
-
-def generate_subvariations_html_v1(move, move_fen_map):
-    """
-    {sicilian}
-    (1...c5 {or french}) (1...e6 {or caro}) (1...c6?!)
-    (1...e5  2.Nc3)
-
-    move_fen_map is a list of (move, fen) pairs for each navigable subvar move
-
-    try to match up the text/html with the FENs, perhaps we can assume it
-    all lines up beautifully, if we do our work on import/validation
-    """
-
-    counter = -1
-    html = ""
-    remaining_text = move.text
-    for san, fen in move_fen_map:
-        while True:
-            m = re.search(re.escape(san), remaining_text)
-            if m:
-                mstart = m.start()
-                mend = m.end()
-                html += remaining_text[:mstart]
-                remaining_text = remaining_text[mend:]
-                matched_move = m.group(0)
-                if is_in_comment(remaining_text):
-                    html += matched_move
-                    continue
-                else:
-                    counter += 1
-                    html += (
-                        f'<span class="move subvar-move" data-fen="{fen}" '
-                        f'data-index="{counter}">{matched_move}</span>'
-                    )
-                    break
-            else:
-                break
-
-    html += f"{remaining_text.strip()}"
-    if "<br/>" not in html:
-        html = html.replace("\n", "<br/>")
-
-    # much more to do here of course
-    html = html.replace("<fenseq", " ⏮️ <fenseq")
-
-    return (
-        '<div class="subvariations" '
-        f'data-mainline-index="{move.sequence}">{html}</div>'
-    )
-
-
-def extract_moves_with_fen(board, move):
-    pgn_text = move.text
-
-    # Step 1: Remove text inside comment {} brackets
-    cleaned_pgn = re.sub(r"\{.*?\}", "", pgn_text)
-
-    # Step 2: Find all move sequences inside parentheses ()
-    move_blocks = re.findall(r"\((.*?)\)", cleaned_pgn)
-
-    # Step 4: Process each move sequence
-    move_fen_map = []  # Store (move_list, corresponding FEN)
-
-    for block in move_blocks:
-        moves = block.strip().split()  # Split into individual moves
-        board_copy = board.copy()  # Copy board state before applying moves
-
-        fen_sequence = []
-        for move_ in moves:
-            try:
-                # extract just the valid san part for updating board
-                move_regex = r"^(\d*\.*)(O-O-O|O-O|[A-Za-z0-9]+)"
-                m = re.match(move_regex, move_)
-                if not m:
-                    # e.g. a hanging exclam, Nf6 !
-                    print(
-                        "Bailing out on invalid subvar move non-match "
-                        f"({move.variation.id}, {move.move_verbose}): {move_}"
-                    )
-                    break
-                move_san = m.group(2)
-                # print(f"move: {move}")
-                board_copy.push_san(move_san)  # Apply move in SAN format
-                fen_sequence.append((move_, board_copy.fen()))  # Store move + FEN
-            except ValueError:
-                print(
-                    "Bailing out on invalid subvar move ValueError "
-                    f"({move.variation.id}, {move.move_verbose}): {move_}"
-                )
-                break  # Skip broken variations
-
-        if fen_sequence:
-            move_fen_map.append(fen_sequence)
-
-    # We might not need this structured list and can just
-    # build it flat, but for now we'll flatten at end
-
-    flattened = flatten_move_fen_map(move_fen_map)
-    return flattened
-
-
-def is_in_comment(upcoming_text):
-    """
-    Determines if a given index in a string is within a PGN comment
-    {inside brackets}. We might be in the middle of a comment. We're
-    assuming PGN comments can't be nested, or that we won't allow them
-    to be.
-
-    Args:
-        upcoming_text (str): The remaining text to be processed.
-
-    Returns:
-        bool: True if the index is within a bracketed section, False otherwise.
-    """
-
-    next_open = upcoming_text.find("{")  # finds the first open bracket
-    next_close = upcoming_text.find("}")  # and so on
-
-    if next_open + next_close == -2:  # No brackets found
-        return False
-    elif next_close == -1:
-        # No closing bracket found (there really should always be, if we
-        # can assume properly formatted pgn! we really should clean things
-        # up on import to make sure we do...)
-        return False
-    elif next_open == -1:  # No opening bracket found
-        return True
-
-    return next_close < next_open  # True if closing bracket comes first
-
-
-def flatten_move_fen_map(nested_list):
-    """Recursively flattens a nested list of move-FEN pairs."""
-    flat_list = []
-    for item in nested_list:
-        if isinstance(item, list):
-            flat_list.extend(flatten_move_fen_map(item))  # Recursively flatten
-        else:
-            flat_list.append(item)  # Add move-FEN pair
-    return flat_list

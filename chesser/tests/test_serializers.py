@@ -33,22 +33,6 @@ def test_exercise_serializers():
         san="e5",
         text="check, mate " + f'<fenseq data-fen="{fen}">4...bg7</fenseq>',
     )
-    serializers.serialize_variation(variation, all_data=False, version=1)
-    serializers.serialize_variation(variation, all_data=True, version=1)
-    serializers.serialize_variation(variation, all_data=True, version=2)
+    serializers.serialize_variation(variation, all_data=False)
+    serializers.serialize_variation(variation, all_data=True)
     serializers.get_final_move_simple_subvariations_html(variation)
-
-
-@pytest.mark.parametrize(
-    "upcoming_text, expected",
-    [
-        ("1. e4 {Strong opening move} e5", False),
-        ("opening move} e5 {is a good response...}", True),
-        ("opening move} e5", True),
-        ("no context so no brackets", False),
-        ("{something", False),
-        ("still {something", False),
-    ],
-)
-def test_is_in_comment(upcoming_text, expected):
-    assert serializers.is_in_comment(upcoming_text) == expected
