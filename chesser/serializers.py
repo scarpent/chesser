@@ -272,32 +272,58 @@ def generate_variation_html(variation):
     return html
 
 
-def generate_subvariations_html(move, parsed_blocks):
+def generate_subvariations_html(move, parsed_blocks, debug=False):
     counter = -1  # for unique data-index
     html = ""
     previous_type = ""
+    in_paragraph = False
     for block in parsed_blocks:
+        if debug:
+            if block.type_ == "comment":
+                text = f"➡️ |\n{block.display_text}\n|⬅️"
+            elif block.type_ == "move":
+                text = f"{block.raw} | {block.move_verbose}"
+            else:
+                text = block.depth
+            print(f"block type: {block.type_} {text}")
+
         if block.type_ == "comment":
             # html += get_subvariation_comment_html(block)
             chunks = chunk_html_for_wrapping(block.display_text)
-            html += render_chunks_with_br(chunks)
+            if debug:
+                print(f"\n🧊 Chunks:\n{chunks}")
+            comment_html, in_paragraph = render_chunks_with_br(chunks, in_paragraph)
+            if debug:
+                print(f"\n💦 Rendered:\n{comment_html}|in para = {in_paragraph}\n")
+            html += comment_html
         elif block.type_ == "start":
             html += f"<!-- Start Block Log: {block.log} -->"
             if block.fen:
+                if not in_paragraph:
+                    html += "<p>"
+                    in_paragraph = True
                 counter += 1
                 html += (
                     f'<span class="move subvar-move" data-fen="{block.fen}" '
                     f'data-index="{counter}">⏮️</span>'
                 )
             elif block.depth > 1:
+                if not in_paragraph:  # we're probably already in a paragraph at depth 2
+                    html += "<p>"
+                    in_paragraph = True
                 html += "➤"
 
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
 
             # maybe instead of block.raw we will look at move parts raw/resolved to
-            # see what we have...
+            # see what we have; also, we want a "fully qualified" move after comments
+            # and to start subvariations...
             move_text = block.move_verbose if previous_type != "move" else block.raw
+
+            if not in_paragraph:
+                html += "<p>"
+                in_paragraph = True
 
             if block.fen:
                 counter += 1
@@ -320,7 +346,9 @@ def generate_subvariations_html(move, parsed_blocks):
 
         previous_type = block.type_
 
-    html = f"<p>{html}</p>"
+    if in_paragraph:
+        html += "</p>"
+        in_paragraph = False
 
     return (
         '<div class="subvariations" '
@@ -374,11 +402,23 @@ def is_block_element(chunk: str) -> bool:
     return tag in util.BLOCK_TAGS
 
 
-def render_chunks_with_br(chunks):
+def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
     output = []
-    in_paragraph = True  # assuming an eventual wrapping <p> tag
 
-    for chunk in chunks:
+    # I think we should expect alternating block and non-block chunks?
+
+    for i, chunk in enumerate(chunks):
+        if i + 1 == len(chunks):
+            # In the outside world, there won't be another comment block up;
+            # there'll be a move, subvar start/end or it may be the end of
+            # the resolved moves/blocks, which we'd want to treat as a block...
+            # (maybe should pass something in to act on...)
+            next_is_block = False
+            is_last_chunk = True
+        else:
+            next_is_block = is_block_element(chunks[i + 1])
+            is_last_chunk = False
+
         if is_block_element(chunk):
             if in_paragraph:
                 output.append("</p>")
@@ -388,13 +428,16 @@ def render_chunks_with_br(chunks):
             if not in_paragraph:
                 output.append("<p>")
                 in_paragraph = True
+                chunk = chunk.lstrip()
+            if next_is_block:
+                chunk = chunk.rstrip()
+            if is_last_chunk and not chunk[-1].isspace():
+                chunk = chunk + " "  # e.g. ensure space after "or": 1.e4 {or} 1.d4
+            chunk = chunk.replace("\n\n", "</p><p>")
             chunk_with_br = chunk.replace("\n", "<br/>")
             output.append(chunk_with_br)
 
-    if not in_paragraph:
-        output.append("<p>")  # TODO: make sure to look for possible <p></p>
-
-    return "".join(output)
+    return "".join(output), in_paragraph
 
 
 def chunk_html_for_wrapping(text: str) -> list[str]:

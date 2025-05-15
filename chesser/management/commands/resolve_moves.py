@@ -10,6 +10,7 @@ from chesser.move_resolver import (
     extract_ordered_chunks,
     get_parsed_blocks_first_pass,
 )
+from chesser.serializers import generate_subvariations_html
 
 
 class Command(BaseCommand):
@@ -28,15 +29,28 @@ class Command(BaseCommand):
             type=int,
             help="Specific Move ID to test (optional).",
         )
+        parser.add_argument(
+            "-c",
+            "--comment-html-parser",
+            action="store_true",
+            help="Run the comment html parser on a single -m move",
+        )
 
     def handle(self, *args, **options):
         variation_id = options.get("variation")
         move_id = options.get("move")
-        stats = self.move_resolver_runner(variation_id=variation_id, move_id=move_id)
+        comment_html_parser = options.get("comment_html_parser")
+        stats = self.move_resolver_runner(
+            variation_id=variation_id,
+            move_id=move_id,
+            comment_html_parser=comment_html_parser,
+        )
         stats.print_stats()
         return 0
 
-    def move_resolver_runner(self, variation_id=None, move_id=None):
+    def move_resolver_runner(
+        self, variation_id=None, move_id=None, comment_html_parser=False
+    ):
         show_progress = False
         if move_id:
             move = Move.objects.filter(id=move_id).first()
@@ -85,6 +99,11 @@ class Command(BaseCommand):
                     print(f"🪵 Block Log, Mainline: {move.move_verbose}")
                     for resolved_move in resolved_moves:
                         print(resolved_move.get_debug_info())
+
+                    if comment_html_parser and move_id:
+                        print("🔡 generating subvariations html")
+                        generate_subvariations_html(move, resolved_moves, debug=True)
+
                     print(f"🪦 End {move.move_verbose}")
 
         end = datetime.now()
