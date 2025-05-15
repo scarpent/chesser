@@ -126,6 +126,7 @@ blockquote {
 
 #right-column p {
   line-height: 1.5;
+  margin: 0 0 4px 0;
 }
 
 #boards-container {
@@ -442,7 +443,7 @@ blockquote {
 
 .subvar-move {
   color: cyan;
-  padding: 2px;
+  padding: 3px;
 }
 
 .subvar-move.highlight {

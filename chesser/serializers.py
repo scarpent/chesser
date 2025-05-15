@@ -278,6 +278,7 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
     previous_type = ""
     in_paragraph = False
     for block in parsed_blocks:
+
         if debug:
             if block.type_ == "comment":
                 text = f"➡️ |\n{block.display_text}\n|⬅️"
@@ -316,9 +317,10 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
 
-            # maybe instead of block.raw we will look at move parts raw/resolved to
-            # see what we have; also, we want a "fully qualified" move after comments
-            # and to start subvariations...
+            # TODO instead of block.raw, should use resolved move if we have it,
+            # and decide it if should be "fully qualified" or not. Resolved move
+            # will be good for showing what it actually became, if off by one, say,
+            # but for now it helps seeing where things are off if we use original raw
             move_text = block.move_verbose if previous_type != "move" else block.raw
 
             if not in_paragraph:
@@ -327,8 +329,8 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
 
             if block.fen:
                 counter += 1
-                # trailing space here is consequential for wrapping;
-                # need to work on overall whitespace/rendering of course
+                # trailing space here is consequential for wrapping and also counted
+                # on to space things out appropriately with render_chunks_with_br
                 html += (
                     f'<span class="move subvar-move" data-fen="{block.fen}" '
                     f'data-index="{counter}">{move_text}{resolved}</span> '
@@ -429,6 +431,8 @@ def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
                 output.append("<p>")
                 in_paragraph = True
                 chunk = chunk.lstrip()
+            # else:
+            #     chunk = " " + chunk
             if next_is_block:
                 chunk = chunk.rstrip()
             if is_last_chunk and not chunk[-1].isspace():
@@ -485,4 +489,5 @@ def chunk_html_for_wrapping(text: str) -> list[str]:
             chunks.append(tag)
             pos = match.end()
 
-    return [chunk for chunk in chunks if chunk.strip()]
+    # return [chunk for chunk in chunks if chunk.strip()]
+    return chunks  # might have significant whitespace? (e.g. two fenseqs in a row)
