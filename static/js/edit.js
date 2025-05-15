@@ -68,7 +68,7 @@ export function editApp() {
         return {
           san: move.san,
           annotation: move.annotation === "none" ? "" : move.annotation,
-          text: move.text,
+          text: move.text.trim(),
           alt: move.alt,
           alt_fail: move.alt_fail,
           shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
