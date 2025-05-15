@@ -443,7 +443,7 @@ blockquote {
 
 .subvar-move {
   color: cyan;
-  padding: 3px;
+  padding: 0 2px;
 }
 
 .subvar-move.highlight {

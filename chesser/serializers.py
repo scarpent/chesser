@@ -411,10 +411,6 @@ def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
 
     for i, chunk in enumerate(chunks):
         if i + 1 == len(chunks):
-            # In the outside world, there won't be another comment block up;
-            # there'll be a move, subvar start/end or it may be the end of
-            # the resolved moves/blocks, which we'd want to treat as a block...
-            # (maybe should pass something in to act on...)
             next_is_block = False
             is_last_chunk = True
         else:
@@ -431,8 +427,6 @@ def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
                 output.append("<p>")
                 in_paragraph = True
                 chunk = chunk.lstrip()
-            # else:
-            #     chunk = " " + chunk
             if next_is_block:
                 chunk = chunk.rstrip()
             if is_last_chunk and not chunk[-1].isspace():
