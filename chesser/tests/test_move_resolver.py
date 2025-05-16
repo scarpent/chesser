@@ -770,6 +770,31 @@ def test_resolve_moves_discards_dupe_root_in_subvar():
     )
 
 
+def test_resolve_moves_does_not_always_discard_dupe_root():
+    """
+    We only discard the dupe root if there are moves immediately
+    following. E.g.: 1.e4 mainline
+
+    (1.e4 e5)
+    (1.e4 d5)
+
+    1.e4 is discardable here because it's just repeated and not
+    adding to the discussion. It will look cleaner without. But if
+    the dupe exists in isolation we likely are referencing it and
+    should keep, e.g.:
+
+    ({The beauty of} 1.e4 {is that it's not 1.d4.})
+    """
+    boards = get_boards_after_moves("e4")
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.e4",
+        root_board=boards["e4"][0],
+        move_str="( 1.e4 )",
+        expected=["1.e4"],
+    )
+
+
 def test_resolve_moves_discard_dupe_root_plain_san_is_unhandled():
     """if a subvar doesn't start without a "fully qualified" verbose
     move, we won't discard it as a dupe root, but note that we still

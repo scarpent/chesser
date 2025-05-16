@@ -315,6 +315,15 @@ class PathFinder:
     def current(self):
         return self.stack[-1]
 
+    def get_next_block(self) -> Optional[ParsedBlock]:
+        """
+        Returns the next block to be processed, or None if there are no more blocks.
+        """
+        if self.index < self.end_of_list:
+            return self.blocks[self.index + 1]
+        else:
+            return None
+
     def handle_start_block(self, block: ParsedBlock):
         is_fenseq = True if block.fen else False
         if is_fenseq:
@@ -448,7 +457,7 @@ class PathFinder:
                 block.log.append(log_message)
                 break
 
-    def is_duplicate_of_root_block(self, block: ParsedBlock):
+    def is_discardable_duplicate_of_root_block(self, block: ParsedBlock):
         """
         e.g. mainline 1.e4, subvar (1.e4 e5)
              mainline 1...e4, subvar (1...e4 e5)
@@ -459,8 +468,13 @@ class PathFinder:
         to a resolved root block move. 1.e4 == 1.e4 and 1...e5==1.e5 but
         1...e4 != e4, if that's all we have is a san for the move.
 
-        (have also tried other comparisons, but 941 of 941 discarded dupe
+        (have also tried other comparisons, but 941 of 941 dupe
         examples on 12 May 2025 all matched with just this check)
+
+        We only want to discard these if they're just prefixing other moves.
+        Sometimes there'll be some text *talking* about the root move, which
+        would be confusing to drop. So we only discard if there is a following
+        move. On 16 May 2025, there are 833 with a next move and 105 not.
         """
         this_raw_equals_root_resolved = (
             self.current.root_block.is_playable
@@ -468,13 +482,29 @@ class PathFinder:
         )
 
         if self.current.move_counter == 1 and (this_raw_equals_root_resolved):
+            # we have a dupe? But is it a *discardable* dupe?
+
+            next_block = self.get_next_block()
+            assert next_block is not None  # should be at least a subvar end block
+
             # we'll update stats and log this even though we're not *doing*
             # the discarding in here; it just seems cleaner to keep here
-            self.stats.sundry["➤ root dupe discarded"] += 1
-            self.attach_log_to_previous_start_block(
-                "🗑️  Discarding move block same as root: " f"{block.move_parts_raw}"
-            )
-            return True
+
+            if next_block.type_ == "move":
+                # if it appears before other moves, the dupe root move
+                # *probably* isn't being explicitly talked about, so let's
+                # discard it to make things look cleaner
+                self.stats.sundry["➤ root dupe discarded"] += 1
+                self.attach_log_to_previous_start_block(
+                    "🗑️  Discarding move block same as root: " f"{block.move_parts_raw}"
+                )
+                return True
+            else:
+                # if there's not an immediate following move, there's a
+                # good chance neighboring text is talking about this, so
+                # we should keep it
+                self.stats.sundry["➤ root dupe NOT discarded"] += 1
+                return False
         else:
             return False
 
@@ -700,29 +730,7 @@ class PathFinder:
 
             # "handled" cases ------------------------------------------------
 
-            if self.is_duplicate_of_root_block(pending_block):
-                # resolved_block_types = [
-                #     b.move_verbose or b.type_ for b in self.resolved_blocks
-                # ]
-                # if resolved_block_types == ["comment", "start"]:
-                #     self.stats.sundry["➤ root dupe [comment, start]"] += 1
-                # if resolved_block_types == ["start"]:
-                #     self.stats.sundry["➤ root dupe [start]"] += 1
-
-                # # TODO: next up, see what the next blocks is -- maybe we'll only
-                # # discard if there's another move
-
-                # move = Move.objects.get(id=self.mainline_move_id)
-                # print(
-                #     f"V# {move.variation_id} M# {move.id} {self.mainline_move_verbose}\n\t{resolved_block_types}"  # noqa: E501
-                # )
-                # print(
-                #     f"\thttp://localhost:8000/variation/{move.variation_id}/?idx={move.sequence}"  # noqa: E501
-                # )
-                # print(f"{self.current.root_block.move_parts_resolved} ➤➤➤➤➤➤➤➤➤➤➤➤➤➤➤")  # noqa: E501
-                # print(resolved_block_types)
-                # print([b.move_verbose for b in self.current.resolved_stack])
-                # print(f"this block: {pending_block}\n")
+            if self.is_discardable_duplicate_of_root_block(pending_block):
                 self.advance_to_next_block(append=None)
                 continue
 
