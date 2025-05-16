@@ -331,7 +331,7 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
             if block.fen:
                 counter += 1
                 # trailing space here is consequential for wrapping and also relied
-                # on to space things out appropriately (slighly usurping the reign
+                # on to space things out appropriately (slighly usurping the rule
                 # of render_chunks_with_br in that realm)
                 html += (
                     f'<span class="move subvar-move" data-fen="{block.fen}" '
@@ -400,10 +400,13 @@ def is_block_element(chunk: str) -> bool:
     return tag in util.BLOCK_TAGS
 
 
-def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
-    output = []
+def render_chunks_with_br(
+    chunks: list[str], in_paragraph: bool = False
+) -> tuple[str, bool]:
 
     # I think we should expect alternating block and non-block chunks?
+
+    output = []
 
     for i, chunk in enumerate(chunks):
         if i + 1 == len(chunks):
