@@ -383,7 +383,7 @@ def get_final_move_simple_subvariations_html(variation):
 
     for block in parsed_blocks:
         if block.type_ == "comment":
-            comment = block.display_text.replace("\n", "<br/>")
+            comment = block.display_text
             html += f" {comment} "
         elif block.type_ == "move":
             move_text = block.move_verbose if previous_type != "move" else block.raw

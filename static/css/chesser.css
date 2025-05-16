@@ -129,6 +129,18 @@ blockquote {
   margin: 0 0 4px 0;
 }
 
+.final-move p {
+  line-height: 1.4;
+}
+
+#right-column ul {
+  margin: 10px 0;
+}
+
+#right-column li {
+  margin: 0 0 8px 0;
+}
+
 #boards-container {
   display: flex;
   flex-direction: column;
