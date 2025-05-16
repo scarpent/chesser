@@ -40,6 +40,10 @@ def assemble_move_parts(move_parts: MoveParts) -> str:
     return f"{num}{dots}{san}{annotation}".strip()
 
 
+def get_empty_move_parts() -> MoveParts:
+    return MoveParts(None, "", "", "")
+
+
 @dataclass
 class ParsedBlock:
     # we started with chunk types: "comment", "subvar", "fenseq", "move"
@@ -48,7 +52,7 @@ class ParsedBlock:
     display_text: str = ""  # only used for comments
     # raw comes from a move as it appears in a subvar, it may or may not have
     # a move number and dots, e.g. 1.e4 or e4 or 1...e5 or e5
-    move_parts_raw: Optional[MoveParts] = None
+    move_parts_raw: MoveParts = field(default_factory=get_empty_move_parts)
     # resolved moves have had their SAN run through a chess.Board and *if*
     # they were valid, will have been "resolved" with a move number and dots
     # to tell us exactly what ply/move we're on; it's possible that after
@@ -99,7 +103,7 @@ class ParsedBlock:
             return ""
         if self.move_parts_resolved:
             return assemble_move_parts(self.move_parts_resolved)
-        elif self.move_parts_raw:
+        elif self.move_parts_raw != get_empty_move_parts():
             return assemble_move_parts(self.move_parts_raw)
         else:
             return self.raw
@@ -285,6 +289,7 @@ class PathFinder:
         self.blocks = blocks
         self.resolved_blocks = []  # "finished" blocks, whether or not truly "resolved"
         self.mainline_move_id = mainline_move_id
+        self.mainline_move_verbose = mainline_move_verbose
         self.board = board
 
         # make a parsed move block for the mainline move -
@@ -353,6 +358,7 @@ class PathFinder:
         incoming block and board.
         """
         assert block.type_ == "move"
+
         clone = block.clone()
         board = board.copy() if board else self.current.board.copy()
         san = clone.move_parts_raw.san
@@ -485,8 +491,12 @@ class PathFinder:
             and self.current.board_previous
             and self.current.root_block.is_playable
         ):
+            # make the type checker happy; this should be fine if condition is met
+            assert self.current.root_block.move_parts_resolved is not None
+
             distance_from_root = get_resolved_move_distance(
-                self.current.root_block.move_parts_resolved, block.move_parts_raw
+                self.current.root_block.move_parts_resolved,
+                block.move_parts_raw,
             )
             if distance_from_root == 0:
                 self.stats.sundry["➤ root siblings"] += 1
@@ -691,10 +701,33 @@ class PathFinder:
             # "handled" cases ------------------------------------------------
 
             if self.is_duplicate_of_root_block(pending_block):
+                # resolved_block_types = [
+                #     b.move_verbose or b.type_ for b in self.resolved_blocks
+                # ]
+                # if resolved_block_types == ["comment", "start"]:
+                #     self.stats.sundry["➤ root dupe [comment, start]"] += 1
+                # if resolved_block_types == ["start"]:
+                #     self.stats.sundry["➤ root dupe [start]"] += 1
+
+                # # TODO: next up, see what the next blocks is -- maybe we'll only
+                # # discard if there's another move
+
+                # move = Move.objects.get(id=self.mainline_move_id)
+                # print(
+                #     f"V# {move.variation_id} M# {move.id} {self.mainline_move_verbose}\n\t{resolved_block_types}"  # noqa: E501
+                # )
+                # print(
+                #     f"\thttp://localhost:8000/variation/{move.variation_id}/?idx={move.sequence}"  # noqa: E501
+                # )
+                # print(f"{self.current.root_block.move_parts_resolved} ➤➤➤➤➤➤➤➤➤➤➤➤➤➤➤")  # noqa: E501
+                # print(resolved_block_types)
+                # print([b.move_verbose for b in self.current.resolved_stack])
+                # print(f"this block: {pending_block}\n")
                 self.advance_to_next_block(append=None)
                 continue
 
             if root_sibling := self.get_root_sibling(pending_block):
+                assert self.current.board_previous  # will be set if root sibling
                 self.current.board = self.current.board_previous.copy()
                 self.push_move(root_sibling)
                 self.advance_to_next_block(append=root_sibling)

@@ -289,6 +289,9 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
             print(f"block type: {block.type_} {text}")
 
         if block.type_ == "comment":
+            # remember that comments may have text but may also just have
+            # formatting information like newlines which we may or may not
+            # want to preserve depending on the context
             chunks = chunk_html_for_wrapping(block.display_text)
             comment_html, in_paragraph = render_chunks_with_br(chunks, in_paragraph)
 
