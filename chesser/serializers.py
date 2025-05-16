@@ -429,7 +429,8 @@ def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
                 chunk = chunk.lstrip()
             if next_is_block:
                 chunk = chunk.rstrip()
-            if is_last_chunk and not chunk[-1].isspace():
+
+            if is_last_chunk and chunk and not chunk[-1].isspace():
                 chunk = chunk + " "  # e.g. ensure space after "or": 1.e4 {or} 1.d4
             chunk = chunk.replace("\n\n", "</p><p>")
             chunk_with_br = chunk.replace("\n", "<br/>")
