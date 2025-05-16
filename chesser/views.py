@@ -144,7 +144,7 @@ def review_random(request):
                 ),
             )
         )
-        .filter(recent_fails__gt=0)
+        .filter(recent_fails__gt=0, level__lt=5)
         .order_by("-recent_fails")[:40]
     )
 

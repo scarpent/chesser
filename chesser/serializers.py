@@ -289,14 +289,15 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
             print(f"block type: {block.type_} {text}")
 
         if block.type_ == "comment":
-            # html += get_subvariation_comment_html(block)
             chunks = chunk_html_for_wrapping(block.display_text)
+            comment_html, in_paragraph = render_chunks_with_br(chunks, in_paragraph)
+
             if debug:
                 print(f"\n🧊 Chunks:\n{chunks}")
-            comment_html, in_paragraph = render_chunks_with_br(chunks, in_paragraph)
-            if debug:
                 print(f"\n💦 Rendered:\n{comment_html}|in para = {in_paragraph}\n")
+
             html += comment_html
+
         elif block.type_ == "start":
             html += f"<!-- Start Block Log: {block.log} -->"
             if block.fen:
@@ -329,8 +330,9 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
 
             if block.fen:
                 counter += 1
-                # trailing space here is consequential for wrapping and also counted
-                # on to space things out appropriately with render_chunks_with_br
+                # trailing space here is consequential for wrapping and also relied
+                # on to space things out appropriately (slighly usurping the reign
+                # of render_chunks_with_br in that realm)
                 html += (
                     f'<span class="move subvar-move" data-fen="{block.fen}" '
                     f'data-index="{counter}">{move_text}{resolved}</span> '
@@ -338,8 +340,8 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
             else:
                 html += f" {move_text} {resolved} "
 
-            # how expensive is this? likely won't keep doing the
-            # board but should always include the parsed block for moves
+            # is this expensive enough to care about? likely won't keep doing
+            # the board but should always include the parsed block for moves
             try:
                 board = chess.Board(block.fen)
             except Exception:
@@ -356,12 +358,6 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
         '<div class="subvariations" '
         f'data-mainline-index="{move.sequence}">{html}</div>'
     )
-
-
-def get_subvariation_comment_html(block):  # this is going away
-    html = block.display_text
-    html = html.replace("\n", "<br/>")
-    return f" {html} "
 
 
 def get_final_move_simple_subvariations_html(variation):
@@ -411,8 +407,8 @@ def render_chunks_with_br(chunks: list[str], in_paragraph: bool = False) -> str:
 
     for i, chunk in enumerate(chunks):
         if i + 1 == len(chunks):
-            next_is_block = False
             is_last_chunk = True
+            next_is_block = False
         else:
             next_is_block = is_block_element(chunks[i + 1])
             is_last_chunk = False
