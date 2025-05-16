@@ -774,6 +774,25 @@ class PathFinder:
 
             self.advance_to_next_block(append=pending_block)
 
+        # ==============================================================================
+        # temp_resolved_blocks = [b.move_verbose or b.type_ for b in self.resolved_blocks]  # noqa: E501
+        # move = Move.objects.get(id=self.mainline_move_id)
+        # some_jg_chapters = (7, 8, 13, 20, 4, 18, 23, 25)
+        # if (
+        #     len(temp_resolved_blocks) > 20
+        #     and move.variation.chapter_id in some_jg_chapters
+        # ):
+        #     print(f"V# {move.variation_id} M# {move.id} {move.move_verbose}")
+        #     print(f"    num resolved blocks: {len(temp_resolved_blocks)}")
+        #     base = "http://localhost:8000/variation/"
+        #     print(f"    {base}{move.variation_id}/?idx={move.sequence}")
+
+        # good gnarlier examples:
+        # V# 569    M# 10591    15...Ra7
+        # V# 1090   M# 21709    8...Nd5
+
+        # ==============================================================================
+
         return self.resolved_blocks
 
 

@@ -463,6 +463,27 @@ blockquote {
   background-color: cyan;
 }
 
+/* .subvar-indent {
+  padding: 2px;
+  border: 1px solid #555;
+} */
+
+.subvar-indent.depth-2 {
+  margin-left: 20px !important;
+}
+
+.subvar-indent.depth-3 {
+  margin-left: 40px !important;
+}
+
+.subvar-indent.depth-4 {
+  margin-left: 60px !important;
+}
+
+.subvar-indent.depth-5 {
+  margin-left: 80px !important;
+}
+
 .final-move {
   max-width: 600px;
 }
@@ -1424,6 +1445,22 @@ about 500, but also covers our ultimate mobile 450 view */
     /* back to same larger but not quite as large as icon-button-home */
     width: 70px;
     height: 70px;
+  }
+
+  .subvar-indent.depth-2 {
+    margin-left: 10px !important;
+  }
+
+  .subvar-indent.depth-3 {
+    margin-left: 20px !important;
+  }
+
+  .subvar-indent.depth-4 {
+    margin-left: 30px !important;
+  }
+
+  .subvar-indent.depth-5 {
+    margin-left: 40px !important;
   }
 }
 
