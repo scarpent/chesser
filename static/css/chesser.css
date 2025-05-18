@@ -448,8 +448,10 @@ blockquote {
 }
 
 .mainline-move.highlight {
-  color: var(--color-bg-dark);
   background-color: greenyellow;
+  color: var(--color-bg-dark);
+  border-radius: 4px;
+  padding: 2px 6px;
 }
 
 .subvar-move {
@@ -458,8 +460,10 @@ blockquote {
 }
 
 .subvar-move.highlight {
-  color: var(--color-bg-dark);
   background-color: cyan;
+  color: var(--color-bg-dark);
+  border-radius: 4px;
+  padding: 2px 3px;
 }
 
 /* .subvar-indent {
