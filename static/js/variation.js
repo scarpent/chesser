@@ -215,6 +215,8 @@ export function variationApp() {
         // Alts don't really make sense in subvariations
         const altsElement = document.getElementById("alts");
         if (altsElement) altsElement.innerHTML = `<b>Alts ➤</b>`;
+
+        this.scrollIntoView(moveElement);
       }
     },
 
