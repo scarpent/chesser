@@ -39,7 +39,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         variation_id = options.get("variation")
         move_id = options.get("move")
-        comment_html_parser = options.get("comment_html_parser")
+        comment_html_parser = options.get("comment_html_parser", False)
         stats = self.move_resolver_runner(
             variation_id=variation_id,
             move_id=move_id,
@@ -55,7 +55,7 @@ class Command(BaseCommand):
         if move_id:
             move = Move.objects.filter(id=move_id).first()
             if move:
-                variation_id = move.variation.id
+                variation_id = move.variation.id  # type: ignore[attr-defined]
         if variation_id:
             variations = Variation.objects.filter(id=variation_id)
         else:
@@ -73,7 +73,7 @@ class Command(BaseCommand):
                 # print(f"🏵️  Variation {variation.id}", end="\r")
                 # print(f"🏵️  Variation {variation.id}")
             board = chess.Board()
-            for move in variation.moves.iterator():
+            for move in variation.moves.iterator():  # type: ignore[attr-defined]
                 board.push_san(move.san)  # Mainline moves better be valid
                 if not move.text:
                     continue
@@ -95,14 +95,15 @@ class Command(BaseCommand):
                 # attached to block logs so we can print out here and
                 # read the whole story in sequence
 
+                if comment_html_parser:
+                    if move_id:
+                        print("🔡 generating subvariations html")
+                    generate_subvariations_html(move, resolved_moves)
+
                 if variation_id and resolved_moves:
                     print(f"🪵 Block Log, Mainline: {move.move_verbose}")
                     for resolved_move in resolved_moves:
                         print(resolved_move.get_debug_info())
-
-                    if comment_html_parser and move_id:
-                        print("🔡 generating subvariations html")
-                        generate_subvariations_html(move, resolved_moves, debug=True)
 
                     print(f"🪦 End {move.move_verbose}")
 

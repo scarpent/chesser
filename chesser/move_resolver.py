@@ -787,9 +787,14 @@ class PathFinder:
         #     base = "http://localhost:8000/variation/"
         #     print(f"    {base}{move.variation_id}/?idx={move.sequence}")
 
-        # good gnarlier examples:
-        # V# 569    M# 10591    15...Ra7
-        # V# 1090   M# 21709    8...Nd5
+        """
+        good gnarlier examples:
+        V# 569    M# 10591    15...Ra7
+        V# 1090   M# 21709    8...Nd5
+
+        Level 4: Marshal 15.Be3 (569), Italian 4.Ng5 8.Bd3 (617, 618, 619, 1090)
+        Level 3: 673, 700, 824, 1026, 1027, 1028, 1029, 1125, 1126, 1127, 1128, 1169
+        """
 
         # ==============================================================================
 

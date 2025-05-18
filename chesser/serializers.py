@@ -312,13 +312,14 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
                     f'data-index="{counter}">⏮️</span>'
                 )
             elif block.depth > 1:
-                # depth and emoji is temporary...
-                para = f'<p class="subvar-indent depth-{block.depth}">{block.depth}🌻 '
+                # use depth and emoji for debug/visualization: {block.depth}🌻
+                para = f'<p class="subvar-indent depth-{block.depth}"> '
                 if not in_paragraph:  # probably already in a paragraph at depth 2
                     html += para
                     in_paragraph = True
                 else:
-                    html += f"</p>{para}"  # TODO: look out for <p></p>?
+                    # TODO: look out for <p></p>? (not seeing any big gaps so far)
+                    html += f"</p>{para}"
 
         elif block.type_ == "end" and block.depth > 1:
             # let's try organizing more deeply nested subvariations
@@ -329,8 +330,8 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
                 if not in_paragraph:  # probably already in a paragraph at depth 2
                     html += "<p>"
                     in_paragraph = True
-                # let's keep the headstone and depth info for now
-                html += f'🪦{block.depth}</p><p class="subvar-indent depth-{block.depth - 1}">'  # noqa: E501
+                # depth/emoji for debug/visualization: 🪦{block.depth}
+                html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
 
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
