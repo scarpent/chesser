@@ -18,6 +18,7 @@ export function quizApp() {
     failed: false,
     completed: false,
     quizCompleteOverlay: "", // emoji or empty string
+    annotateTimeoutId: null, // helps manage quiz restarts
 
     initQuiz() {
       const boardElement = document.getElementById("board");
@@ -254,8 +255,10 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     annotateMissedMove(from, to, arrowColor, circleColor) {
       this.annotateMove(from, to, arrowColor, circleColor);
-      setTimeout(() => {
+      // Save timeout ID so it can be canceled if needed
+      this.annotateTimeoutId = setTimeout(() => {
         this.gotoPreviousMove();
+        this.annotateTimeoutId = null;
       }, 1000);
     },
 
@@ -308,6 +311,14 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     restartQuiz(stayFailed = false) {
       if (!this.variationData.moves) return;
+
+      // Cancel any pending "go back after missed move" (e.g. if we click "restart"
+      // while still showing error state, before going back to the previous move)
+      if (this.annotateTimeoutId) {
+        clearTimeout(this.annotateTimeoutId);
+        this.annotateTimeoutId = null;
+      }
+
       if (this.completed) {
         this.reviewData.extra_study = true; // whether forced or elective
       } else {

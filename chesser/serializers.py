@@ -501,5 +501,6 @@ def chunk_html_for_wrapping(text: str) -> list[str]:
             chunks.append(tag)
             pos = match.end()
 
-    # return [chunk for chunk in chunks if chunk.strip()]
-    return chunks  # might have significant whitespace? (e.g. two fenseqs in a row)
+    # use all chunks as is, even if only whitespace since it might
+    # have newlines or other formatting we want to preserve
+    return chunks
