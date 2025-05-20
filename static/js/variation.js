@@ -316,7 +316,7 @@ export function variationApp() {
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
       } else if (moveElement.classList.contains("subvar-move")) {
         if (moveElement.classList.contains("highlight")) {
-          open_fen_in_lichess(moveElement); // Already selected; open analysis board
+          this.open_fen_in_lichess(moveElement); // Already selected; open analysis board
         } else {
           this.selectClickedSubvarMove(moveElement);
         }
