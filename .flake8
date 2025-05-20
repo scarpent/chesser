@@ -8,6 +8,8 @@ ignore =
     C812,
     # C813: missing trailing comma in Python 3
     C813,
+    # C816: missing trailing comma in Python 3.8
+    C816,
 
 exclude =
     .git,

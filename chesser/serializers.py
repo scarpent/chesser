@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from chesser import util
 from chesser.models import Move
-from chesser.move_resolver import get_parsed_blocks
+from chesser.move_resolver import ParsedBlock, get_parsed_blocks
 
 annotations = {
     "none": "No annotation",
@@ -315,7 +315,7 @@ class RendererState:
     move: object = Move
 
 
-def render_comment_block(block, state):
+def render_comment_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
     """
     Remember that comments may have text but may also just have
     formatting information like newlines which we may or may not
@@ -329,12 +329,12 @@ def render_comment_block(block, state):
 
     if state.debug:
         print(f"\n🧊 Chunks:\n{chunks}")
-        print(f"\n💦 Rendered:\n{comment_html}|in para = {state['in_paragraph']}\n")
+        print(f"\n💦 Rendered:\n{comment_html}|in para = {state.in_paragraph}\n")
 
     return comment_html
 
 
-def render_start_block(block, state: RendererState) -> str:
+def render_start_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
     html = f"<!-- Start Block Log: {block.log} -->"
 
     if block.fen:
@@ -360,9 +360,27 @@ def render_start_block(block, state: RendererState) -> str:
     return html
 
 
+def render_end_block(
+    block: ParsedBlock, state: RendererState, *, next_block_type=None
+) -> str:
+    """let's try organizing more deeply nested subvariations"""
+    html = ""
+    if block.depth > 1:
+        # Check next block context (avoids leaking p tags if subvar is ending)
+        if next_block_type in ["move", "comment"]:
+            if not state.in_paragraph:  # probably already in a paragraph at depth 2
+                html += "<p>"
+                state.in_paragraph = True
+            # depth/emoji for debug/visualization: 🪦{block.depth}
+            html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
+
+    return html
+
+
 BLOCK_RENDERERS = {
     "comment": render_comment_block,
     "start": render_start_block,
+    "end": render_end_block,
 }
 
 
@@ -385,23 +403,15 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
         if debug:
             debug_print_block(block)
 
+        next_block_type = (
+            parsed_blocks[i + 1].type_ if i + 1 < len(parsed_blocks) else None
+        )
+
         render_fn = BLOCK_RENDERERS.get(block.type_)
         if render_fn:
-            html += render_fn(block, state)
+            html += render_fn(block, state, next_block_type=next_block_type)
 
         # conversion in progress...
-        elif block.type_ == "end" and block.depth > 1:
-            # let's try organizing more deeply nested subvariations
-            if i < len(parsed_blocks) - 1 and parsed_blocks[i + 1].type_ in [
-                "move",
-                "comment",
-            ]:
-                if not state.in_paragraph:  # probably already in a paragraph at depth 2
-                    html += "<p>"
-                    state.in_paragraph = True
-                # depth/emoji for debug/visualization: 🪦{block.depth}
-                html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
-
         elif block.type_ == "move":
             resolved = "" if block.move_parts_resolved else " ❌"
 
