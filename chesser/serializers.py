@@ -1,10 +1,12 @@
 import json
 import re
+from dataclasses import dataclass
 
 import chess
 from django.utils import timezone
 
 from chesser import util
+from chesser.models import Move
 from chesser.move_resolver import get_parsed_blocks
 
 annotations = {
@@ -272,112 +274,6 @@ def generate_variation_html(variation):
     return html
 
 
-def generate_subvariations_html(move, parsed_blocks, debug=False):
-    counter = -1  # for unique data-index
-    html = ""
-    previous_type = ""
-    in_paragraph = False
-    for i, block in enumerate(parsed_blocks):
-        if debug:
-            if block.type_ == "comment":
-                text = f"➡️ |\n{block.display_text}\n|⬅️"
-            elif block.type_ == "move":
-                text = f"{block.raw} | {block.move_verbose}"
-            else:
-                text = block.depth
-            print(f"block type: {block.type_} {text}")
-
-        if block.type_ == "comment":
-            # remember that comments may have text but may also just have
-            # formatting information like newlines which we may or may not
-            # want to preserve depending on the context
-            chunks = chunk_html_for_wrapping(block.display_text)
-            comment_html, in_paragraph = render_chunks_with_br(chunks, in_paragraph)
-
-            if debug:
-                print(f"\n🧊 Chunks:\n{chunks}")
-                print(f"\n💦 Rendered:\n{comment_html}|in para = {in_paragraph}\n")
-
-            html += comment_html
-
-        elif block.type_ == "start":
-            html += f"<!-- Start Block Log: {block.log} -->"
-            if block.fen:
-                if not in_paragraph:
-                    html += "<p>"
-                    in_paragraph = True
-                counter += 1
-                html += (
-                    f'<span class="move subvar-move" data-fen="{block.fen}" '
-                    f'data-index="{counter}">⏮️</span>'
-                )
-            elif block.depth > 1:
-                # use depth and emoji for debug/visualization: {block.depth}🌻
-                para = f'<p class="subvar-indent depth-{block.depth}"> '
-                if not in_paragraph:  # probably already in a paragraph at depth 2
-                    html += para
-                    in_paragraph = True
-                else:
-                    # TODO: look out for <p></p>? (not seeing any big gaps so far)
-                    html += f"</p>{para}"
-
-        elif block.type_ == "end" and block.depth > 1:
-            # let's try organizing more deeply nested subvariations
-            if i < len(parsed_blocks) - 1 and parsed_blocks[i + 1].type_ in [
-                "move",
-                "comment",
-            ]:
-                if not in_paragraph:  # probably already in a paragraph at depth 2
-                    html += "<p>"
-                    in_paragraph = True
-                # depth/emoji for debug/visualization: 🪦{block.depth}
-                html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
-
-        elif block.type_ == "move":
-            resolved = "" if block.move_parts_resolved else " ❌"
-
-            # TODO instead of block.raw, should use resolved move if we have it,
-            # and decide it if should be "fully qualified" or not. Resolved move
-            # will be good for showing what it actually became, if off by one, say,
-            # but for now it helps seeing where things are off if we use original raw
-            move_text = block.move_verbose if previous_type != "move" else block.raw
-
-            if not in_paragraph:
-                html += "<p>"
-                in_paragraph = True
-
-            if block.fen:
-                counter += 1
-                # trailing space here is consequential for wrapping and also relied
-                # on to space things out appropriately (slighly usurping the rule
-                # of render_chunks_with_br in that realm)
-                html += (
-                    f'<span class="move subvar-move" data-fen="{block.fen}" '
-                    f'data-index="{counter}">{move_text}{resolved}</span> '
-                )
-            else:
-                html += f" {move_text} {resolved} "
-
-            # is this expensive enough to care about? likely won't keep doing
-            # the board but should always include the parsed block for moves
-            try:
-                board = chess.Board(block.fen)
-            except Exception:
-                board = "(no board)"
-            html += f"<!-- {block}\n{board} -->"  # phew! this is useful
-
-        previous_type = block.type_
-
-    if in_paragraph:
-        html += "</p>"
-        in_paragraph = False
-
-    return (
-        '<div class="subvariations" '
-        f'data-mainline-index="{move.sequence}">{html}</div>'
-    )
-
-
 def get_final_move_simple_subvariations_html(variation):
     html = ""
     previous_type = ""
@@ -408,6 +304,142 @@ def get_final_move_simple_subvariations_html(variation):
         html = f"<h3>{move.move_verbose}</h3>\n{html}"
 
     return html
+
+
+@dataclass
+class RendererState:
+    counter: int = -1  # unique data-index
+    in_paragraph: bool = False
+    previous_type: str = ""
+    debug: bool = False
+    move: object = Move
+
+
+def render_comment_block(block, state):
+    """
+    Remember that comments may have text but may also just have
+    formatting information like newlines which we may or may not
+    want to preserve depending on the context
+    """
+    if state.debug:
+        print(f"➡️ |\n{block.display_text}\n|⬅️")
+
+    chunks = chunk_html_for_wrapping(block.display_text)
+    comment_html, state.in_paragraph = render_chunks_with_br(chunks, state.in_paragraph)
+
+    if state.debug:
+        print(f"\n🧊 Chunks:\n{chunks}")
+        print(f"\n💦 Rendered:\n{comment_html}|in para = {state['in_paragraph']}\n")
+
+    return comment_html
+
+
+BLOCK_RENDERERS = {
+    "comment": render_comment_block,
+    # other types will be added later
+}
+
+
+def debug_print_block(block):
+    if block.type_ == "comment":
+        text = f"➡️ |\n{block.display_text}\n|⬅️"
+    elif block.type_ == "move":
+        text = f"{block.raw} | {block.move_verbose}"
+    else:
+        text = block.depth
+    print(f"block type: {block.type_} {text}")
+
+
+def generate_subvariations_html(move, parsed_blocks, debug=False):
+
+    state = RendererState(move=move, debug=debug)
+
+    html = ""
+    for i, block in enumerate(parsed_blocks):
+        if debug:
+            debug_print_block(block)
+
+        if block.type_ == "comment":
+            html += render_comment_block(block, state)
+
+        elif block.type_ == "start":
+            html += f"<!-- Start Block Log: {block.log} -->"
+            if block.fen:
+                if not state.in_paragraph:
+                    html += "<p>"
+                    state.in_paragraph = True
+                state.counter += 1
+                html += (
+                    f'<span class="move subvar-move" data-fen="{block.fen}" '
+                    f'data-index="{state.counter}">⏮️</span>'
+                )
+            elif block.depth > 1:
+                # use depth and emoji for debug/visualization: {block.depth}🌻
+                para = f'<p class="subvar-indent depth-{block.depth}"> '
+                if not state.in_paragraph:  # probably already in a paragraph at depth 2
+                    html += para
+                    state.in_paragraph = True
+                else:
+                    # TODO: look out for <p></p>? (not seeing any big gaps so far)
+                    html += f"</p>{para}"
+
+        elif block.type_ == "end" and block.depth > 1:
+            # let's try organizing more deeply nested subvariations
+            if i < len(parsed_blocks) - 1 and parsed_blocks[i + 1].type_ in [
+                "move",
+                "comment",
+            ]:
+                if not state.in_paragraph:  # probably already in a paragraph at depth 2
+                    html += "<p>"
+                    state.in_paragraph = True
+                # depth/emoji for debug/visualization: 🪦{block.depth}
+                html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
+
+        elif block.type_ == "move":
+            resolved = "" if block.move_parts_resolved else " ❌"
+
+            # TODO instead of block.raw, should use resolved move if we have it,
+            # and decide it if should be "fully qualified" or not. Resolved move
+            # will be good for showing what it actually became, if off by one, say,
+            # but for now it helps seeing where things are off if we use original raw
+            move_text = (
+                block.move_verbose if state.previous_type != "move" else block.raw
+            )
+
+            if not state.in_paragraph:
+                html += "<p>"
+                state.in_paragraph = True
+
+            if block.fen:
+                state.counter += 1
+                # trailing space here is consequential for wrapping and also relied
+                # on to space things out appropriately (slighly usurping the rule
+                # of render_chunks_with_br in that realm)
+                html += (
+                    f'<span class="move subvar-move" data-fen="{block.fen}" '
+                    f'data-index="{state.counter}">{move_text}{resolved}</span> '
+                )
+            else:
+                html += f" {move_text} {resolved} "
+
+            # is this expensive enough to care about? likely won't keep doing
+            # the board but should always include the parsed block for moves
+            try:
+                board = chess.Board(block.fen)
+            except Exception:
+                board = "(no board)"
+            html += f"<!-- {block}\n{board} -->"  # phew! this is useful
+
+        state.previous_type = block.type_
+
+    if state.in_paragraph:
+        html += "</p>"
+        state.in_paragraph = False
+
+    return (
+        '<div class="subvariations" '
+        f'data-mainline-index="{move.sequence}">{html}</div>'
+    )
 
 
 def is_block_element(chunk: str) -> bool:
