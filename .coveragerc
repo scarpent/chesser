@@ -1,5 +1,6 @@
 [run]
 omit =
     manage.py
+    chesser_cleanup.py
     chesser/asgi.py
     chesser/wsgi.py
