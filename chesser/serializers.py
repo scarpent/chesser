@@ -317,17 +317,14 @@ class RendererState:
 
 def render_comment_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
     """
-    Remember that comments may have text but may also just have
-    formatting information like newlines which we may or may not
-    want to preserve depending on the context
+    Comments may have text but might also only have formatting
+    like newlines which we preserve depending on the context.
     """
-    if state.debug:
-        print(f"➡️ |\n{block.display_text}\n|⬅️")
-
     chunks = chunk_html_for_wrapping(block.display_text)
     comment_html, state.in_paragraph = render_chunks_with_br(chunks, state.in_paragraph)
 
     if state.debug:
+        print(f"➡️ |\n{block.display_text}\n|⬅️")
         print(f"\n🧊 Chunks:\n{chunks}")
         print(f"\n💦 Rendered:\n{comment_html}|in para = {state.in_paragraph}\n")
 
@@ -446,9 +443,8 @@ def generate_subvariations_html(
     debug: bool = False,
 ) -> str:
     """
-    Our train of blocks cars has been filled with precious
-    cargo: comments, moves, and subvariations, which we'll
-    finally unload into HTML.
+    Our train of blocks cars has been filled with a precious
+    cargo of pgn slurry, which we'll finally pour into HTML.
     """
     state = RendererState(move=move, debug=debug)
     html = ""
