@@ -313,7 +313,6 @@ class RendererState:
     previous_type: str = ""
     next_type: str = ""
     debug: bool = False
-    move: object = Move
 
 
 def render_comment_block(block: ParsedBlock, state: RendererState) -> str:
@@ -445,7 +444,7 @@ def generate_subvariations_html(
     Our train of blocks cars has been filled with a precious
     cargo of pgn slurry, which we'll finally pour into HTML.
     """
-    state = RendererState(move=move, debug=debug)
+    state = RendererState(debug=debug)
     html = ""
     for i, block in enumerate(parsed_blocks):
         if debug:
