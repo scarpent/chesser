@@ -2,6 +2,7 @@ import pytest
 
 from chesser import serializers, util
 from chesser.models import Chapter, Course, Move, Variation
+from chesser.move_resolver import ParsedBlock
 from chesser.tests import assert_equal
 
 
@@ -177,3 +178,101 @@ def test_render_chunks_with_br(
     actual_html = serializers.render_chunks_with_br(chunks, state)
     assert_equal(expected_html, actual_html)
     assert state.in_paragraph == expected_in_paragraph
+
+
+@pytest.mark.parametrize(
+    "display_text, expected_html, expected_state",
+    [
+        # inline only
+        ("Hello world", "<p>Hello world ", True),
+        # inline with newline
+        ("Line 1\nLine 2", "<p>Line 1<br/>Line 2 ", True),
+        # double newline => paragraph break
+        ("One\n\nTwo", "<p>One</p><p>Two ", True),
+        # block tag gets passed through, no paragraph wrapping
+        ("<ul><li>One</li></ul>", "<ul><li>One</li></ul>", False),
+        # mixed: inline before/after block
+        (
+            "before<ul><li>item</li></ul>after",
+            "<p>before</p><ul><li>item</li></ul><p>after ",
+            True,
+        ),
+        (  # mixed
+            "before<ul><li>item</li></ul>",
+            "<p>before</p><ul><li>item</li></ul>",
+            False,
+        ),
+    ],
+)
+def test_render_comment_block(display_text, expected_html, expected_state):
+    # might not really need so many cases since we've already tested separately
+    # in test_render_chunks_with_br, but not bad to run several through...
+    state = serializers.RendererState()
+    block = ParsedBlock(type_="comment", display_text=display_text)
+    html = serializers.render_comment_block(block, state)
+    assert_equal(expected_html, html)
+    assert state.in_paragraph == expected_state
+
+
+def test_render_comment_block_debug_output(capsys):
+    state = serializers.RendererState(debug=True)
+    block = ParsedBlock(type_="comment", display_text="line 1\nline 2")
+
+    serializers.render_comment_block(block, state)
+
+    out = capsys.readouterr().out
+    assert "➡️ |" in out
+    assert "line 1" in out
+    assert "💦 Rendered:" in out
+    assert "<p>line 1<br/>line 2 " in out
+
+
+@pytest.mark.parametrize(
+    "block_data, initial_state, expected_html, expected_state",
+    [
+        # Case 1: Start block with FEN, not already in paragraph
+        (
+            {"type_": "start", "fen": "some-fen", "depth": 1, "log": "log1"},
+            {"in_paragraph": False, "counter": -1},
+            '<!-- Start Block Log: log1 --><p><span class="move subvar-move" data-fen="some-fen" data-index="0">⏮️</span>',  # noqa: E501
+            {"in_paragraph": True, "counter": 0},
+        ),
+        # Case 2: Start block with FEN, already in paragraph
+        (
+            {"type_": "start", "fen": "other-fen", "depth": 1, "log": "log2"},
+            {"in_paragraph": True, "counter": 4},
+            '<!-- Start Block Log: log2 --><span class="move subvar-move" data-fen="other-fen" data-index="5">⏮️</span>',  # noqa: E501
+            {"in_paragraph": True, "counter": 5},
+        ),
+        # Case 3: Start block with depth > 1, not already in paragraph
+        (
+            {"type_": "start", "fen": "", "depth": 3, "log": "log3"},
+            {"in_paragraph": False, "counter": 0},
+            '<!-- Start Block Log: log3 --><p class="subvar-indent depth-3"> ',
+            {"in_paragraph": True, "counter": 0},
+        ),
+        # Case 4: Start block with depth > 1, already in paragraph
+        (
+            {"type_": "start", "fen": "", "depth": 2, "log": "log4"},
+            {"in_paragraph": True, "counter": 2},
+            '<!-- Start Block Log: log4 --></p><p class="subvar-indent depth-2"> ',
+            {"in_paragraph": True, "counter": 2},
+        ),
+        # Case 5: No fen, depth 1
+        (
+            {"type_": "start", "fen": "", "depth": 1, "log": "log5"},
+            {"in_paragraph": True, "counter": 0},
+            "<!-- Start Block Log: log5 -->",
+            {"in_paragraph": True, "counter": 0},
+        ),
+    ],
+)
+def test_render_start_block(block_data, initial_state, expected_html, expected_state):
+    block = ParsedBlock(**block_data)
+    state = serializers.RendererState(
+        in_paragraph=initial_state["in_paragraph"], counter=initial_state["counter"]
+    )
+    html = serializers.render_start_block(block, state)
+    assert_equal(expected_html, html)
+    assert state.in_paragraph == expected_state["in_paragraph"]
+    assert state.counter == expected_state["counter"]
