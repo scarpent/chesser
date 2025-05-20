@@ -466,11 +466,6 @@ blockquote {
   padding: 2px 3px;
 }
 
-/* .subvar-indent {
-  padding: 2px;
-  border: 1px solid #555;
-} */
-
 .subvar-indent.depth-2 {
   margin-left: 20px !important;
 }

@@ -315,7 +315,20 @@ export function variationApp() {
         console.log("Clicked mainline move:", parseInt(moveElement.dataset.index, 10));
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
       } else if (moveElement.classList.contains("subvar-move")) {
-        this.selectClickedSubvarMove(moveElement);
+        if (moveElement.classList.contains("highlight")) {
+          // Already selected — open in Lichess
+          const fen = moveElement.dataset.fen;
+          if (fen) {
+            const url =
+              "https://lichess.org/analysis/standard/" +
+              fen.replace(/ /g, "_") +
+              "?color=" +
+              this.variationData.color;
+            window.open(url, "_blank");
+          }
+        } else {
+          this.selectClickedSubvarMove(moveElement);
+        }
       }
     },
 
