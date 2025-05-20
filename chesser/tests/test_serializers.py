@@ -6,7 +6,7 @@ from chesser.move_resolver import ParsedBlock
 from chesser.tests import assert_equal
 
 
-@pytest.mark.skip(reason="disabled while working on real tests")
+# @pytest.mark.skip(reason="disabled while working on real tests")
 @pytest.mark.django_db
 def test_exercise_serializers():
     """
@@ -276,3 +276,70 @@ def test_render_start_block(block_data, initial_state, expected_html, expected_s
     assert_equal(expected_html, html)
     assert state.in_paragraph == expected_state["in_paragraph"]
     assert state.counter == expected_state["counter"]
+
+
+def test_print_block_type_info(capsys):
+    # comment block
+    block = ParsedBlock(type_="comment", display_text="hello")
+    serializers.print_block_type_info(block)
+    out = capsys.readouterr().out
+    assert "block type: comment" in out
+    assert "➡️ |" in out
+    assert "hello" in out
+
+    # move block
+    block = ParsedBlock(type_="move", raw="e4")
+    serializers.print_block_type_info(block)
+    out = capsys.readouterr().out
+    assert "block type: move" in out
+    assert "e4 | e4" in out
+
+    # fallback block (e.g. start)
+    block = ParsedBlock(type_="start", depth=2)
+    serializers.print_block_type_info(block)
+    out = capsys.readouterr().out
+    assert "block type: start 2" in out
+
+
+@pytest.mark.parametrize(
+    "block_data, initial_state, expected_html, expected_state",
+    [
+        # Case 1: depth > 1, next_type is comment, not in paragraph
+        (
+            {"type_": "end", "depth": 3},
+            {"in_paragraph": False, "next_type": "comment"},
+            '<p></p><p class="subvar-indent depth-2">',
+            {"in_paragraph": True},
+        ),
+        # Case 2: depth > 1, next_type is move, already in paragraph
+        (
+            {"type_": "end", "depth": 2},
+            {"in_paragraph": True, "next_type": "move"},
+            '</p><p class="subvar-indent depth-1">',
+            {"in_paragraph": True},
+        ),
+        # Case 3: depth > 1, next_type not move or comment
+        (
+            {"type_": "end", "depth": 2},
+            {"in_paragraph": True, "next_type": "start"},
+            "",
+            {"in_paragraph": True},
+        ),
+        # Case 4: depth == 1 should do nothing
+        (
+            {"type_": "end", "depth": 1},
+            {"in_paragraph": False, "next_type": "comment"},
+            "",
+            {"in_paragraph": False},
+        ),
+    ],
+)
+def test_render_end_block(block_data, initial_state, expected_html, expected_state):
+    block = ParsedBlock(**block_data)
+    state = serializers.RendererState(
+        in_paragraph=initial_state.get("in_paragraph", False),
+        next_type=initial_state.get("next_type", ""),
+    )
+    html = serializers.render_end_block(block, state)
+    assert_equal(expected_html, html)
+    assert state.in_paragraph == expected_state["in_paragraph"]

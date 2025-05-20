@@ -369,6 +369,8 @@ def render_end_block(block: ParsedBlock, state: RendererState) -> str:
             # depth/emoji for debug/visualization: 🪦{block.depth}
             html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
 
+    # TODO: handle <p></p> case (test test_render_end_block has an example)
+
     return html
 
 
