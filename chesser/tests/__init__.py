@@ -1,3 +1,4 @@
+import difflib
 import re
 from collections import Counter
 
@@ -5,6 +6,17 @@ import chess
 
 from chesser import move_resolver
 from chesser.move_resolver import ParsedBlock
+
+
+def get_diff(expected, actual):
+    diff = difflib.unified_diff(
+        [repr(s) + "\n" for s in expected],
+        [repr(s) + "\n" for s in actual],
+        fromfile="expected",
+        tofile="actual",
+        lineterm="",
+    )
+    return "\n" + "".join(diff)
 
 
 def make_comment_block(raw, display, depth=1):

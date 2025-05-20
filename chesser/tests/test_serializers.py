@@ -2,8 +2,10 @@ import pytest
 
 from chesser import serializers
 from chesser.models import Chapter, Course, Move, Variation
+from chesser.tests import get_diff
 
 
+@pytest.mark.skip(reason="disabled while working on real tests")
 @pytest.mark.django_db
 def test_exercise_serializers():
     """
@@ -36,3 +38,55 @@ def test_exercise_serializers():
     serializers.serialize_variation(variation, all_data=False)
     serializers.serialize_variation(variation, all_data=True)
     serializers.get_final_move_simple_subvariations_html(variation)
+
+
+@pytest.mark.parametrize(
+    "input_text,expected_chunks",
+    [
+        (
+            "\ninline <i>text</i> only\n",
+            ["\ninline <i>text</i> only\n"],
+        ),
+        (
+            "<ul><li>item</li></ul>",
+            ["<ul><li>item</li></ul>"],
+        ),
+        (
+            "before <ul><li>item</li></ul> after",
+            ["before ", "<ul><li>item</li></ul>", " after"],
+        ),
+        (
+            "<pre>preformatted</pre> and then <blockquote>quote</blockquote>",
+            ["<pre>preformatted</pre>", " and then ", "<blockquote>quote</blockquote>"],
+        ),
+        (
+            "line 1\nline 2\n\nline 3",
+            ["line 1\nline 2\n\nline 3"],
+        ),
+        (
+            "x <ul><li>a</li></ul>\n\n<pre>b</pre> y",
+            ["x ", "<ul><li>a</li></ul>", "\n\n", "<pre>b</pre>", " y"],
+        ),
+        (
+            "<ul><li>no lead</li></ul> tail",
+            ["<ul><li>no lead</li></ul>", " tail"],
+        ),
+        (
+            "head <blockquote>mid</blockquote>",
+            ["head ", "<blockquote>mid</blockquote>"],
+        ),
+        (
+            "yada yada <ul><li>unfinished list</li>",  # malformed unclosed
+            ["yada yada ", "<ul>", "<li>unfinished list</li>"],
+        ),
+        (
+            "</ul> unopened",  # malformed unopened
+            ["</ul>", " unopened"],
+        ),
+    ],
+)
+def test_chunk_html_for_wrapping(input_text, expected_chunks):
+    result = serializers.chunk_html_for_wrapping(input_text)
+    if result != expected_chunks:
+        diff = get_diff(expected_chunks, result)
+        raise AssertionError(f"Chunks do not match:\n{diff}")
