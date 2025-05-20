@@ -311,11 +311,12 @@ class RendererState:
     counter: int = -1  # unique data-index
     in_paragraph: bool = False
     previous_type: str = ""
+    next_type: str = ""
     debug: bool = False
     move: object = Move
 
 
-def render_comment_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
+def render_comment_block(block: ParsedBlock, state: RendererState) -> str:
     """
     Comments may have text but might also only have formatting
     like newlines which we preserve depending on the context.
@@ -331,7 +332,7 @@ def render_comment_block(block: ParsedBlock, state: RendererState, **kwargs) -> 
     return html
 
 
-def render_start_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
+def render_start_block(block: ParsedBlock, state: RendererState) -> str:
     html = f"<!-- Start Block Log: {block.log} -->"
 
     if block.fen:
@@ -357,14 +358,12 @@ def render_start_block(block: ParsedBlock, state: RendererState, **kwargs) -> st
     return html
 
 
-def render_end_block(
-    block: ParsedBlock, state: RendererState, *, next_block_type=None
-) -> str:
+def render_end_block(block: ParsedBlock, state: RendererState) -> str:
     """let's try organizing more deeply nested subvariations"""
     html = ""
     if block.depth > 1:
         # Check next block context (avoids leaking p tags if subvar is ending)
-        if next_block_type in ["move", "comment"]:
+        if state.next_type in ["move", "comment"]:
             if not state.in_paragraph:  # probably already in a paragraph at depth 2
                 html += "<p>"
                 state.in_paragraph = True
@@ -374,7 +373,7 @@ def render_end_block(
     return html
 
 
-def render_move_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
+def render_move_block(block: ParsedBlock, state: RendererState) -> str:
     html = ""
     resolved = "" if block.move_parts_resolved else " ❌"
 
@@ -422,11 +421,11 @@ def print_block_type_info(block: ParsedBlock):
     print(f"block type: {block.type_} {text}")
 
 
-def get_next_type(blocks: list, i: int) -> str | None:
+def get_next_type(blocks: list[ParsedBlock], i: int) -> str:
     try:
         return blocks[i + 1].type_
     except IndexError:
-        return None
+        return ""
 
 
 BLOCK_RENDERERS = {
@@ -452,11 +451,10 @@ def generate_subvariations_html(
         if debug:
             print_block_type_info(block)
 
+        state.next_type = get_next_type(parsed_blocks, i)
         renderizer = BLOCK_RENDERERS.get(block.type_)
         assert renderizer, f"Unknown block type: {block.type_}"
-        html += renderizer(
-            block, state, next_block_type=get_next_type(parsed_blocks, i)
-        )
+        html += renderizer(block, state)
         state.previous_type = block.type_
 
     if state.in_paragraph:
