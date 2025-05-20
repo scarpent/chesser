@@ -377,14 +377,45 @@ def render_end_block(
     return html
 
 
-BLOCK_RENDERERS = {
-    "comment": render_comment_block,
-    "start": render_start_block,
-    "end": render_end_block,
-}
+def render_move_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
+    html = ""
+    resolved = "" if block.move_parts_resolved else " ❌"
+
+    # TODO instead of block.raw, should use resolved move if we have it,
+    # and decide it if should be "fully qualified" or not. Resolved move
+    # will be good for showing what it actually became, if off by one, say,
+    # but for now it helps seeing where things are off if we use original raw
+    move_text = block.move_verbose if state.previous_type != "move" else block.raw
+
+    if not state.in_paragraph:
+        html += "<p>"
+        state.in_paragraph = True
+
+    if block.fen:
+        state.counter += 1
+        # trailing space here is consequential for wrapping and also relied
+        # on to space things out appropriately (slighly usurping the rule
+        # of render_chunks_with_br in that realm)
+        html += (
+            f'<span class="move subvar-move" data-fen="{block.fen}" '
+            f'data-index="{state.counter}">{move_text}{resolved}</span> '
+        )
+    else:
+        html += f" {move_text} {resolved} "
+
+    # is this expensive enough to care about? likely won't keep doing
+    # the board but should always include the parsed block for moves
+    try:
+        board = chess.Board(block.fen)
+    except Exception:
+        board = "(no board)"
+
+    html += f"<!-- {block}\n{board} -->"  # phew! this is useful
+
+    return html
 
 
-def debug_print_block(block):
+def print_block_type_info(block: ParsedBlock):
     if block.type_ == "comment":
         text = f"➡️ |\n{block.display_text}\n|⬅️"
     elif block.type_ == "move":
@@ -394,64 +425,46 @@ def debug_print_block(block):
     print(f"block type: {block.type_} {text}")
 
 
-def generate_subvariations_html(move, parsed_blocks, debug=False):
+def get_next_type(blocks: list, i: int) -> str | None:
+    try:
+        return blocks[i + 1].type_
+    except IndexError:
+        return None
 
+
+BLOCK_RENDERERS = {
+    "comment": render_comment_block,
+    "start": render_start_block,
+    "end": render_end_block,
+    "move": render_move_block,
+}
+
+
+def generate_subvariations_html(
+    move: Move,
+    parsed_blocks: list[ParsedBlock],
+    debug: bool = False,
+) -> str:
+    """
+    Our train of blocks cars has been filled with precious
+    cargo: comments, moves, and subvariations, which we'll
+    finally unload into HTML.
+    """
     state = RendererState(move=move, debug=debug)
-
     html = ""
     for i, block in enumerate(parsed_blocks):
         if debug:
-            debug_print_block(block)
+            print_block_type_info(block)
 
-        next_block_type = (
-            parsed_blocks[i + 1].type_ if i + 1 < len(parsed_blocks) else None
+        renderizer = BLOCK_RENDERERS.get(block.type_)
+        assert renderizer, f"Unknown block type: {block.type_}"
+        html += renderizer(
+            block, state, next_block_type=get_next_type(parsed_blocks, i)
         )
-
-        render_fn = BLOCK_RENDERERS.get(block.type_)
-        if render_fn:
-            html += render_fn(block, state, next_block_type=next_block_type)
-
-        # conversion in progress...
-        elif block.type_ == "move":
-            resolved = "" if block.move_parts_resolved else " ❌"
-
-            # TODO instead of block.raw, should use resolved move if we have it,
-            # and decide it if should be "fully qualified" or not. Resolved move
-            # will be good for showing what it actually became, if off by one, say,
-            # but for now it helps seeing where things are off if we use original raw
-            move_text = (
-                block.move_verbose if state.previous_type != "move" else block.raw
-            )
-
-            if not state.in_paragraph:
-                html += "<p>"
-                state.in_paragraph = True
-
-            if block.fen:
-                state.counter += 1
-                # trailing space here is consequential for wrapping and also relied
-                # on to space things out appropriately (slighly usurping the rule
-                # of render_chunks_with_br in that realm)
-                html += (
-                    f'<span class="move subvar-move" data-fen="{block.fen}" '
-                    f'data-index="{state.counter}">{move_text}{resolved}</span> '
-                )
-            else:
-                html += f" {move_text} {resolved} "
-
-            # is this expensive enough to care about? likely won't keep doing
-            # the board but should always include the parsed block for moves
-            try:
-                board = chess.Board(block.fen)
-            except Exception:
-                board = "(no board)"
-            html += f"<!-- {block}\n{board} -->"  # phew! this is useful
-
         state.previous_type = block.type_
 
     if state.in_paragraph:
-        html += "</p>"
-        state.in_paragraph = False
+        html += "</p>"  # and no need to unset state here at the end 🪦
 
     return (
         '<div class="subvariations" '
@@ -470,9 +483,9 @@ def is_block_element(chunk: str) -> bool:
 def render_chunks_with_br(
     chunks: list[str], in_paragraph: bool = False
 ) -> tuple[str, bool]:
-
-    # I think we should expect alternating block and non-block chunks?
-
+    """
+    I think we should expect alternating block and non-block chunks?
+    """
     output = []
 
     for i, chunk in enumerate(chunks):
