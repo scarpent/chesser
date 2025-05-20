@@ -321,14 +321,14 @@ def render_comment_block(block: ParsedBlock, state: RendererState, **kwargs) -> 
     like newlines which we preserve depending on the context.
     """
     chunks = chunk_html_for_wrapping(block.display_text)
-    comment_html, state.in_paragraph = render_chunks_with_br(chunks, state.in_paragraph)
+    html = render_chunks_with_br(chunks, state)
 
     if state.debug:
         print(f"➡️ |\n{block.display_text}\n|⬅️")
         print(f"\n🧊 Chunks:\n{chunks}")
-        print(f"\n💦 Rendered:\n{comment_html}|in para = {state.in_paragraph}\n")
+        print(f"\n💦 Rendered:\n{html}|in para = {state.in_paragraph}\n")
 
-    return comment_html
+    return html
 
 
 def render_start_block(block: ParsedBlock, state: RendererState, **kwargs) -> str:
@@ -476,9 +476,7 @@ def is_block_element(chunk: str) -> bool:
     return tag in util.BLOCK_TAGS
 
 
-def render_chunks_with_br(
-    chunks: list[str], in_paragraph: bool = False
-) -> tuple[str, bool]:
+def render_chunks_with_br(chunks: list[str], state: RendererState) -> str:
     """
     I think we should expect alternating block and non-block chunks?
     """
@@ -493,14 +491,14 @@ def render_chunks_with_br(
             is_last_chunk = False
 
         if is_block_element(chunk):
-            if in_paragraph:
+            if state.in_paragraph:
                 output.append("</p>")
-                in_paragraph = False
+                state.in_paragraph = False
             output.append(chunk)
         else:
-            if not in_paragraph:
+            if not state.in_paragraph:
                 output.append("<p>")
-                in_paragraph = True
+                state.in_paragraph = True
                 chunk = chunk.lstrip()
             if next_is_block:
                 chunk = chunk.rstrip()
@@ -511,7 +509,7 @@ def render_chunks_with_br(
             chunk_with_br = chunk.replace("\n", "<br/>")
             output.append(chunk_with_br)
 
-    return "".join(output), in_paragraph
+    return "".join(output)
 
 
 def chunk_html_for_wrapping(text: str) -> list[str]:
