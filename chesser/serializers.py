@@ -334,9 +334,35 @@ def render_comment_block(block, state):
     return comment_html
 
 
+def render_start_block(block, state: RendererState) -> str:
+    html = f"<!-- Start Block Log: {block.log} -->"
+
+    if block.fen:
+        if not state.in_paragraph:
+            html += "<p>"
+            state.in_paragraph = True
+        state.counter += 1
+        html += (
+            f'<span class="move subvar-move" data-fen="{block.fen}" '
+            f'data-index="{state.counter}">⏮️</span>'
+        )
+
+    elif block.depth > 1:
+        # use depth and emoji for debug/visualization: {block.depth}🌻
+        para = f'<p class="subvar-indent depth-{block.depth}"> '
+        if not state.in_paragraph:  # probably already in a paragraph at depth 2
+            html += para
+            state.in_paragraph = True
+        else:
+            # TODO: look out for <p></p>? (not seeing any big gaps so far)
+            html += f"</p>{para}"
+
+    return html
+
+
 BLOCK_RENDERERS = {
     "comment": render_comment_block,
-    # other types will be added later
+    "start": render_start_block,
 }
 
 
@@ -359,30 +385,11 @@ def generate_subvariations_html(move, parsed_blocks, debug=False):
         if debug:
             debug_print_block(block)
 
-        if block.type_ == "comment":
-            html += render_comment_block(block, state)
+        render_fn = BLOCK_RENDERERS.get(block.type_)
+        if render_fn:
+            html += render_fn(block, state)
 
-        elif block.type_ == "start":
-            html += f"<!-- Start Block Log: {block.log} -->"
-            if block.fen:
-                if not state.in_paragraph:
-                    html += "<p>"
-                    state.in_paragraph = True
-                state.counter += 1
-                html += (
-                    f'<span class="move subvar-move" data-fen="{block.fen}" '
-                    f'data-index="{state.counter}">⏮️</span>'
-                )
-            elif block.depth > 1:
-                # use depth and emoji for debug/visualization: {block.depth}🌻
-                para = f'<p class="subvar-indent depth-{block.depth}"> '
-                if not state.in_paragraph:  # probably already in a paragraph at depth 2
-                    html += para
-                    state.in_paragraph = True
-                else:
-                    # TODO: look out for <p></p>? (not seeing any big gaps so far)
-                    html += f"</p>{para}"
-
+        # conversion in progress...
         elif block.type_ == "end" and block.depth > 1:
             # let's try organizing more deeply nested subvariations
             if i < len(parsed_blocks) - 1 and parsed_blocks[i + 1].type_ in [
