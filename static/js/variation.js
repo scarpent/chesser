@@ -316,19 +316,21 @@ export function variationApp() {
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
       } else if (moveElement.classList.contains("subvar-move")) {
         if (moveElement.classList.contains("highlight")) {
-          // Already selected — open in Lichess
-          const fen = moveElement.dataset.fen;
-          if (fen) {
-            const url =
-              "https://lichess.org/analysis/standard/" +
-              fen.replace(/ /g, "_") +
-              "?color=" +
-              this.variationData.color;
-            window.open(url, "_blank");
-          }
+          open_fen_in_lichess(moveElement); // Already selected; open analysis board
         } else {
           this.selectClickedSubvarMove(moveElement);
         }
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    open_fen_in_lichess(moveElement) {
+      const fen = moveElement.dataset.fen;
+      if (fen) {
+        const encodedFen = fen.replace(/ /g, "_");
+        const color = this.variationData.color;
+        const url = `https://lichess.org/analysis/standard/${encodedFen}?color=${color}`;
+        window.open(url, "_blank");
       }
     },
 
