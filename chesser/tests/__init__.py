@@ -1,5 +1,6 @@
 import difflib
 import re
+import textwrap
 from collections import Counter
 
 import chess
@@ -8,15 +9,39 @@ from chesser import move_resolver
 from chesser.move_resolver import ParsedBlock
 
 
-def get_diff(expected, actual):
-    diff = difflib.unified_diff(
-        [repr(s) + "\n" for s in expected],
-        [repr(s) + "\n" for s in actual],
-        fromfile="expected",
-        tofile="actual",
-        lineterm="",
+def assert_equal(expected, actual):
+    if expected == actual:
+        return
+
+    if isinstance(expected, str) and isinstance(actual, str):
+        expected_ = [line + "\n" for line in expected.splitlines()]
+        actual_ = [line + "\n" for line in actual.splitlines()]
+    elif isinstance(expected, list) and isinstance(actual, list):
+        expected_ = [repr(s) + "\n" for s in expected]
+        actual_ = [repr(s) + "\n" for s in actual]
+    else:
+        raise AssertionError(
+            f"Expected and actual types do not match:\n{repr(expected)}\n{repr(actual)}"
+        )
+
+    diff_lines = list(
+        difflib.unified_diff(
+            expected_, actual_, fromfile="expected", tofile="actual", lineterm=""
+        )
     )
-    return "\n" + "".join(diff)
+
+    def mark(line):
+        if line.startswith("---") or line.startswith("+++") or line.startswith("@@"):
+            return line
+        line = re.sub(r" $", "␣", line)
+        return f"{line}│⬅️"
+
+    diff_text = "\n".join(mark(line) for line in diff_lines) + "\n"
+
+    # visually separates the diff from the test output
+    raise AssertionError(
+        "Output did not match:\n\n" + textwrap.indent(diff_text, "    ")
+    )
 
 
 def make_comment_block(raw, display, depth=1):

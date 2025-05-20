@@ -1,8 +1,8 @@
 import pytest
 
-from chesser import serializers
+from chesser import serializers, util
 from chesser.models import Chapter, Course, Move, Variation
-from chesser.tests import get_diff
+from chesser.tests import assert_equal
 
 
 @pytest.mark.skip(reason="disabled while working on real tests")
@@ -38,6 +38,26 @@ def test_exercise_serializers():
     serializers.serialize_variation(variation, all_data=False)
     serializers.serialize_variation(variation, all_data=True)
     serializers.get_final_move_simple_subvariations_html(variation)
+
+
+def test_assert_equal_helper():
+    """
+    Test the assert_equal helper function.
+    """
+    assert_equal("test", "test")
+    assert_equal(["a", "b"], ["a", "b"])
+    assert_equal(123, 123)
+    assert_equal([1, 2, 3], [1, 2, 3])
+    assert_equal({"key": "value"}, {"key": "value"})
+
+    with pytest.raises(AssertionError):
+        assert_equal("test", "TEST")
+    with pytest.raises(AssertionError):
+        assert_equal(123, 456)
+    with pytest.raises(AssertionError):
+        assert_equal([1, 2, 3], [1, 2, 4])
+    with pytest.raises(AssertionError):
+        assert_equal({"key": "value"}, {"key": "VALUE"})
 
 
 @pytest.mark.parametrize(
@@ -87,6 +107,73 @@ def test_exercise_serializers():
 )
 def test_chunk_html_for_wrapping(input_text, expected_chunks):
     result = serializers.chunk_html_for_wrapping(input_text)
-    if result != expected_chunks:
-        diff = get_diff(expected_chunks, result)
-        raise AssertionError(f"Chunks do not match:\n{diff}")
+    assert_equal(expected_chunks, result)
+
+
+@pytest.mark.parametrize(
+    "chunk,expected",
+    [
+        ("<ul>", True),
+        ("<UL>", True),  # case-insensitive
+        ("<ul><li>item</li></ul>", True),
+        ("<blockquote>", True),
+        ("<pre>foo</pre>", True),
+        ("<code>", False),  # not block
+        ("<span>", False),
+        ("inline text", False),
+        ("</ul>", True),
+        ("</blockquote>", True),
+        ("<ul", True),  # malformed but still detected
+        ("<pre class='x'>", True),  # still starts with <pre>
+        ("  <ul>  ", True),  # whitespace tolerance
+        ("<invalid>", False),
+        ("<b>", False),
+        ("<div>", "div" in util.BLOCK_TAGS),  # flexible test if you ever include it
+    ],
+)
+def test_is_block_element(chunk, expected):
+    assert serializers.is_block_element(chunk) == expected
+
+
+@pytest.mark.parametrize(
+    "chunks,in_paragraph,expected_html,expected_in_paragraph",
+    [
+        (["hello world"], False, "<p>hello world ", True),
+        (["hello\nworld"], False, "<p>hello<br/>world ", True),
+        (
+            ["before", "<ul><li>item</li></ul>", "after"],
+            False,
+            "<p>before</p><ul><li>item</li></ul><p>after ",
+            True,
+        ),
+        (["one\n\ntwo"], False, "<p>one</p><p>two ", True),
+        (
+            ["<ul><li>foo</li></ul>", "tail text"],
+            False,
+            "<ul><li>foo</li></ul><p>tail text ",
+            True,
+        ),
+        (
+            ["before", "<pre>code</pre>", "after\n\n\nagain"],
+            False,
+            "<p>before</p><pre>code</pre><p>after</p><p><br/>again ",
+            True,
+        ),
+        (
+            ["head ", "<blockquote>quoted</blockquote>", " tail"],
+            False,
+            "<p>head</p><blockquote>quoted</blockquote><p>tail ",
+            True,
+        ),
+        (["hello world"], True, "hello world ", True),
+        (["<ul><li>item</li></ul>"], True, "</p><ul><li>item</li></ul>", False),
+        (["<ul><li>item</li></ul>"], False, "<ul><li>item</li></ul>", False),
+    ],
+)
+def test_render_chunks_with_br(
+    chunks, in_paragraph, expected_html, expected_in_paragraph
+):
+    state = serializers.RendererState(in_paragraph=in_paragraph)
+    actual_html = serializers.render_chunks_with_br(chunks, state)
+    assert_equal(expected_html, actual_html)
+    assert state.in_paragraph == expected_in_paragraph

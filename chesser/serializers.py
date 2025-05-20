@@ -497,6 +497,7 @@ def render_chunks_with_br(chunks: list[str], state: RendererState) -> str:
                 output.append("<p>")
                 state.in_paragraph = True
                 chunk = chunk.lstrip()
+
             if next_is_block:
                 chunk = chunk.rstrip()
 
