@@ -2,6 +2,7 @@ import re
 from datetime import datetime, timedelta, timezone
 
 import nh3
+from django.utils.timesince import timesince
 from django.utils.timezone import localtime
 
 BEGINNING_OF_TIME = 0  # 1970-01-01T00:00:00
@@ -55,14 +56,22 @@ def get_time_ago(now, result_datetime):
     if (now_local.date() - result_local.date()).days == 1:
         return "yesterday"
     if delta.days < 13:
-        return f"{delta.days} days ago"
+        return f"{delta.days} day{'s' if delta.days > 1 else ''} ago"
 
     weeks = delta.days // 7
     if weeks < 8:
         return f"{weeks} week{'s' if weeks > 1 else ''} ago"
 
-    months = delta.days // 30
-    return f"{delta.days // 30} month{'s' if months > 1 else ''} ago"
+    # correct misleading 1mo + 3wk case
+    parts = timesince(result_local, now_local).split(", ")
+    if len(parts) >= 2 and "month" in parts[0] and "week" in parts[1]:
+        months = int(parts[0].split()[0])
+        weeks = int(parts[1].split()[0])
+        if weeks >= 3:
+            return f"{months + 1} months ago"
+
+    # fallback — includes "2 months", "1 year", etc.
+    return parts[0] + " ago"
 
 
 def format_time_until(now, next_review):
