@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import nh3
 from django.utils.timesince import timesince
@@ -40,14 +40,27 @@ def strip_move_numbers(move_str):
 
 def get_time_ago(now, result_datetime):
     if not result_datetime:
-        time_ago = "Never"
-    elif now < result_datetime:
-        time_ago = "In the future?!"
-    else:
-        time_ago = timesince(result_datetime, now)
-        time_ago = time_ago.split(",")[0] + " ago"  # Largest unit
+        return "Never"
+    if now < result_datetime:
+        return "In the future?!"
 
-    return time_ago
+    delta = now - result_datetime
+
+    if delta < timedelta(minutes=5):
+        return "just now"
+    if delta < timedelta(hours=24) and now.date() != result_datetime.date():
+        return "yesterday"
+    if delta.days < 13:
+        return f"{delta.days} days ago"
+
+    parts = timesince(result_datetime, now).split(", ")
+    if len(parts) >= 2:
+        if "month" in parts[0] and "week" in parts[1]:
+            months = int(parts[0].split()[0])
+            weeks = int(parts[1].split()[0])
+            if weeks >= 3:
+                return f"{months + 1} months ago"
+    return parts[0] + " ago"
 
 
 def format_time_until(now, next_review):
