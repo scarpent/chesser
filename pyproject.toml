@@ -1,3 +1,9 @@
 [tool.black]
 line-length = 88
 target_version = ['py312']
+
+[tool.pyright]
+typeCheckingMode = "basic"
+include = ["."]
+extraPaths = ["."]
+reportAttributeAccessIssue = false
