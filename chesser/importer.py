@@ -179,8 +179,10 @@ def import_variation(import_data, end_move=None):
         print("Not creating QuizResult for updated variation or new level 0 variation")
     elif not variation.quiz_results.first():
         print("Creating QuizResult")
+        passed = False if variation.level == 1 else True
+        level = variation.level - 1 if passed else variation.level
         quiz_result = QuizResult.objects.create(
-            variation=variation, passed=True, level=variation.level
+            variation=variation, passed=passed, level=level
         )
         quiz_result.datetime = get_utc_datetime(import_data["last_review"])
         quiz_result.save()
