@@ -46,10 +46,12 @@ def get_time_ago(now, result_datetime):
 
     delta = now - result_datetime
 
-    if delta < timedelta(minutes=5):
+    if delta < timedelta(minutes=10):
         return "just now"
     if delta < timedelta(hours=24) and now.date() != result_datetime.date():
         return "yesterday"
+    if delta.days == 0:
+        return "today"
     if delta.days < 13:
         return f"{delta.days} days ago"
 
