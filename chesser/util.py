@@ -39,23 +39,26 @@ def strip_move_numbers(move_str):
 
 
 def get_time_ago(now, result_datetime):
-    if not result_datetime:
+    now_local = localtime(now)
+    result_local = localtime(result_datetime)
+
+    if not result_local:
         return "Never"
-    if now < result_datetime:
+    if now_local < result_local:
         return "In the future?!"
 
-    delta = now - result_datetime
+    delta = now_local - result_local
 
     if delta < timedelta(minutes=10):
         return "just now"
-    if delta < timedelta(hours=24) and now.date() != result_datetime.date():
-        return "yesterday"
-    if delta.days == 0:
+    if now_local.date() == result_local.date():
         return "today"
+    if (now_local.date() - result_local.date()).days == 1:
+        return "yesterday"
     if delta.days < 13:
         return f"{delta.days} days ago"
 
-    parts = timesince(result_datetime, now).split(", ")
+    parts = timesince(result_local, now_local).split(", ")
     if len(parts) >= 2:
         if "month" in parts[0] and "week" in parts[1]:
             months = int(parts[0].split()[0])
