@@ -158,7 +158,7 @@ class ResolveStats:
 
 
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
-    chunks = extract_ordered_chunks(move.text)
+    chunks = extract_ordered_chunks(move.text)  # type: ignore
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
     pathfinder = PathFinder(parsed_blocks, move.id, move.move_verbose, board)
     resolved_blocks = pathfinder.resolve_moves()

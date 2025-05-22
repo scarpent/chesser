@@ -6,7 +6,6 @@ import chess
 from django.utils import timezone
 
 from chesser import util
-from chesser.models import Move
 from chesser.move_resolver import ParsedBlock, get_parsed_blocks
 
 annotations = {
@@ -267,7 +266,7 @@ def generate_variation_html(variation):
         if move.text:
             beginning_of_move_group = True
             parsed_blocks = get_parsed_blocks(move, board.copy())
-            subvar_html = generate_subvariations_html(move, parsed_blocks)
+            subvar_html = generate_subvariations_html(move.sequence, parsed_blocks)
 
             html += f"</h3>{subvar_html}"
 
@@ -438,7 +437,7 @@ BLOCK_RENDERERS = {
 
 
 def generate_subvariations_html(
-    move: Move,
+    mainline_move_sequence: int,
     parsed_blocks: list[ParsedBlock],
     debug: bool = False,
 ) -> str:
@@ -462,8 +461,8 @@ def generate_subvariations_html(
         html += "</p>"  # and no need to unset state here at the end 🪦
 
     return (
-        '<div class="subvariations" '
-        f'data-mainline-index="{move.sequence}">{html}</div>'
+        '<div class="subvariations" data-mainline-index="'
+        f'{mainline_move_sequence}">{html}</div>'
     )
 
 
