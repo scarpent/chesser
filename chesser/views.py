@@ -1,7 +1,7 @@
 import json
 import random
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import groupby
 
 from django.conf import settings
@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST
@@ -24,6 +25,8 @@ from chesser.serializers import (
     serialize_variation,
     serialize_variation_to_import_format,
 )
+
+QUIZ_RESULT_DEBOUNCE_HOURS = timedelta(hours=3)
 
 
 def home(request, course_id=None, chapter_id=None):
@@ -217,25 +220,16 @@ def report_result(request):
 
     variation = get_object_or_404(Variation, pk=variation_id)
 
-    """
-    variation 1
-    level = 2
-
-    quiz_result
-    level = 1
-    """
-    # last_result = (
-    #     QuizResult.objects.filter(variation=variation).order_by("-datetime").first()
-    # )
-    # if last_result:
-    #     expected_after = last_result.level + 1 if last_result.passed else 1
-    #     print(
-    #         f"{last_result.__dict__}\nvariation.level: {variation.level}\nexpected after: {expected_after}"  # noqa: E501
-    #     )
-    #     if variation.level == expected_after:
-    #         return JsonResponse(
-    #             {"status": "ignored", "message": "Duplicate result already applied"}
-    #         )
+    if last_result := (
+        QuizResult.objects.filter(variation=variation).order_by("-datetime").first()
+    ):
+        if now() - last_result.datetime < QUIZ_RESULT_DEBOUNCE_HOURS:
+            return JsonResponse(
+                {
+                    "status": "ignored",
+                    "message": "Already reported within debounce window",
+                },
+            )
 
     variation.handle_quiz_result(passed)
 
