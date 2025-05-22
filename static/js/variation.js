@@ -250,7 +250,6 @@ export function variationApp() {
       document
         .querySelectorAll(".mainline-move, .subvar-move, .variation-mainline-move-item")
         .forEach((move) => {
-          move.style.cursor = "pointer";
           move.addEventListener("click", this.handleMoveClick.bind(this));
         });
     },

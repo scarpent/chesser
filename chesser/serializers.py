@@ -270,6 +270,9 @@ def generate_variation_html(variation):
 
             html += f"</h3>{subvar_html}"
 
+    if not beginning_of_move_group:
+        html += "</h3>"
+
     return html
 
 

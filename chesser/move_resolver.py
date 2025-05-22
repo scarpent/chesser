@@ -812,6 +812,11 @@ class PathFinder:
 
 
 def get_parsed_blocks_first_pass(chunks: list[Chunk]) -> list[ParsedBlock]:
+    """
+    This normalizes things a bit, e.g. combining comments, and making
+    fenseqs into subvar+ blocks. We're just lining up the blocks for
+    the real work ahead...
+    """
     parsed_blocks = []
     i = 0
     depth = 0

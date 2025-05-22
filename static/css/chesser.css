@@ -437,6 +437,11 @@ blockquote {
   flex-wrap: wrap;
 }
 
+.variation-mainline .mainline-move,
+.subvariations .subvar-move {
+  cursor: pointer;
+}
+
 .move-verbose-edit {
   margin: 0;
 }
