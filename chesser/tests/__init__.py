@@ -129,9 +129,9 @@ def merge_boards(*move_strings: str) -> dict[str, list[chess.Board]]:
     return merged
 
 
-def make_pathfinder(blocks, mainline_verbose, board=None, move_id=1234):
+def make_pathfinder(blocks, mainline_verbose, board=None):
     board = board or chess.Board()
-    return move_resolver.PathFinder(blocks, move_id, mainline_verbose, board, None)
+    return move_resolver.PathFinder(blocks, mainline_verbose, board, None)
 
 
 def get_verbose_sans_list(blocks: list[ParsedBlock]):

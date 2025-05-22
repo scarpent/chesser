@@ -158,9 +158,11 @@ class ResolveStats:
 
 
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
-    chunks = extract_ordered_chunks(move.text)  # type: ignore
+    if not move.text:
+        return []
+    chunks = extract_ordered_chunks(move.text)
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
-    pathfinder = PathFinder(parsed_blocks, move.id, move.move_verbose, board)
+    pathfinder = PathFinder(parsed_blocks, move.move_verbose, board)
     resolved_blocks = pathfinder.resolve_moves()
     return resolved_blocks
 
@@ -281,14 +283,12 @@ class PathFinder:
     def __init__(
         self,
         blocks: list[ParsedBlock],
-        mainline_move_id: int,
         mainline_move_verbose: str,
         board: chess.Board,
         stats: Optional[ResolveStats] = None,
     ):
         self.blocks = blocks
         self.resolved_blocks = []  # "finished" blocks, whether or not truly "resolved"
-        self.mainline_move_id = mainline_move_id
         self.mainline_move_verbose = mainline_move_verbose
         self.board = board
 
@@ -775,19 +775,29 @@ class PathFinder:
             self.advance_to_next_block(append=pending_block)
 
         # ==============================================================================
-        # temp_resolved_blocks = [b.move_verbose or b.type_ for b in self.resolved_blocks]  # noqa: E501
-        # move = Move.objects.get(id=self.mainline_move_id)
-        # some_jg_chapters = (7, 8, 13, 20, 4, 18, 23, 25)
-        # if (
-        #     len(temp_resolved_blocks) > 20
-        #     and move.variation.chapter_id in some_jg_chapters
-        # ):
-        #     print(f"V# {move.variation_id} M# {move.id} {move.move_verbose}")
-        #     print(f"    num resolved blocks: {len(temp_resolved_blocks)}")
-        #     base = "http://localhost:8000/variation/"
-        #     print(f"    {base}{move.variation_id}/?idx={move.sequence}")
-
         """
+        temp_resolved_blocks = [b.move_verbose or b.type_ for b in self.resolved_blocks]  # noqa: E501
+        move = Move.objects.get(id=self.mainline_move_id)  # mainline move went away but
+            we'll consider some kind of construction like:
+
+            @dataclass
+                class ResolveStats:
+                    ...
+                    context: dict[str, Any] = field(default_factory=dict)
+
+            # and then:
+            stats.context["move_id"] = move.id
+
+        some_jg_chapters = (7, 8, 13, 20, 4, 18, 23, 25)
+        if (
+            len(temp_resolved_blocks) > 20
+            and move.variation.chapter_id in some_jg_chapters
+        ):
+            print(f"V# {move.variation_id} M# {move.id} {move.move_verbose}")
+            print(f"    num resolved blocks: {len(temp_resolved_blocks)}")
+            base = "http://localhost:8000/variation/"
+            print(f"    {base}{move.variation_id}/?idx={move.sequence}")
+
         good gnarlier examples:
         V# 569    M# 10591    15...Ra7
         V# 1090   M# 21709    8...Nd5
