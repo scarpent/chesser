@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.http import require_POST
 
 from chesser import importer, util
 from chesser.models import Chapter, Course, QuizResult, Variation
@@ -203,26 +204,22 @@ def review_random_old(request):
 
 
 @csrf_exempt
+@require_POST
 def report_result(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        variation_id = data.get("variation_id")
-        passed = data.get("passed")
+    data = json.loads(request.body)
+    variation_id = data.get("variation_id")
+    passed = data.get("passed")
 
-        variation = get_object_or_404(Variation, pk=variation_id)
-        variation.handle_quiz_result(passed)
+    variation = get_object_or_404(Variation, pk=variation_id)
+    variation.handle_quiz_result(passed)
 
-        total_due_now, total_due_soon = Variation.due_counts()
-        return JsonResponse(
-            {
-                "status": "success",
-                "total_due_now": total_due_now,
-                "total_due_soon": total_due_soon,
-            },
-        )
-
+    total_due_now, total_due_soon = Variation.due_counts()
     return JsonResponse(
-        {"status": "error", "message": "Invalid request method"}, status=400
+        {
+            "status": "success",
+            "total_due_now": total_due_now,
+            "total_due_soon": total_due_soon,
+        },
     )
 
 
@@ -279,10 +276,8 @@ def handle_upload_errors(request, error_message):
 
 
 @csrf_protect
+@require_POST
 def upload_json_data(request):
-    if request.method != "POST":
-        return handle_upload_errors(request, "Invalid request method")
-
     file = request.FILES.get("uploaded_file")
     if not file:
         return handle_upload_errors(request, "No file selected")
@@ -623,30 +618,26 @@ def get_normalized_shapes(shapes):
 
 
 @csrf_exempt
+@require_POST
 def save_variation(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        variation_id = data.get("variation_id")
-        print(f"💾 Saving variation {variation_id}")
-        variation = get_object_or_404(Variation, pk=variation_id)
-        variation.title = data["title"]
-        variation.start_move = data["start_move"]
-        variation.save()
+    data = json.loads(request.body)
+    variation_id = data.get("variation_id")
+    print(f"💾 Saving variation {variation_id}")
+    variation = get_object_or_404(Variation, pk=variation_id)
+    variation.title = data["title"]
+    variation.start_move = data["start_move"]
+    variation.save()
 
-        for idx, move in enumerate(variation.moves.all()):
-            move.san = data["moves"][idx]["san"]
-            move.annotation = data["moves"][idx]["annotation"]
-            move.text = data["moves"][idx]["text"]
-            move.alt = data["moves"][idx]["alt"]
-            move.alt_fail = data["moves"][idx]["alt_fail"]
-            move.shapes = get_normalized_shapes(data["moves"][idx]["shapes"])
-            move.save()
+    for idx, move in enumerate(variation.moves.all()):
+        move.san = data["moves"][idx]["san"]
+        move.annotation = data["moves"][idx]["annotation"]
+        move.text = data["moves"][idx]["text"]
+        move.alt = data["moves"][idx]["alt"]
+        move.alt_fail = data["moves"][idx]["alt_fail"]
+        move.shapes = get_normalized_shapes(data["moves"][idx]["shapes"])
+        move.save()
 
-        return JsonResponse({"status": "success"})
-
-    return JsonResponse(
-        {"status": "error", "message": "Invalid request method"}, status=400
-    )
+    return JsonResponse({"status": "success"})
 
 
 def variation(request, variation_id=None):
