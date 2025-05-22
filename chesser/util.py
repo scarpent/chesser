@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import nh3
 from django.utils.timesince import timesince
@@ -38,40 +38,33 @@ def strip_move_numbers(move_str):
     return re.sub(r"\d+\.(\.\.)?", "", move_str).strip()
 
 
-def get_time_ago(now, result_datetime):
-    now_local = localtime(now)
-    result_local = localtime(result_datetime)
+def plural(unit: str, count: int) -> str:
+    return f"{count} {unit}" + ("s" if count != 1 else "") + " ago"
 
-    if not result_local:
+
+def get_time_ago(now, result_datetime):
+    if not result_datetime:
         return "Never"
-    if now_local < result_local:
+    if now < result_datetime:
         return "In the future?!"
 
-    delta = now_local - result_local
+    delta = now - result_datetime
+    seconds = delta.total_seconds()
+    days = delta.days
 
-    if delta < timedelta(minutes=10):
+    if seconds < 15 * 60:
         return "just now"
-    if now_local.date() == result_local.date():
-        return "today"
-    if (now_local.date() - result_local.date()).days == 1:
-        return "yesterday"
-    if delta.days < 13:
-        return f"{delta.days} day{'s' if delta.days > 1 else ''} ago"
-
-    weeks = delta.days // 7
-    if weeks < 8:
-        return f"{weeks} week{'s' if weeks > 1 else ''} ago"
-
-    # correct misleading 1mo + 3wk case
-    parts = timesince(result_local, now_local).split(", ")
-    if len(parts) >= 2 and "month" in parts[0] and "week" in parts[1]:
-        months = int(parts[0].split()[0])
-        weeks = int(parts[1].split()[0])
-        if weeks >= 3:
-            return f"{months + 1} months ago"
-
-    # fallback — includes "2 months", "1 year", etc.
-    return parts[0] + " ago"
+    if seconds < 60 * 60:
+        return plural("minute", int(seconds // 60))
+    if seconds < 24 * 60 * 60:
+        return plural("hour", int(seconds // 3600))
+    if days < 14:
+        return plural("day", days)
+    if days < 60:
+        return plural("week", days // 7)
+    if days < 365:
+        return plural("month", days // 30)
+    return timesince(result_datetime, now) + " ago"
 
 
 def format_time_until(now, next_review):
