@@ -174,7 +174,7 @@ def test_is_block_element(chunk, expected):
 def test_render_chunks_with_br(
     chunks, in_paragraph, expected_html, expected_in_paragraph
 ):
-    state = serializers.RendererState(in_paragraph=in_paragraph)
+    state = serializers.RenderState(in_paragraph=in_paragraph)
     actual_html = serializers.render_chunks_with_br(chunks, state)
     assert_equal(expected_html, actual_html)
     assert state.in_paragraph == expected_in_paragraph
@@ -207,7 +207,7 @@ def test_render_chunks_with_br(
 def test_render_comment_block(display_text, expected_html, expected_state):
     # might not really need so many cases since we've already tested separately
     # in test_render_chunks_with_br, but not bad to run several through...
-    state = serializers.RendererState()
+    state = serializers.RenderState()
     block = ParsedBlock(type_="comment", display_text=display_text)
     html = serializers.render_comment_block(block, state)
     assert_equal(expected_html, html)
@@ -215,7 +215,7 @@ def test_render_comment_block(display_text, expected_html, expected_state):
 
 
 def test_render_comment_block_debug_output(capsys):
-    state = serializers.RendererState(debug=True)
+    state = serializers.RenderState(debug=True)
     block = ParsedBlock(type_="comment", display_text="line 1\nline 2")
 
     serializers.render_comment_block(block, state)
@@ -269,7 +269,7 @@ def test_render_comment_block_debug_output(capsys):
 )
 def test_render_start_block(block_data, initial_state, expected_html, expected_state):
     block = ParsedBlock(**block_data)
-    state = serializers.RendererState(
+    state = serializers.RenderState(
         in_paragraph=initial_state["in_paragraph"], counter=initial_state["counter"]
     )
     html = serializers.render_start_block(block, state)
@@ -336,7 +336,7 @@ def test_print_block_type_info(capsys):
 )
 def test_render_end_block(block_data, initial_state, expected_html, expected_state):
     block = ParsedBlock(**block_data)
-    state = serializers.RendererState(
+    state = serializers.RenderState(
         in_paragraph=initial_state.get("in_paragraph", False),
         next_type=initial_state.get("next_type", ""),
     )

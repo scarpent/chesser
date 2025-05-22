@@ -307,7 +307,7 @@ def get_final_move_simple_subvariations_html(variation):
 
 
 @dataclass
-class RendererState:
+class RenderState:
     counter: int = -1  # unique data-index
     in_paragraph: bool = False
     previous_type: str = ""
@@ -315,7 +315,7 @@ class RendererState:
     debug: bool = False
 
 
-def render_comment_block(block: ParsedBlock, state: RendererState) -> str:
+def render_comment_block(block: ParsedBlock, state: RenderState) -> str:
     """
     Comments may have text but might also only have formatting
     like newlines which we preserve depending on the context.
@@ -331,7 +331,7 @@ def render_comment_block(block: ParsedBlock, state: RendererState) -> str:
     return html
 
 
-def render_start_block(block: ParsedBlock, state: RendererState) -> str:
+def render_start_block(block: ParsedBlock, state: RenderState) -> str:
     html = f"<!-- Start Block Log: {block.log} -->"
 
     if block.fen:
@@ -357,7 +357,7 @@ def render_start_block(block: ParsedBlock, state: RendererState) -> str:
     return html
 
 
-def render_end_block(block: ParsedBlock, state: RendererState) -> str:
+def render_end_block(block: ParsedBlock, state: RenderState) -> str:
     """let's try organizing more deeply nested subvariations"""
     html = ""
     if block.depth > 1:
@@ -374,7 +374,7 @@ def render_end_block(block: ParsedBlock, state: RendererState) -> str:
     return html
 
 
-def render_move_block(block: ParsedBlock, state: RendererState) -> str:
+def render_move_block(block: ParsedBlock, state: RenderState) -> str:
     html = ""
     resolved = "" if block.move_parts_resolved else " ❌"
 
@@ -446,7 +446,7 @@ def generate_subvariations_html(
     Our train of blocks cars has been filled with a precious
     cargo of pgn slurry, which we'll finally pour into HTML.
     """
-    state = RendererState(debug=debug)
+    state = RenderState(debug=debug)
     html = ""
     for i, block in enumerate(parsed_blocks):
         if debug:
@@ -475,7 +475,7 @@ def is_block_element(chunk: str) -> bool:
     return tag in util.BLOCK_TAGS
 
 
-def render_chunks_with_br(chunks: list[str], state: RendererState) -> str:
+def render_chunks_with_br(chunks: list[str], state: RenderState) -> str:
     """
     I think we should expect alternating block and non-block chunks?
     """
