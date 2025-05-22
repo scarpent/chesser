@@ -210,7 +210,33 @@ def report_result(request):
     variation_id = data.get("variation_id")
     passed = data.get("passed")
 
+    if variation_id is None or passed is None:
+        return JsonResponse(
+            {"status": "error", "message": "Missing parameters"}, status=400
+        )
+
     variation = get_object_or_404(Variation, pk=variation_id)
+
+    """
+    variation 1
+    level = 2
+
+    quiz_result
+    level = 1
+    """
+    # last_result = (
+    #     QuizResult.objects.filter(variation=variation).order_by("-datetime").first()
+    # )
+    # if last_result:
+    #     expected_after = last_result.level + 1 if last_result.passed else 1
+    #     print(
+    #         f"{last_result.__dict__}\nvariation.level: {variation.level}\nexpected after: {expected_after}"  # noqa: E501
+    #     )
+    #     if variation.level == expected_after:
+    #         return JsonResponse(
+    #             {"status": "ignored", "message": "Duplicate result already applied"}
+    #         )
+
     variation.handle_quiz_result(passed)
 
     total_due_now, total_due_soon = Variation.due_counts()

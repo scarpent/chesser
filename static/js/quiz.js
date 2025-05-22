@@ -520,7 +520,6 @@ export function quizApp() {
         const data = await response.json();
 
         if (data.status === "success") {
-          const text = passed ? "Passed" : "Failed";
           this.reviewData.total_due_now = data.total_due_now;
           this.reviewData.total_due_soon = data.total_due_soon;
           this.updateReviewSessionStats(passed);
