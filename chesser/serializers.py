@@ -345,8 +345,8 @@ def render_start_block(block: ParsedBlock, state: RenderState) -> str:
         )
 
     elif block.depth > 1:
-        # use depth and emoji for debug/visualization: {block.depth}🌻
-        para = f'<p class="subvar-indent depth-{block.depth}"> '
+        # use depth and emoji for debug/visualization: <p>{block.depth}🌻
+        para = f'<p class="subvar-indent depth-{block.depth}">'
         if not state.in_paragraph:  # probably already in a paragraph at depth 2
             html += para
             state.in_paragraph = True
@@ -366,10 +366,10 @@ def render_end_block(block: ParsedBlock, state: RenderState) -> str:
             if not state.in_paragraph:  # probably already in a paragraph at depth 2
                 html += "<p>"
                 state.in_paragraph = True
-            # depth/emoji for debug/visualization: 🪦{block.depth}
+            # depth/emoji for debug/visualization: 🪦{block.depth}</p>
             html += f'</p><p class="subvar-indent depth-{block.depth - 1}">'
 
-    # TODO: handle <p></p> case (test test_render_end_block has an example)
+    # TODO: handle <p></p> case (test_render_end_block has an example)
 
     return html
 

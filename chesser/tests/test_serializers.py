@@ -248,14 +248,14 @@ def test_render_comment_block_debug_output(capsys):
         (
             {"type_": "start", "fen": "", "depth": 3, "log": "log3"},
             {"in_paragraph": False, "counter": 0},
-            '<!-- Start Block Log: log3 --><p class="subvar-indent depth-3"> ',
+            '<!-- Start Block Log: log3 --><p class="subvar-indent depth-3">',
             {"in_paragraph": True, "counter": 0},
         ),
         # Case 4: Start block with depth > 1, already in paragraph
         (
             {"type_": "start", "fen": "", "depth": 2, "log": "log4"},
             {"in_paragraph": True, "counter": 2},
-            '<!-- Start Block Log: log4 --></p><p class="subvar-indent depth-2"> ',
+            '<!-- Start Block Log: log4 --></p><p class="subvar-indent depth-2">',
             {"in_paragraph": True, "counter": 2},
         ),
         # Case 5: No fen, depth 1
