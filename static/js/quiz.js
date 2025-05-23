@@ -162,7 +162,7 @@ export function quizApp() {
           this.completeQuiz();
           return;
         }
-      }, 250); // 0.25 second delay
+      }, 250); // 0.25 second delay feels natural
     },
 
     //--------------------------------------------------------------------------------
@@ -319,6 +319,10 @@ export function quizApp() {
         this.annotateTimeoutId = null;
       }
 
+      // Defensive: ensure index is reset to avoid any prior undo
+      this.quizMoveIndex = 0;
+      this.chess.reset();
+
       if (this.completed) {
         this.reviewData.extra_study = true; // whether forced or elective
       } else {
@@ -333,14 +337,17 @@ export function quizApp() {
       }
 
       this.quizCompleteOverlay = "";
-      this.chess.reset();
       this.goToStartingPosition();
       this.board.set({
         fen: this.chess.fen(),
         movable: { dests: this.toDests() },
       });
-      this.playOpposingMove();
-      this.displayReviewSessionStats();
+
+      // Delay ensures playOpposingMove doesn't overlap with pending missed-move annotation
+      setTimeout(() => {
+        this.playOpposingMove();
+        this.displayReviewSessionStats();
+      }, 300);
     },
 
     //--------------------------------------------------------------------------------
