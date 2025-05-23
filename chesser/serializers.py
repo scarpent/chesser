@@ -463,13 +463,15 @@ def generate_subvariations_html(
     if state.in_paragraph:
         html += "</p>"  # and no need to unset state here at the end 🪦
 
-    # this might be the place to do various cleanup? e.g. <p></p>, although
-    # we might want to catch those sooner, but also we can capture these
-    # leftover spaces that might be hard to deal with in the chunking
-    # process (since they are a deliberate part of the chunking, keeping
-    # things normalized while we work, and then we just clean up here) 🧹
+    # This might be the place to do various cleanup? e.g. <p></p>,
+    # although that one we might want to handle/prevent earlier.
+    # There are also extra spaces between move spans and punctuation
+    # [,.!?] which are more easily removed here 🧹
     html = re.sub(
-        r"<\/span> +(<!--[^<>]*?-->) *([,.!?])", r"</span>\1\2", html, flags=re.DOTALL
+        r"<\/span> +(<!--[^<>]*?-->) *([,.!?])",
+        r"</span>\1\2",
+        html,
+        flags=re.DOTALL,
     )
 
     return (
