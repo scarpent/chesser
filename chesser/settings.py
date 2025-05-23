@@ -56,7 +56,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # WhiteNoise comes immediately after SecurityMiddleware
+    # WhiteNoise should come immediately after SecurityMiddleware
+    # to ensure security headers are applied before serving static files
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
