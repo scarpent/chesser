@@ -55,12 +55,14 @@ def get_time_ago(now, result_datetime):
     # we'll micromanage things in the early going
     if seconds < 13 * 60:
         return "just now"
+    if seconds < 26 * 60:
+        return plural("minute", int(seconds // 60))
+    if seconds < 35 * 60:
+        return "a half hour ago"
     if seconds < 50 * 60:
         return plural("minute", int(seconds // 60))
-    if seconds < 73 * 60:
-        return "about an hour ago"
-    if seconds < 107 * 60:
-        return "over an hour ago"
+    if seconds < 90 * 60:
+        return "an hour ago"
     if seconds < 120 * 60:
         return "2 hours ago"
     if seconds < 24 * 60 * 60:
