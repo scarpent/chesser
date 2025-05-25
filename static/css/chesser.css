@@ -693,7 +693,7 @@ blockquote {
   width: 350px;
 }
 
-.course {
+.landscape-overlay {
   display: flex;
   justify-content: center; /* Ensures each image centers inside its container */
   align-items: center;
@@ -715,7 +715,7 @@ blockquote {
   background-color: transparent;
 }
 
-.course img,
+.landscape-overlay img,
 .castle-button img {
   width: 70%;
   max-width: 250px;
@@ -728,7 +728,7 @@ blockquote {
 }
 
 .castle-button img {
-  object-fit: contain; /* contain is disastrous for `.course img` */
+  object-fit: contain; /* contain is disastrous for `.landscape-overlay img` */
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 .castle-button.course-black img,
