@@ -758,11 +758,6 @@ blockquote {
   height: 80px;
 }
 
-.castle-button.medium-icon img {
-  width: 60px;
-  height: 60px;
-}
-
 .castle-button.icon-like-img img {
   border-width: 2px;
   border-style: solid;
@@ -906,11 +901,6 @@ more washed out with all the white paper */
 .big-icon {
   width: 85px;
   height: 85px;
-}
-
-.medium-icon {
-  width: 64px;
-  height: 64px;
 }
 
 .icon-review {
