@@ -1064,22 +1064,18 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
                 token_start = i
 
         elif mode == "comment":  # pragma: no branch
-            # have yet to see these in the wild - using assertions until
-            # we do, at which time we'll handle them one way or another
-            assert text[i] != "{", "Unexpected opening brace in comment chunk"
-            assert not text[i:].startswith(
-                "<fenseq"
-            ), "Unexpected <fenseq> tag in comment chunk"
-            # parens are fine, though! we expect and encourage them (❤️)
+            if text[i] == "{":
+                print(f"⚠️  Found opening brace in comment chunk: {text[i:]}")
 
-        elif mode != "comment":  # pragma: no cover
+        elif mode != "comment":
             raise ValueError(  # impossible?
                 f"Unexpected char '{c}' in mode '{mode}' at index {i}: {text[:30]}"
             )
 
-        assert (  # impossible?
-            paren_depth >= 0
-        ), f"Unbalanced parens at index {i}, depth {paren_depth}: {text[:30]}"
+        if paren_depth < 0:
+            print(
+                f"⚠️  Unbalanced parens at index {i}, depth {paren_depth}: {text[:30]}"
+            )
 
         i += 1
 
