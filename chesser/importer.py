@@ -78,13 +78,14 @@ def import_variation(import_data, end_move=None):
     if variation_id := import_data.get("variation_id"):
         try:
             Variation.objects.get(pk=variation_id)
+            # easy enough to remove variation id from import if we're okay with it
             raise ValueError(f"Variation #{variation_id} already exists; not importing")
         except Variation.DoesNotExist:
             pass  # good to go; note that we'll not reuse the ID
 
     course = Course.objects.get(color=import_data["color"])
     chapter, created = course.chapter_set.get_or_create(
-        course=course, title=import_data["chapter_title"]
+        title=import_data["chapter_title"]
     )
     label = "Creating" if created else "Getting"
     print("➤ " * 32)
@@ -138,7 +139,7 @@ def import_variation(import_data, end_move=None):
         print(message)
         raise ValueError(message)
 
-    variation.source = import_data["source"]
+    variation.source = import_data.get("source")
     variation.title = import_data["variation_title"]
     variation.start_move = import_data["start_move"]
     if created and import_data["level"] >= 0:
@@ -160,13 +161,13 @@ def import_variation(import_data, end_move=None):
             move_num=move_import["move_num"],
             sequence=idx,
         )
-        move.move_num = move_import["move_num"]
-        move.san = move_import["san"]
-        move.annotation = move_import["annotation"]
-        move.text = move_import["text"]
-        move.alt = move_import.get("alt", "")
-        move.alt_fail = move_import.get("alt_fail", "")
-        move.shapes = json.dumps(move_import["shapes"]) if move_import["shapes"] else ""
+        move.san = util.strip_all_html(move_import["san"])
+        move.annotation = util.strip_all_html(move_import["annotation"])
+        move.text = util.clean_html(move_import["text"])
+        move.alt = util.strip_all_html(move_import.get("alt", ""))
+        move.alt_fail = util.strip_all_html(move_import.get("alt_fail", ""))
+        shapes_raw = move_import.get("shapes")
+        move.shapes = json.dumps(shapes_raw) if shapes_raw else ""
 
         move.save()
 

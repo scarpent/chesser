@@ -644,17 +644,18 @@ def save_variation(request):
     variation_id = data.get("variation_id")
     print(f"💾 Saving variation {variation_id}")
     variation = get_object_or_404(Variation, pk=variation_id)
-    variation.title = data["title"]
+    variation.title = data["title"]  # no sanitization; displayed as x-text
     variation.start_move = data["start_move"]
     variation.save()
 
     for idx, move in enumerate(variation.moves.all()):
-        move.san = data["moves"][idx]["san"]
-        move.annotation = data["moves"][idx]["annotation"]
-        move.text = data["moves"][idx]["text"]
-        move.alt = data["moves"][idx]["alt"]
-        move.alt_fail = data["moves"][idx]["alt_fail"]
-        move.shapes = get_normalized_shapes(data["moves"][idx]["shapes"])
+        move_data = data["moves"][idx]
+        move.san = util.strip_all_html(move_data["san"])
+        move.annotation = util.strip_all_html(move_data["annotation"])
+        move.text = util.clean_html(move_data["text"])
+        move.alt = util.strip_all_html(move_data["alt"])
+        move.alt_fail = util.strip_all_html(move_data["alt_fail"])
+        move.shapes = get_normalized_shapes(move_data["shapes"])
         move.save()
 
     return JsonResponse({"status": "success"})

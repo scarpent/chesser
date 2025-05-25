@@ -34,6 +34,10 @@ def clean_html(text):
     )
 
 
+def strip_all_html(text: str) -> str:
+    return nh3.clean(text, tags=set(), attributes={})
+
+
 def strip_move_numbers(move_str):
     return re.sub(r"\d+\.(\.\.)?", "", move_str).strip()
 

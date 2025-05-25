@@ -213,13 +213,18 @@ def get_source_html(source):
             f'{my_course["variation_id"]}</a></p>'
         )
         if note := my_course.get("note", "").strip():
-            mine += f"<p>{note}</p>"
+            mine += f"<p>{util.clean_html(note)}</p>"
 
     if original_course := source.get("original_course"):
+
+        cleaned_course = util.strip_all_html(original_course["course"])
+        cleaned_chapter = util.strip_all_html(original_course["chapter"])
+        cleaned_title = util.strip_all_html(original_course["variation_title"])
+
         original = (
-            f'<p id="original-variation">{original_course["course"]} ➤<br/>'
-            f'{original_course["chapter"]} ➤<br/>'
-            f'{original_course["variation_title"]} '
+            f'<p id="original-variation">{cleaned_course} ➤<br/>'
+            f"{cleaned_chapter} ➤<br/>"
+            f"{cleaned_title} "
             '<a href="https://www.chessable.com/variation/'
             f'{original_course["variation_id"]}/" target="_blank">'
             f'{original_course["variation_id"]}</a></p>'
@@ -296,10 +301,10 @@ def get_final_move_simple_subvariations_html(variation):
     for block in parsed_blocks:
         if block.type_ == "comment":
             comment = block.display_text
-            html += f" {comment} "
+            html += f" {util.clean_html(comment)} "
         elif block.type_ == "move":
             move_text = block.move_verbose if previous_type != "move" else block.raw
-            html += f" {move_text} "
+            html += f" {util.strip_all_html(move_text)} "
         previous_type = block.type_
 
     if html:
@@ -322,11 +327,12 @@ def render_comment_block(block: ParsedBlock, state: RenderState) -> str:
     Comments may have text but might also only have formatting
     like newlines which we preserve depending on the context.
     """
-    chunks = chunk_html_for_wrapping(block.display_text)
+    cleaned_text = util.clean_html(block.display_text)
+    chunks = chunk_html_for_wrapping(cleaned_text)
     html = render_chunks_with_br(chunks, state)
 
     if state.debug:
-        print(f"➡️ |\n{block.display_text}\n|⬅️")
+        print(f"➡️ |\n{cleaned_text}\n|⬅️")
         print(f"\n🧊 Chunks:\n{chunks}")
         print(f"\n💦 Rendered:\n{html}|in para = {state.in_paragraph}\n")
 
@@ -396,8 +402,8 @@ def render_move_block(block: ParsedBlock, state: RenderState) -> str:
         # on to space things out appropriately (slighly usurping the rule
         # of render_chunks_with_br in that realm)
         html += (
-            f'<span class="move subvar-move" data-fen="{block.fen}" '
-            f'data-index="{state.counter}">{move_text}{resolved}</span> '
+            f'<span class="move subvar-move" data-fen="{block.fen}" data-index="'
+            f'{state.counter}">{util.strip_all_html(move_text)}{resolved}</span> '
         )
     else:
         html += f" {move_text} {resolved} "
