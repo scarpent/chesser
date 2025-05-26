@@ -23,13 +23,13 @@
     </button>
     <button
       @click="window.location.href = '/'"
-      class="image-button book-cover book-cover-round"
+      class="image-button home-button button-round"
       title="Home"
     >
       <img
         src="{% static 'images/chesser-logo-192x192.png' %}"
         alt="Chesser Logo"
-        style="width: 85px; border: 2px solid var(--color-button-border)"
+        style="width: 85px; height: 85px"
       />
     </button>
     <button
@@ -45,17 +45,17 @@
     <button
       title="Stats"
       @click="window.open('/stats/', '_blank')"
-      class="icon-stats icon-button-home"
+      class="icon-stats icon-button icon-button-big-round"
     ></button>
     <button
       title="Review"
       @click="window.location.href='/review/'"
-      class="icon-review icon-button-home"
+      class="icon-review icon-button icon-button-big-round"
     ></button>
     <button
       title="Import"
       @click="window.location.href='/import/'"
-      class="icon-import icon-button-home"
+      class="icon-import icon-button icon-button-big-round"
     ></button>
   </div>
 
@@ -221,12 +221,12 @@
     <button
       title="Random Extra Study"
       @click="goToRandomReview()"
-      class="icon-random icon-button-home"
+      class="icon-random icon-button icon-button-big-round"
     ></button>
     <button
       title="Lichess Puzzles"
       @click="window.open('https://lichess.org/training', target='_blank')"
-      class="icon-puzzles icon-button-home"
+      class="icon-puzzles icon-button icon-button-big-round"
     ></button>
   </div>
 

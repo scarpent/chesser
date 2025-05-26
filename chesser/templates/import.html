@@ -15,20 +15,20 @@
     <button
       title="Home"
       @click="window.location.href = '/'"
-      class="image-button big-icon book-cover book-cover-round"
+      class="image-button import-top-button icon-button-big-round"
     >
       <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
     </button>
     <button
       @click="window.location.href = '/course/1/'"
-      class="image-button big-icon course-white book-cover-round"
+      class="image-button import-top-button icon-button-big-round course-white"
       title="White Openings"
     >
       <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
     </button>
     <button
       @click="window.location.href = '/course/2/'"
-      class="image-button big-icon course-black book-cover-round"
+      class="image-button import-top-button icon-button-big-round course-black"
       title="Black Openings"
     >
       <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
@@ -36,7 +36,7 @@
     <button
       title="Review"
       @click="window.location.href='/review/'"
-      class="icon-review icon-button-home"
+      class="icon-review icon-button icon-button-big-round"
     ></button>
   </div>
 
@@ -92,7 +92,7 @@
         />
         <button
           type="submit"
-          class="icon-clone icon-button-home"
+          class="icon-clone icon-button icon-button-big-round"
           title="Clone"
         ></button>
       </form>
@@ -146,7 +146,7 @@
         <div style="position: relative">
           <button
             type="submit"
-            class="icon-import icon-button-home"
+            class="icon-import icon-button icon-button-big-round"
             style="position: absolute; top: 15px; right: 15px; z-index: 10"
             title="Import"
           ></button>
@@ -178,7 +178,7 @@ string will import if unique, e.g. ➤
       <button
         title="Upload"
         type="submit"
-        class="icon-upload icon-button-home"
+        class="icon-upload icon-button icon-button-big-round"
       ></button>
     </form>
   </div>

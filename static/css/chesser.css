@@ -686,9 +686,6 @@ blockquote {
   align-items: center;
 }
 
-.landscape-cover.book-cover {
-  width: 150px;
-}
 .landscape-cover.course-black,
 .landscape-cover.course-white {
   width: 350px;
@@ -741,35 +738,34 @@ blockquote {
   transform: scale(0.92);
 }
 
-/* castle images are already bright so we'll make this brighter yet */
+/* home page castle images are already bright so we'll make this brighter yet */
 .image-button:hover img {
   filter: brightness(1.8) contrast(1.1);
 }
 
-/* "book cover" is more subtle */
-.book-cover.image-button:hover img {
-  filter: brightness(1.4) contrast(1.1);
+.import-top-button:hover img {
+  filter: brightness(1.3) contrast(1.2);
 }
 
-/* castle image buttons; tuned to match regular icon buttons */
-.image-button.big-icon img {
+.import-top-button img {
   border-width: 2px;
   border-style: solid;
   width: 80px;
   height: 80px;
 }
 
-.image-button.icon-like-img img {
+.home-button img {
   border-width: 2px;
   border-style: solid;
   width: 48px;
   height: 48px;
 }
 
-.book-cover-round {
+.button-round {
   border-radius: 50%;
+  aspect-ratio: 1;
 }
-.book-cover-round img {
+.button-round img {
   border-radius: 50%;
 }
 
@@ -818,7 +814,6 @@ button:hover {
   background-color: #555;
 }
 
-.icon-button-home,
 .icon-button {
   width: 52px;
   height: 52px;
@@ -832,13 +827,17 @@ button:hover {
   -webkit-tap-highlight-color: transparent;
 }
 
-.icon-button-home {
+.icon-button-big-round {
   border: 0;
   width: 85px;
   height: 85px;
   border-radius: 50%;
+  aspect-ratio: 1;
   background-size: 60%;
   background-color: black;
+}
+.icon-button-big-round img {
+  border-radius: 50%;
 }
 
 .icon-upload {
@@ -846,7 +845,7 @@ button:hover {
   height: 52px;
 }
 
-.icon-button-home img,
+.icon-button-big-round img,
 .icon-button img {
   width: 100%;
   height: 100%;
@@ -854,28 +853,21 @@ button:hover {
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.icon-button-home:active,
+.icon-button-big-round:active,
 .icon-button:active {
   transform: scale(0.92);
 }
 
-.icon-button-home:hover,
+.icon-button-big-round:hover,
 .icon-button:hover {
   filter: brightness(1.3) contrast(1.2);
 }
 
 /* tone it down a bit from others - this one was
 more washed out with all the white paper */
-.icon-review.icon-button-home:hover,
+.icon-review.icon-button-big-round:hover,
 .icon-review.icon-button:hover {
   filter: brightness(1.2) contrast(1);
-}
-
-.big-round {
-  border-radius: 50%;
-  background-size: 60%;
-  width: 90px;
-  height: 90px;
 }
 
 .variation-button-container {
@@ -1027,8 +1019,6 @@ more washed out with all the white paper */
   height: 81px;
   background: var(--color-button-border);
   border: none;
-  border-radius: 50%;
-  aspect-ratio: 1;
   padding: 0;
   cursor: pointer;
   display: flex;
@@ -1044,7 +1034,6 @@ more washed out with all the white paper */
   height: 85px;
   object-fit: cover;
   border: 6px solid var(--color-button-border);
-  border-radius: 50%;
   display: block;
 }
 
@@ -1426,7 +1415,7 @@ about 500, but also covers our ultimate mobile 450 view */
   }
 
   .icon-upload {
-    /* back to same larger but not quite as large as icon-button-home */
+    /* back to same larger but not quite as large as icon-button-big-round */
     width: 70px;
     height: 70px;
   }

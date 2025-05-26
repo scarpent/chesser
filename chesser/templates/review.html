@@ -28,7 +28,7 @@
       <template x-if="!hasVariationData()">
         <button
           title="Home"
-          class="board-cover-button"
+          class="board-cover-button button-round"
           @click="window.location.href='/'"
         >
           <img
@@ -93,7 +93,7 @@
         <button
           title="Home"
           @click="window.location.href = '/'"
-          class="image-button icon-like-img book-cover book-cover-round"
+          class="image-button home-button button-round"
         >
           <img
             src="{% static 'images/chesser-logo-192x192.png' %}"
@@ -182,12 +182,12 @@
         <button
           title="Random Extra Study"
           @click="window.location.href='/review/random/'"
-          class="icon-random icon-button-home"
+          class="icon-random icon-button icon-button-big-round"
         ></button>
         <button
           title="Lichess Puzzles"
           @click="window.open('https://lichess.org/training', target='_blank')"
-          class="icon-puzzles icon-button-home"
+          class="icon-puzzles icon-button icon-button-big-round"
         ></button>
       </div>
     </template>
