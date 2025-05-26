@@ -99,12 +99,18 @@
           ></div>
         </div>
         <p id="alts"></p>
-        <div id="chapter-title">
-          Chapter:
-          <a
-            :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
-            ><span x-text="variationData.chapter"></span
-          ></a>
+        <div id="chapter-title-and-fen">
+          <div>
+            Chapter:
+            <a
+              :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
+              ><span x-text="variationData.chapter"></span
+            ></a>
+          </div>
+          <div>
+            <a href="#" @click.prevent="copyCurrentFen" title="Copy current FEN">fen</a>
+            📋️
+          </div>
         </div>
         <div id="source" x-html="variationData.source_html"></div>
         {% include "includes/history.html" %}

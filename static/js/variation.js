@@ -315,7 +315,7 @@ export function variationApp() {
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
       } else if (moveElement.classList.contains("subvar-move")) {
         if (moveElement.classList.contains("highlight")) {
-          this.open_fen_in_lichess(moveElement); // Already selected; open analysis board
+          this.openFenInLichess(moveElement); // Already selected; open analysis board
         } else {
           this.selectClickedSubvarMove(moveElement);
         }
@@ -323,7 +323,7 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
-    open_fen_in_lichess(moveElement) {
+    openFenInLichess(moveElement) {
       const fen = moveElement.dataset.fen;
       if (fen) {
         const encodedFen = fen.replace(/ /g, "_");
@@ -331,6 +331,15 @@ export function variationApp() {
         const url = `https://lichess.org/analysis/standard/${encodedFen}?color=${color}`;
         window.open(url, "_blank");
       }
+    },
+
+    //--------------------------------------------------------------------------------
+    copyCurrentFen() {
+      const currentFen = this.chess.fen();
+      navigator.clipboard.writeText(currentFen).then(
+        () => console.log("✅ FEN copied:", currentFen),
+        (err) => console.error("❌ Failed to copy FEN:", err)
+      );
     },
 
     //--------------------------------------------------------------------------------

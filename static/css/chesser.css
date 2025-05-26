@@ -600,6 +600,14 @@ blockquote {
   padding: 0;
 }
 
+#chapter-title-and-fen {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-right: 10px;
+}
+
 .chapter-vars-review-info {
   color: var(--color-headers);
 }
