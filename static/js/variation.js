@@ -11,6 +11,7 @@ export function variationApp() {
     variationData: variationData,
     mainlineMoveIndex: 0,
     subvarMoveIndex: -1,
+    currentFen: "", // current board state, whether mainline or subvariation
 
     initVariation() {
       const boardElement = document.getElementById("board");
@@ -120,8 +121,9 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     updateBoard() {
+      this.currentFen = this.chess.fen();
       this.board.set({
-        fen: this.chess.fen(),
+        fen: this.currentFen,
         drawable: {
           shapes:
             this.mainlineMoveIndex >= 0
@@ -209,8 +211,8 @@ export function variationApp() {
         moveElement.classList.add("highlight");
 
         // Set board position from the move's FEN
-        const fen = moveElement.dataset.fen;
-        this.board.set({ fen: fen, drawable: { shapes: [] } }); // Clear shapes
+        this.currentFen = moveElement.dataset.fen;
+        this.board.set({ fen: this.currentFen, drawable: { shapes: [] } }); // Clear shapes
         // Alts don't really make sense in subvariations
         const altsElement = document.getElementById("alts");
         if (altsElement) altsElement.innerHTML = `<b>Alts ➤</b>`;
@@ -311,7 +313,7 @@ export function variationApp() {
         moveElement.classList.contains("mainline-move") ||
         moveElement.classList.contains("variation-mainline-move-item")
       ) {
-        console.log("Clicked mainline move:", parseInt(moveElement.dataset.index, 10));
+        // console.log("Clicked mainline move:", parseInt(moveElement.dataset.index, 10));
         this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
       } else if (moveElement.classList.contains("subvar-move")) {
         if (moveElement.classList.contains("highlight")) {
@@ -335,9 +337,12 @@ export function variationApp() {
 
     //--------------------------------------------------------------------------------
     copyCurrentFen() {
-      const currentFen = this.chess.fen();
-      navigator.clipboard.writeText(currentFen).then(
-        () => console.log("✅ FEN copied:", currentFen),
+      if (!this.currentFen) {
+        console.warn("No FEN available");
+        return;
+      }
+      navigator.clipboard.writeText(this.currentFen).then(
+        () => console.log("📋️ FEN copied:", this.currentFen),
         (err) => console.error("❌ Failed to copy FEN:", err)
       );
     },

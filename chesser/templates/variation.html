@@ -108,7 +108,12 @@
             ></a>
           </div>
           <div>
-            <a href="#" @click.prevent="copyCurrentFen" title="Copy current FEN">fen</a>
+            <a
+              :href="`#${currentFen}`"
+              @click.prevent="copyCurrentFen"
+              title="Copy current FEN"
+              >fen</a
+            >
             📋️
           </div>
         </div>
