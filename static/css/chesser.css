@@ -7,6 +7,7 @@
   --color-button-border: #7b4f11;
   --color-bg-dark: #222;
   --color-text-light: #ccc;
+  --color-bg-form: #1a1a1a;
 }
 
 body {
@@ -700,7 +701,7 @@ blockquote {
   flex: 0 1 auto; /* Prevents stretching */
 }
 
-.castle-button {
+.image-button {
   background: none;
   border: none;
   padding: 0;
@@ -711,12 +712,12 @@ blockquote {
   align-items: center;
 }
 
-.castle-button:hover {
+.image-button:hover {
   background-color: transparent;
 }
 
 .landscape-overlay img,
-.castle-button img {
+.image-button img {
   width: 70%;
   max-width: 250px;
   height: auto;
@@ -724,41 +725,41 @@ blockquote {
   border: 5px solid;
   border-radius: 20px;
   border-color: var(--color-button-border);
-  background-color: #1a1a1a;
+  background-color: var(--color-bg-form);
 }
 
-.castle-button img {
+.image-button img {
   object-fit: contain; /* contain is disastrous for `.landscape-overlay img` */
   transition: transform 0.3s ease, filter 0.3s ease;
 }
-.castle-button.course-black img,
-.castle-button.course-white img {
+.image-button.course-black img,
+.image-button.course-white img {
   filter: brightness(1.4) contrast(1.1);
 }
 
-.castle-button img:active {
+.image-button img:active {
   transform: scale(0.92);
 }
 
 /* castle images are already bright so we'll make this brighter yet */
-.castle-button:hover img {
+.image-button:hover img {
   filter: brightness(1.8) contrast(1.1);
 }
 
 /* "book cover" is more subtle */
-.book-cover.castle-button:hover img {
+.book-cover.image-button:hover img {
   filter: brightness(1.4) contrast(1.1);
 }
 
-/* these castle image buttons are tuned to match regular icon buttons */
-.castle-button.big-icon img {
+/* castle image buttons; tuned to match regular icon buttons */
+.image-button.big-icon img {
   border-width: 2px;
   border-style: solid;
   width: 80px;
   height: 80px;
 }
 
-.castle-button.icon-like-img img {
+.image-button.icon-like-img img {
   border-width: 2px;
   border-style: solid;
   width: 48px;
@@ -817,22 +818,17 @@ button:hover {
   background-color: #555;
 }
 
-/* trying transform and will-change but the rendering
-problem may be that I turned off some GPU stuff on
-external monitor to avoid display isses... */
 .icon-button-home,
 .icon-button {
   width: 52px;
   height: 52px;
-  background-color: #1a1a1a;
+  background-color: var(--color-bg-form);
   border: 2px solid var(--color-button-border);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 77%; /* adjust icon svg size, essentially */
   cursor: pointer;
   border-radius: 6px;
-  transform: translateZ(0); /* try to smooth rendering */
-  will-change: background-image, transform; /* prioritize for paint */
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -896,11 +892,6 @@ more washed out with all the white paper */
   background-color: #c0392b !important;
   border-color: #c0392b !important;
   transition: background-color 0.3s ease;
-}
-
-.big-icon {
-  width: 85px;
-  height: 85px;
 }
 
 .icon-review {
@@ -1012,7 +1003,7 @@ more washed out with all the white paper */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #444444; /* Darker thumb */
+  background: #444; /* Darker thumb */
   border-radius: 10px;
 }
 
@@ -1023,7 +1014,7 @@ more washed out with all the white paper */
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #444444 var(--color-bg-dark);
+  scrollbar-color: var(--color-bg-dark);
 }
 
 /* -------------------------------------------- Landscape & Review Overlays */
@@ -1172,7 +1163,7 @@ more washed out with all the white paper */
 .form-standard textarea:focus {
   outline: none;
   border-color: #999;
-  background-color: #1a1a1a;
+  background-color: var(--color-bg-form);
 }
 
 .wide-textarea {
