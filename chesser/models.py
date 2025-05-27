@@ -176,21 +176,30 @@ class Variation(models.Model):
         return total_due_now, total_due_soon
 
 
-class Move(models.Model):
+class AnnotatedMove(models.Model):
+    san = models.CharField(max_length=10)
+    annotation = models.CharField(max_length=10, default="", blank=True)
+    text = models.TextField(null=True, blank=True)
+    alt = models.TextField(null=True, blank=True)  # e.g. d4, Nf3, c4
+    alt_fail = models.TextField(null=True, blank=True)
+    # chessground drawable shapes (arrows/circles are implied by origin/dest)
+    # e.g. [{"orig": "f4", "brush":"green"},
+    #       {"orig": "c5", "dest": "d3", "brush": "red"}]
+    shapes = models.TextField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class Move(AnnotatedMove):
     move_num = models.IntegerField()
     sequence = models.IntegerField()  # expected to be in order from 0 to n
     variation = models.ForeignKey(
         Variation, on_delete=models.CASCADE, related_name="moves"
     )
-    san = models.CharField(max_length=10)
-    annotation = models.CharField(max_length=10, default="", blank=True)
-    text = models.TextField(null=True, blank=True)
-    alt = models.TextField(null=True, blank=True)  # e.g. d4, Nf3, c4
-    alt_fail = models.TextField(null=True, blank=True)  # ["f4", "b3", "g3"]
-    # chessground drawable shapes (arrows/circles are implied by origin/dest)
-    # e.g. [{"orig": "f4", "brush":"green"},
-    #       {"orig": "c5", "dest": "d3", "brush": "red"}]
-    shapes = models.TextField(null=True, blank=True)
+    shared_move = models.ForeignKey(
+        "SharedMove", null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     class Meta:
         unique_together = ("variation", "sequence")
@@ -207,10 +216,9 @@ class Move(models.Model):
         return self.sequence % 2 == 0
 
     @property
-    def move_verbose(self, with_annotation=True):
+    def move_verbose(self):
         dots = "." if self.white_to_move else "..."
-        annotation = self.annotation if with_annotation else ""
-        return f"{self.move_num}{dots}{self.san}{annotation}"
+        return f"{self.move_num}{dots}{self.san}"
 
 
 class QuizResult(models.Model):
@@ -220,3 +228,62 @@ class QuizResult(models.Model):
     datetime = models.DateTimeField(default=timezone.now, editable=False, db_index=True)
     level = models.IntegerField()  # 0 unlearned, 1 first rep. interval, etc
     passed = models.BooleanField(default=False)
+
+
+class SharedMove(AnnotatedMove):
+    fen = models.CharField()
+    course = models.ForeignKey("Course", on_delete=models.PROTECT)
+    chapter = models.ForeignKey(
+        "Chapter", null=True, blank=True, on_delete=models.PROTECT
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["fen", "san", "course", "chapter"], name="unique_shared_move"
+            )
+        ]
+        indexes = [
+            models.Index(fields=["fen", "san", "course", "chapter"]),
+        ]
+
+    def __str__(self):
+        chapter = self.chapter_id if self.chapter else "x"
+        scope = f"{self.course_id}.{chapter}"
+
+        try:
+            fields = self.fen.split(" ")
+            move_number = int(fields[5])
+            dots = "..." if fields[1] == "b" else "."
+        except (IndexError, ValueError):
+            move_number = "?"
+            dots = "?"
+
+        return f"{move_number}{dots}{self.san} @ {scope}"
+
+    def save(self, *args, **kwargs):
+        # Auto-fill course from chapter if not explicitly set
+        if self.chapter and not self.course:
+            self.course = self.chapter.course
+
+        # Ensure course is present
+        if not self.course:
+            raise ValidationError(
+                "SharedMove must have a course (directly or via chapter)."
+            )
+
+        # Look for other SharedMoves with same (fen, san, course, chapter)
+        existing = SharedMove.objects.filter(
+            fen=self.fen, san=self.san, course=self.course, chapter=self.chapter
+        )
+
+        if self.pk:
+            existing = existing.exclude(pk=self.pk)
+
+        if existing.exists():
+            raise ValidationError(
+                f"A SharedMove already exists for FEN='{self.fen}', SAN='{self.san}', "
+                f"course={self.course_id}, chapter={self.chapter_id}"
+            )
+
+        super().save(*args, **kwargs)

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from djangoql.admin import DjangoQLSearchMixin
 
-from .models import Chapter, Course, Move, QuizResult, Variation
+from .models import Chapter, Course, Move, QuizResult, SharedMove, Variation
 
 
 class ChapterInline(admin.TabularInline):
@@ -37,9 +37,10 @@ class MoveInline(admin.TabularInline):
     model = Move
     form = MoveInlineForm
     extra = 0  # Number of empty forms to display
-    readonly_fields = ("move_id",)
+    readonly_fields = ("move_id", "shared_link")
     fields = (
         "move_id",
+        "shared_link",
         "sequence",
         "move_num",
         "san",
@@ -57,6 +58,16 @@ class MoveInline(admin.TabularInline):
 
         url = reverse("admin:chesser_move_change", args=[obj.id])
         return format_html('<a href="{}">{}</a>', url, obj.id)
+
+    @admin.display(description="Shared")
+    def shared_link(self, obj):
+        shared = obj.shared_move
+        if not shared:
+            return "-"
+        url = reverse("admin:chesser_sharedmove_change", args=[shared.id])
+        preview = (shared.text or "").strip().replace("\n", " ")
+        preview = preview[:40] + "…" if len(preview) > 40 else preview
+        return format_html('<a href="{}" title="{}">#{}</a>', url, preview, shared.id)
 
 
 class VariationInline(admin.TabularInline):
@@ -163,3 +174,15 @@ class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_filter = ("variation", "passed", "level")
     readonly_fields = ("variation", "datetime", "level", "passed")
     fields = ("variation", "datetime", "level", "passed")
+
+
+@admin.register(SharedMove)
+class SharedMoveAdmin(admin.ModelAdmin):
+    list_display = ("san", "fen", "course", "chapter", "short_text")
+    list_filter = ("course", "chapter")
+    search_fields = ("san", "fen", "text")
+
+    def short_text(self, obj):
+        return (obj.text or "").strip()[:60] + "..." if obj.text else ""
+
+    short_text.short_description = "Text Preview"
