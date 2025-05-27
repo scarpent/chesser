@@ -106,7 +106,7 @@ def review(request, variation_id=None):
         variation_data = {}
         final_move_html = ""
     else:
-        variation_data = serialize_variation(variation)
+        variation_data = serialize_variation(variation, mode="review")
         final_move_html = get_final_move_simple_subvariations_html(variation)
 
     total_due_now, total_due_soon = Variation.due_counts()
@@ -618,7 +618,7 @@ def edit(request, variation_id=None):
             pk=variation_id,
         )
 
-    variation_data = serialize_variation(variation) if variation else {}
+    variation_data = serialize_variation(variation, mode="edit") if variation else {}
     context = {"variation_data": json.dumps(variation_data)}
 
     return render(request, "edit.html", context)

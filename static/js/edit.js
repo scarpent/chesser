@@ -23,7 +23,7 @@ export function editApp() {
               const moveResult = chess.move(move.san);
               // We use x-init for move.fen in the template to avoid
               // a console error before we assign the value here
-              move.fen = chess.fen();
+              // move.fen = chess.fen();
               this.boards.push(
                 window.Chessground(boardElement, {
                   fen: chess.fen(),

@@ -101,6 +101,7 @@ def serialize_move(move, for_edit=False):
 
     move_data = {
         "move_id": move.id,
+        "fen": move.fen,
         "san": move.san,
         "annotation": move.annotation,
         "move_verbose": move.move_verbose,
@@ -120,18 +121,7 @@ def serialize_move(move, for_edit=False):
                 "alt_fail": shared.alt_fail or "",
                 "shapes": shared.shapes or "",
             }
-        # find all matching shared moves for this fen/san
-        # TODO: perhaps will add FEN to move and make this a move class method
-        # candidates = list(
-        #     SharedMove.objects.filter(fen=move.fen, san=move.san).order_by("id")
-        # )
-        # move_data["shared_candidates"] = [
-        #     {
-        #         "id": candidate.id,
-        #         "display_label": candidate.__str__(),  # or custom label logic
-        #     }
-        #     for candidate in candidates
-        # ]
+        move_data["shared_candidates"] = move.get_shared_candidates()
 
     return move_data
 
@@ -158,6 +148,7 @@ def serialize_variation_to_import_format(variation):
             {
                 "move_id": m.id,
                 "move_num": m.move_num,
+                "fen": m.fen,
                 "san": m.san,
                 "annotation": m.annotation or "",
                 "text": m.text or "",

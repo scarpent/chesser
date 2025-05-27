@@ -234,6 +234,19 @@ class Move(AnnotatedMove):
         dots = "." if self.white_to_move else "..."
         return f"{self.move_num}{dots}{self.san}"
 
+    def get_shared_candidates(self):
+        candidates = SharedMove.objects.filter(fen=self.fen, san=self.san).order_by(
+            "id"
+        )
+
+        return [
+            {
+                "id": shared_move.id,
+                "label": str(shared_move),
+            }
+            for shared_move in candidates
+        ]
+
 
 class SharedMove(AnnotatedMove):
     def __str__(self):
@@ -242,7 +255,7 @@ class SharedMove(AnnotatedMove):
         try:
             fields = self.fen.split(" ")
             move_number = int(fields[5])
-            dots = "..." if fields[1] == "b" else "."
+            dots = "." if fields[1] == "b" else "..."
         except Exception:
             return f"? {self.san}"
 
