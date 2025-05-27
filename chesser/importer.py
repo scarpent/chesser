@@ -150,17 +150,21 @@ def import_variation(import_data, end_move=None):
 
     variation.save()
 
+    board = chess.Board(chess.STARTING_FEN)
     for idx, move_import in enumerate(import_data["moves"]):
 
         if end_move and idx >= end_index:
             print(f'Skipping moves from {move_import["move_num"]}-{move_import["san"]}')
             break
 
+        board.push_san(move_import["san"])
+
         move, created = Move.objects.get_or_create(
             variation=variation,
             move_num=move_import["move_num"],
             sequence=idx,
         )
+        move.fen = board.fen()
         move.san = util.strip_all_html(move_import["san"])
         move.annotation = util.strip_all_html(move_import["annotation"])
         move.text = util.clean_html(move_import["text"])

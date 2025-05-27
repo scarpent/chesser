@@ -35,7 +35,7 @@ BLOCK_TAG_RE = re.compile(
 def serialize_variation(variation, mode="review"):
     include_html = mode == "variation"
     include_alt_shapes = mode == "variation"
-    resolve_shared_data = mode != "edit"
+    for_edit = mode == "edit"
 
     color = variation.chapter.course.color
 
@@ -80,7 +80,7 @@ def serialize_variation(variation, mode="review"):
                 f"unknown annotation in variation {variation.id}: {move.move_verbose}"
             )
 
-        moves.append(serialize_move(move, resolve_shared_data))
+        moves.append(serialize_move(move, for_edit=for_edit))
 
     if include_alt_shapes:
         add_alt_shapes_to_moves(moves)
@@ -92,12 +92,14 @@ def serialize_variation(variation, mode="review"):
     return variation_data
 
 
-def serialize_move(move, resolve_shared_data=False):
+def serialize_move(move, for_edit=False):
     # include_shared_data == True means we should override the
     # moves data (e.g. for non-edit modes); False means we include
     # it separately for the edit page to present appropriately
-    print(move, str(move.shapes))
-    return {
+
+    shared = move.shared_move  # is there a shared move?
+
+    move_data = {
         "move_id": move.id,
         "san": move.san,
         "annotation": move.annotation,
@@ -106,7 +108,32 @@ def serialize_move(move, resolve_shared_data=False):
         "alt": move.alt or "",
         "alt_fail": move.alt_fail or "",
         "shapes": move.shapes or "",
+        "shared_move_id": shared.id if shared else None,
     }
+
+    if for_edit:
+        if shared:
+            move_data["shared"] = {
+                "text": shared.text or "",
+                "annotation": shared.annotation,
+                "alt": shared.alt or "",
+                "alt_fail": shared.alt_fail or "",
+                "shapes": shared.shapes or "",
+            }
+        # find all matching shared moves for this fen/san
+        # TODO: perhaps will add FEN to move and make this a move class method
+        # candidates = list(
+        #     SharedMove.objects.filter(fen=move.fen, san=move.san).order_by("id")
+        # )
+        # move_data["shared_candidates"] = [
+        #     {
+        #         "id": candidate.id,
+        #         "display_label": candidate.__str__(),  # or custom label logic
+        #     }
+        #     for candidate in candidates
+        # ]
+
+    return move_data
 
 
 def serialize_variation_to_import_format(variation):

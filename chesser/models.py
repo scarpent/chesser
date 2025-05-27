@@ -186,6 +186,8 @@ class QuizResult(models.Model):
 
 
 class AnnotatedMove(models.Model):
+    # (fen is nullable until backfilled)
+    fen = models.CharField(db_index=True, blank=True, null=True)
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, default="", blank=True)
     text = models.TextField(null=True, blank=True)
@@ -235,44 +237,14 @@ class Move(AnnotatedMove):
 
 
 class SharedMove(AnnotatedMove):
-    fen = models.CharField(db_index=True)
-
     def __str__(self):
-        scope = "chapter" if self.chapter else "course"
+        assert self.fen, "SharedMove must have a FEN string"
 
         try:
             fields = self.fen.split(" ")
             move_number = int(fields[5])
             dots = "..." if fields[1] == "b" else "."
-        except (IndexError, ValueError):
-            move_number = "?"
-            dots = "?"
+        except Exception:
+            return f"? {self.san}"
 
-        return f"{move_number}{dots}{self.san} @ {scope}"
-
-    def save(self, *args, **kwargs):
-        # Auto-fill course from chapter if not explicitly set
-        if self.chapter and not self.course:
-            self.course = self.chapter.course
-
-        # Ensure course is present
-        if not self.course:
-            raise ValidationError(
-                "SharedMove must have a course (directly or via chapter)."
-            )
-
-        # Look for other SharedMoves with same (fen, san, course, chapter)
-        existing = SharedMove.objects.filter(
-            fen=self.fen, san=self.san, course=self.course, chapter=self.chapter
-        )
-
-        if self.pk:
-            existing = existing.exclude(pk=self.pk)
-
-        if existing.exists():
-            raise ValidationError(
-                f"A SharedMove already exists for FEN='{self.fen}', SAN='{self.san}', "
-                f"course={self.course_id}, chapter={self.chapter_id}"
-            )
-
-        super().save(*args, **kwargs)
+        return f"{move_number}{dots}{self.san}"

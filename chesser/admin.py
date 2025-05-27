@@ -33,6 +33,19 @@ class MoveInlineForm(forms.ModelForm):
         }
 
 
+class MoveForm(forms.ModelForm):
+    class Meta:
+        model = Move  # or SharedMove — use the same class for both
+        fields = "__all__"
+        widgets = {
+            "fen": forms.TextInput(attrs={"size": 80}),
+            "san": forms.TextInput(attrs={"size": 7}),
+            "annotation": forms.TextInput(attrs={"size": 7}),
+            "alt": forms.Textarea(attrs={"rows": 1, "cols": 40}),
+            "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 40}),
+        }
+
+
 class MoveInline(admin.TabularInline):
     model = Move
     form = MoveInlineForm
@@ -150,6 +163,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
 @admin.register(Move)
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
+    form = MoveForm
     list_display = ("san", "annotation", "move_num", "variation")
     list_filter = ("variation",)
     readonly_fields = ("view_on_site_link",)
@@ -178,6 +192,7 @@ class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
 @admin.register(SharedMove)
 class SharedMoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
+    form = MoveForm
     list_display = ("san", "fen", "short_text")
 
     def short_text(self, obj):
