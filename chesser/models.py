@@ -176,6 +176,15 @@ class Variation(models.Model):
         return total_due_now, total_due_soon
 
 
+class QuizResult(models.Model):
+    variation = models.ForeignKey(
+        Variation, on_delete=models.CASCADE, related_name="quiz_results"
+    )
+    datetime = models.DateTimeField(default=timezone.now, editable=False, db_index=True)
+    level = models.IntegerField()  # 0 unlearned, 1 first rep. interval, etc
+    passed = models.BooleanField(default=False)
+
+
 class AnnotatedMove(models.Model):
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, default="", blank=True)
@@ -198,7 +207,11 @@ class Move(AnnotatedMove):
         Variation, on_delete=models.CASCADE, related_name="moves"
     )
     shared_move = models.ForeignKey(
-        "SharedMove", null=True, blank=True, on_delete=models.SET_NULL
+        "SharedMove",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="moves",
     )
 
     class Meta:
@@ -221,31 +234,8 @@ class Move(AnnotatedMove):
         return f"{self.move_num}{dots}{self.san}"
 
 
-class QuizResult(models.Model):
-    variation = models.ForeignKey(
-        Variation, on_delete=models.CASCADE, related_name="quiz_results"
-    )
-    datetime = models.DateTimeField(default=timezone.now, editable=False, db_index=True)
-    level = models.IntegerField()  # 0 unlearned, 1 first rep. interval, etc
-    passed = models.BooleanField(default=False)
-
-
 class SharedMove(AnnotatedMove):
-    fen = models.CharField()
-    course = models.ForeignKey("Course", on_delete=models.PROTECT)
-    chapter = models.ForeignKey(
-        "Chapter", null=True, blank=True, on_delete=models.PROTECT
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["fen", "san", "course", "chapter"], name="unique_shared_move"
-            )
-        ]
-        indexes = [
-            models.Index(fields=["fen", "san", "course", "chapter"]),
-        ]
+    fen = models.CharField(db_index=True)
 
     def __str__(self):
         scope = "chapter" if self.chapter else "course"

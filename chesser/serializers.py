@@ -67,7 +67,6 @@ def serialize_variation(variation, all_data=False):
     }
 
     temp_annotations = annotations.copy()
-    moves = []
     for move in variation.moves.all():
         if move.annotation and move.annotation not in temp_annotations:
             # add this to annotation dict so we can re-save it
@@ -76,18 +75,7 @@ def serialize_variation(variation, all_data=False):
                 f"unknown annotation in variation {variation.id}: {move.move_verbose}"
             )
 
-        moves.append(
-            {
-                "move_id": move.id,
-                "san": move.san,
-                "annotation": move.annotation,
-                "move_verbose": move.move_verbose,
-                "text": move.text,
-                "alt": move.alt or "",
-                "alt_fail": move.alt_fail or "",
-                "shapes": move.shapes or "",
-            }
-        )
+        moves = [serialize_move(move) for move in variation.moves.all()]
 
     if all_data:
         add_alt_shapes_to_moves(moves)
@@ -97,6 +85,19 @@ def serialize_variation(variation, all_data=False):
     variation_data["history"] = get_history(variation)
 
     return variation_data
+
+
+def serialize_move(move):
+    return {
+        "move_id": move.id,
+        "san": move.san,
+        "annotation": move.annotation,
+        "move_verbose": move.move_verbose,
+        "text": move.text,
+        "alt": move.alt or "",
+        "alt_fail": move.alt_fail or "",
+        "shapes": json.loads(move.shapes or "[]"),
+    }
 
 
 def serialize_variation_to_import_format(variation):

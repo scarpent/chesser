@@ -177,10 +177,8 @@ class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
 
 @admin.register(SharedMove)
-class SharedMoveAdmin(admin.ModelAdmin):
-    list_display = ("san", "fen", "course", "chapter", "short_text")
-    list_filter = ("course", "chapter")
-    search_fields = ("san", "fen", "text")
+class SharedMoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
+    list_display = ("san", "fen", "short_text")
 
     def short_text(self, obj):
         return (obj.text or "").strip()[:60] + "..." if obj.text else ""

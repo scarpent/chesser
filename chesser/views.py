@@ -330,7 +330,7 @@ class ImportVariationView(View):
     def post(self, request):
         self.request = request
         self.form_data = request.POST
-        self.incoming_json = None
+        self.incoming_json = {}
         form_json_or_pgn = request.POST.get("json_or_pgn_data")
 
         try:

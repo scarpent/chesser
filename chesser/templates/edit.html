@@ -131,6 +131,12 @@
           </div>
         </div>
         <div class="edit-move-other-container">
+          <select>
+            <option selected>No shared move</option>
+            <option>Shared move available</option>
+            <option>Shared: 1.e4</option>
+            <option>New shared move</option>
+          </select>
           <select class="annotation" x-model="move.annotation">
             <template x-for="[key, value] in Object.entries(variationData.annotations)">
               <option
