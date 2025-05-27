@@ -36,8 +36,9 @@ def test_exercise_serializers():
         san="e5",
         text="check, mate " + f'<fenseq data-fen="{fen}">4...bg7</fenseq>',
     )
-    serializers.serialize_variation(variation, all_data=False)
-    serializers.serialize_variation(variation, all_data=True)
+    serializers.serialize_variation(variation, mode="review")
+    serializers.serialize_variation(variation, mode="variation")
+    serializers.serialize_variation(variation, mode="edit")
     serializers.get_final_move_simple_subvariations_html(variation)
 
 

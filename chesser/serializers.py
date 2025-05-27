@@ -32,7 +32,11 @@ BLOCK_TAG_RE = re.compile(
 )
 
 
-def serialize_variation(variation, all_data=False):
+def serialize_variation(variation, mode="review"):
+    include_html = mode == "variation"
+    include_alt_shapes = mode == "variation"
+    resolve_shared_data = mode != "edit"
+
     color = variation.chapter.course.color
 
     now = timezone.now()
@@ -41,8 +45,8 @@ def serialize_variation(variation, all_data=False):
     )
     time_until_next_review = util.format_time_until(now, variation.next_review)
 
-    source_html = get_source_html(variation.source) if all_data else None
-    html = generate_variation_html(variation) if all_data else None
+    source_html = get_source_html(variation.source) if include_html else None
+    html = generate_variation_html(variation) if include_html else None
     url_moves = "_".join([move.san for move in variation.moves.all()])
     # we'll add current fen/index in UI
     lichess_url = f"https://lichess.org/analysis/pgn/{url_moves}?color={color}&#"
@@ -67,6 +71,7 @@ def serialize_variation(variation, all_data=False):
     }
 
     temp_annotations = annotations.copy()
+    moves = []
     for move in variation.moves.all():
         if move.annotation and move.annotation not in temp_annotations:
             # add this to annotation dict so we can re-save it
@@ -75,9 +80,9 @@ def serialize_variation(variation, all_data=False):
                 f"unknown annotation in variation {variation.id}: {move.move_verbose}"
             )
 
-        moves = [serialize_move(move) for move in variation.moves.all()]
+        moves.append(serialize_move(move, resolve_shared_data))
 
-    if all_data:
+    if include_alt_shapes:
         add_alt_shapes_to_moves(moves)
 
     variation_data["moves"] = moves
@@ -87,7 +92,11 @@ def serialize_variation(variation, all_data=False):
     return variation_data
 
 
-def serialize_move(move):
+def serialize_move(move, resolve_shared_data=False):
+    # include_shared_data == True means we should override the
+    # moves data (e.g. for non-edit modes); False means we include
+    # it separately for the edit page to present appropriately
+    print(move, str(move.shapes))
     return {
         "move_id": move.id,
         "san": move.san,
@@ -96,7 +105,7 @@ def serialize_move(move):
         "text": move.text,
         "alt": move.alt or "",
         "alt_fail": move.alt_fail or "",
-        "shapes": json.loads(move.shapes or "[]"),
+        "shapes": move.shapes or "",
     }
 
 
