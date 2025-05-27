@@ -114,6 +114,8 @@ def serialize_move(move, for_edit=False):
 
     if for_edit:
         if shared:
+            # alternatively, we could get this info from shared_candidates, but
+            # it might be convenient/cleaner in edit form to have it here?
             move_data["shared"] = {
                 "text": shared.text or "",
                 "annotation": shared.annotation,
@@ -122,8 +124,31 @@ def serialize_move(move, for_edit=False):
                 "shapes": shared.shapes or "",
             }
         move_data["shared_candidates"] = move.get_shared_candidates()
+        move_data["shared_dropdown"] = get_shared_dropdown(move)
 
     return move_data
+
+
+def get_shared_dropdown(move):
+    candidates = move.get_shared_candidates()
+    dropdown = []
+
+    # Unlink option — always first
+    if not candidates:
+        dropdown.append({"value": "", "label": "No shared move"})
+    else:
+        label = (
+            "Unlink shared move" if move.shared_move_id else "Shared move not linked"
+        )
+        dropdown.append({"value": "", "label": label})
+
+    for shared_move_id, _ in candidates.items():
+        label = f"{move.san} (#{shared_move_id})"
+        dropdown.append({"value": shared_move_id, "label": label})
+
+    dropdown.append({"value": "__new__", "label": "New shared move"})
+
+    return dropdown
 
 
 def serialize_variation_to_import_format(variation):

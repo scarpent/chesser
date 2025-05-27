@@ -235,17 +235,20 @@ class Move(AnnotatedMove):
         return f"{self.move_num}{dots}{self.san}"
 
     def get_shared_candidates(self):
-        candidates = SharedMove.objects.filter(fen=self.fen, san=self.san).order_by(
-            "id"
-        )
-
-        return [
-            {
-                "id": shared_move.id,
-                "label": str(shared_move),
+        candidates = SharedMove.objects.filter(
+            fen=self.fen,
+            san=self.san,
+        ).order_by("id")
+        return {
+            shared_move.id: {
+                "annotation": shared_move.annotation,
+                "text": shared_move.text,
+                "alt": shared_move.alt,
+                "alt_fail": shared_move.alt_fail,
+                "shapes": shared_move.shapes,
             }
             for shared_move in candidates
-        ]
+        }
 
 
 class SharedMove(AnnotatedMove):
