@@ -248,8 +248,7 @@ class SharedMove(AnnotatedMove):
         ]
 
     def __str__(self):
-        chapter = self.chapter_id if self.chapter else "x"
-        scope = f"{self.course_id}.{chapter}"
+        scope = "chapter" if self.chapter else "course"
 
         try:
             fields = self.fen.split(" ")

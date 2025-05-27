@@ -35,6 +35,7 @@ class Command(BaseCommand):
             "chesser.course",
             "chesser.chapter",
             "chesser.variation",
+            "chesser.sharedmove",
             "chesser.move",
             "chesser.quizresult",
         ]
