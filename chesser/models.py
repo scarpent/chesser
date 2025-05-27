@@ -186,8 +186,7 @@ class QuizResult(models.Model):
 
 
 class AnnotatedMove(models.Model):
-    # (fen is nullable until backfilled)
-    fen = models.CharField(db_index=True, blank=True, null=True)
+    fen = models.CharField(db_index=True)
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, default="", blank=True)
     text = models.TextField(null=True, blank=True)
