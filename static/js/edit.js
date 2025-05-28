@@ -14,6 +14,7 @@ export function editApp() {
     initEditor() {
       document.addEventListener("alpine:initialized", () => {
         const chess = new window.Chess();
+        const self = this;
 
         this.$nextTick(() => {
           // Waits for DOM update to complete
@@ -21,9 +22,6 @@ export function editApp() {
             const boardElement = document.getElementById(`edit-board-${index}`);
             if (boardElement) {
               const moveResult = chess.move(move.san);
-              // We use x-init for move.fen in the template to avoid
-              // a console error before we assign the value here
-              // move.fen = chess.fen();
               this.boards.push(
                 window.Chessground(boardElement, {
                   fen: chess.fen(),
@@ -32,9 +30,9 @@ export function editApp() {
                   movable: { free: false, showDests: false },
                   highlight: { lastMove: true, check: true },
                   lastMove: [moveResult.from, moveResult.to],
-                  drawable: { shapes: move.shapes ? JSON.parse(move.shapes) : [] },
                 })
               );
+              self.updateShapes(index);
             } else {
               console.error(`Board element edit-board-${index} not found`);
             }
@@ -52,6 +50,33 @@ export function editApp() {
           }
         });
       });
+    },
+
+    //---------------------------------------------------------------------------------
+    computedMoveData(move) {
+      // a "virtualized" move object to render from without
+      // breaking our x-model bindings on the real move
+      const sid = move.shared_move_id;
+      if (!sid || sid === "__new__") return move;
+      return {
+        ...move,
+        ...(move.shared_candidates?.[sid] || {}),
+      };
+    },
+
+    //---------------------------------------------------------------------------------
+    updateShapes(index) {
+      const move = this.variationData.moves[index];
+      const sid = move.shared_move_id;
+      const shared = sid && sid !== "__new__" ? move.shared_candidates?.[sid] : null;
+
+      const shapes = shared?.shapes
+        ? JSON.parse(shared.shapes)
+        : move.shapes
+        ? JSON.parse(move.shapes)
+        : [];
+
+      this.boards[index].setShapes(shapes);
     },
 
     //---------------------------------------------------------------------------------
