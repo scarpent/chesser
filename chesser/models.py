@@ -240,7 +240,7 @@ class Move(AnnotatedMove):
             san=self.san,
         ).order_by("id")
         return {
-            shared_move.id: {
+            str(shared_move.id): {
                 "annotation": shared_move.annotation,
                 "text": shared_move.text,
                 "alt": shared_move.alt,

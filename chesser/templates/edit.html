@@ -133,7 +133,7 @@
         <div class="edit-move-other-container">
           <select x-model="move.shared_move_id" @change="updateShapes(index)">
             <template x-for="item in move.shared_dropdown" :key="item.value">
-              <option :value="item.value" x-text="item.label"></option>
+              <option :value="String(item.value)" x-text="item.label"></option>
             </template>
           </select>
           <select

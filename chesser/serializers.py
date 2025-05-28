@@ -109,7 +109,7 @@ def serialize_move(move, for_edit=False):
         "alt": move.alt or "",
         "alt_fail": move.alt_fail or "",
         "shapes": move.shapes or "",
-        "shared_move_id": shared.id if shared else None,
+        "shared_move_id": str(shared.id) if shared else "",
     }
 
     if for_edit:
