@@ -32,7 +32,7 @@ export function editApp() {
                   lastMove: [moveResult.from, moveResult.to],
                 })
               );
-              self.updateShapes(index);
+              self.updateSharedMoveItems(index);
             } else {
               console.error(`Board element edit-board-${index} not found`);
             }
@@ -54,8 +54,7 @@ export function editApp() {
 
     //---------------------------------------------------------------------------------
     computedMoveData(move) {
-      // a "virtualized" move object to render from without
-      // breaking our x-model bindings on the real move
+      // a "virtualized" move object to render regular or shared moves as needed
       const sid = move.shared_move_id;
       if (!sid || sid === "__new__") return move;
       return {
@@ -65,18 +64,25 @@ export function editApp() {
     },
 
     //---------------------------------------------------------------------------------
-    updateShapes(index) {
+    updateSharedMoveItems(index) {
       const move = this.variationData.moves[index];
       const sid = move.shared_move_id;
-      const shared = sid && sid !== "__new__" ? move.shared_candidates?.[sid] : null;
+      const isShared = sid && !isNaN(parseInt(sid));
+      const shared = isShared ? move.shared_candidates?.[sid] : null;
 
-      const shapes = shared?.shapes
-        ? JSON.parse(shared.shapes)
-        : move.shapes
-        ? JSON.parse(move.shapes)
-        : [];
+      // annotation is handled by computedMoveData, but the dropdown
+      // isn't set on the initial page load so we'll nudge it here
+      if (isShared && shared?.annotation !== undefined) {
+        move.annotation = shared.annotation;
+      }
 
-      this.boards[index].setShapes(shapes);
+      const shapes = isShared ? shared?.shapes : move.shapes;
+      const parsedShapes = shapes ? JSON.parse(shapes) : [];
+      this.boards[index].setShapes(parsedShapes);
+
+      // text, alt, and alt_fail are all handled with
+      // :value="computedMoveData(move).<property>" and
+      // @input="move.<property> = $event.target.value"
     },
 
     //---------------------------------------------------------------------------------
