@@ -118,8 +118,7 @@
           <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>
           <textarea
             class="edit-move-text"
-            :value="computedMoveData(move).text"
-            @input="move.text = $event.target.value"
+            x-model="moveState[index].text"
             rows="8"
           ></textarea>
           <div class="move-fen">
@@ -133,7 +132,7 @@
         <div class="edit-move-other-container">
           <select
             :value="move.shared_move_id"
-            @change="move.shared_move_id = $event.target.value; updateSharedMoveItems(index)"
+            @change="move.shared_move_id = $event.target.value; updateSharedMoveState(index)"
           >
             <template x-for="item in move.shared_dropdown" :key="item.value">
               <option
@@ -143,32 +142,26 @@
               ></option>
             </template>
           </select>
-          <select
-            class="annotation"
-            :value="computedMoveData(move).annotation"
-            @change="move.annotation = $event.target.value"
-          >
+          <select class="annotation" x-model="moveState[index].annotation">
             <template x-for="[key, value] in Object.entries(variationData.annotations)">
               <option
                 :value="key"
                 x-text="value"
-                :selected="key === move.annotation"
+                :selected="key === moveState[index].annotation"
               ></option>
             </template>
           </select>
           <input
             type="text"
             class="move-alt"
-            :value="computedMoveData(move).alt"
-            @input="move.alt = $event.target.value"
+            x-model="moveState[index].alt"
             placeholder="Alternative move"
             @blur="validateAltMoves(index, 'alt')"
           />
           <input
             type="text"
             class="move-alt-fail"
-            :value="computedMoveData(move).alt_fail"
-            @input="move.alt_fail = $event.target.value"
+            x-model="moveState[index].alt_fail"
             placeholder="Alt move fail"
             @blur="validateAltMoves(index, 'alt_fail')"
           />

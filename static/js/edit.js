@@ -10,6 +10,12 @@ export function editApp() {
     chess: null,
     variationData: variationData,
     currentMoveIndex: 0,
+    // make sure move state is initialized in time for UI references
+    moveState: (() => {
+      const map = {};
+      variationData.moves.forEach((_, i) => (map[i] = {}));
+      return map;
+    })(),
 
     initEditor() {
       document.addEventListener("alpine:initialized", () => {
@@ -32,7 +38,7 @@ export function editApp() {
                   lastMove: [moveResult.from, moveResult.to],
                 })
               );
-              self.updateSharedMoveItems(index);
+              self.updateSharedMoveState(index);
             } else {
               console.error(`Board element edit-board-${index} not found`);
             }
@@ -53,36 +59,30 @@ export function editApp() {
     },
 
     //---------------------------------------------------------------------------------
-    computedMoveData(move) {
-      // a "virtualized" move object to render regular or shared moves as needed
-      const sid = move.shared_move_id;
-      if (!sid || sid === "__new__") return move;
-      return {
-        ...move,
-        ...(move.shared_candidates?.[sid] || {}),
-      };
-    },
-
-    //---------------------------------------------------------------------------------
-    updateSharedMoveItems(index) {
+    updateSharedMoveState(index) {
+      // Create a working structure to unify regular and shared move
+      // data so the UI doesn't have to distinguish between them.
+      // On save, the backend will decide what gets stored where.
       const move = this.variationData.moves[index];
       const sid = move.shared_move_id;
       const isShared = sid && !isNaN(parseInt(sid));
       const shared = isShared ? move.shared_candidates?.[sid] : null;
 
-      // annotation is handled by computedMoveData, but the dropdown
-      // isn't set on the initial page load so we'll nudge it here
-      if (isShared && shared?.annotation !== undefined) {
-        move.annotation = shared.annotation;
-      }
+      // Create working copy of fields into moveState to be used by Alpine
+      this.moveState[index] = {
+        text: isShared ? shared?.text ?? "" : move.text,
+        annotation: isShared ? shared?.annotation ?? "" : move.annotation,
+        alt: isShared ? shared?.alt ?? "" : move.alt,
+        alt_fail: isShared ? shared?.alt_fail ?? "" : move.alt_fail,
+      };
 
+      // Shapes are handled differently: they're not bound to Alpine data
+      // but instead drawn and managed directly by Chessground.
+      // We restore them here so the board reflects the selected state,
+      // and rely on reading board state again at save time.
       const shapes = isShared ? shared?.shapes : move.shapes;
       const parsedShapes = shapes ? JSON.parse(shapes) : [];
       this.boards[index].setShapes(parsedShapes);
-
-      // text, alt, and alt_fail are all handled with
-      // :value="computedMoveData(move).<property>" and
-      // @input="move.<property> = $event.target.value"
     },
 
     //---------------------------------------------------------------------------------
@@ -90,20 +90,24 @@ export function editApp() {
       const payload = {
         variation_id: this.variationData.variation_id,
         title: this.variationData.title,
-        start_move: this.variationData.start_move, // TODO: validation
+        start_move: this.variationData.start_move, // TODO: validation?
         moves: [],
       };
 
       payload.moves = this.variationData.moves.map((move, index) => {
         const boardShapes = this.boards[index].state.drawable.shapes;
-        return {
+        const state = this.moveState[index] || {};
+
+        const move_data = {
           san: move.san,
-          annotation: move.annotation === "none" ? "" : move.annotation,
-          text: move.text.trim(),
-          alt: move.alt,
-          alt_fail: move.alt_fail,
+          shared_move_id: move.shared_move_id,
+          annotation: state.annotation === "none" ? "" : state.annotation,
+          text: state.text.trim(),
+          alt: state.alt,
+          alt_fail: state.alt_fail,
           shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
         };
+        return move_data;
       });
 
       return payload;

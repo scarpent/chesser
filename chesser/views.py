@@ -650,6 +650,7 @@ def save_variation(request):
 
     for idx, move in enumerate(variation.moves.all()):
         move_data = data["moves"][idx]
+
         move.san = util.strip_all_html(move_data["san"])
         move.annotation = util.strip_all_html(move_data["annotation"])
         move.text = util.clean_html(move_data["text"])
