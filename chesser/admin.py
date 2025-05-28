@@ -194,6 +194,7 @@ class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 class SharedMoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     form = MoveForm
     list_display = ("san", "fen", "short_text")
+    inlines = [MoveInline]
 
     def short_text(self, obj):
         return (obj.text or "").strip()[:60] + "..." if obj.text else ""
