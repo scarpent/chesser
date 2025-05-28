@@ -135,7 +135,7 @@ def get_shared_dropdown(move):
 
     # Unlink option — always first
     if not candidates:
-        dropdown.append({"value": "", "label": "No shared move"})
+        dropdown.append({"value": "", "label": "Not shared"})
     else:
         label = (
             "Unlink shared move" if move.shared_move_id else "Shared move not linked"
@@ -143,7 +143,7 @@ def get_shared_dropdown(move):
         dropdown.append({"value": "", "label": label})
 
     for shared_move_id, _ in candidates.items():
-        label = f"{move.san} (#{shared_move_id})"
+        label = f"Shared move (#{shared_move_id})"
         dropdown.append({"value": shared_move_id, "label": label})
 
     dropdown.append({"value": "__new__", "label": "New shared move"})
