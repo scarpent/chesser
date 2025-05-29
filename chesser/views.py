@@ -350,9 +350,9 @@ class ImportVariationView(View):
         try:
             self.set_variation_title()
             self.set_start_move()
-            self.set_next_review()
             self.set_chapter_info()
             end_move = self.get_end_move()  # must come after set_start_move
+            self.incoming_json["next_review"] = util.END_OF_TIME_STR
             variation_info = importer.import_variation(
                 self.incoming_json,
                 end_move=end_move,
@@ -400,27 +400,6 @@ class ImportVariationView(View):
 
         messages.warning(self.request, f"🟡 Discarding moves after {end_move}")
         return end_move
-
-    def set_next_review(self):
-        if next_review := self.form_data.get("next_review_date"):
-            time_ = timezone.now().strftime("%H:%M:%S")
-            dt_str = f"{next_review}T{time_}"
-        elif next_review := self.incoming_json.get("next_review"):
-            dt_str = next_review
-        else:
-            dt_str = util.END_OF_TIME_STR
-
-        self.incoming_json["next_review"] = dt_str
-
-        try:
-            # importer will also run get_utc_datetime on next_review;
-            # let's validate along with other things we can catch up front
-            local_datetime = importer.get_utc_datetime(dt_str)
-        except ValueError:
-            raise ValueError("Invalid date format for next review")
-
-        local = timezone.localtime(local_datetime)
-        messages.success(self.request, f"🟢 Next Review: {local}")
 
     def set_chapter_info(self):
         chapter = Chapter.objects.select_related("course").get(
