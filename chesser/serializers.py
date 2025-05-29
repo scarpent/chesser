@@ -73,15 +73,15 @@ def serialize_variation(variation, mode="review"):
     temp_annotations = annotations.copy()
     moves = []
     for move in variation.moves.all():
-        # TODO: what about shared move annotations? We'd also want to
-        # include unknown annotations there, too...
-        # resolved_annotation = move.get_resolved_field("annotation")
-        if move.annotation and move.annotation not in temp_annotations:
-            # add this to annotation dict so we can re-save it
-            temp_annotations[move.annotation] = f"unknown: {move.annotation}"
-            print(
-                f"unknown annotation in variation {variation.id}: {move.move_verbose}"
-            )
+        # preserve "unknown" annotations in dropdown
+        shared_annotation = move.shared_move.annotation if move.shared_move else None
+        for annotation in (move.annotation, shared_annotation):
+            if annotation and annotation not in temp_annotations:
+                temp_annotations[annotation] = f"unknown: {annotation}"
+                print(
+                    "unknown annotation in variation "
+                    f"{variation.id}: {move.move_verbose} ➤ {annotation}"
+                )
 
         moves.append(serialize_move(move, for_edit=for_edit))
 
