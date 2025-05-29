@@ -262,4 +262,4 @@ class SharedMove(AnnotatedMove):
         except Exception:
             return f"? {self.san}"
 
-        return f"{move_number}{dots}{self.san}"
+        return f"{move_number}{dots}{self.san} #{self.id}"

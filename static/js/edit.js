@@ -98,7 +98,7 @@ export function editApp() {
         const boardShapes = this.boards[index].state.drawable.shapes;
         const state = this.moveState[index] || {};
 
-        const move_data = {
+        return {
           san: move.san,
           shared_move_id: move.shared_move_id,
           annotation: state.annotation === "none" ? "" : state.annotation,
@@ -107,7 +107,6 @@ export function editApp() {
           alt_fail: state.alt_fail,
           shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
         };
-        return move_data;
       });
 
       return payload;

@@ -6,6 +6,7 @@ from itertools import groupby
 
 from django.conf import settings
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.db.models.functions import Lower
 from django.http import FileResponse, JsonResponse, StreamingHttpResponse
@@ -19,7 +20,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
-from chesser.models import Chapter, Course, QuizResult, Variation
+from chesser.models import Chapter, Course, QuizResult, SharedMove, Variation
 from chesser.serializers import (
     get_final_move_simple_subvariations_html,
     serialize_variation,
@@ -639,6 +640,7 @@ def get_normalized_shapes(shapes):
 
 @csrf_exempt
 @require_POST
+@transaction.atomic
 def save_variation(request):
     data = json.loads(request.body)
     variation_id = data.get("variation_id")
@@ -651,12 +653,47 @@ def save_variation(request):
     for idx, move in enumerate(variation.moves.all()):
         move_data = data["moves"][idx]
 
-        move.san = util.strip_all_html(move_data["san"])
-        move.annotation = util.strip_all_html(move_data["annotation"])
-        move.text = util.clean_html(move_data["text"])
-        move.alt = util.strip_all_html(move_data["alt"])
-        move.alt_fail = util.strip_all_html(move_data["alt_fail"])
-        move.shapes = get_normalized_shapes(move_data["shapes"])
+        # temporary while working on shared moves...
+        message = f"💾 Move id #{move.id} {move.san:7} | "
+
+        shared_move_id = move_data.get("shared_move_id")
+        if shared_move_id == "__new__":
+            message += "linking to new SharedMove 💥"
+            target_move = SharedMove.objects.create(
+                fen=move.fen,
+                san=move.san,
+            )
+            shared_move = target_move
+        elif shared_move_id.isdigit():
+            if int(shared_move_id) == move.shared_move_id:
+                message += f"already linked to SharedMove #{shared_move_id}"
+            else:
+                message += f"linking to SharedMove #{shared_move_id}"
+            shared_id = int(shared_move_id)
+            target_move = get_object_or_404(SharedMove, pk=int(shared_id))
+            assert target_move.fen == move.fen, "SharedMove FEN mismatch"
+            assert target_move.san == move.san, "SharedMove SAN mismatch"
+            shared_move = target_move
+        else:
+            if move.shared_move:
+                message += f"unlinking from SharedMove #{move.shared_move.id}"
+            else:
+                message += "not shared"
+            # TODO maybe optionally copy shared move data to this move;
+            # perhaps handled by a separate dropdown unlink option?
+            target_move = move
+            shared_move = None
+
+        print(message)
+
+        target_move.annotation = util.strip_all_html(move_data["annotation"])
+        target_move.text = util.clean_html(move_data["text"])
+        target_move.alt = util.strip_all_html(move_data["alt"])
+        target_move.alt_fail = util.strip_all_html(move_data["alt_fail"])
+        target_move.shapes = get_normalized_shapes(move_data["shapes"])
+        target_move.save()
+
+        move.shared_move = shared_move  # link/unlink as needed
         move.save()
 
     return JsonResponse({"status": "success"})
