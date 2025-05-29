@@ -164,9 +164,9 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 @admin.register(Move)
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     form = MoveForm
-    list_display = ("san", "annotation", "move_num", "variation")
+    list_display = ("san", "annotation", "move_num", "shared_move_link", "variation")
     list_filter = ("variation",)
-    readonly_fields = ("view_on_site_link",)
+    readonly_fields = ("view_on_site_link", "matching_moves_link")
 
     @admin.display(description="View on site")
     def view_on_site_link(self, obj):
@@ -179,6 +179,26 @@ class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
         return format_html(
             '<a href="{}" target="_blank">Variation #{}</a>', url, variation_id
+        )
+
+    @admin.display(description="Matching Moves")
+    def matching_moves_link(self, obj):
+        fen = obj.fen
+        san = obj.san
+        color = obj.variation.chapter.course.color
+        query = (
+            f'fen="{fen}" and san="{san}" and variation.chapter.course.color="{color}"'
+        )
+        url = reverse("admin:chesser_move_changelist") + f"?q={query}"
+        return format_html('<a href="{}">Find matching fen/san/color</a>', url)
+
+    @admin.display(description="Shared Move")
+    def shared_move_link(self, obj):
+        if not obj.shared_move_id:
+            return "-"
+        url = reverse("admin:chesser_sharedmove_change", args=[obj.shared_move_id])
+        return format_html(
+            '<a href="{}" target="_blank">#{}</a>', url, obj.shared_move_id
         )
 
 
