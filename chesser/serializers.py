@@ -179,15 +179,14 @@ def serialize_variation_to_import_format(variation):
         "start_move": variation.start_move,
         "moves": [
             {
-                "move_id": m.id,
                 "move_num": m.move_num,
                 "fen": m.fen,
                 "san": m.san,
-                "annotation": m.annotation or "",
-                "text": m.text or "",
-                "alt": m.alt or "",
-                "alt_fail": m.alt_fail or "",
-                "shapes": json.loads(m.shapes or "[]"),
+                "annotation": m.get_resolved_field("annotation"),
+                "text": m.get_resolved_field("text"),
+                "alt": m.get_resolved_field("alt"),
+                "alt_fail": m.get_resolved_field("alt_fail"),
+                "shapes": json.loads(m.get_resolved_field("shapes")),
             }
             for m in variation.moves.all().order_by("sequence")
         ],
