@@ -49,6 +49,13 @@ class Variation(models.Model):
         },
         "original_course": {},  # same as above
     }
+
+    Why include a denormalized `course` field when `chapter` already links to it?
+
+    * Faster queries: avoids joins when checking e.g. variation uniqueness in a course
+    * Efficient indexing: enables direct index on (course, move_sequence), etc.
+    * Simpler code: fewer joins in filters, easier filtering in templates & serializers
+    * Still safe: `chapter.course_id == variation.course_id` is enforced in validation
     """
 
     title = models.CharField(max_length=100)
@@ -251,10 +258,17 @@ class Move(AnnotatedMove):
         dots = "." if self.white_to_move else "..."
         return f"{self.move_num}{dots}{self.san}"
 
+    @property
+    def opening_color(self):
+        return self.variation.chapter.course.color
+
     def get_shared_candidates(self):
+        # Go through chapter → course to ensure we get a joined query
+        # (color is not on Variation)
         candidates = SharedMove.objects.filter(
             fen=self.fen,
             san=self.san,
+            opening_color=self.opening_color,
         ).order_by("id")
         return {
             str(shared_move.id): {
@@ -269,6 +283,8 @@ class Move(AnnotatedMove):
 
 
 class SharedMove(AnnotatedMove):
+    opening_color = models.CharField(max_length=5)
+
     def __str__(self):
         assert self.fen, "SharedMove must have a FEN string"
 

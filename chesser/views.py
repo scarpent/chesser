@@ -650,6 +650,7 @@ def save_variation(request):
     variation.start_move = data["start_move"]
     variation.save()
 
+    opening_color = variation.chapter.course.color
     for idx, move in enumerate(variation.moves.all()):
         move_data = data["moves"][idx]
 
@@ -662,6 +663,7 @@ def save_variation(request):
             target_move = SharedMove.objects.create(
                 fen=move.fen,
                 san=move.san,
+                opening_color=opening_color,
             )
             shared_move = target_move
         elif shared_move_id.isdigit():
