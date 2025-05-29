@@ -18,7 +18,6 @@ export function quizApp() {
     failed: false,
     completed: false,
     quizCompleteOverlay: "", // emoji or empty string
-    annotateTimeoutId: null, // helps manage quiz restarts
     quizBusy: false, // helps prevent state issues with restarts
 
     initQuiz() {
@@ -262,10 +261,8 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     annotateMissedMove(from, to, arrowColor, circleColor) {
       this.annotateMove(from, to, arrowColor, circleColor);
-      // Save timeout ID so it can be canceled if needed
       this.annotateTimeoutId = setTimeout(() => {
         this.gotoPreviousMove();
-        this.annotateTimeoutId = null;
       }, 1000);
     },
 
@@ -320,15 +317,6 @@ export function quizApp() {
     restartQuiz(stayFailed = false) {
       if (!this.variationData.moves) return;
 
-      // Cancel any pending "go back after missed move" (e.g. if we click "restart"
-      // while still showing error state, before going back to the previous move)
-      if (this.annotateTimeoutId) {
-        clearTimeout(this.annotateTimeoutId);
-        this.annotateTimeoutId = null;
-      }
-
-      // Defensive: ensure index is reset to avoid any prior undo
-      this.quizMoveIndex = 0;
       this.chess.reset();
 
       if (this.completed) {
@@ -351,11 +339,8 @@ export function quizApp() {
         movable: { dests: this.toDests() },
       });
 
-      // Delay ensures playOpposingMove doesn't overlap with pending missed-move annotation
-      setTimeout(() => {
-        this.playOpposingMove();
-        this.displayReviewSessionStats();
-      }, 300);
+      this.playOpposingMove();
+      this.displayReviewSessionStats();
     },
 
     //--------------------------------------------------------------------------------
