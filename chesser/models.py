@@ -225,6 +225,16 @@ class Move(AnnotatedMove):
             f"{self.move_num} {self.san}"
         )
 
+    def get_resolved_field(self, field_name):
+        shared_fields = ["text", "annotation", "alt", "alt_fail", "shapes"]
+        assert (
+            field_name in shared_fields
+        ), f"Field '{field_name}' is not resolvable via shared_move"
+
+        if self.shared_move:
+            return getattr(self.shared_move, field_name)
+        return getattr(self, field_name)
+
     @property
     def white_to_move(self):
         return self.sequence % 2 == 0

@@ -73,6 +73,9 @@ def serialize_variation(variation, mode="review"):
     temp_annotations = annotations.copy()
     moves = []
     for move in variation.moves.all():
+        # TODO: what about shared move annotations? We'd also want to
+        # include unknown annotations there, too...
+        # resolved_annotation = move.get_resolved_field("annotation")
         if move.annotation and move.annotation not in temp_annotations:
             # add this to annotation dict so we can re-save it
             temp_annotations[move.annotation] = f"unknown: {move.annotation}"
@@ -93,9 +96,8 @@ def serialize_variation(variation, mode="review"):
 
 
 def serialize_move(move, for_edit=False):
-    # include_shared_data == True means we should override the
-    # moves data (e.g. for non-edit modes); False means we include
-    # it separately for the edit page to present appropriately
+    # editor has special handling for all move data;
+    # other modes only need the "resolved" moves
 
     shared = move.shared_move  # is there a shared move?
 
@@ -112,17 +114,23 @@ def serialize_move(move, for_edit=False):
         "shared_move_id": str(shared.id) if shared else "",
     }
 
+    if shared:
+        shared_fields = {
+            "text": shared.text,
+            "annotation": shared.annotation,
+            "alt": shared.alt or "",
+            "alt_fail": shared.alt_fail or "",
+            "shapes": shared.shapes or "",
+        }
+        if for_edit:
+            # we don't strictly need "shared": we could get this info
+            # from shared_candidates, but it makes things easier in
+            # the UI to have it here
+            move_data["shared"] = shared_fields
+        else:
+            move_data.update(shared_fields)
+
     if for_edit:
-        if shared:
-            # alternatively, we could get this info from shared_candidates, but
-            # it might be convenient/cleaner in edit form to have it here?
-            move_data["shared"] = {
-                "text": shared.text or "",
-                "annotation": shared.annotation,
-                "alt": shared.alt or "",
-                "alt_fail": shared.alt_fail or "",
-                "shapes": shared.shapes or "",
-            }
         move_data["shared_candidates"] = move.get_shared_candidates()
         move_data["shared_dropdown"] = get_shared_dropdown(move)
 
@@ -298,6 +306,8 @@ def generate_variation_html(variation):
     pgn_moves = ""
     board = chess.Board()
     for move in variation.moves.iterator():
+        resolved_annotation = move.get_resolved_field("annotation")
+        resolved_move_text = move.get_resolved_field("text")
 
         if white_to_move:
             move_str = f"{move.move_num}."  # White always has dot and number
@@ -312,7 +322,7 @@ def generate_variation_html(variation):
             html += "<h3 class='variation-mainline'>"
             beginning_of_move_group = False
 
-        move_str += f"{move.san}{move.annotation}"
+        move_str += f"{move.san}{resolved_annotation}"
 
         html += (
             '<span class="move mainline-move" '
@@ -321,7 +331,7 @@ def generate_variation_html(variation):
 
         board.push_san(move.san)  # Mainline moves better be valid
 
-        if move.text:
+        if resolved_move_text:
             beginning_of_move_group = True
             parsed_blocks = get_parsed_blocks(move, board.copy())
             subvar_html = generate_subvariations_html(move.sequence, parsed_blocks)
