@@ -104,11 +104,13 @@
           title="Restart"
           @click="restartQuiz()"
           class="icon-restart icon-button"
+          :disabled="quizBusy"
         ></button>
         <button
           title="Show Move"
           @click="showQuizMove()"
           class="icon-showmove icon-button"
+          :disabled="quizBusy"
         ></button>
         <button
           title="Variation Info"

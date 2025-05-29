@@ -19,6 +19,7 @@ export function quizApp() {
     completed: false,
     quizCompleteOverlay: "", // emoji or empty string
     annotateTimeoutId: null, // helps manage quiz restarts
+    quizBusy: false, // helps prevent state issues with restarts
 
     initQuiz() {
       const boardElement = document.getElementById("board");
@@ -99,6 +100,9 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     async handleMove(orig, dest) {
+      if (this.quizBusy) return;
+      this.quizBusy = true;
+
       const piece = this.chess.get(orig);
       const isPromotion =
         piece && piece.type === "p" && (dest.endsWith("8") || dest.endsWith("1"));
@@ -134,6 +138,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     playOpposingMove() {
+      this.quizBusy = true;
       setTimeout(() => {
         if (this.quizMoveIndex === -2) {
           // White quiz starting on first move (not something we'll see often)
@@ -155,6 +160,8 @@ export function quizApp() {
           lastMove: [move.from, move.to],
         });
         this.quizMoveIndex++;
+
+        this.quizBusy = false;
 
         // quizzes *should* end on our move but if we have a
         // hanging opposing move we'll need to end things here...
@@ -196,8 +203,8 @@ export function quizApp() {
         // Green indicates that the move was successful, and purple
         // that the outcome of the quiz is still pending
         this.status = "🟢";
-        this.playOpposingMove();
         this.annotateCircle(move.to, "green");
+        this.playOpposingMove();
       } else if (answer.alt.includes(move.san)) {
         // Alt moves are playable moves; yellow means we won't fail you for it
         this.status = "🟡";
@@ -306,6 +313,7 @@ export function quizApp() {
         this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
       }
       this.quizCompleteOverlay = this.getQuizCompleteEmoji();
+      this.quizBusy = false;
     },
 
     //--------------------------------------------------------------------------------
