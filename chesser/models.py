@@ -226,12 +226,18 @@ class Move(AnnotatedMove):
         )
 
     def get_resolved_field(self, field_name: str) -> str:
-        shared_fields = ["text", "annotation", "alt", "alt_fail", "shapes"]
+        field_defaults = {
+            "text": "",
+            "annotation": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": "[]",
+        }
         assert (
-            field_name in shared_fields
+            field_name in field_defaults
         ), f"Field '{field_name}' is not resolvable via shared_move"
+        default = field_defaults[field_name]
 
-        default = "[]" if field_name == "shapes" else ""
         if self.shared_move:
             return getattr(self.shared_move, field_name) or default
         return getattr(self, field_name) or default
