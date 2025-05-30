@@ -1,11 +1,32 @@
+from datetime import timedelta
+
 from django import forms
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from djangoql.admin import DjangoQLSearchMixin
 
 from .models import Chapter, Course, Move, QuizResult, SharedMove, Variation
+
+
+class RecentVariationFilter(SimpleListFilter):
+    title = "recent variations"
+    parameter_name = "variation"
+
+    def lookups(self, request, model_admin):
+        recent_threshold = timezone.now() - timedelta(days=30)
+        recent = Variation.objects.filter(created_at__gte=recent_threshold).order_by(
+            "-created_at"
+        )
+        return [(v.id, f"{v.chapter.title}: {v.title}") for v in recent]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(variation__id=self.value())
+        return queryset
 
 
 class ChapterInline(admin.TabularInline):
@@ -165,7 +186,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     form = MoveForm
     list_display = ("san", "annotation", "move_num", "shared_move_link", "variation")
-    list_filter = ("variation",)
+    list_filter = (RecentVariationFilter,)
     readonly_fields = ("view_on_site_link", "matching_moves_link")
 
     @admin.display(description="View on site")
@@ -205,7 +226,7 @@ class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 @admin.register(QuizResult)
 class QuizResultAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = ("variation", "datetime", "level", "passed")
-    list_filter = ("variation", "passed", "level")
+    list_filter = (RecentVariationFilter, "passed", "level")
     readonly_fields = ("variation", "datetime", "level", "passed")
     fields = ("variation", "datetime", "level", "passed")
 
