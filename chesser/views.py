@@ -425,6 +425,7 @@ def handle_clone_errors(request, form_data, error_message):
     return redirect("import")
 
 
+@require_POST
 def clone(request):
     form_data = request.POST
     variation_id = int(form_data.get("original_variation_id"))
