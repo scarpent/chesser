@@ -263,8 +263,6 @@ class Move(AnnotatedMove):
         return self.variation.chapter.course.color
 
     def get_shared_candidates(self):
-        # Go through chapter → course to ensure we get a joined query
-        # (color is not on Variation)
         candidates = SharedMove.objects.filter(
             fen=self.fen,
             san=self.san,
@@ -280,6 +278,13 @@ class Move(AnnotatedMove):
             }
             for shared_move in candidates
         }
+
+    def get_matching_moves(self):
+        return Move.objects.filter(
+            fen=self.fen,
+            san=self.san,
+            variation__chapter__course__color=self.opening_color,
+        ).exclude(id=self.id)
 
 
 class SharedMove(AnnotatedMove):

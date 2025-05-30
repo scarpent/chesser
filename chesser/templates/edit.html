@@ -196,6 +196,12 @@
             <a :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
               >book view</a
             >
+            <template x-if="move.matching_move_count > 0">
+              <span
+                x-text="'~' + move.matching_move_count"
+                title="Matching SAN/FEN count"
+              ></span>
+            </template>
             <a
               :href="'/admin/chesser/move/' + move.move_id + '/change/'"
               target="_blank"

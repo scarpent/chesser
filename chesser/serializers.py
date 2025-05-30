@@ -133,6 +133,7 @@ def serialize_move(move, for_edit=False):
     if for_edit:
         move_data["shared_candidates"] = move.get_shared_candidates()
         move_data["shared_dropdown"] = get_shared_dropdown(move)
+        move_data["matching_move_count"] = move.get_matching_moves().count()
 
     return move_data
 
@@ -141,7 +142,6 @@ def get_shared_dropdown(move):
     candidates = move.get_shared_candidates()
     dropdown = []
 
-    # Unlink option — always first
     if not candidates:
         dropdown.append({"value": "", "label": "Not shared"})
     else:
