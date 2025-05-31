@@ -999,6 +999,7 @@ more washed out with all the white paper */
 }
 
 /* ------------------------------------------------------ Scrollbar Styling */
+
 /* Webkit browsers (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
   width: 8px; /* Thinner scrollbar */
@@ -1006,24 +1007,40 @@ more washed out with all the white paper */
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-dark); /* Matches background */
+  background: var(--color-bg-dark); /* same as body background bg */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #444; /* Darker thumb */
+  background: #444;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #666666; /* Slightly lighter on hover */
+  background: #666;
 }
 
-/* Firefox */
+/* May 2025 -- seems to be some changes in how chrome deals with scrollbars;
+
+previously had this for firefox:
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-bg-dark);
 }
+
+but that started causing webkit to ignore above -webkit styles; tried:
+
+@supports (scrollbar-color: auto) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-bg-dark);
+  }
+}
+
+which looked better on chrome, but still overrides earlier styles;
+firefox seems nicely dark and thin now by default?! maybe to do
+with system dark mode settings... */
 
 /* -------------------------------------------- Landscape & Review Overlays */
 .board-cover-button {
