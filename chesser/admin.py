@@ -99,7 +99,7 @@ class MoveInline(admin.TabularInline):
         if not shared:
             return "-"
         url = reverse("admin:chesser_sharedmove_change", args=[shared.id])
-        preview = (shared.text or "").strip().replace("\n", " ")
+        preview = shared.text.strip().replace("\n", " ")
         preview = preview[:40] + "…" if len(preview) > 40 else preview
         return format_html('<a href="{}" title="{}">#{}</a>', url, preview, shared.id)
 
@@ -268,6 +268,6 @@ class SharedMoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     inlines = [MoveInline]
 
     def short_text(self, obj):
-        return (obj.text or "").strip()[:60] + "..." if obj.text else ""
+        return obj.text.strip()[:60] + "..." if obj.text else ""
 
     short_text.short_description = "Text Preview"

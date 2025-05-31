@@ -108,9 +108,9 @@ def serialize_move(move, for_edit=False):
         "annotation": move.annotation,
         "move_verbose": move.move_verbose,
         "text": move.text,
-        "alt": move.alt or "",
-        "alt_fail": move.alt_fail or "",
-        "shapes": move.shapes or "",
+        "alt": move.alt,
+        "alt_fail": move.alt_fail,
+        "shapes": move.shapes,
         "shared_move_id": str(shared.id) if shared else "",
     }
 
@@ -118,9 +118,9 @@ def serialize_move(move, for_edit=False):
         shared_fields = {
             "text": shared.text,
             "annotation": shared.annotation,
-            "alt": shared.alt or "",
-            "alt_fail": shared.alt_fail or "",
-            "shapes": shared.shapes or "",
+            "alt": shared.alt,
+            "alt_fail": shared.alt_fail,
+            "shapes": shared.shapes,
         }
         if for_edit:
             # we don't strictly need "shared": we could get this info
