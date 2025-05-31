@@ -196,13 +196,13 @@ class AnnotatedMove(models.Model):
     fen = models.CharField(db_index=True)
     san = models.CharField(max_length=10)
     annotation = models.CharField(max_length=10, default="", blank=True)
-    text = models.TextField(null=True, blank=True)
-    alt = models.TextField(null=True, blank=True)  # e.g. d4, Nf3, c4
-    alt_fail = models.TextField(null=True, blank=True)
+    text = models.TextField(default="", blank=True)
+    alt = models.TextField(default="", blank=True)  # e.g. d4, Nf3, c4
+    alt_fail = models.TextField(default="", blank=True)
     # chessground drawable shapes (arrows/circles are implied by origin/dest)
     # e.g. [{"orig": "f4", "brush":"green"},
     #       {"orig": "c5", "dest": "d3", "brush": "red"}]
-    shapes = models.TextField(null=True, blank=True)
+    shapes = models.TextField(default="", blank=True)
 
     class Meta:
         abstract = True
