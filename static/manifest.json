@@ -3,7 +3,7 @@
     "short_name": "Chesser",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#a57651",
+    "background_color": "#222222",
     "theme_color": "#000000",
     "icons": [
         {
