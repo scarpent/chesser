@@ -185,9 +185,39 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 @admin.register(Move)
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     form = MoveForm
-    list_display = ("san", "annotation", "move_num", "shared_move_link", "variation")
+    list_display = (
+        "san",
+        "shared_move_link",
+        "move_num",
+        "has_text",
+        "has_annotation",
+        "has_alt",
+        "has_alt_fail",
+        "has_shapes",
+        "variation",
+    )
     list_filter = (RecentVariationFilter,)
     readonly_fields = ("view_on_site_link", "matching_moves_link")
+
+    @admin.display(description="Text?", boolean=True)
+    def has_text(self, obj):
+        return bool(obj.text)
+
+    @admin.display(description="Ann?", boolean=True)
+    def has_annotation(self, obj):
+        return bool(obj.annotation)
+
+    @admin.display(description="Alt?", boolean=True)
+    def has_alt(self, obj):
+        return bool(obj.alt)
+
+    @admin.display(description="Alt Fail?", boolean=True)
+    def has_alt_fail(self, obj):
+        return bool(obj.alt_fail)
+
+    @admin.display(description="Shapes?", boolean=True)
+    def has_shapes(self, obj):
+        return bool(obj.shapes)
 
     @admin.display(description="View on site")
     def view_on_site_link(self, obj):
@@ -213,7 +243,7 @@ class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         url = reverse("admin:chesser_move_changelist") + f"?q={query}"
         return format_html('<a href="{}">Find matching fen/san/color</a>', url)
 
-    @admin.display(description="Shared Move")
+    @admin.display(description="Shared")
     def shared_move_link(self, obj):
         if not obj.shared_move_id:
             return "-"
