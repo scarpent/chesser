@@ -66,6 +66,28 @@ class MoveForm(forms.ModelForm):
             "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 40}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        instance = self.instance
+        if (
+            instance
+            and instance.pk
+            and instance.fen
+            and instance.san
+            and instance.variation
+            and instance.variation.chapter
+            and instance.variation.chapter.course
+        ):
+            color = instance.variation.chapter.course.color
+            self.fields["shared_move"].queryset = SharedMove.objects.filter(
+                fen=instance.fen,
+                san=instance.san,
+                opening_color=color,
+            )
+        else:
+            self.fields["shared_move"].queryset = SharedMove.objects.none()
+
 
 class MoveInline(admin.TabularInline):
     model = Move

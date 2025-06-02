@@ -376,5 +376,13 @@ export function editApp() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
+
+    //--------------------------------------------------------------------------------
+    buildAdminMatchingLink(move) {
+      if (!move?.fen || !move?.san || !this.variationData?.color) return "#";
+
+      const query = `fen="${move.fen}" and san="${move.san}" and variation.chapter.course.color="${this.variationData.color}"`;
+      return "/admin/chesser/move/?q=" + encodeURIComponent(query);
+    },
   }; // return { ... }
 }
