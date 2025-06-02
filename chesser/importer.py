@@ -83,7 +83,8 @@ def import_variation(import_data, end_move=None):
         except Variation.DoesNotExist:
             pass  # good to go; note that we'll not reuse the ID
 
-    course = Course.objects.get(color=import_data["color"])
+    root_course_id = 1 if import_data.get("color") == "white" else 2
+    course = Course.objects.get(id=root_course_id)
     chapter, created = course.chapter_set.get_or_create(
         title=import_data["chapter_title"]
     )

@@ -139,8 +139,8 @@ SESSION_COOKIE_SECURE = IS_PRODUCTION  # Send session cookie only over HTTPS
 SECURE_SSL_REDIRECT = IS_PRODUCTION  # Redirect HTTP to HTTPS in production
 CSRF_COOKIE_SECURE = IS_PRODUCTION  # Send CSRF cookie only over HTTPS
 
-# If behind a proxy like Railway/Heroku, ensure Django correctly detects HTTPS requests
-if IS_PRODUCTION:
+# If behind a proxy like Railway/Heroku,
+if IS_PRODUCTION:  # ensure Django correctly detects HTTPS requests
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Default primary key field type
@@ -156,6 +156,11 @@ AWS_STORAGE_BUCKET_NAME = "chesser"
 AWS_S3_REGION_NAME = "us-east-1"
 
 BUILD_TIMESTAMP = str(int(time.time()))
+
+# Enables demo data if database is empty. Intended for first-time
+# preview/experimentation. Set to False once initialized to avoid
+# automatic demo injection on db reset.
+DEMO_DATA_IMPORT = False
 
 CHESSER_URL = (
     "https://chesser-production.up.railway.app"
