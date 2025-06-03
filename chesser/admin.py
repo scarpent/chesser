@@ -66,6 +66,9 @@ class MoveForm(forms.ModelForm):
             "alt_fail": forms.Textarea(attrs={"rows": 1, "cols": 40}),
         }
 
+
+class RegularMoveForm(MoveForm):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -206,7 +209,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
 @admin.register(Move)
 class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
-    form = MoveForm
+    form = RegularMoveForm
     list_display = (
         "san",
         "shared_move_link",
