@@ -208,6 +208,16 @@ class AnnotatedMove(models.Model):
     class Meta:
         abstract = True
 
+    def shareable_fields_match(self, other_move: "AnnotatedMove") -> bool:
+        """
+        Check if the shareable fields of this move are equal to another move.
+        """
+        shareable_fields = ["annotation", "text", "alt", "alt_fail", "shapes"]
+        return all(
+            getattr(self, field) == getattr(other_move, field)
+            for field in shareable_fields
+        )
+
 
 class Move(AnnotatedMove):
     move_num = models.IntegerField()

@@ -438,7 +438,7 @@ def handle_clone_errors(request, form_data, error_message):
 @require_POST
 def clone(request):
     form_data = request.POST
-    variation_id = int(form_data.get("original_variation_id"))
+    original_variation_id = int(form_data.get("original_variation_id"))
     variation_title = form_data.get("clone_variation_title", "").strip()
 
     new_variation = form_data.get("clone_mainline", "").strip()
@@ -454,12 +454,14 @@ def clone(request):
     else:
         normalized_label = ""
 
-    variation_link = f'<a href="/variation/{variation_id}/">#{variation_id}</a>'
+    variation_link = (
+        f'<a href="/variation/{original_variation_id}/">#{original_variation_id}</a>'
+    )
     messages.success(request, mark_safe(f"🧬 Cloning Variation {variation_link}"))
     messages.success(request, f"🧬 Title: {variation_title}")
     messages.success(request, f"🧬 Moves{normalized_label}: {new_variation}")
 
-    variation = get_object_or_404(Variation, pk=variation_id)
+    variation = get_object_or_404(Variation, pk=original_variation_id)
     import_data = serialize_variation_to_import_format(variation)
     original_sans = [m["san"] for m in import_data["moves"]]
     new_sans = util.strip_move_numbers(new_variation).split(" ")
@@ -509,7 +511,9 @@ def clone(request):
     import_data["level"] = 0
     import_data["next_review"] = util.END_OF_TIME_STR
     try:
-        variation_info = importer.import_variation(import_data)
+        variation_info = importer.import_variation(
+            import_data, source_variation_id=original_variation_id
+        )
     except ValueError as e:
         return handle_clone_errors(request, form_data, str(e))
 

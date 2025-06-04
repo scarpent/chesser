@@ -9,7 +9,24 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from chesser import util
-from chesser.models import Course, Move, QuizResult, Variation
+from chesser.models import Course, Move, QuizResult, SharedMove, Variation
+
+NAG_LOOKUP = {
+    1: "!",
+    2: "?",
+    3: "!!",
+    4: "??",
+    5: "!?",
+    6: "?!",
+    10: "=",
+    13: "∞",
+    14: "⩲",  # White slightly better
+    15: "⩱",  # Black slightly better
+    16: "±",
+    17: "∓",
+    18: "+-",
+    19: "-+",
+}
 
 
 def get_utc_datetime(date_string):
@@ -73,7 +90,8 @@ def get_changes(variation, import_data):
 
 
 @transaction.atomic
-def import_variation(import_data, end_move=None):
+def import_variation(import_data, source_variation_id=0, end_move=None):
+    """source_variation_id used for cloning"""
 
     if variation_id := import_data.get("variation_id"):
         try:
@@ -319,19 +337,77 @@ def get_mainline_moves_str(moves):
     return move_string.strip()
 
 
-NAG_LOOKUP = {
-    1: "!",
-    2: "?",
-    3: "!!",
-    4: "??",
-    5: "!?",
-    6: "?!",
-    10: "=",
-    13: "∞",
-    14: "⩲",  # White slightly better
-    15: "⩱",  # Black slightly better
-    16: "±",
-    17: "∓",
-    18: "+-",
-    19: "-+",
-}
+@transaction.atomic
+def shared_move_auto_linker(
+    variation: Variation, source_variation: Variation | None, preview=False
+) -> int:
+    """
+    If source_variation is provided, this is a clone so that we want
+    to replicate which moves are shared.
+
+    For non-shared moves, if shared moves are blank or match an existing
+    shared move, use that shared move. If there are no shared moves and
+    we see a match, make a new shared move for both variations.
+    """
+    opening_color = variation.course.color
+    moves_linked = 0
+    for move in variation.moves.all():
+        if move.shared_move or move.sequence < 1:
+            continue
+
+        if source_variation:
+            try:
+                source_move = source_variation.moves.get(
+                    move_num=move.move_num, sequence=move.sequence
+                )
+                move.shared_move = source_move.shared_move
+            except Move.DoesNotExist:
+                break  # we've handled all the cloned moves
+            if move.shared_move:
+                moves_linked += 1
+                if not preview:
+                    move.save()
+            else:
+                pass  # see if a new shared move may be born
+
+            continue
+
+        shareable_fields = (
+            move.text + move.annotation + move.alt + move.alt_fail + move.shapes
+        ).strip()
+
+        shared_moves = SharedMove.objects.filter(
+            san=move.san,
+            fen=move.fen,
+            opening_color=opening_color,
+        )
+
+        # if more than one shared move, we'll only share on an exact match
+        if shared_moves.count() > 1:
+            specific_shared_move = shared_moves.filter(
+                text=move.text,
+                annotation=move.annotation,
+                alt=move.alt,
+                alt_fail=move.alt_fail,
+                shapes=move.shapes,
+            ).first()
+            if specific_shared_move:
+                moves_linked += 1
+                if not preview:
+                    move.shared_move = specific_shared_move
+                    move.save()
+            continue
+
+        # with one shared move we can share on exact match or this move is "blank"
+        if shared_moves.count == 1 and (
+            move.shareable_fields_match(shared_moves.first()) or not shareable_fields
+        ):
+            moves_linked += 1
+            if not preview:
+                move.shared_move = shared_moves.first()
+                move.save()
+            continue
+
+        # next:
+
+    return moves_linked
