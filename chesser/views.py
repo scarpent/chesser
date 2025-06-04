@@ -7,7 +7,7 @@ from itertools import groupby
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models import Case, Count, IntegerField, OuterRef, Q, Subquery, When
 from django.db.models.functions import Lower
 from django.http import FileResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -410,13 +410,23 @@ class ImportVariationView(View):
         messages.success(self.request, f"🟢 {chapter.course.title} ➤ {chapter.title}")
 
 
-def get_sorted_variations():
-    return (
-        Variation.objects.select_related("course", "chapter")
-        .annotate(sort_key=Lower("mainline_moves_str"))
-        .order_by("course_id", "chapter__title", "sort_key")
-        .iterator()
+def get_sorted_variations(chapter_id=None):
+    queryset = Variation.objects.select_related("course", "chapter").annotate(
+        sort_key=Lower("mainline_moves_str"),
+        intro_priority=Case(
+            When(is_intro=True, then=0),
+            default=1,
+            output_field=IntegerField(),
+        ),
     )
+
+    if chapter_id is not None:
+        queryset = queryset.filter(chapter_id=chapter_id)
+        return queryset.order_by("intro_priority", "sort_key").iterator()
+    else:
+        return queryset.order_by(
+            "course_id", "chapter__title", "intro_priority", "sort_key"
+        ).iterator()
 
 
 def handle_clone_errors(request, form_data, error_message):
@@ -520,10 +530,11 @@ def export(request, variation_id=None):
 def variations_tsv(request):
     def row_generator():
         for v in get_sorted_variations():
+            intro = "📌" if v.is_intro else ""
             yield (
                 f"{v.course.title}\t"
                 f"{v.chapter.title}\t"
-                f"{v.title}\t"
+                f"{intro} {v.title}\t"
                 f"{v.mainline_moves}\t"
                 f"{settings.CHESSER_URL}/variation/{v.id}/\n"
             )
@@ -565,6 +576,7 @@ def variations_table(request):
                     v.mainline_moves, previous_moves, use_class=False
                 )
                 previous_moves = current_moves
+                intro = "📌" if v.is_intro else ""
 
                 yield (
                     f"<tr{highlight}>"
@@ -572,7 +584,7 @@ def variations_table(request):
                     f"<td>{v.course.title[0]}</td>"
                     f'<td style="text-align: right">'
                     f'<a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
-                    f'<td style="white-space: nowrap;">{v.title}</td>'
+                    f'<td style="white-space: nowrap;">{v.title} {intro}</td>'
                     f'<td style="white-space: nowrap;">{moves_html}</td>'
                     "</tr>\n"
                 )
@@ -785,13 +797,14 @@ class HomeView:
             nav["course_id"] = course.id
             nav["course_title"] = course.title
         else:
-            qs = (
-                Variation.objects.filter(chapter_id=self.chapter_id)
-                .annotate(sort_key=Lower("mainline_moves_str"))
-                .order_by("sort_key")
-            )
+            variations = get_sorted_variations(self.chapter_id)
+            # qs = (
+            #     Variation.objects.filter(chapter_id=self.chapter_id)
+            #     .annotate(sort_key=Lower("mainline_moves_str"))
+            #     .order_by("sort_key")
+            # )
             previous_moves = []
-            for variation in qs.iterator():
+            for variation in variations:
                 time_since_last_review = util.get_time_ago(
                     self.now, variation.get_latest_quiz_result_datetime()
                 )
@@ -802,10 +815,12 @@ class HomeView:
                 moves_html, current_moves = util.get_common_move_prefix_html(
                     variation.mainline_moves_str, previous_moves
                 )
+                # TODO: might want to try sharing some code with serializer here
                 nav["variations"].append(
                     {
                         "id": variation.id,
                         "title": variation.title,
+                        "is_intro": variation.is_intro,
                         "level": variation.level,
                         "start_move": variation.start_move,
                         "time_since_last_review": time_since_last_review,

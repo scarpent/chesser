@@ -115,6 +115,7 @@
         <li :id="'var_' + variation.id">
           <div class="variations-list-info">
             <div>
+              <span x-show="variation.is_intro">📌</span>
               <a
                 :href="'/variation/' + variation.id + '/'"
                 x-text="variation.title"

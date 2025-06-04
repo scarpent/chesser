@@ -142,6 +142,7 @@ def import_variation(import_data, end_move=None):
 
     variation.source = import_data.get("source")
     variation.title = import_data["variation_title"]
+    variation.is_intro = import_data.get("is_intro", False)
     variation.start_move = import_data["start_move"]
     if created and import_data["level"] >= 0:
         variation.level = import_data["level"]

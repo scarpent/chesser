@@ -61,6 +61,7 @@ class Variation(models.Model):
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)  # Denormalized field
+    is_intro = models.BooleanField(default=False)
     start_move = models.IntegerField(
         default=2, help_text="Reviews start at this move number"
     )

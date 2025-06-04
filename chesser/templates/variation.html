@@ -67,7 +67,9 @@
           ></button>
         </div>
         <div class="variation-info-container">
-          <div x-text="variationData.title"></div>
+          <div
+            x-text="variationData.is_intro ? '📌 ' + variationData.title : variationData.title"
+          ></div>
           <div class="variation-state-info">
             <span
               x-show="variationData.level === 0 || variationData.level >= 9"
