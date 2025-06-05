@@ -212,6 +212,13 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
         quiz_result.datetime = get_utc_datetime(import_data["last_review"])
         quiz_result.save()
 
+    # create shared moves if possible
+    source_variation = (
+        Variation.objects.get(id=source_variation_id) if source_variation_id else None
+    )
+    linked = shared_move_auto_linker(variation, source_variation, preview=False)
+    print(f"Linked {linked} shared moves")
+
     variation_link = f'<a href="/variation/{variation.id}/">#{variation.id}</a>'
     return f"{variation_link} (L{variation.level})"
 
@@ -337,77 +344,140 @@ def get_mainline_moves_str(moves):
     return move_string.strip()
 
 
-@transaction.atomic
-def shared_move_auto_linker(
-    variation: Variation, source_variation: Variation | None, preview=False
-) -> int:
-    """
-    If source_variation is provided, this is a clone so that we want
-    to replicate which moves are shared.
+def get_shareable_string(move):
+    return (
+        move.text + move.annotation + move.alt + move.alt_fail + move.shapes
+    ).strip()
 
-    For non-shared moves, if shared moves are blank or match an existing
-    shared move, use that shared move. If there are no shared moves and
-    we see a match, make a new shared move for both variations.
-    """
+
+def get_exact_shared_match(move_qs, move):
+    return move_qs.filter(
+        text=move.text,
+        annotation=move.annotation,
+        alt=move.alt,
+        alt_fail=move.alt_fail,
+        shapes=move.shapes,
+    ).first()
+
+
+def create_or_get_shared_move(move, opening_color):
+    shared_move, _ = SharedMove.objects.get_or_create(
+        san=move.san,
+        fen=move.fen,
+        opening_color=opening_color,
+        defaults={
+            "text": move.text,
+            "annotation": move.annotation,
+            "alt": move.alt,
+            "alt_fail": move.alt_fail,
+            "shapes": move.shapes,
+        },
+    )
+    return shared_move
+
+
+@transaction.atomic
+def shared_move_auto_linker(variation, source_variation=None, preview=False) -> int:
+    """preview may be used eventually to offer a
+    button to update if there are shareable moves"""
     opening_color = variation.course.color
     moves_linked = 0
-    for move in variation.moves.all():
-        if move.shared_move or move.sequence < 1:
-            continue
 
+    for move in variation.moves.all():
+        if move.shared_move:
+            # probably never true on initial import, but perhaps
+            continue  # later we'll allow on-demand auto-linking
+
+        shareable_fields = get_shareable_string(move)
+
+        # cloning from another variation -- we can make more concrete decisions here
         if source_variation:
             try:
                 source_move = source_variation.moves.get(
                     move_num=move.move_num, sequence=move.sequence
                 )
-                move.shared_move = source_move.shared_move
             except Move.DoesNotExist:
-                break  # we've handled all the cloned moves
+                break
+
+            move.shared_move = source_move.shared_move
+
             if move.shared_move:
                 moves_linked += 1
                 if not preview:
                     move.save()
-            else:
-                pass  # see if a new shared move may be born
+                continue
 
+            source_fields = get_shareable_string(source_move)
+            shared_moves = SharedMove.objects.filter(
+                san=move.san,
+                fen=move.fen,
+                opening_color=opening_color,
+            )
+
+            if shared_moves.count() == 1 and not shareable_fields and not source_fields:
+                shared_move = shared_moves.first()
+                moves_linked += 1
+                if not preview:
+                    move.shared_move = shared_move
+                    move.save()
+                    source_move.shared_move = shared_move
+                    source_move.save()
+                continue
+
+            if not shared_moves.exists():
+                shared_move = create_or_get_shared_move(source_move, opening_color)
+                moves_linked += 1
+                if not preview:
+                    move.shared_move = shared_move
+                    move.save()
+                    source_move.shared_move = shared_move
+                    source_move.save()
             continue
 
-        shareable_fields = (
-            move.text + move.annotation + move.alt + move.alt_fail + move.shapes
-        ).strip()
-
+        # standard import / variation creation, look for easy sharing opportunities
         shared_moves = SharedMove.objects.filter(
             san=move.san,
             fen=move.fen,
             opening_color=opening_color,
         )
 
-        # if more than one shared move, we'll only share on an exact match
         if shared_moves.count() > 1:
-            specific_shared_move = shared_moves.filter(
-                text=move.text,
-                annotation=move.annotation,
-                alt=move.alt,
-                alt_fail=move.alt_fail,
-                shapes=move.shapes,
-            ).first()
-            if specific_shared_move:
+            exact_match = get_exact_shared_match(shared_moves, move)
+            if exact_match:
                 moves_linked += 1
                 if not preview:
-                    move.shared_move = specific_shared_move
+                    move.shared_move = exact_match
                     move.save()
             continue
 
-        # with one shared move we can share on exact match or this move is "blank"
-        if shared_moves.count == 1 and (
-            move.shareable_fields_match(shared_moves.first()) or not shareable_fields
-        ):
-            moves_linked += 1
-            if not preview:
-                move.shared_move = shared_moves.first()
-                move.save()
+        if shared_moves.count() == 1:
+            exact_match = shared_moves.first()
+            if move.shareable_fields_match(exact_match) or not shareable_fields:
+                moves_linked += 1
+                if not preview:
+                    move.shared_move = exact_match
+                    move.save()
             continue
 
-        # next:
+        # shared_moves.count() == 0
+        matching_blank_moves = Move.objects.filter(
+            san=move.san,
+            fen=move.fen,
+            variation__chapter__course__color=opening_color,
+            text="",
+            annotation="",
+            alt="",
+            alt_fail="",
+            shapes="",
+            shared_move__isnull=True,
+        ).exclude(pk=move.pk)
+
+        if matching_blank_moves.exists():
+            shared_move = create_or_get_shared_move(move, opening_color)
+            moves_linked += matching_blank_moves.count() + 1
+            if not preview:
+                move.shared_move = shared_move
+                move.save()
+                matching_blank_moves.update(shared_move=shared_move)
 
     return moves_linked
