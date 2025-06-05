@@ -384,9 +384,11 @@ def shared_move_auto_linker(variation, source_variation=None, preview=False) -> 
     moves_linked = 0
 
     for move in variation.moves.all():
-        if move.shared_move:
-            # probably never true on initial import, but perhaps
-            continue  # later we'll allow on-demand auto-linking
+        if move.shared_move and move.sequence > 0:
+            # shared_move probably never true on initial import, but perhaps
+            # later we'll allow on-demand auto-linking; and let's not auto-link
+            # the first move
+            continue
 
         shareable_fields = get_shareable_string(move)
 

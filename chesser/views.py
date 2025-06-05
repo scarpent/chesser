@@ -650,12 +650,8 @@ def save_variation(request):
     for idx, move in enumerate(variation.moves.all()):
         move_data = data["moves"][idx]
 
-        # temporary while working on shared moves...
-        message = f"💾 Move id #{move.id} {move.san:7} | "
-
         shared_move_id = move_data.get("shared_move_id")
         if shared_move_id == "__new__":
-            message += "linking to new SharedMove 💥"
             target_move = SharedMove.objects.create(
                 fen=move.fen,
                 san=move.san,
@@ -663,26 +659,16 @@ def save_variation(request):
             )
             shared_move = target_move
         elif shared_move_id.isdigit():
-            if int(shared_move_id) == move.shared_move_id:
-                message += f"already linked to SharedMove #{shared_move_id}"
-            else:
-                message += f"linking to SharedMove #{shared_move_id}"
             shared_id = int(shared_move_id)
             target_move = get_object_or_404(SharedMove, pk=int(shared_id))
             assert target_move.fen == move.fen, "SharedMove FEN mismatch"
             assert target_move.san == move.san, "SharedMove SAN mismatch"
             shared_move = target_move
         else:
-            if move.shared_move:
-                message += f"unlinking from SharedMove #{move.shared_move.id}"
-            else:
-                message += "not shared"
             # TODO maybe optionally copy shared move data to this move;
             # perhaps handled by a separate dropdown unlink option?
             target_move = move
             shared_move = None
-
-        print(message)
 
         target_move.annotation = util.strip_all_html(move_data["annotation"])
         target_move.text = util.clean_html(move_data["text"])
