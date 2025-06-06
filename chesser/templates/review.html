@@ -144,10 +144,10 @@
               ><span x-text="variationData.chapter"></span
             ></a>
             <span> ➤ </span>
-            <span x-text="variationData.title"></span> (#<span
-              x-text="variationData.variation_id"
-            ></span
-            >)
+            <span
+              x-text="variationData.is_intro ? '📌 ' + variationData.title : variationData.title"
+            ></span>
+            (#<span x-text="variationData.variation_id"></span>)
           </div>
           <div class="variation-state-info">
             <span x-show="completed" x-text="'Level ➤ ' + variationData.level"></span
