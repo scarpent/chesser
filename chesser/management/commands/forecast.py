@@ -67,9 +67,9 @@ def simulate_forecast():
     queue = list(review_schedule.items())
 
     while True:
+        queue.sort()
         if not queue:
             break
-        queue.sort()
 
         dt, entry = queue.pop(0)
         if dt > forecast_end:
