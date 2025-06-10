@@ -27,10 +27,9 @@ class Command(BaseCommand):
         for day, count in forecast_counts.items():
             counts[day] += count
 
-        for day_ in counts:
+        for day_ in sorted(counts):
             count = counts.get(day_, 0)
             print(f"{day_.strftime('%Y/%m/%d')}\t{count}")
-            day_ += datetime.timedelta(days=1)
 
 
 def get_level_success_rates():
