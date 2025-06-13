@@ -51,7 +51,7 @@ export function editApp() {
       payload.shared_moves = this.moveData.shared_moves.map((move, index) => {
         const boardShapes = this.boards[index].state.drawable.shapes;
         return {
-          san: move.san,
+          id: move.id,
           annotation: move.annotation === "none" ? "" : move.annotation,
           text: move.text.trim(),
           alt: move.alt,
