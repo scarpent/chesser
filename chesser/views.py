@@ -9,7 +9,11 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Case, Count, IntegerField, OuterRef, Q, Subquery, When
 from django.db.models.functions import Lower
-from django.http import FileResponse, JsonResponse, StreamingHttpResponse
+from django.http import (
+    FileResponse,
+    JsonResponse,
+    StreamingHttpResponse,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -20,9 +24,10 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
-from chesser.models import Chapter, Course, QuizResult, SharedMove, Variation
+from chesser.models import Chapter, Course, Move, QuizResult, SharedMove, Variation
 from chesser.serializers import (
     get_final_move_simple_subvariations_html,
+    serialize_shared_move,
     serialize_variation,
     serialize_variation_to_import_format,
 )
@@ -619,6 +624,59 @@ def edit(request, variation_id=None):
     context = {"variation_data": json.dumps(variation_data)}
 
     return render(request, "edit.html", context)
+
+
+def edit_shared_move(request):
+    fen = request.GET.get("fen")
+    san = request.GET.get("san")
+    color = request.GET.get("color")
+    # TODO: eventually we may pass variation ID, too, for when we arrive here
+    # from edit page (which would be most/all of the time), and want an option
+    # to return to the variation we were working on
+
+    # TODO: temporary default, or maybe permanent:
+    # “this is only temporary, unless it works!”  -- Red Green
+    if not fen:
+        fen = "r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3"
+        san = "d4"
+        color = "white"
+
+    # if not all([fen, san, color]):
+    #     return HttpResponseBadRequest("Missing required parameters: fen, san, color")
+
+    shared_moves = list(
+        SharedMove.objects.filter(fen=fen, san=san, opening_color=color)
+    )
+
+    moves = list(
+        Move.objects.filter(
+            fen=fen,
+            san=san,
+            variation__chapter__course__color=color,
+        ).select_related(
+            "variation",
+            "variation__chapter",
+            "variation__chapter__course",
+            "shared_move",
+        )
+    )
+    move_verbose = moves[0].move_verbose if moves else san
+
+    move_data = serialize_shared_move(shared_moves, moves)
+    move_data["fen"] = fen
+    move_data["san"] = san
+    move_data["color"] = color
+    move_data["move_verbose"] = move_verbose
+    context = {"move_data": json.dumps(move_data)}
+    # return render(request, "edit_shared.html", {"move_data": json.dumps(move_data)})
+
+    # just to make the copied page still work, for the moment...
+    variation = Variation.objects.get(id=562)
+    # variation = Variation.objects.first()
+    variation_data = serialize_variation(variation, mode="edit") if variation else {}
+    context["variation_data"] = json.dumps(variation_data)
+
+    return render(request, "edit_shared.html", context)
 
 
 def get_normalized_shapes(shapes):

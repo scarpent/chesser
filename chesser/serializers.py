@@ -1,5 +1,6 @@
 import json
 import re
+from collections import defaultdict
 from dataclasses import dataclass
 
 import chess
@@ -158,6 +159,72 @@ def get_shared_dropdown(move):
     dropdown.append({"value": "__new__", "label": "New shared move"})
 
     return dropdown
+
+
+def serialize_shared_move(shared_moves, matching_moves):
+    """
+    Return structure for edit_shared.html:
+    - shared_moves: editable
+    - move_groups: read-only, grouped by shared fields, with linked shared_move IDs
+
+    Move groups are read only, *except* that we'll enable shared move setting/unsetting
+    """
+    move_data = {
+        "shared_moves": [],
+        "move_groups": [],
+    }
+
+    # Editable SharedMove blocks
+    for shared_move in shared_moves:
+        move_data["shared_moves"].append(
+            {
+                "id": shared_move.id,
+                "text": shared_move.text,
+                "annotation": shared_move.annotation,
+                "alt": shared_move.alt,
+                "alt_fail": shared_move.alt_fail,
+                "shapes": shared_move.shapes,
+                "linked_move_ids": list(shared_move.moves.values_list("id", flat=True)),
+            }
+        )
+
+    # Group Move instances by shared fields
+    grouped = defaultdict(list)
+    for move in matching_moves:
+        key = (
+            move.text,
+            move.annotation,
+            move.alt,
+            move.alt_fail,
+            move.shapes,
+        )
+        grouped[key].append(move)
+
+    for (text, annotation, alt, alt_fail, shapes), group in grouped.items():
+        shared_move_ids = list(
+            {move.shared_move.id for move in group if move.shared_move is not None}
+        )
+
+        move_data["move_groups"].append(
+            {
+                "count": len(group),
+                "text": text,
+                "annotation": annotation,
+                "alt": alt,
+                "alt_fail": alt_fail,
+                "shapes": shapes,
+                "example_variation": {
+                    "id": group[0].variation.id,
+                    "title": group[0].variation.title,
+                    "chapter": group[0].variation.chapter.title,
+                    "course": group[0].variation.chapter.course.title,
+                },
+                "shared_move_ids": shared_move_ids,
+                "move_ids": [move.id for move in group],
+            }
+        )
+
+    return move_data
 
 
 def serialize_variation_to_import_format(variation):

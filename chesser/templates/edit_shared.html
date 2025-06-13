@@ -21,7 +21,7 @@
 {% block content %}
 <body
   x-data="editApp()"
-  x-init="initEditor(); document.title = 'Edit #' + variationData.variation_id"
+  x-init="initEditor(); document.title = 'Move: ' + moveData.move_verbose"
   @keydown.window="handleKeyNavigation($event)"
   x-cloak
 >
@@ -62,52 +62,14 @@
 
   <div id="edit-variation-info" class="form-standard">
     <div>
-      <a
-        :href="'/course/' + variationData.course_id + '/chapter/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
-        x-text="variationData.chapter"
-      ></a>
-      •
-      <a
-        :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
-        target="_blank"
-        x-text="'#' + variationData.variation_id"
-      ></a>
-      <span x-show="variationData.is_intro">📌</span>
+      <a href="">(back to #123)</a> • <a href="">(shared qs)</a> •
+      <a href="">(moves qs)</a>
     </div>
 
     <div>
-      <label for="variation-title">Variation Title:</label>
-      <input
-        type="text"
-        id="variation-title"
-        x-model="variationData.title"
-        class="variation-title-input"
-      />
+      <span x-text="moveData.fen" class="move-fen"></span><br />
+      <span x-text="moveData.move_verbose"></span></span>
     </div>
-
-    <div class="edit-sundry">
-      <div class="form-start-and-end">
-        <label for="start-move">Start Move:</label>
-        <input type="text" id="start-move" x-model="variationData.start_move" />
-      </div>
-
-      <div>
-        <a :href="'/export/' + variationData.variation_id + '/'" target="_blank"
-          >export</a
-        >
-        •
-        <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
-        <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
-        <template x-if="variationData.level === 0">
-          <span>
-            •
-            <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
-          </span>
-        </template>
-      </div>
-    </div>
-
-    <div id="edit-mainline-moves" x-html="renderMainlineMoveLinks()"></div>
   </div>
 
   <!-- Generate multiple boards dynamically -->
@@ -222,12 +184,14 @@
 
   <script>
     window.variationData = JSON.parse("{{ variation_data|escapejs }}");
-    console.log("variationData:", window.variationData); // Debugging
+    window.moveData = JSON.parse("{{ move_data|escapejs }}");
+    console.log("variationData:", window.variationData);
+    console.log("moveData:", window.moveData);
   </script>
 
   <!-- caching bugbear in dev calls for this prod redundant cache buster -->
   <script type="module">
-    import { editApp } from "{% static 'js/edit.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { editApp } from "{% static 'js/edit-shared.js' %}?v={{ BUILD_TIMESTAMP }}";
     window.editApp = editApp;
     document.addEventListener("alpine:init", () => {
       Alpine.data("editApp", editApp);
