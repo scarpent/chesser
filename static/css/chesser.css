@@ -1330,6 +1330,10 @@ input.move-alt-fail:focus {
     width: 100%;
     resize: vertical; /* allow vertical resizing only */
   }
+
+  .edit-move-text-container {
+    width: 425px;
+  }
 }
 
 /* ----------------------------------------------------------- @media 900px */
@@ -1376,6 +1380,7 @@ input.move-alt-fail:focus {
     box-sizing: border-box;
   }
 
+  #boards-container,
   .edit-move-text-container,
   .edit-move-other-container {
     width: 100%;
@@ -1410,6 +1415,7 @@ about 500, but also covers our ultimate mobile 450 view */
     gap: 3px; /* Space between rows */
   }
 
+  #boards-container,
   .variation-title-input {
     width: 100%;
   }
