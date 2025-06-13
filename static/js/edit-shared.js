@@ -136,63 +136,6 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    // TODO: share this across edit and edit-shared
-    validateAltMoves(index, field) {
-      const actualSan = this.variationData.moves[index].san;
-      const actualMoveVerbose = this.variationData.moves[index].move_verbose;
-      let alternateMoves = this.variationData.moves[index][field];
-      console.log("Validating alt moves for", actualMoveVerbose, "➤", alternateMoves);
-
-      if (
-        !alternateMoves ||
-        typeof alternateMoves !== "string" ||
-        !alternateMoves.trim()
-      )
-        return;
-
-      // Trim spaces and remove duplicates
-      const altMoves = [
-        ...new Set(
-          alternateMoves
-            .split(/[,\s]+/)
-            .map((m) => m.trim())
-            .filter(Boolean)
-        ),
-      ];
-
-      const bad = [],
-        good = [];
-
-      const chess = new window.Chess();
-      // Play up to previous move so we can check for legal alt moves
-      for (let i = 0; i < index; i++) chess.move(this.variationData.moves[i].san);
-
-      altMoves.forEach((altMove) => {
-        if (altMove === actualSan) {
-          bad.push(altMove); // Ignore if identical to the actual move
-          return;
-        }
-        try {
-          chess.move(altMove);
-          good.push(altMove);
-          chess.undo();
-        } catch (error) {
-          console.error(`Invalid move for ${actualMoveVerbose}: ${altMove}`);
-          bad.push(altMove);
-        }
-      });
-
-      // console.log("good/bad:", good, bad);
-      if (bad.length)
-        console.error(
-          `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`
-        );
-
-      // Update input with only valid moves
-      this.variationData.moves[index][field] = good.join(", ");
-    },
-
-    //--------------------------------------------------------------------------------
     buildAdminMatchingLink(move) {
       if (!move?.fen || !move?.san || !this.variationData?.color) return "#";
 
