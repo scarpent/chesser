@@ -33,6 +33,7 @@ urlpatterns = [
     path("edit/<int:variation_id>/", views.edit, name="edit_with_id"),
     path("save-variation/", views.save_variation, name="save_variation"),
     path("edit-shared-move/", views.edit_shared_move, name="edit_shared_move"),
+    path("save-shared-move/", views.save_shared_move, name="save_shared_move"),
     path("variation/", views.variation, name="variation_default"),
     path("variation/<int:variation_id>/", views.variation, name="variation"),
     path("import/", views.import_view, name="import"),

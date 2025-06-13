@@ -742,6 +742,18 @@ def save_variation(request):
     return JsonResponse({"status": "success"})
 
 
+@csrf_exempt
+@require_POST
+@transaction.atomic
+def save_shared_move(request):
+    # data = json.loads(request.body)
+    # variation_id = data.get("variation_id")
+    # print(f"💾 Saving shared move {variation_id}")
+    print("💾 TODO: save shared move...")
+
+    return JsonResponse({"status": "success"})
+
+
 def variation(request, variation_id=None):
     if variation_id is None:
         variation = Variation.objects.first()

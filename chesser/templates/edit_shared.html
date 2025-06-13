@@ -55,25 +55,26 @@
     ></button>
     <button
       title="Save"
-      @click="saveVariation()"
+      @click="saveSharedMove()"
       class="icon-save icon-button"
     ></button>
   </div>
 
   <div id="edit-variation-info" class="form-standard">
     <div>
+      admin:
       <a
         :href="buildAdminMatchingSharedMovesLink()"
         target="_blank"
         title="Show all shared moves matching SAN/FEN"
-        >shared moves</a
+        >shared</a
       >
       •
       <a
         :href="buildAdminMatchingMovesLink()"
         target="_blank"
         title="Show all moves matching SAN/FEN"
-        >regular moves</a
+        >moves</a
       >
     </div>
 
@@ -135,9 +136,7 @@
   {% include "includes/service_worker_register.html" %}
 
   <script>
-    window.variationData = JSON.parse("{{ variation_data|escapejs }}");
     window.moveData = JSON.parse("{{ move_data|escapejs }}");
-    console.log("variationData:", window.variationData);
     console.log("moveData:", window.moveData);
   </script>
 

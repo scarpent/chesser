@@ -8,7 +8,6 @@ export function editApp() {
   return {
     boards: [],
     chess: null,
-    variationData: variationData,
     moveData: moveData,
     currentMoveIndex: 0,
 
@@ -43,23 +42,20 @@ export function editApp() {
     //---------------------------------------------------------------------------------
     buildPayload() {
       const payload = {
-        variation_id: this.variationData.variation_id,
-        title: this.variationData.title,
-        start_move: this.variationData.start_move, // TODO: validation?
+        san: this.moveData.san,
+        fen: this.moveData.fen,
+        color: this.moveData.color,
         moves: [],
       };
 
-      payload.moves = this.variationData.moves.map((move, index) => {
+      payload.shared_moves = this.moveData.shared_moves.map((move, index) => {
         const boardShapes = this.boards[index].state.drawable.shapes;
-        const state = this.moveState[index] || {};
-
         return {
           san: move.san,
-          shared_move_id: move.shared_move_id,
-          annotation: state.annotation === "none" ? "" : state.annotation,
-          text: state.text.trim(),
-          alt: state.alt,
-          alt_fail: state.alt_fail,
+          annotation: move.annotation === "none" ? "" : move.annotation,
+          text: move.text.trim(),
+          alt: move.alt,
+          alt_fail: move.alt_fail,
           shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
         };
       });
@@ -75,42 +71,16 @@ export function editApp() {
         btn.classList.add(className);
       }
 
-      if (status === "success") {
-        const isMobile = window.innerWidth < 700;
-
-        setTimeout(() => {
-          if (isMobile && index !== null) {
-            const url = new URL(window.location.href);
-            url.searchParams.set("idx", index);
-            window.location.href = url.toString(); // mobile redirect to current move with idx
-          } else {
-            // desktop reload will automatically restore our place on the page
-            window.location.reload();
-          }
-        }, 750);
-      }
+      if (status === "success") window.location.reload();
     },
 
     //--------------------------------------------------------------------------------
-    saveFromMove(index) {
-      this.saveVariation(index).then((success) => {
-        this.variationData.moves[index].saved = success ? "success" : "error";
-        // clear after short delay only if sucessuful (leave red background if error)
-        if (success) {
-          setTimeout(() => {
-            this.variationData.moves[index].saved = null;
-          }, 750);
-        }
-      });
-    },
-
-    //--------------------------------------------------------------------------------
-    async saveVariation(index) {
-      console.log("Saving variation data...", this.variationData);
+    async saveSharedMove(index) {
+      console.log("Saving shared move data...");
       const payload = this.buildPayload();
 
       try {
-        const response = await fetch("/save-variation/", {
+        const response = await fetch("/save-shared-move/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -124,7 +94,7 @@ export function editApp() {
           this.handleSaveResult("error");
           return false;
         } else {
-          console.log("Variation saved successfully");
+          console.log("Shared move saved successfully");
           this.handleSaveResult("success", index);
           return true;
         }
