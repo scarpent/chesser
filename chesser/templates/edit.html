@@ -111,7 +111,7 @@
   </div>
 
   <!-- Generate multiple boards dynamically -->
-  <div id="boards-container" class="form-standard">
+  <div id="boards-container" class="form-standard" style="margin-bottom: 1000px">
     <template x-for="(move, index) in variationData.moves" :key="index">
       <div class="move-block" :id="'move-block-' + index">
         <div class="edit-board" :id="'edit-board-' + index"></div>
@@ -199,9 +199,8 @@
             >
             <template x-if="move.matching_move_count > 0">
               <a
-                :href="buildAdminMatchingLink(move)"
-                target="_blank"
-                title="Show matching SAN/FEN"
+                :href="'/edit-shared-move/?san=' + move.san + '&fen=' + move.fen + '&color=' + variationData.color + '&variation_id=' + variationData.variation_id"
+                title="Shared Move Editor"
                 x-text="'=' + move.matching_move_count"
               ></a>
             </template>
