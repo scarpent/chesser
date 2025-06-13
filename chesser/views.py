@@ -630,9 +630,7 @@ def edit_shared_move(request):
     fen = request.GET.get("fen")
     san = request.GET.get("san")
     color = request.GET.get("color")
-    # TODO: eventually we may pass variation ID, too, for when we arrive here
-    # from edit page (which would be most/all of the time), and want an option
-    # to return to the variation we were working on
+    variation_id = request.GET.get("variation_id")
 
     # TODO: temporary default, or maybe permanent:
     # “this is only temporary, unless it works!”  -- Red Green
@@ -640,6 +638,8 @@ def edit_shared_move(request):
         fen = "r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3"
         san = "d4"
         color = "white"
+    if not variation_id:
+        variation_id = 562
 
     # if not all([fen, san, color]):
     #     return HttpResponseBadRequest("Missing required parameters: fen, san, color")
@@ -667,6 +667,7 @@ def edit_shared_move(request):
     move_data["san"] = san
     move_data["color"] = color
     move_data["move_verbose"] = move_verbose
+    move_data["variation_id"] = variation_id
     context = {"move_data": json.dumps(move_data)}
     # return render(request, "edit_shared.html", {"move_data": json.dumps(move_data)})
 

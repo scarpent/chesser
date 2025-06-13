@@ -136,11 +136,15 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    buildAdminMatchingLink(move) {
-      if (!move?.fen || !move?.san || !this.variationData?.color) return "#";
-
-      const query = `fen="${move.fen}" and san="${move.san}" and variation.chapter.course.color="${this.variationData.color}"`;
+    buildAdminMatchingMovesLink() {
+      const query = `fen="${moveData.fen}" and san="${moveData.san}" and variation.chapter.course.color="${this.moveData.color}"`;
       return "/admin/chesser/move/?q=" + encodeURIComponent(query);
+    },
+
+    //--------------------------------------------------------------------------------
+    buildAdminMatchingSharedMovesLink() {
+      const query = `fen="${moveData.fen}" and san="${moveData.san}" and opening_color="${this.moveData.color}"`;
+      return "/admin/chesser/sharedmove/?q=" + encodeURIComponent(query);
     },
   }; // return { ... }
 }

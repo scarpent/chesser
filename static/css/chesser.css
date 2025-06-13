@@ -1485,7 +1485,6 @@ about 500, but also covers our ultimate mobile 450 view */
     at bottom, and we do get refreshes e.g. when returning from lichess
     analysis board; so a better approach is using js to dynamically
     calculate vh, etc */
-    height: 100%; /* js solution working well */
     overflow-x: hidden;
   }
 

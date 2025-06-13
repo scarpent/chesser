@@ -43,13 +43,14 @@
       class="icon-import icon-button"
     ></button>
     <button
-      title="View"
-      @click="window.location.href='/variation/' + variationData.variation_id + '/'"
-      class="icon-variation icon-button"
+      title="Edit"
+      @click="window.location.href='/edit/' + moveData.variation_id + '/'"
+      class="icon-edit icon-button"
     ></button>
     <button
       title="Lichess analysis board"
-      @click="window.open(variationData.analysis_url, target='_blank')"
+      @click="window.open('https://lichess.org/analysis/standard/' +
+      moveData.fen.replace(/ /g, '_') + '?color=' + moveData.color, '_blank')"
       class="icon-analysis icon-button"
     ></button>
     <button
@@ -61,8 +62,19 @@
 
   <div id="edit-variation-info" class="form-standard">
     <div>
-      <a href="">(back to #123)</a> • <a href="">(shared qs)</a> •
-      <a href="">(moves qs)</a>
+      <a
+        :href="buildAdminMatchingSharedMovesLink()"
+        target="_blank"
+        title="Show all shared moves matching SAN/FEN"
+        >shared moves</a
+      >
+      •
+      <a
+        :href="buildAdminMatchingMovesLink()"
+        target="_blank"
+        title="Show all moves matching SAN/FEN"
+        >regular moves</a
+      >
     </div>
 
     <div>
