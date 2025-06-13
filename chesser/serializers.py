@@ -174,6 +174,8 @@ def serialize_shared_move(shared_moves, matching_moves):
         "move_groups": [],
     }
 
+    temp_annotations = annotations.copy()
+
     # Editable SharedMove blocks
     for shared_move in shared_moves:
         move_data["shared_moves"].append(
@@ -187,6 +189,11 @@ def serialize_shared_move(shared_moves, matching_moves):
                 "linked_move_ids": list(shared_move.moves.values_list("id", flat=True)),
             }
         )
+        # Similar to variation serialization, preserve unknowns
+        if shared_move.annotation and shared_move.annotation not in temp_annotations:
+            temp_annotations[shared_move.annotation] = (
+                f"unknown: {shared_move.annotation}"
+            )
 
     # Group Move instances by shared fields
     grouped = defaultdict(list)
@@ -223,6 +230,10 @@ def serialize_shared_move(shared_moves, matching_moves):
                 "move_ids": [move.id for move in group],
             }
         )
+        if annotation and annotation not in temp_annotations:
+            temp_annotations[annotation] = f"unknown: {annotation}"
+
+    move_data["annotations"] = temp_annotations
 
     return move_data
 

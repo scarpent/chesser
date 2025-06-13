@@ -22,7 +22,6 @@
 <body
   x-data="editApp()"
   x-init="initEditor(); document.title = 'Move: ' + moveData.move_verbose"
-  @keydown.window="handleKeyNavigation($event)"
   x-cloak
 >
   <div class="button-container" style="margin-top: 15px">
@@ -67,110 +66,52 @@
     </div>
 
     <div>
-      <span x-text="moveData.fen" class="move-fen"></span><br />
-      <span x-text="moveData.move_verbose"></span></span>
+      <span x-text="moveData.fen" class="move-fen"></span>
+      <h2 class="mainline-move move-verbose-edit" x-text="moveData.move_verbose"></h2>
     </div>
   </div>
 
+  <h3 style="margin-top: 0">Shared Moves</h3>
   <!-- Generate multiple boards dynamically -->
   <div id="boards-container" class="form-standard">
-    <template x-for="(move, index) in variationData.moves" :key="index">
+    <template x-for="(move, index) in moveData.shared_moves" :key="index">
       <div class="move-block" :id="'move-block-' + index">
         <div class="edit-board" :id="'edit-board-' + index"></div>
         <div class="edit-move-text-container">
-          <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>
-          <textarea
-            class="edit-move-text"
-            x-model="moveState[index].text"
-            rows="8"
-          ></textarea>
-          <div class="move-fen">
-            <a
-              :href="variationData.analysis_url + (index + 1)"
-              target="_blank"
-              x-text="move.fen"
-            ></a>
-          </div>
+          <textarea class="edit-move-text" x-model="move.text" rows="12"></textarea>
         </div>
         <div class="edit-move-other-container">
-          <select
-            :value="move.shared_move_id"
-            @change="move.shared_move_id = $event.target.value; updateSharedMoveState(index)"
-          >
-            <template x-for="item in move.shared_dropdown" :key="item.value">
-              <option
-                :value="String(item.value)"
-                x-text="item.label"
-                :selected="item.value === move.shared_move_id"
-              ></option>
-            </template>
-          </select>
-          <select class="annotation" x-model="moveState[index].annotation">
-            <template x-for="[key, value] in Object.entries(variationData.annotations)">
+          <select class="annotation" x-model="move.annotation">
+            <template x-for="[key, value] in Object.entries(moveData.annotations)">
               <option
                 :value="key"
                 x-text="value"
-                :selected="key === moveState[index].annotation"
+                :selected="key === move.annotation"
               ></option>
             </template>
           </select>
           <input
             type="text"
             class="move-alt"
-            x-model="moveState[index].alt"
+            x-model="move.alt"
             placeholder="Alternative move"
             @blur="validateAltMoves(index, 'alt')"
           />
           <input
             type="text"
             class="move-alt-fail"
-            x-model="moveState[index].alt_fail"
+            x-model="move.alt_fail"
             placeholder="Alt move fail"
             @blur="validateAltMoves(index, 'alt_fail')"
           />
-          <div>
-            <button
-              title="Save"
-              class="icon-save icon-button"
-              :class="{
-                'save-success': move.saved === 'success',
-                'save-error': move.saved === 'error'
-              }"
-              @click.prevent="saveFromMove(index)"
-            ></button>
-            <button
-              title="Previous Move"
-              class="icon-back icon-button"
-              @click.prevent="scrollToMoveBlock(index - 1)"
-            ></button>
-            <button
-              title="Next Move"
-              class="icon-forward icon-button"
-              @click.prevent="scrollToMoveBlock(index + 1)"
-            ></button>
-            <!-- utterly defeated trying to scroll to top on mobile; will use this for now -->
-            <button
-              title="Go to Top"
-              class="icon-up icon-button"
-              @click.prevent="scrollToMoveBlock(0)"
-            ></button>
-          </div>
           <div id="edit-move-other-links">
-            <a :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
-              >book view</a
-            >
-            <template x-if="move.matching_move_count > 0">
-              <a
-                :href="buildAdminMatchingLink(move)"
-                target="_blank"
-                title="Show matching SAN/FEN"
-                x-text="'=' + move.matching_move_count"
-              ></a>
-            </template>
+            <span
+              x-text="move.linked_move_ids.length + ' move' + (move.linked_move_ids.length === 1 ? '' : 's')"
+            ></span>
             <a
-              :href="'/admin/chesser/move/' + move.move_id + '/change/'"
+              :href="'/admin/chesser/sharedmove/' + move.id + '/change/'"
               target="_blank"
-              x-text="'#' + move.move_id"
+              x-text="'#' + move.id"
             ></a>
           </div>
         </div>
