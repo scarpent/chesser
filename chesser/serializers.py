@@ -7,6 +7,7 @@ import chess
 from django.utils import timezone
 
 from chesser import util
+from chesser.models import Move, SharedMove
 from chesser.move_resolver import ParsedBlock, get_parsed_blocks
 
 annotations = {
@@ -161,7 +162,9 @@ def get_shared_dropdown(move):
     return dropdown
 
 
-def serialize_shared_move(shared_moves, matching_moves):
+def serialize_shared_move(
+    shared_moves: list[SharedMove], matching_moves: list[Move]
+) -> dict:
     """
     Return structure for edit_shared.html:
     - shared_moves: editable

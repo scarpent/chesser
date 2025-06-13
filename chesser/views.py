@@ -11,6 +11,7 @@ from django.db.models import Case, Count, IntegerField, OuterRef, Q, Subquery, W
 from django.db.models.functions import Lower
 from django.http import (
     FileResponse,
+    HttpResponseBadRequest,
     JsonResponse,
     StreamingHttpResponse,
 )
@@ -632,17 +633,8 @@ def edit_shared_move(request):
     color = request.GET.get("color")
     variation_id = request.GET.get("variation_id")
 
-    # TODO: temporary default, or maybe permanent:
-    # “this is only temporary, unless it works!”  -- Red Green
-    if not fen:
-        fen = "r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3"
-        san = "d4"
-        color = "white"
-    if not variation_id:
-        variation_id = 562
-
-    # if not all([fen, san, color]):
-    #     return HttpResponseBadRequest("Missing required parameters: fen, san, color")
+    if not all([fen, san, color]):
+        return HttpResponseBadRequest("Missing required parameters: fen, san, color")
 
     shared_moves = list(
         SharedMove.objects.filter(fen=fen, san=san, opening_color=color)
@@ -663,19 +655,14 @@ def edit_shared_move(request):
     move_verbose = moves[0].move_verbose if moves else san
 
     move_data = serialize_shared_move(shared_moves, moves)
+
     move_data["fen"] = fen
     move_data["san"] = san
     move_data["color"] = color
     move_data["move_verbose"] = move_verbose
     move_data["variation_id"] = variation_id
-    context = {"move_data": json.dumps(move_data)}
-    # return render(request, "edit_shared.html", {"move_data": json.dumps(move_data)})
 
-    # just to make the copied page still work, for the moment...
-    variation = Variation.objects.get(id=562)
-    # variation = Variation.objects.first()
-    variation_data = serialize_variation(variation, mode="edit") if variation else {}
-    context["variation_data"] = json.dumps(variation_data)
+    context = {"move_data": json.dumps(move_data)}
 
     return render(request, "edit_shared.html", context)
 
