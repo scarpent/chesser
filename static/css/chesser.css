@@ -291,6 +291,7 @@ blockquote {
 .edit-move-text-container,
 .edit-move-other-container,
 .grouped-text-container,
+.grouped-move-other-container,
 #edit-variation-info {
   display: flex;
   flex-direction: column !important; /* Force vertical stacking */
@@ -304,6 +305,13 @@ blockquote {
   max-width: 100%;
 }
 
+.grouped-move-other-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 275px;
+}
+
 .grouped-inline-header {
   display: inline-flex;
   align-items: center;
@@ -314,6 +322,10 @@ blockquote {
   font-weight: bold;
   color: var(--color-headers);
   font-size: 18px;
+}
+
+.grouped-move-title {
+  color: var(--color-headers);
 }
 
 .grouped-attributes {
@@ -1325,6 +1337,20 @@ input.move-alt-fail:focus {
   margin: 20px auto 0 auto; /* center horizontally */
 }
 
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: cyan; /* match your <a> link style */
+  cursor: pointer;
+  font: inherit; /* ensures it looks like inline text, not a button */
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
 /* ------------------------------------------------------- File Upload Form */
 
 .file-upload-form h3 {
@@ -1427,7 +1453,8 @@ input.move-alt-fail:focus {
 
   #boards-container,
   .edit-move-text-container,
-  .edit-move-other-container {
+  .edit-move-other-container,
+  .grouped-move-other-container {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;

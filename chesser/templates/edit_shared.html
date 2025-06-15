@@ -160,16 +160,41 @@
           <code class="grouped-move-text" x-text="move.text"></code>
         </div>
 
-        <div class="edit-move-other-container">
-          <a
-            :href="buildAdminMatchingMovesLink(move)"
-            target="_blank"
-            title="Show all shared moves matching SAN/FEN"
-            x-text="move.move_ids.length + ' move' + (move.move_ids.length === 1 ? '' : 's')"
-          ></a>
+        <div class="grouped-move-other-container">
+          <span x-text="move.example_variation.title" class="grouped-move-title"></span>
+          <button @click="confirmAndUpdateGroup(move)" class="link-button">
+            Update shared move
+          </button>
+          <button
+            x-show="move.shared_move_id"
+            @click="confirmAndUpdateGroup(move)"
+            class="link-button"
+          >
+            Update moves shared attributes
+          </button>
+          <div class="grouped-variation-links">
+            vars:
+            <template x-for="(var_id, idx) in move.variation_ids">
+              <template x-if="idx < 5">
+                <a :href="'/variation/' + var_id + '/'">
+                  <span
+                    x-text="var_id + (idx < Math.min(move.variation_ids.length, 5) - 1 ? ', ' : '')"
+                  ></span>
+                </a>
+              </template>
+            </template>
+            <template x-if="move.variation_ids.length > 5">
+              <span>...</span>
+            </template>
+          </div>
           <div id="edit-move-other-links">
-            <span>abc</span>
-            <span>xyz</span>
+            &nbsp;
+            <a
+              :href="buildAdminMatchingMovesLink(move)"
+              target="_blank"
+              title="Show all shared moves matching SAN/FEN/shared attributes"
+              x-text="move.move_ids.length + ' move' + (move.move_ids.length === 1 ? '' : 's')"
+            ></a>
           </div>
         </div>
       </div>

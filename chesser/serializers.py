@@ -248,6 +248,7 @@ def serialize_shared_move(
                     mode="edit-move-group",
                 ),
                 "move_ids": [move.id for move in group],
+                "variation_ids": [move.variation.id for move in group],
             }
         )
         if annotation and annotation not in temp_annotations:
