@@ -290,6 +290,7 @@ blockquote {
 
 .edit-move-text-container,
 .edit-move-other-container,
+.grouped-text-container,
 #edit-variation-info {
   display: flex;
   flex-direction: column !important; /* Force vertical stacking */
@@ -297,9 +298,22 @@ blockquote {
   align-self: flex-start;
 }
 
+.grouped-text-container,
 .edit-move-text-container {
   width: fit-content; /* shrink-wrap to the widest child */
   max-width: 100%;
+}
+
+.grouped-inline-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.grouped-move-num {
+  font-weight: bold;
+  color: var(--color-headers);
+  font-size: 18px;
 }
 
 #edit-move-other-links {
@@ -324,6 +338,15 @@ blockquote {
 .edit-move-text,
 .move-fen {
   width: 600px;
+}
+
+.grouped-move-text {
+  width: 865px; /* 100% eventually? */
+  font-size: 14px;
+}
+
+.grouped-move-select {
+  width: 225px;
 }
 
 .edit-board canvas {
@@ -1325,12 +1348,13 @@ input.move-alt-fail:focus {
 /* ---------------------------------------------------------- @media 1200px */
 @media (max-width: 1200px) {
   .edit-move-text,
+  .grouped-move-text,
   .move-fen {
     width: 100%;
     resize: vertical; /* allow vertical resizing only */
   }
 
-  .edit-move-text-container {
+  .grouped-text-container {
     width: 425px;
   }
 }

@@ -7,7 +7,7 @@ import chess
 from django.utils import timezone
 
 from chesser import util
-from chesser.models import Move, SharedMove
+from chesser.models import Move, SharedMove, get_matching_moves, get_shared_candidates
 from chesser.move_resolver import ParsedBlock, get_parsed_blocks
 
 annotations = {
@@ -134,30 +134,36 @@ def serialize_move(move, for_edit=False):
             move_data.update(shared_fields)
 
     if for_edit:
-        move_data["shared_candidates"] = move.get_shared_candidates()
-        move_data["shared_dropdown"] = get_shared_dropdown(move)
-        move_data["matching_move_count"] = move.get_matching_moves().count()
+        fen = move.fen
+        san = move.san
+        color = move.variation.chapter.course.color
+
+        move_data["shared_candidates"] = get_shared_candidates(fen, san, color)
+        move_data["shared_dropdown"] = get_shared_dropdown(fen, san, color)
+        matching_moves = get_matching_moves(fen, san, color, move.id)
+        move_data["matching_move_count"] = matching_moves.count()
 
     return move_data
 
 
-def get_shared_dropdown(move):
-    candidates = move.get_shared_candidates()
+def get_shared_dropdown(
+    fen, san, color, shared_move_id=None, mode="edit-variation"
+) -> list[dict]:
+    candidates = get_shared_candidates(fen, san, color)
     dropdown = []
 
     if not candidates:
         dropdown.append({"value": "", "label": "Not shared"})
     else:
-        label = (
-            "Unlink shared move" if move.shared_move_id else "Shared move not linked"
-        )
+        label = "Unlink shared move" if shared_move_id else "Shared move not linked"
         dropdown.append({"value": "", "label": label})
 
-    for shared_move_id, _ in candidates.items():
-        label = f"Shared move (#{shared_move_id})"
-        dropdown.append({"value": shared_move_id, "label": label})
+    for candidate_id, _ in candidates.items():
+        label = f"Shared move (#{candidate_id})"
+        dropdown.append({"value": str(candidate_id), "label": label})
 
-    dropdown.append({"value": "__new__", "label": "New shared move"})
+    if mode == "edit-variation":
+        dropdown.append({"value": "__new__", "label": "New shared move"})
 
     return dropdown
 
@@ -198,7 +204,7 @@ def serialize_shared_move(
                 f"unknown: {shared_move.annotation}"
             )
 
-    # Group Move instances by shared fields
+    # Group Move instances by shared fields and shared move id
     grouped = defaultdict(list)
     for move in matching_moves:
         key = (
@@ -207,14 +213,18 @@ def serialize_shared_move(
             move.alt,
             move.alt_fail,
             move.shapes,
+            str(move.shared_move.id) if move.shared_move else "",
         )
         grouped[key].append(move)
 
-    for (text, annotation, alt, alt_fail, shapes), group in grouped.items():
-        shared_move_ids = list(
-            {move.shared_move.id for move in group if move.shared_move is not None}
-        )
-
+    for (
+        text,
+        annotation,
+        alt,
+        alt_fail,
+        shapes,
+        shared_move_id,
+    ), group in grouped.items():
         move_data["move_groups"].append(
             {
                 "count": len(group),
@@ -229,7 +239,14 @@ def serialize_shared_move(
                     "chapter": group[0].variation.chapter.title,
                     "course": group[0].variation.chapter.course.title,
                 },
-                "shared_move_ids": shared_move_ids,
+                "shared_move_id": shared_move_id,
+                "shared_dropdown": get_shared_dropdown(
+                    group[0].fen,
+                    group[0].san,
+                    group[0].variation.chapter.course.color,
+                    shared_move_id=shared_move_id,
+                    mode="edit-move-group",
+                ),
                 "move_ids": [move.id for move in group],
             }
         )

@@ -9,7 +9,6 @@ export function editApp() {
     boards: [],
     chess: null,
     moveData: moveData,
-    currentMoveIndex: 0,
 
     initEditor() {
       document.addEventListener("alpine:initialized", () => {

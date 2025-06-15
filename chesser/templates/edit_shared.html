@@ -81,9 +81,8 @@
     </div>
   </div>
 
-  <h3 style="margin-top: 0">Shared</h3>
-  <!-- Generate multiple boards dynamically -->
-  <div id="boards-container" class="form-standard">
+  <div id="boards-container" class="form-standard" style="margin-bottom: 200px">
+    <h3 style="margin: 0 0 0 10px">Shared</h3>
     <template x-for="(move, index) in moveData.shared_moves" :key="index">
       <div class="move-block" :id="'move-block-' + index">
         <div class="edit-board" :id="'edit-board-' + index"></div>
@@ -125,7 +124,44 @@
         </div>
       </div>
     </template>
-    <h3 style="margin-top: 0">Grouped</h3>
+
+    <h3 style="margin: 0 0 0 10px">Grouped</h3>
+    <template x-for="(move, index) in moveData.move_groups" :key="'grouped-' + index">
+      <div class="move-block" :id="'grouped-move-block-' + index">
+        <div class="grouped-text-container">
+          <div class="grouped-inline-header">
+            <span x-text="'#' + (index + 1)" class="grouped-move-num"></span>
+            <select x-model="move.shared_move_id" class="grouped-move-select">
+              <template x-for="item in move.shared_dropdown" :key="item.value">
+                <option
+                  :value="String(item.value)"
+                  x-text="item.label"
+                  :selected="item.value === move.shared_move_id"
+                ></option>
+              </template>
+            </select>
+          </div>
+          <code class="grouped-move-text" x-text="move.text"></code>
+        </div>
+        <div class="edit-move-other-container">
+          <select class="annotation" :value="move.annotation" disabled>
+            <template x-for="[key, value] in Object.entries(moveData.annotations)">
+              <option :value="key" x-text="value"></option>
+            </template>
+          </select>
+          <div id="edit-move-other-links">
+            <span
+              x-text="move.matching_count + ' match' + (move.matching_count === 1 ? '' : 'es')"
+            ></span>
+            <a
+              :href="'/admin/chesser/move/' + move.id + '/change/'"
+              target="_blank"
+              x-text="'#' + move.id"
+            ></a>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 
   <!-- prettier-ignore -->

@@ -273,30 +273,6 @@ class Move(AnnotatedMove):
     def opening_color(self):
         return self.variation.chapter.course.color
 
-    def get_shared_candidates(self):
-        candidates = SharedMove.objects.filter(
-            fen=self.fen,
-            san=self.san,
-            opening_color=self.opening_color,
-        ).order_by("id")
-        return {
-            str(shared_move.id): {
-                "annotation": shared_move.annotation,
-                "text": shared_move.text,
-                "alt": shared_move.alt,
-                "alt_fail": shared_move.alt_fail,
-                "shapes": shared_move.shapes,
-            }
-            for shared_move in candidates
-        }
-
-    def get_matching_moves(self):
-        return Move.objects.filter(
-            fen=self.fen,
-            san=self.san,
-            variation__chapter__course__color=self.opening_color,
-        ).exclude(id=self.id)
-
 
 class SharedMove(AnnotatedMove):
     opening_color = models.CharField(max_length=5)
@@ -312,3 +288,30 @@ class SharedMove(AnnotatedMove):
             return f"? {self.san}"
 
         return f"{move_number}{dots}{self.san} #{self.id}"
+
+
+def get_shared_candidates(fen, san, opening_color):
+    candidates = SharedMove.objects.filter(
+        fen=fen, san=san, opening_color=opening_color
+    ).order_by("id")
+    return {
+        str(shared_move.id): {
+            "annotation": shared_move.annotation,
+            "text": shared_move.text,
+            "alt": shared_move.alt,
+            "alt_fail": shared_move.alt_fail,
+            "shapes": shared_move.shapes,
+        }
+        for shared_move in candidates
+    }
+
+
+def get_matching_moves(fen, san, color, exclude_id=None):
+    qs = Move.objects.filter(
+        fen=fen,
+        san=san,
+        variation__chapter__course__color=color,
+    )
+    if exclude_id:
+        qs = qs.exclude(id=exclude_id)
+    return qs
