@@ -141,27 +141,45 @@
               </template>
             </select>
           </div>
+          <div class="grouped-attributes">
+            <span
+              x-text="'ann: ' + (move.annotation && move.annotation !== 'none' ? move.annotation + ' 🟢' : '⚪️')"
+            ></span>
+            <span x-text="'alt: ' + (move.alt ? move.alt + ' 🟢': '⚪️')"></span>
+            <span
+              x-text="'alt fail: ' + (move.alt_fail ? move.alt_fail + ' 🟢' : '⚪️')"
+            ></span>
+            <template x-if="move.shapes && move.shapes.length > 0">
+              <a href="#" @click.prevent="showShapesOverlay(move)">shapes 🟢</a>
+            </template>
+            <template x-if="!move.shapes || move.shapes.length === 0">
+              <span>shapes ⚪️</span>
+            </template>
+          </div>
+
           <code class="grouped-move-text" x-text="move.text"></code>
         </div>
+
         <div class="edit-move-other-container">
-          <select class="annotation" :value="move.annotation" disabled>
-            <template x-for="[key, value] in Object.entries(moveData.annotations)">
-              <option :value="key" x-text="value"></option>
-            </template>
-          </select>
+          <a
+            :href="buildAdminMatchingMovesLink(move)"
+            target="_blank"
+            title="Show all shared moves matching SAN/FEN"
+            x-text="move.move_ids.length + ' move' + (move.move_ids.length === 1 ? '' : 's')"
+          ></a>
           <div id="edit-move-other-links">
-            <span
-              x-text="move.matching_count + ' match' + (move.matching_count === 1 ? '' : 'es')"
-            ></span>
-            <a
-              :href="'/admin/chesser/move/' + move.id + '/change/'"
-              target="_blank"
-              x-text="'#' + move.id"
-            ></a>
+            <span>abc</span>
+            <span>xyz</span>
           </div>
         </div>
       </div>
     </template>
+  </div>
+
+  <div x-show="overlayVisible" class="grouped-overlay-backdrop" @click="closeOverlay">
+    <div class="grouped-overlay-box" @click.stop>
+      <div id="overlay-board" style="width: 300px; height: 300px"></div>
+    </div>
   </div>
 
   <!-- prettier-ignore -->

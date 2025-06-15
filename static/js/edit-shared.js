@@ -9,6 +9,8 @@ export function editApp() {
     boards: [],
     chess: null,
     moveData: moveData,
+    overlayVisible: false,
+    overlayBoard: null,
 
     initEditor() {
       document.addEventListener("alpine:initialized", () => {
@@ -105,15 +107,55 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    buildAdminMatchingMovesLink() {
-      const query = `fen="${moveData.fen}" and san="${moveData.san}" and variation.chapter.course.color="${this.moveData.color}"`;
-      return "/admin/chesser/move/?q=" + encodeURIComponent(query);
+    buildAdminMatchingMovesLink(grouped_move = null) {
+      if (grouped_move && grouped_move.move_ids && grouped_move.move_ids.length) {
+        const ids = grouped_move.move_ids.join(",");
+        return `/admin/chesser/move/?q=id in (${ids})`;
+      }
+
+      // fallback to regular identity filter
+      const parts = [
+        `fen="${this.moveData.fen}"`,
+        `san="${this.moveData.san}"`,
+        `variation.chapter.course.color="${this.moveData.color}"`,
+      ];
+      return "/admin/chesser/move/?q=" + encodeURIComponent(parts.join(" and "));
     },
 
     //--------------------------------------------------------------------------------
     buildAdminMatchingSharedMovesLink() {
       const query = `fen="${moveData.fen}" and san="${moveData.san}" and opening_color="${this.moveData.color}"`;
       return "/admin/chesser/sharedmove/?q=" + encodeURIComponent(query);
+    },
+
+    //--------------------------------------------------------------------------------
+    showShapesOverlay(move) {
+      this.overlayVisible = true;
+      this.$nextTick(() => {
+        if (!this.overlayBoard) {
+          this.overlayBoard = window.Chessground(
+            document.getElementById("overlay-board"),
+            {
+              fen: this.moveData.fen,
+              orientation: this.moveData.color,
+              coordinates: false,
+              movable: { free: false },
+              drawable: { enabled: false },
+            }
+          );
+        } else {
+          this.overlayBoard.set({
+            fen: this.moveData.fen,
+          });
+        }
+        const parsedShapes = move.shapes ? JSON.parse(move.shapes) : [];
+        this.overlayBoard.setShapes(parsedShapes);
+      });
+    },
+
+    //--------------------------------------------------------------------------------
+    closeOverlay() {
+      this.overlayVisible = false;
     },
   }; // return { ... }
 }

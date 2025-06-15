@@ -316,6 +316,12 @@ blockquote {
   font-size: 18px;
 }
 
+.grouped-attributes {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+}
+
 #edit-move-other-links {
   display: flex;
   justify-content: space-between;
@@ -1142,6 +1148,22 @@ with system dark mode settings... */
 .landscape-overlay .course-black img,
 .landscape-overlay .course-white img {
   filter: brightness(1.4) contrast(1.1);
+}
+
+.grouped-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.grouped-overlay-box {
+  background: #333;
+  padding: 20px;
+  border-radius: 8px;
 }
 
 /* --------------------------------------------------------- Pawn Promotion */
