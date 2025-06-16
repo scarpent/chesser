@@ -171,27 +171,27 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    updateSharedMoveLinkForGroup(grouped_move) {
-      const label =
-        grouped_move.move_ids.length === 1
-          ? "the single move"
-          : `all ${grouped_move.move_ids.length} moves`;
+    updateSharedMoveLinkForGroup(grouped_move, index) {
+      // const label =
+      //   grouped_move.move_ids.length === 1
+      //     ? "the single move"
+      //     : `all ${grouped_move.move_ids.length} moves`;
 
-      const isLinking = Number.isInteger(Number(grouped_move.shared_move_id));
+      // const isLinking = Number.isInteger(Number(grouped_move.shared_move_id));
 
-      const prompt = isLinking
-        ? `Are you sure you want to link ${label} in this group to the selected shared move #${grouped_move.shared_move_id}?`
-        : `Are you sure you want to unlink/remove the shared move for ${label} in this group?`;
+      // const prompt = isLinking
+      //   ? `Are you sure you want to link ${label} in this group to the selected shared move #${grouped_move.shared_move_id}?`
+      //   : `Are you sure you want to unlink/remove the shared move for ${label} in this group?`;
 
-      if (!confirm(prompt)) {
-        return;
-      }
+      // if (!confirm(prompt)) {
+      //   return;
+      // }
 
-      this.doUpdateSharedMoveLink(grouped_move);
+      this.doUpdateSharedMoveLink(grouped_move, index);
     },
 
     //--------------------------------------------------------------------------------
-    async doUpdateSharedMoveLink(grouped_move) {
+    async doUpdateSharedMoveLink(grouped_move, index) {
       try {
         const payload = {
           move_ids: grouped_move.move_ids,
@@ -213,10 +213,20 @@ export function editApp() {
           console.log(
             `Error updating shared move link to ${grouped_move.shared_move_id}`
           );
+          this.markErrorBlock(index);
         }
       } catch (e) {
         console.error(e);
-        console.log("Network error", e);
+        this.markErrorBlock(index);
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    markErrorBlock(index) {
+      const block = document.getElementById(`grouped-move-block-${index}`);
+      if (block) {
+        block.classList.add("error");
+        setTimeout(() => block.classList.remove("error"), 3000);
       }
     },
   }; // return { ... }

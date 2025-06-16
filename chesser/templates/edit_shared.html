@@ -169,7 +169,7 @@
         <div class="grouped-move-other-container">
           <span x-text="move.example_variation.title" class="grouped-move-title"></span>
           <button
-            @click="updateSharedMoveLinkForGroup(move)"
+            @click="updateSharedMoveLinkForGroup(move, index)"
             class="link-button"
             x-text="Number.isInteger(+move.shared_move_id) ? 'Link moves to #' + move.shared_move_id : 'Unlink shared move'"
           ></button>

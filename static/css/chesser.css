@@ -336,6 +336,12 @@ blockquote {
   visibility: hidden;
 }
 
+.move-block.error {
+  outline: 3px solid #f81c04;
+  outline-offset: -5px;
+  transition: background-color 0.8s ease;
+}
+
 .grouped-attributes {
   display: inline-flex;
   align-items: center;

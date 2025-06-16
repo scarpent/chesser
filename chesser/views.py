@@ -759,16 +759,20 @@ def update_shared_move_link(request):
     if not move_ids:
         return JsonResponse({"error": "Missing move_ids"}, status=400)
 
-    # Allow setting to None for unlink
-    # if shared_move_id in [None, "", "null"]:
-    #     new_shared = None
-    # else:
-    #     try:
-    #         new_shared = SharedMove.objects.get(id=shared_move_id)
-    #     except SharedMove.DoesNotExist:
-    #         return JsonResponse({"error": "Shared move not found"}, status=404)
+    try:
+        shared_move_id_int = int(shared_move_id)
+    except (ValueError, TypeError):
+        shared_move_id_int = None
 
-    # Move.objects.filter(id__in=move_ids).update(shared_move=new_shared)
+    if shared_move_id_int is None:
+        new_shared = None
+    else:
+        try:
+            new_shared = SharedMove.objects.get(id=shared_move_id)
+        except SharedMove.DoesNotExist:
+            return JsonResponse({"error": "Shared move not found"}, status=404)
+
+    Move.objects.filter(id__in=move_ids).update(shared_move=new_shared)
     print(f"Updating shared move link to {shared_move_id} for moves: {move_ids}")
     return JsonResponse({"status": "ok"})
 
