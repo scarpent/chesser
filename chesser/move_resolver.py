@@ -327,7 +327,13 @@ class PathFinder:
     def handle_start_block(self, block: ParsedBlock):
         is_fenseq = True if block.fen else False
         if is_fenseq:
-            chessboard = chess.Board(block.fen)
+            try:
+                chessboard = chess.Board(block.fen)
+            except ValueError as e:
+                print(f"Invalid FEN in start block: {block.fen} - {e}")
+                # use default starating position, which will work in many
+                # cases, will prevent errors, and will be easy to see if broken
+                chessboard = chess.Board()
             self.stats.sundry["subfen"] += 1
         else:
             chessboard = self.current.board.copy()
