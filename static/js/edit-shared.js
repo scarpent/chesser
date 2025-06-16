@@ -53,44 +53,37 @@ export function editApp() {
     },
 
     //---------------------------------------------------------------------------------
-    buildPayload() {
-      const payload = {
+    buildPayload(index) {
+      const move = this.moveData.shared_moves[index];
+      const boardShapes = this.boards[index].state.drawable.shapes;
+
+      return {
+        id: move.id,
         san: this.moveData.san,
         fen: this.moveData.fen,
         color: this.moveData.color,
-        moves: [],
+        annotation: move.annotation === "none" ? "" : move.annotation,
+        text: move.text.trim(),
+        alt: move.alt,
+        alt_fail: move.alt_fail,
+        shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
       };
-
-      payload.shared_moves = this.moveData.shared_moves.map((move, index) => {
-        const boardShapes = this.boards[index].state.drawable.shapes;
-        return {
-          id: move.id,
-          annotation: move.annotation === "none" ? "" : move.annotation,
-          text: move.text.trim(),
-          alt: move.alt,
-          alt_fail: move.alt_fail,
-          shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
-        };
-      });
-
-      return payload;
     },
 
     //--------------------------------------------------------------------------------
-    handleSaveResult(status, index = null) {
-      const btn = document.querySelector(".icon-save");
-      if (btn) {
-        const className = `save-${status}`;
-        btn.classList.add(className);
+    handleSaveResult(status, index) {
+      if (status === "success") {
+        window.location.reload();
+      } else {
+        this.markErrorBlock(`move-block-${index}`);
       }
-
-      if (status === "success") window.location.reload();
     },
 
     //--------------------------------------------------------------------------------
     async saveSharedMove(index) {
       console.log("Saving shared move data...");
-      const payload = this.buildPayload();
+      const payload = this.buildPayload(index);
+      console.log("Shared move payload", payload);
 
       try {
         const response = await fetch("/save-shared-move/", {
@@ -103,8 +96,7 @@ export function editApp() {
         console.log("data:", data);
 
         if (data.status === "error") {
-          console.error("Save error:", data.message);
-          this.handleSaveResult("error");
+          this.handleSaveResult("error", index);
           return false;
         } else {
           console.log("Shared move saved successfully");
@@ -113,7 +105,7 @@ export function editApp() {
         }
       } catch (error) {
         console.error("Error saving variation:", error);
-        this.handleSaveResult("error");
+        this.handleSaveResult("error", index);
         return false;
       }
     },
@@ -213,17 +205,17 @@ export function editApp() {
           console.log(
             `Error updating shared move link to ${grouped_move.shared_move_id}`
           );
-          this.markErrorBlock(index);
+          this.markErrorBlock(`grouped-move-block-${index}`);
         }
       } catch (e) {
         console.error(e);
-        this.markErrorBlock(index);
+        this.markErrorBlock(`grouped-move-block-${index}`);
       }
     },
 
     //--------------------------------------------------------------------------------
-    markErrorBlock(index) {
-      const block = document.getElementById(`grouped-move-block-${index}`);
+    markErrorBlock(blockId) {
+      const block = document.getElementById(blockId);
       if (block) {
         block.classList.add("error");
         setTimeout(() => block.classList.remove("error"), 3000);

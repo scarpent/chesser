@@ -1359,9 +1359,10 @@ input.move-alt-fail:focus {
   border: none;
   padding: 0;
   margin: 0;
-  color: cyan; /* match your <a> link style */
+  color: cyan;
   cursor: pointer;
   font: inherit; /* ensures it looks like inline text, not a button */
+  text-align: left;
 }
 
 .link-button:hover {

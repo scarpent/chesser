@@ -6,9 +6,9 @@
 {% block head_extra %}
 <link rel="preload" href="{% static 'icons/noto-emoji/review.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/import.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/variation.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/edit.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/analysis.svg' %}" as="image" />
-<link rel="preload" href="{% static 'icons/noto-emoji/save.svg' %}" as="image" />
 <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
 <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
 <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
@@ -40,6 +40,11 @@
       class="icon-import icon-button"
     ></button>
     <button
+      title="View"
+      @click="window.location.href='/variation/' + moveData.variation_id + '/'"
+      class="icon-variation icon-button"
+    ></button>
+    <button
       title="Edit"
       @click="window.location.href='/edit/' + moveData.variation_id + '/'"
       class="icon-edit icon-button"
@@ -49,11 +54,6 @@
       @click="window.open('https://lichess.org/analysis/standard/' +
       moveData.fen.replace(/ /g, '_') + '?color=' + moveData.color, '_blank')"
       class="icon-analysis icon-button"
-    ></button>
-    <button
-      title="Save"
-      @click="saveSharedMove()"
-      class="icon-save icon-button"
     ></button>
   </div>
 
@@ -121,6 +121,9 @@
               x-text="'#' + move.id"
             ></a>
           </div>
+          <button @click="saveSharedMove(index)" class="link-button">
+            💾 Save shared move
+          </button>
         </div>
       </div>
     </template>
@@ -168,18 +171,6 @@
 
         <div class="grouped-move-other-container">
           <span x-text="move.example_variation.title" class="grouped-move-title"></span>
-          <button
-            @click="updateSharedMoveLinkForGroup(move, index)"
-            class="link-button"
-            x-text="Number.isInteger(+move.shared_move_id) ? 'Link moves to #' + move.shared_move_id : 'Unlink shared move'"
-          ></button>
-          <button
-            :class="Number.isInteger(+move.shared_move_id) ? '' : 'invisible-placeholder'"
-            @click="confirmAndUpdateGroup(move)"
-            class="link-button"
-          >
-            Sync shared values to moves
-          </button>
           <div class="grouped-variation-links">
             vars:
             <template x-for="(var_id, idx) in move.variation_ids">
@@ -195,6 +186,18 @@
               <span>...</span>
             </template>
           </div>
+          <button
+            @click="updateSharedMoveLinkForGroup(move, index)"
+            class="link-button"
+            x-text="Number.isInteger(+move.shared_move_id) ? '💾 Link moves to #' + move.shared_move_id : '❌   Unlink shared move'"
+          ></button>
+          <button
+            :class="Number.isInteger(+move.shared_move_id) ? '' : 'invisible-placeholder'"
+            @click="confirmAndUpdateGroup(move)"
+            class="link-button"
+          >
+            💾 Sync shared values to moves
+          </button>
         </div>
       </div>
     </template>

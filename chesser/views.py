@@ -734,17 +734,17 @@ def save_variation(request):
 @transaction.atomic
 def save_shared_move(request):
     data = json.loads(request.body)
-    for shared_move in data.get("shared_moves", []):
-        shared_move_id = shared_move.get("id")
-        move = SharedMove.objects.get(id=shared_move_id)
-        move.annotation = util.strip_all_html(shared_move["annotation"])
-        move.text = util.clean_html(shared_move["text"])
-        move.alt = util.strip_all_html(shared_move["alt"])
-        move.alt_fail = util.strip_all_html(shared_move["alt_fail"])
-        move.shapes = get_normalized_shapes(shared_move["shapes"])
-        move.save()
-        print(f"💾 Saving shared move {shared_move_id}")
 
+    shared_move_id = data.get("id")
+    move = SharedMove.objects.get(id=shared_move_id)
+    move.annotation = util.strip_all_html(data["annotation"])
+    move.text = util.clean_html(data["text"])
+    move.alt = util.strip_all_html(data["alt"])
+    move.alt_fail = util.strip_all_html(data["alt_fail"])
+    move.shapes = get_normalized_shapes(data["shapes"])
+    move.save()
+
+    print(f"💾 Saving shared move {shared_move_id}")
     return JsonResponse({"status": "success"})
 
 

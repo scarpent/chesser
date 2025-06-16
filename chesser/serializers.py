@@ -140,8 +140,7 @@ def serialize_move(move, for_edit=False):
 
         move_data["shared_candidates"] = get_shared_candidates(fen, san, color)
         move_data["shared_dropdown"] = get_shared_dropdown(fen, san, color)
-        matching_moves = get_matching_moves(fen, san, color, move.id)
-        move_data["matching_move_count"] = matching_moves.count()
+        move_data["matching_move_count"] = get_matching_moves(fen, san, color).count()
 
     return move_data
 

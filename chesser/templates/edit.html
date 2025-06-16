@@ -197,7 +197,7 @@
             <a :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
               >book view</a
             >
-            <template x-if="move.matching_move_count > 0">
+            <template x-if="move.matching_move_count > 1">
               <a
                 :href="'/edit-shared-move/?san=' + move.san + '&fen=' + move.fen + '&color=' + variationData.color + '&variation_id=' + variationData.variation_id"
                 title="Shared Move Editor"
