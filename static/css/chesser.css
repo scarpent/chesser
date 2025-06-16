@@ -375,6 +375,9 @@ blockquote {
 .grouped-move-text {
   width: 865px; /* 100% eventually? */
   font-size: 14px;
+  white-space: pre-wrap; /* so newlines and wrapping both work */
+  word-break: break-word; /* avoids overflow for long words */
+  margin: 0; /* optional: to match inline style */
 }
 
 .grouped-move-select {
