@@ -37,6 +37,18 @@ export function editApp() {
             }
           });
         });
+
+        // Hard force the dropdown and model to match once DOM is ready
+        this.$nextTick(() => {
+          this.moveData.move_groups.forEach((group, index) => {
+            const select = document.querySelector(
+              `#grouped-move-block-${index} select`
+            );
+            if (select) {
+              group.shared_move_id = select.value;
+            }
+          });
+        });
       });
     },
 
@@ -156,6 +168,56 @@ export function editApp() {
     //--------------------------------------------------------------------------------
     closeOverlay() {
       this.overlayVisible = false;
+    },
+
+    //--------------------------------------------------------------------------------
+    updateSharedMoveLinkForGroup(grouped_move) {
+      const label =
+        grouped_move.move_ids.length === 1
+          ? "the single move"
+          : `all ${grouped_move.move_ids.length} moves`;
+
+      const isLinking = Number.isInteger(Number(grouped_move.shared_move_id));
+
+      const prompt = isLinking
+        ? `Are you sure you want to link ${label} in this group to the selected shared move #${grouped_move.shared_move_id}?`
+        : `Are you sure you want to unlink/remove the shared move for ${label} in this group?`;
+
+      if (!confirm(prompt)) {
+        return;
+      }
+
+      this.doUpdateSharedMoveLink(grouped_move);
+    },
+
+    //--------------------------------------------------------------------------------
+    async doUpdateSharedMoveLink(grouped_move) {
+      try {
+        const payload = {
+          move_ids: grouped_move.move_ids,
+          shared_move_id: grouped_move.shared_move_id,
+        };
+
+        const response = await fetch("/update-shared-move-link/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          console.log(
+            `Shared move link updated successfully to ${grouped_move.shared_move_id}`
+          );
+          window.location.reload();
+        } else {
+          console.log(
+            `Error updating shared move link to ${grouped_move.shared_move_id}`
+          );
+        }
+      } catch (e) {
+        console.error(e);
+        console.log("Network error", e);
+      }
     },
   }; // return { ... }
 }

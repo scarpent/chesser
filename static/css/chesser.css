@@ -305,6 +305,10 @@ blockquote {
   max-width: 100%;
 }
 
+.grouped-text-container {
+  gap: 15px;
+}
+
 .grouped-move-other-container {
   display: flex;
   flex-direction: column;
@@ -315,17 +319,21 @@ blockquote {
 .grouped-inline-header {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
 }
 
 .grouped-move-num {
   font-weight: bold;
   color: var(--color-headers);
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .grouped-move-title {
   color: var(--color-headers);
+}
+
+.invisible-placeholder {
+  visibility: hidden;
 }
 
 .grouped-attributes {

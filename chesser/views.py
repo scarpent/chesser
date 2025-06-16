@@ -748,6 +748,31 @@ def save_shared_move(request):
     return JsonResponse({"status": "success"})
 
 
+@csrf_exempt
+@require_POST
+@transaction.atomic
+def update_shared_move_link(request):
+    data = json.loads(request.body)
+    move_ids = data.get("move_ids", [])
+    shared_move_id = data.get("shared_move_id")
+
+    if not move_ids:
+        return JsonResponse({"error": "Missing move_ids"}, status=400)
+
+    # Allow setting to None for unlink
+    # if shared_move_id in [None, "", "null"]:
+    #     new_shared = None
+    # else:
+    #     try:
+    #         new_shared = SharedMove.objects.get(id=shared_move_id)
+    #     except SharedMove.DoesNotExist:
+    #         return JsonResponse({"error": "Shared move not found"}, status=404)
+
+    # Move.objects.filter(id__in=move_ids).update(shared_move=new_shared)
+    print(f"Updating shared move link to {shared_move_id} for moves: {move_ids}")
+    return JsonResponse({"status": "ok"})
+
+
 def variation(request, variation_id=None):
     if variation_id is None:
         variation = Variation.objects.first()
