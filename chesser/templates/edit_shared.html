@@ -193,7 +193,7 @@
           ></button>
           <button
             :class="Number.isInteger(+move.shared_move_id) ? '' : 'invisible-placeholder'"
-            @click="confirmAndUpdateGroup(move)"
+            @click="confirmAndUpdateGroupedMoveValues(move, index)"
             class="link-button"
           >
             💾 Sync shared values to moves

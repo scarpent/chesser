@@ -163,27 +163,73 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    updateSharedMoveLinkForGroup(grouped_move, index) {
-      // const label =
-      //   grouped_move.move_ids.length === 1
-      //     ? "the single move"
-      //     : `all ${grouped_move.move_ids.length} moves`;
+    confirmAndUpdateGroupedMoveValues(grouped_move, index) {
+      const label =
+        grouped_move.move_ids.length === 1
+          ? "the single move"
+          : `all ${grouped_move.move_ids.length} moves`;
 
-      // const isLinking = Number.isInteger(Number(grouped_move.shared_move_id));
+      const prompt = `Are you sure you want to update ${label} in this group with the associated shared text / annotation / alt / alt_failed / shapes values for #${grouped_move.shared_move_id}?`;
 
-      // const prompt = isLinking
-      //   ? `Are you sure you want to link ${label} in this group to the selected shared move #${grouped_move.shared_move_id}?`
-      //   : `Are you sure you want to unlink/remove the shared move for ${label} in this group?`;
+      if (!confirm(prompt)) {
+        return;
+      }
 
-      // if (!confirm(prompt)) {
-      //   return;
-      // }
-
-      this.doUpdateSharedMoveLink(grouped_move, index);
+      this.doUpdateGroupedMoveValues(grouped_move, index);
     },
 
     //--------------------------------------------------------------------------------
-    async doUpdateSharedMoveLink(grouped_move, index) {
+    async doUpdateGroupedMoveValues(grouped_move, index) {
+      try {
+        // 1️⃣ Get the current selected shared move ID
+        const sharedMoveId = grouped_move.shared_move_id;
+
+        // 2️⃣ Look up the matching shared move data in the single source of truth
+        const sharedMove = this.moveData.shared_moves.find(
+          (sm) => sm.id === Number(sharedMoveId)
+        );
+
+        // weird/unlikely
+        if (!sharedMove) {
+          console.error("No matching shared move found for ID:", sharedMoveId);
+          this.markErrorBlock(`grouped-move-block-${index}`);
+          return;
+        }
+
+        // 3️⃣ Build the payload from the found shared move
+        const payload = {
+          move_ids: grouped_move.move_ids,
+          shared_move_data: {
+            text: sharedMove.text,
+            annotation: sharedMove.annotation,
+            alt: sharedMove.alt,
+            alt_fail: sharedMove.alt_fail,
+            shapes: sharedMove.shapes,
+          },
+        };
+
+        // 4️⃣ Send to server
+        const response = await fetch("/update-grouped-move-values/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+          window.location.reload();
+        } else {
+          this.markErrorBlock(`grouped-move-block-${index}`);
+        }
+      } catch (err) {
+        console.error(err);
+        this.markErrorBlock(`grouped-move-block-${index}`);
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    async updateSharedMoveLinkForGroup(grouped_move, index) {
       try {
         const payload = {
           move_ids: grouped_move.move_ids,

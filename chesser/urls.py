@@ -39,6 +39,11 @@ urlpatterns = [
         views.update_shared_move_link,
         name="update_shared_move_link",
     ),
+    path(
+        "update-grouped-move-values/",
+        views.update_grouped_move_values,
+        name="update_grouped_move_values",
+    ),
     path("variation/", views.variation, name="variation_default"),
     path("variation/<int:variation_id>/", views.variation, name="variation"),
     path("import/", views.import_view, name="import"),

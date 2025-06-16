@@ -253,6 +253,7 @@ def serialize_shared_move(
         if annotation and annotation not in temp_annotations:
             temp_annotations[annotation] = f"unknown: {annotation}"
 
+    move_data["move_groups"].sort(key=lambda g: g["count"], reverse=True)
     move_data["annotations"] = temp_annotations
 
     return move_data

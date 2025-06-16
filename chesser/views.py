@@ -777,6 +777,32 @@ def update_shared_move_link(request):
     return JsonResponse({"status": "ok"})
 
 
+@csrf_exempt
+@require_POST
+@transaction.atomic
+def update_grouped_move_values(request):
+    data = json.loads(request.body)
+    move_ids = data.get("move_ids", [])
+    shared_move_data = data.get("shared_move_data", {})
+
+    if not move_ids or not shared_move_data:
+        return JsonResponse(
+            {"error": "Missing move IDs or shared move data"}, status=400
+        )
+
+    updated = 0
+    for move in Move.objects.filter(id__in=move_ids):
+        move.text = shared_move_data["text"]
+        move.annotation = shared_move_data["annotation"]
+        move.alt = shared_move_data["alt"]
+        move.alt_fail = shared_move_data["alt_fail"]
+        move.shapes = shared_move_data["shapes"]
+        move.save(update_fields=["text", "annotation", "alt", "alt_fail", "shapes"])
+        updated += 1
+
+    return JsonResponse({"status": "success", "updated": updated})
+
+
 def variation(request, variation_id=None):
     if variation_id is None:
         variation = Variation.objects.first()
