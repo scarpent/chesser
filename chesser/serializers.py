@@ -210,9 +210,9 @@ def serialize_shared_move(
         key = (
             move.text,
             move.annotation,
-            move.alt,
-            move.alt_fail,
-            move.shapes,
+            normalize_alts(move.alt),
+            normalize_alts(move.alt_fail),
+            normalize_shapes(move.shapes),
             str(move.shared_move.id) if move.shared_move else "",
         )
         grouped[key].append(move)
@@ -257,6 +257,31 @@ def serialize_shared_move(
     move_data["annotations"] = temp_annotations
 
     return move_data
+
+
+def normalize_alts(alt_str):
+    if not alt_str:
+        return ""
+    return ", ".join(
+        sorted(part.strip() for part in alt_str.split(",") if part.strip())
+    )
+
+
+def normalize_shapes(shapes_str):
+    """normalize shapes JSON so we can compare them for grouping"""
+    if not shapes_str:
+        return ""
+    try:
+        shapes_list = json.loads(shapes_str)
+    except Exception:
+        return shapes_str  # fallback: malformed JSON, use as is
+
+    shapes_list = sorted(
+        shapes_list,
+        key=lambda s: (s.get("brush", ""), s.get("orig", ""), s.get("dest", "")),
+    )
+
+    return json.dumps(shapes_list, separators=(",", ":"))
 
 
 def serialize_variation_to_import_format(variation):
