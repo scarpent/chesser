@@ -163,23 +163,7 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    confirmAndUpdateGroupedMoveValues(grouped_move, index) {
-      const label =
-        grouped_move.move_ids.length === 1
-          ? "the single move"
-          : `all ${grouped_move.move_ids.length} moves`;
-
-      const prompt = `Are you sure you want to update ${label} in this group with the associated shared text / annotation / alt / alt_failed / shapes values for #${grouped_move.shared_move_id}?`;
-
-      if (!confirm(prompt)) {
-        return;
-      }
-
-      this.doUpdateGroupedMoveValues(grouped_move, index);
-    },
-
-    //--------------------------------------------------------------------------------
-    async doUpdateGroupedMoveValues(grouped_move, index) {
+    async updateGroupedMoveValues(grouped_move, index) {
       try {
         // 1️⃣ Get the current selected shared move ID
         const sharedMoveId = grouped_move.shared_move_id;
