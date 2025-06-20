@@ -232,6 +232,7 @@ def serialize_shared_move(
                 "alt": alt,
                 "alt_fail": alt_fail,
                 "shapes": shapes,
+                "move_sequence": group[0].sequence,
                 "example_variation": {
                     "id": group[0].variation.id,
                     "title": group[0].variation.title,

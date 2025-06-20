@@ -368,7 +368,7 @@ export function quizApp() {
         totalDue === 0
           ? "💤" // nothing due, rest easy
           : totalDue > 24
-          ? "😬" // yikes! better study
+          ? "🙈" // yikes! better study
           : "🏃"; // manageable, keep on running
 
       this.reviewStats = `${extra}<span>✏️</span>

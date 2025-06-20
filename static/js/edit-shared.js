@@ -251,5 +251,13 @@ export function editApp() {
         setTimeout(() => block.classList.remove("error"), 3000);
       }
     },
+
+    // ---------------------------------------------------------
+    groupedMoveSequence() {
+      // they will all be the same so we'll just return the first one
+      return this.moveData.move_groups.length
+        ? this.moveData.move_groups[0].move_sequence
+        : 0;
+    },
   }; // return { ... }
 }
