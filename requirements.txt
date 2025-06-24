@@ -14,9 +14,9 @@ attrs==25.3.0
     # via flake8-bugbear
 black==25.1.0
     # via -r requirements.in
-boto3==1.38.20
+boto3==1.38.43
     # via -r requirements.in
-botocore==1.38.20
+botocore==1.38.43
     # via
     #   boto3
     #   s3transfer
@@ -28,15 +28,15 @@ click==8.2.1
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.8.1
+coverage[toml]==7.9.1
     # via pytest-cov
 decorator==5.2.1
     # via
     #   ipdb
     #   ipython
-dj-database-url==2.3.0
+dj-database-url==3.0.0
     # via -r requirements.in
-django==5.2.2
+django==5.2.3
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -47,7 +47,7 @@ djangoql==0.18.1
     # via -r requirements.in
 executing==2.2.0
     # via stack-data
-flake8==7.2.0
+flake8==7.3.0
     # via
     #   -r requirements.in
     #   flake8-bugbear
@@ -68,7 +68,7 @@ iniconfig==2.1.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.2.0
+ipython==9.3.0
     # via
     #   -r requirements.in
     #   ipdb
@@ -107,7 +107,9 @@ pip-tools==7.4.1
 platformdirs==4.3.8
     # via black
 pluggy==1.6.0
-    # via pytest
+    # via
+    #   pytest
+    #   pytest-cov
 ply==3.11
     # via djangoql
 prompt-toolkit==3.0.51
@@ -120,30 +122,31 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pycodestyle==2.13.0
+pycodestyle==2.14.0
     # via flake8
-pyflakes==3.3.2
+pyflakes==3.4.0
     # via flake8
-pygments==2.19.1
+pygments==2.19.2
     # via
     #   ipython
     #   ipython-pygments-lexers
+    #   pytest
 pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.5
+pytest==8.4.1
     # via
     #   -r requirements.in
     #   pytest-cov
     #   pytest-django
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements.in
 pytest-django==4.11.1
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via botocore
-s3transfer==0.12.0
+s3transfer==0.13.0
     # via boto3
 six==1.17.0
     # via python-dateutil
@@ -155,11 +158,11 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via dj-database-url
 tzlocal==5.3.1
     # via apscheduler
-urllib3==2.4.0
+urllib3==2.5.0
     # via botocore
 watchdog==6.0.0
     # via -r requirements.in
