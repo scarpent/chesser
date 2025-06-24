@@ -395,8 +395,13 @@ def shared_move_auto_linker(variation, source_variation=None, preview=False) -> 
         # cloning from another variation -- we can make more concrete decisions here
         if source_variation:
             try:
+                # specifying fen and san will make sure we bail out
+                # where the variations diverge
                 source_move = source_variation.moves.get(
-                    move_num=move.move_num, sequence=move.sequence
+                    move_num=move.move_num,
+                    sequence=move.sequence,
+                    fen=move.fen,
+                    san=move.san,
                 )
             except Move.DoesNotExist:
                 break
@@ -405,6 +410,8 @@ def shared_move_auto_linker(variation, source_variation=None, preview=False) -> 
 
             if move.shared_move:
                 moves_linked += 1
+                # TODO: handle ValidationError for fen/san/color mismatch,
+                # but maybe also check it on preview to warn?
                 if not preview:
                     move.save()
                 continue

@@ -243,6 +243,27 @@ class Move(AnnotatedMove):
             f"{self.move_num} {self.san}"
         )
 
+    def clean(self):
+        super().clean()
+        if self.shared_move_id:
+            if self.fen != self.shared_move.fen:
+                raise ValidationError(
+                    f"SharedMove FEN mismatch: {self.fen} != {self.shared_move.fen}"
+                )
+            if self.san != self.shared_move.san:
+                raise ValidationError(
+                    f"SharedMove SAN mismatch: {self.san} != {self.shared_move.san}"
+                )
+            if self.variation.chapter.course.color != self.shared_move.opening_color:
+                raise ValidationError(
+                    f"SharedMove color mismatch: {self.shared_move.opening_color} "
+                    f"!= {self.variation.chapter.course.color}"
+                )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def get_resolved_field(self, field_name: str) -> str:
         field_defaults = {
             "text": "",
