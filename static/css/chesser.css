@@ -1327,6 +1327,11 @@ with system dark mode settings... */
   text-decoration: underline;
 }
 
+.shared-selected {
+  color: white !important;
+  background-color: green !important; /* a light, calm green */
+}
+
 .form-standard input.move-alt {
   background-color: #f1eecd;
   color: var(--color-bg-dark);

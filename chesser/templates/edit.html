@@ -134,6 +134,7 @@
           <select
             :value="move.shared_move_id"
             @change="move.shared_move_id = $event.target.value; updateSharedMoveState(index)"
+            :class="{ 'shared-selected': move.shared_move_id && !isNaN(parseInt(move.shared_move_id)) }"
           >
             <template x-for="item in move.shared_dropdown" :key="item.value">
               <option
