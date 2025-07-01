@@ -9,6 +9,7 @@
 <link rel="preload" href="{% static 'icons/noto-emoji/variation.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/edit.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/analysis.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/save.svg' %}" as="image" />
 <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
 <link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
 <link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
@@ -55,6 +56,7 @@
       moveData.fen.replace(/ /g, '_') + '?color=' + moveData.color, '_blank')"
       class="icon-analysis icon-button"
     ></button>
+    <button title="Save All" @click="saveAll()" class="icon-save icon-button"></button>
   </div>
 
   <div id="edit-variation-info" class="form-standard">

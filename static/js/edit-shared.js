@@ -52,8 +52,82 @@ export function editApp() {
       });
     },
 
+    //--------------------------------------------------------------------------------
+    handleSaveResult(status, index) {
+      const btn = document.querySelector(".icon-save");
+      if (btn) {
+        const className = `save-${status}`;
+        btn.classList.add(className);
+      }
+
+      setTimeout(() => {
+        if (status === "success") {
+          window.location.reload();
+        } else {
+          this.markErrorBlock(`move-block-${index}`);
+        }
+      }, 750);
+    },
+
     //---------------------------------------------------------------------------------
-    buildPayload(index) {
+    buildPayload() {
+      const payload = {
+        fen: this.moveData.fen,
+        san: this.moveData.san,
+        color: this.moveData.color,
+        shared_moves: [],
+        grouped_moves: [],
+      };
+
+      payload.shared_moves = this.moveData.shared_moves.map((move, index) => {
+        const boardShapes = this.boards[index].state.drawable.shapes;
+
+        return {
+          id: move.id,
+          annotation: move.annotation === "none" ? "" : move.annotation,
+          text: move.text.trim(),
+          alt: move.alt,
+          alt_fail: move.alt_fail,
+          shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
+        };
+      });
+
+      return payload;
+    },
+
+    //--------------------------------------------------------------------------------
+    async saveAll(index) {
+      console.log("Saving all shared/grouped move data...");
+      const payload = this.buildPayload();
+      console.log("Payload", payload);
+
+      // try {
+      //   const response = await fetch("/save-shared-move/", {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify(payload),
+      //   });
+
+      //   const data = await response.json();
+      //   console.log("data:", data);
+
+      //   if (data.status === "error") {
+      //     this.handleSaveResult("error", index);
+      //     return false;
+      //   } else {
+      //     console.log("Shared move saved successfully");
+      //     this.handleSaveResult("success", index);
+      //     return true;
+      //   }
+      // } catch (error) {
+      //   console.error("Error saving variation:", error);
+      //   this.handleSaveResult("error", index);
+      //   return false;
+      // }
+    },
+
+    //---------------------------------------------------------------------------------
+    buildSharedMovePayload(index) {
       const move = this.moveData.shared_moves[index];
       const boardShapes = this.boards[index].state.drawable.shapes;
 
@@ -71,18 +145,9 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    handleSaveResult(status, index) {
-      if (status === "success") {
-        window.location.reload();
-      } else {
-        this.markErrorBlock(`move-block-${index}`);
-      }
-    },
-
-    //--------------------------------------------------------------------------------
     async saveSharedMove(index) {
       console.log("Saving shared move data...");
-      const payload = this.buildPayload(index);
+      const payload = this.buildSharedMovePayload(index);
       console.log("Shared move payload", payload);
 
       try {
