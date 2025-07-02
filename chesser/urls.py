@@ -35,6 +35,9 @@ urlpatterns = [
     path("edit-shared-move/", views.edit_shared_move, name="edit_shared_move"),
     path("save-shared-move/", views.save_shared_move, name="save_shared_move"),
     path(
+        "save-shared-move-old/", views.save_shared_move_old, name="save_shared_move_old"
+    ),
+    path(
         "update-shared-move-link/",
         views.update_shared_move_link,
         name="update_shared_move_link",

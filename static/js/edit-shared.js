@@ -109,29 +109,29 @@ export function editApp() {
       const payload = this.buildPayload();
       console.log("Payload", payload);
 
-      // try {
-      //   const response = await fetch("/save-shared-move/", {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify(payload),
-      //   });
+      try {
+        const response = await fetch("/save-shared-move/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-      //   const data = await response.json();
-      //   console.log("data:", data);
+        const data = await response.json();
+        console.log("data:", data);
 
-      //   if (data.status === "error") {
-      //     this.handleSaveResult("error", index);
-      //     return false;
-      //   } else {
-      //     console.log("Shared move saved successfully");
-      //     this.handleSaveResult("success", index);
-      //     return true;
-      //   }
-      // } catch (error) {
-      //   console.error("Error saving variation:", error);
-      //   this.handleSaveResult("error", index);
-      //   return false;
-      // }
+        if (data.status === "error") {
+          this.handleSaveResult("error", index);
+          return false;
+        } else {
+          console.log("Shared move saved successfully");
+          this.handleSaveResult("success", index);
+          return true;
+        }
+      } catch (error) {
+        console.error("Error saving shared move:", error);
+        this.handleSaveResult("error", index);
+        return false;
+      }
     },
 
     //---------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ export function editApp() {
       console.log("Shared move payload", payload);
 
       try {
-        const response = await fetch("/save-shared-move/", {
+        const response = await fetch("/save-shared-move-old/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

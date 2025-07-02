@@ -732,6 +732,15 @@ def save_variation(request):
 @transaction.atomic
 def save_shared_move(request):
     data = json.loads(request.body)
+    print(f"💾 Saving shared move san {data['san']}")
+    return JsonResponse({"status": "success"})
+
+
+@csrf_exempt
+@require_POST
+@transaction.atomic
+def save_shared_move_old(request):
+    data = json.loads(request.body)
 
     shared_move_id = data.get("id")
     move = SharedMove.objects.get(id=shared_move_id)
@@ -772,7 +781,7 @@ def update_shared_move_link(request):
 
     Move.objects.filter(id__in=move_ids).update(shared_move=new_shared)
     print(f"Updating shared move link to {shared_move_id} for moves: {move_ids}")
-    return JsonResponse({"status": "ok"})
+    return JsonResponse({"status": "success"})
 
 
 @csrf_exempt
