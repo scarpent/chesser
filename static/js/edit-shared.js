@@ -92,6 +92,14 @@ export function editApp() {
         };
       });
 
+      payload.grouped_moves = this.moveData.move_groups.map((move, index) => {
+        return {
+          variation_ids: move.variation_ids,
+          shared_move_id: move.shared_move_id,
+          sync: !!move.sync_shared_values_to_moves,
+        };
+      });
+
       return payload;
     },
 

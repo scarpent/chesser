@@ -711,8 +711,6 @@ def save_variation(request):
             assert target_move.san == move.san, "SharedMove SAN mismatch"
             shared_move = target_move
         else:
-            # TODO maybe optionally copy shared move data to this move;
-            # perhaps handled by a separate dropdown unlink option?
             target_move = move
             shared_move = None
 

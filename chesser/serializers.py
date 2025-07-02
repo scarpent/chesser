@@ -145,9 +145,7 @@ def serialize_move(move, for_edit=False):
     return move_data
 
 
-def get_shared_dropdown(
-    fen, san, color, shared_move_id=None, mode="edit-variation"
-) -> list[dict]:
+def get_shared_dropdown(fen, san, color, shared_move_id=None) -> list[dict]:
     candidates = get_shared_candidates(fen, san, color)
     dropdown = []
 
@@ -161,8 +159,7 @@ def get_shared_dropdown(
         label = f"Shared move (#{candidate_id})"
         dropdown.append({"value": str(candidate_id), "label": label})
 
-    if mode == "edit-variation":
-        dropdown.append({"value": "__new__", "label": "New shared move"})
+    dropdown.append({"value": "__new__", "label": "New shared move"})
 
     return dropdown
 
@@ -245,7 +242,6 @@ def serialize_shared_move(
                     group[0].san,
                     group[0].variation.chapter.course.color,
                     shared_move_id=shared_move_id,
-                    mode="edit-move-group",
                 ),
                 "move_ids": [move.id for move in group],
                 "variation_ids": [move.variation.id for move in group],

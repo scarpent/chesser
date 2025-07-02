@@ -188,6 +188,12 @@
               <span>...</span>
             </template>
           </div>
+          <div style="margin: 8px 0">
+            <label>
+              <input type="checkbox" x-model="move.sync_shared_values_to_moves" />
+              Sync shared values to moves
+            </label>
+          </div>
           <button
             @click="updateSharedMoveLinkForGroup(move, index)"
             class="link-button"
