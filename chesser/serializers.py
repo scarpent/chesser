@@ -139,20 +139,22 @@ def serialize_move(move, for_edit=False):
         color = move.variation.chapter.course.color
 
         move_data["shared_candidates"] = get_shared_candidates(fen, san, color)
-        move_data["shared_dropdown"] = get_shared_dropdown(fen, san, color)
+        move_data["shared_dropdown"] = get_shared_dropdown(
+            fen, san, color, shared_move=shared
+        )
         move_data["matching_move_count"] = get_matching_moves(fen, san, color).count()
 
     return move_data
 
 
-def get_shared_dropdown(fen, san, color, shared_move_id=None) -> list[dict]:
+def get_shared_dropdown(fen, san, color, shared_move=None) -> list[dict]:
     candidates = get_shared_candidates(fen, san, color)
     dropdown = []
 
     if not candidates:
         dropdown.append({"value": "", "label": "Not shared"})
     else:
-        label = "Unlink shared move" if shared_move_id else "Shared move not linked"
+        label = "Unlink shared move" if shared_move else "Shared move not linked"
         dropdown.append({"value": "", "label": label})
 
     for candidate_id, _ in candidates.items():
@@ -241,7 +243,7 @@ def serialize_shared_move(
                     group[0].fen,
                     group[0].san,
                     group[0].variation.chapter.course.color,
-                    shared_move_id=shared_move_id,
+                    shared_move=shared_move_id,
                 ),
                 "move_ids": [move.id for move in group],
                 "variation_ids": [move.variation.id for move in group],
