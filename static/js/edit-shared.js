@@ -134,55 +134,6 @@ export function editApp() {
       }
     },
 
-    //---------------------------------------------------------------------------------
-    buildSharedMovePayload(index) {
-      const move = this.moveData.shared_moves[index];
-      const boardShapes = this.boards[index].state.drawable.shapes;
-
-      return {
-        id: move.id,
-        san: this.moveData.san,
-        fen: this.moveData.fen,
-        color: this.moveData.color,
-        annotation: move.annotation === "none" ? "" : move.annotation,
-        text: move.text.trim(),
-        alt: move.alt,
-        alt_fail: move.alt_fail,
-        shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
-      };
-    },
-
-    //--------------------------------------------------------------------------------
-    async saveSharedMove(index) {
-      console.log("Saving shared move data...");
-      const payload = this.buildSharedMovePayload(index);
-      console.log("Shared move payload", payload);
-
-      try {
-        const response = await fetch("/save-shared-move-old/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await response.json();
-        console.log("data:", data);
-
-        if (data.status === "error") {
-          this.handleSaveResult("error", index);
-          return false;
-        } else {
-          console.log("Shared move saved successfully");
-          this.handleSaveResult("success", index);
-          return true;
-        }
-      } catch (error) {
-        console.error("Error saving variation:", error);
-        this.handleSaveResult("error", index);
-        return false;
-      }
-    },
-
     //--------------------------------------------------------------------------------
     buildAdminMatchingMovesLink(grouped_move = null) {
       if (grouped_move && grouped_move.move_ids && grouped_move.move_ids.length) {
