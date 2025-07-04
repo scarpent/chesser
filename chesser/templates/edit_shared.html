@@ -198,7 +198,8 @@
             <label>
               <!-- consider selecting by default? but that could be an unwelcome surprise behavior -->
               <input type="checkbox" x-model="move.sync_shared_values_to_moves" />
-              Sync shared values to moves
+              Sync shared values w/ group
+              <span x-text="move.in_sync ? '🟢' : '🟡'"></span>
             </label>
           </div>
         </div>

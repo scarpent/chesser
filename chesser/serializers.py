@@ -225,6 +225,7 @@ def serialize_shared_move(
         shapes,
         shared_move_id,
     ), group in grouped.items():
+
         move_data["move_groups"].append(
             {
                 "count": len(group),
@@ -247,6 +248,7 @@ def serialize_shared_move(
                     group[0].variation.chapter.course.color,
                     shared_move=shared_move_id,
                 ),
+                "in_sync": move_group_in_sync(group[0]),
                 "move_ids": [move.id for move in group],
                 "variation_ids": [move.variation.id for move in group],
             }
@@ -258,6 +260,19 @@ def serialize_shared_move(
     move_data["annotations"] = temp_annotations
 
     return move_data
+
+
+def move_group_in_sync(move):
+    if not move.shared_move:
+        return False
+
+    return (
+        move.text == move.shared_move.text
+        and move.annotation == move.shared_move.annotation
+        and move.alt == move.shared_move.alt
+        and move.alt_fail == move.shared_move.alt_fail
+        and move.shapes == move.shared_move.shapes
+    )
 
 
 def normalize_alts(alt_str):
