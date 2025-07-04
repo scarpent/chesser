@@ -185,24 +185,15 @@
               <span>...</span>
             </template>
           </div>
-          <div style="margin: 8px 0">
+          <div
+            style="margin: 8px 0"
+            :class="Number.isInteger(+move.shared_move_id) ? '' : 'invisible-placeholder'"
+          >
             <label>
               <input type="checkbox" x-model="move.sync_shared_values_to_moves" />
               Sync shared values to moves
             </label>
           </div>
-          <button
-            @click="updateSharedMoveLinkForGroup(move, index)"
-            class="link-button"
-            x-text="Number.isInteger(+move.shared_move_id) ? '💾 Link moves to #' + move.shared_move_id : '❌   Unlink shared move'"
-          ></button>
-          <button
-            :class="Number.isInteger(+move.shared_move_id) ? '' : 'invisible-placeholder'"
-            @click="updateGroupedMoveValues(move, index)"
-            class="link-button"
-          >
-            💾 Sync shared values to moves
-          </button>
         </div>
       </div>
     </template>

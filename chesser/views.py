@@ -732,80 +732,67 @@ def save_variation(request):
 @transaction.atomic
 def save_shared_move(request):
     data = json.loads(request.body)
-    print(f"💾 Saving shared {data['color']} {data['san']} {data['fen']}")
+    color = data.get("color")
+    san = data.get("san")
+    fen = data.get("fen")
+    print(f"💾 Saving shared {color} {san} {fen}")
 
     for shared_move in data["shared_moves"]:
         shared_move_id = shared_move["id"]
-        move = SharedMove.objects.get(id=shared_move_id)
-        move.annotation = util.strip_all_html(shared_move["annotation"])
-        move.text = util.clean_html(shared_move["text"])
-        move.alt = util.strip_all_html(shared_move["alt"])
-        move.alt_fail = util.strip_all_html(shared_move["alt_fail"])
-        move.shapes = get_normalized_shapes(shared_move["shapes"])
-        move.save()
+        sharedmove = SharedMove.objects.get(id=shared_move_id)
+        sharedmove.annotation = util.strip_all_html(shared_move["annotation"])
+        sharedmove.text = util.clean_html(shared_move["text"])
+        sharedmove.alt = util.strip_all_html(shared_move["alt"])
+        sharedmove.alt_fail = util.strip_all_html(shared_move["alt_fail"])
+        sharedmove.shapes = get_normalized_shapes(shared_move["shapes"])
+        sharedmove.save()
         print(f"💾 Saved shared move #{shared_move_id}")
 
     for grouped_move in data["grouped_moves"]:
-        print(
-            f"Processing grouped move for shared id {grouped_move['shared_move_id']}, num moves {len(grouped_move['variation_ids'])}, sync? {grouped_move['sync']}"  # noqa: E501
-        )
+        shared_move_id = grouped_move["shared_move_id"]
+        move_ids = grouped_move["move_ids"]
+        shared_move = None  # will unlink if not set by __new__ or ID
+        if shared_move_id == "__new__":
+            print("💾 Creating new shared move")
+            move_id = move_ids[0]
+            move = get_object_or_404(Move, id=move_id)
+            shared_move = SharedMove.objects.create(
+                fen=fen,
+                san=san,
+                opening_color=color,
+                text=move.text,
+                annotation=move.annotation,
+                alt=move.alt,
+                alt_fail=move.alt_fail,
+                shapes=move.shapes,
+            )
+        elif shared_move_id.isdigit():
+            shared_move = get_object_or_404(SharedMove, id=int(shared_move_id))
+
+        # we'll be trusting of our inputs here -- this is an area
+        # to watch out if ever expanding to a multi-user app
+        moves = Move.objects.filter(id__in=move_ids, san=san, fen=fen)
+        # but we've added san/fen for safety, since update bypasses save protection
+        moves.update(shared_move=shared_move)
+        # Move.objects.filter(id__in=move_ids).update(shared_move=shared_move)
+        shared_move_label = f"#{shared_move.id}" if shared_move else "None"
+        print(f"Setting shared move to {shared_move_label} for {len(move_ids)} moves")
+
+        if shared_move and grouped_move["sync"] and shared_move_id != "__new__":
+            # no need to sync if new since we've *just* created the
+            # shared move with the same values as the moves
+            print(f"Syncing shared move #{shared_move_id} values")
+            for move in moves.iterator():
+                move.text = shared_move.text
+                move.annotation = shared_move.annotation
+                move.alt = shared_move.alt
+                move.alt_fail = shared_move.alt_fail
+                move.shapes = shared_move.shapes
+                move.save(
+                    update_fields=["text", "annotation", "alt", "alt_fail", "shapes"]
+                )
 
     return JsonResponse({"status": "success"})
-
-
-@csrf_exempt
-@require_POST
-@transaction.atomic
-def update_shared_move_link(request):
-    data = json.loads(request.body)
-    move_ids = data.get("move_ids", [])
-    shared_move_id = data.get("shared_move_id")
-
-    if not move_ids:
-        return JsonResponse({"error": "Missing move_ids"}, status=400)
-
-    try:
-        shared_move_id_int = int(shared_move_id)
-    except (ValueError, TypeError):
-        shared_move_id_int = None
-
-    if shared_move_id_int is None:
-        new_shared = None
-    else:
-        try:
-            new_shared = SharedMove.objects.get(id=shared_move_id)
-        except SharedMove.DoesNotExist:
-            return JsonResponse({"error": "Shared move not found"}, status=404)
-
-    Move.objects.filter(id__in=move_ids).update(shared_move=new_shared)
-    print(f"Updating shared move link to {shared_move_id} for moves: {move_ids}")
-    return JsonResponse({"status": "success"})
-
-
-@csrf_exempt
-@require_POST
-@transaction.atomic
-def update_grouped_move_values(request):
-    data = json.loads(request.body)
-    move_ids = data.get("move_ids", [])
-    shared_move_data = data.get("shared_move_data", {})
-
-    if not move_ids or not shared_move_data:
-        return JsonResponse(
-            {"error": "Missing move IDs or shared move data"}, status=400
-        )
-
-    updated = 0
-    for move in Move.objects.filter(id__in=move_ids):
-        move.text = shared_move_data["text"]
-        move.annotation = shared_move_data["annotation"]
-        move.alt = shared_move_data["alt"]
-        move.alt_fail = shared_move_data["alt_fail"]
-        move.shapes = shared_move_data["shapes"]
-        move.save(update_fields=["text", "annotation", "alt", "alt_fail", "shapes"])
-        updated += 1
-
-    return JsonResponse({"status": "success", "updated": updated})
 
 
 def variation(request, variation_id=None):

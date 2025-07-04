@@ -94,7 +94,7 @@ export function editApp() {
 
       payload.grouped_moves = this.moveData.move_groups.map((move, index) => {
         return {
-          variation_ids: move.variation_ids,
+          move_ids: move.move_ids,
           shared_move_id: move.shared_move_id,
           sync: !!move.sync_shared_values_to_moves,
         };
@@ -184,87 +184,6 @@ export function editApp() {
     //--------------------------------------------------------------------------------
     closeOverlay() {
       this.overlayVisible = false;
-    },
-
-    //--------------------------------------------------------------------------------
-    async updateGroupedMoveValues(grouped_move, index) {
-      try {
-        // 1️⃣ Get the current selected shared move ID
-        const sharedMoveId = grouped_move.shared_move_id;
-
-        // 2️⃣ Look up the matching shared move data in the single source of truth
-        const sharedMove = this.moveData.shared_moves.find(
-          (sm) => sm.id === Number(sharedMoveId)
-        );
-
-        // weird/unlikely
-        if (!sharedMove) {
-          console.error("No matching shared move found for ID:", sharedMoveId);
-          this.markErrorBlock(`grouped-move-block-${index}`);
-          return;
-        }
-
-        // 3️⃣ Build the payload from the found shared move
-        const payload = {
-          move_ids: grouped_move.move_ids,
-          shared_move_data: {
-            text: sharedMove.text,
-            annotation: sharedMove.annotation,
-            alt: sharedMove.alt,
-            alt_fail: sharedMove.alt_fail,
-            shapes: sharedMove.shapes,
-          },
-        };
-
-        // 4️⃣ Send to server
-        const response = await fetch("/update-grouped-move-values/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-          window.location.reload();
-        } else {
-          this.markErrorBlock(`grouped-move-block-${index}`);
-        }
-      } catch (err) {
-        console.error(err);
-        this.markErrorBlock(`grouped-move-block-${index}`);
-      }
-    },
-
-    //--------------------------------------------------------------------------------
-    async updateSharedMoveLinkForGroup(grouped_move, index) {
-      try {
-        const payload = {
-          move_ids: grouped_move.move_ids,
-          shared_move_id: grouped_move.shared_move_id,
-        };
-
-        const response = await fetch("/update-shared-move-link/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-          console.log(
-            `Shared move link updated successfully to ${grouped_move.shared_move_id}`
-          );
-          window.location.reload();
-        } else {
-          console.log(
-            `Error updating shared move link to ${grouped_move.shared_move_id}`
-          );
-          this.markErrorBlock(`grouped-move-block-${index}`);
-        }
-      } catch (e) {
-        console.error(e);
-        this.markErrorBlock(`grouped-move-block-${index}`);
-      }
     },
 
     //--------------------------------------------------------------------------------
