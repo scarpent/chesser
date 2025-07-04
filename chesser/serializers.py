@@ -174,11 +174,13 @@ def serialize_shared_move(
     - shared_moves: editable
     - move_groups: read-only, grouped by shared fields, with linked shared_move IDs
 
-    Move groups are read only, *except* that we'll enable shared move setting/unsetting
+    Move groups are read only, mostly, but we can set/unset a shared move, and also
+    copy shared values to the individual moves.
     """
     move_data = {
         "shared_moves": [],
         "move_groups": [],
+        "total_matching_moves": len(matching_moves),
     }
 
     temp_annotations = annotations.copy()

@@ -774,7 +774,6 @@ def save_shared_move(request):
         moves = Move.objects.filter(id__in=move_ids, san=san, fen=fen)
         # but we've added san/fen for safety, since update bypasses save protection
         moves.update(shared_move=shared_move)
-        # Move.objects.filter(id__in=move_ids).update(shared_move=shared_move)
         shared_move_label = f"#{shared_move.id}" if shared_move else "None"
         print(f"Setting shared move to {shared_move_label} for {len(move_ids)} moves")
 

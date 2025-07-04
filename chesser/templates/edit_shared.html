@@ -84,7 +84,10 @@
   </div>
 
   <div id="boards-container" class="form-standard" style="margin-bottom: 200px">
-    <h3 style="margin: 0 0 0 10px">Shared</h3>
+    <h3
+      style="margin: 0 0 0 10px"
+      x-text="'Shared (' + moveData.shared_moves.length + ')'"
+    ></h3>
     <template x-for="(move, index) in moveData.shared_moves" :key="index">
       <div class="move-block" :id="'move-block-' + index">
         <div class="edit-board" :id="'edit-board-' + index"></div>
@@ -127,7 +130,10 @@
       </div>
     </template>
 
-    <h3 style="margin: 0 0 0 10px">Grouped</h3>
+    <h3
+      style="margin: 0 0 0 10px"
+      x-text="'Grouped (' + moveData.total_matching_moves + ')'"
+    ></h3>
     <template x-for="(move, index) in moveData.move_groups" :key="'grouped-' + index">
       <div class="move-block" :id="'grouped-move-block-' + index">
         <div class="grouped-text-container">
@@ -190,6 +196,7 @@
             :class="Number.isInteger(+move.shared_move_id) ? '' : 'invisible-placeholder'"
           >
             <label>
+              <!-- consider selecting by default? but that could be an unwelcome surprise behavior -->
               <input type="checkbox" x-model="move.sync_shared_values_to_moves" />
               Sync shared values to moves
             </label>
