@@ -48,7 +48,13 @@ export function variationApp() {
       const idxParam = urlParams.get("idx");
       let moveIndex = idxParam ? parseInt(idxParam, 10) : null;
 
-      if (isNaN(moveIndex)) return null;
+      if (
+        isNaN(moveIndex) ||
+        moveIndex < 0 ||
+        moveIndex >= this.variationData.moves.length
+      ) {
+        return null;
+      }
 
       if (moveIndex < 0) {
         moveIndex = 0;
@@ -56,7 +62,7 @@ export function variationApp() {
         moveIndex = this.variationData.moves.length - 1;
       }
 
-      // Remove idx from URL
+      // Remove idx from URL 🧹
       urlParams.delete("idx");
       const newUrl =
         window.location.pathname +
@@ -68,10 +74,10 @@ export function variationApp() {
 
     goToStartingPosition() {
       const moveIndex = this.getSpecifiedMoveIndex();
-      if (moveIndex) {
+      if (moveIndex !== null) {
         this.mainlineMoveIndex = moveIndex;
       } else {
-        // show state before the variation's start
+        // show state before the variation's start move
         this.mainlineMoveIndex = this.variationData.start_index - 1;
       }
 
@@ -85,13 +91,14 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     gotoEditView() {
       const variationId = this.variationData.variation_id;
-      const idxParam =
-        this.mainlineMoveIndex + 1 > this.variationData.start_index
-          ? `?idx=${this.mainlineMoveIndex}`
-          : "";
-      console.log("idxParam", idxParam);
-      console.log("variationId", variationId);
-      window.location.href = `/edit/${variationId}/${idxParam}`;
+      window.location.href = `/edit/${variationId}/`;
+      // (previously, wanted to stay at top of the page if early in variation, but
+      // that is inconsistent/confusing when jumping between views...)
+      // const idxParam =
+      //   this.mainlineMoveIndex + 1 > this.variationData.start_index
+      //     ? `?idx=${this.mainlineMoveIndex}`
+      //     : "";
+      // window.location.href = `/edit/${variationId}/${idxParam}`;
     },
 
     //--------------------------------------------------------------------------------
@@ -309,12 +316,19 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     handleMoveClick(event) {
       const moveElement = event.target;
+      const index = parseInt(moveElement.dataset.index, 10);
+
       if (
         moveElement.classList.contains("mainline-move") ||
         moveElement.classList.contains("variation-mainline-move-item")
       ) {
-        // console.log("Clicked mainline move:", parseInt(moveElement.dataset.index, 10));
-        this.jumpToMainlineMove(parseInt(moveElement.dataset.index, 10));
+        if (moveElement.classList.contains("highlight")) {
+          // Second click on selected mainline move → edit at that move
+          const variationId = this.variationData.variation_id;
+          window.location.href = `/edit/${variationId}/?idx=${index}`;
+        } else {
+          this.jumpToMainlineMove(index);
+        }
       } else if (moveElement.classList.contains("subvar-move")) {
         if (moveElement.classList.contains("highlight")) {
           this.openFenInLichess(moveElement); // Already selected; open analysis board
