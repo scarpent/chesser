@@ -68,11 +68,12 @@ class MoveForm(forms.ModelForm):
 
 
 class RegularMoveForm(MoveForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         instance = self.instance
+        field = self.fields["shared_move"]
+
         if (
             instance
             and instance.pk
@@ -83,13 +84,21 @@ class RegularMoveForm(MoveForm):
             and instance.variation.chapter.course
         ):
             color = instance.variation.chapter.course.color
-            self.fields["shared_move"].queryset = SharedMove.objects.filter(
+            valid_qs = SharedMove.objects.filter(
                 fen=instance.fen,
                 san=instance.san,
                 opening_color=color,
             )
+
+            # Include the currently assigned shared_move even if it's not valid
+            if instance.shared_move:
+                field.queryset = (
+                    valid_qs | SharedMove.objects.filter(pk=instance.shared_move.pk)
+                ).distinct()
+            else:
+                field.queryset = valid_qs
         else:
-            self.fields["shared_move"].queryset = SharedMove.objects.none()
+            field.queryset = SharedMove.objects.none()
 
 
 class MoveInline(admin.TabularInline):
