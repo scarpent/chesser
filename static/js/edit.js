@@ -116,6 +116,7 @@ export function editApp() {
     handleSaveResult(status, index = null) {
       const btn = document.querySelector(".icon-save");
       if (btn) {
+        btn.classList.remove("save-pending");
         const className = `save-${status}`;
         btn.classList.add(className);
       }
@@ -138,6 +139,7 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     saveFromMove(index) {
+      this.variationData.moves[index].saved = "pending";
       this.saveVariation(index).then((success) => {
         this.variationData.moves[index].saved = success ? "success" : "error";
         // clear after short delay only if sucessuful (leave red background if error)
@@ -152,6 +154,8 @@ export function editApp() {
     //--------------------------------------------------------------------------------
     async saveVariation(index) {
       console.log("Saving variation data...", this.variationData);
+      document.querySelector(".icon-save")?.classList.add("save-pending");
+
       const payload = this.buildPayload();
 
       try {

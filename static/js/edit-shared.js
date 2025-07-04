@@ -56,6 +56,7 @@ export function editApp() {
     handleSaveResult(status, index) {
       const btn = document.querySelector(".icon-save");
       if (btn) {
+        btn.classList.remove("save-pending");
         const className = `save-${status}`;
         btn.classList.add(className);
       }
@@ -106,6 +107,8 @@ export function editApp() {
     //--------------------------------------------------------------------------------
     async saveAll(index) {
       console.log("Saving all shared/grouped move data...");
+      document.querySelector(".icon-save")?.classList.add("save-pending");
+
       const payload = this.buildPayload();
       console.log("Payload", payload);
 

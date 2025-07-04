@@ -947,6 +947,11 @@ more washed out with all the white paper */
   margin: 20px 0;
 }
 
+.icon-button.save-pending {
+  background-color: #e0c000 !important;
+  border-color: #e0c000 !important;
+}
+
 .icon-button.save-success {
   background-color: #28a745 !important;
   border-color: #28a745 !important;

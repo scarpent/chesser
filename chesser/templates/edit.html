@@ -173,6 +173,7 @@
               class="icon-save icon-button"
               :class="{
                 'save-success': move.saved === 'success',
+                'save-pending': move.saved === 'pending',
                 'save-error': move.saved === 'error'
               }"
               @click.prevent="saveFromMove(index)"
