@@ -201,7 +201,7 @@
             >
             <template x-if="move.matching_move_count > 1 || move.shared">
               <a
-                :href="'/edit-shared-move/?san=' + move.san + '&fen=' + move.fen + '&color=' + variationData.color + '&variation_id=' + variationData.variation_id"
+                :href="'/edit-shared-move/?san=' + encodeURIComponent(move.san) + '&fen=' + move.fen + '&color=' + variationData.color + '&variation_id=' + variationData.variation_id"
                 title="Shared Move Editor"
                 x-text="'=' + move.matching_move_count"
               ></a>
