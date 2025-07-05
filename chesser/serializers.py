@@ -248,7 +248,7 @@ def serialize_shared_move(
                     group[0].variation.chapter.course.color,
                     shared_move=shared_move_id,
                 ),
-                "in_sync": move_group_in_sync(group[0]),
+                "in_sync": move_is_in_sync_with_shared(group[0]),  # all same in group
                 "move_ids": [move.id for move in group],
                 "variation_ids": [move.variation.id for move in group],
             }
@@ -262,7 +262,7 @@ def serialize_shared_move(
     return move_data
 
 
-def move_group_in_sync(move):
+def move_is_in_sync_with_shared(move):
     if not move.shared_move:
         return False
 

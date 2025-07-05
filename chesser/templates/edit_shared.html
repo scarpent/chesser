@@ -175,9 +175,12 @@
         </div>
 
         <div class="grouped-move-other-container">
-          <span x-text="move.example_variation.title" class="grouped-move-title"></span>
+          <span
+            x-text="(move.variation_ids.length > 1 ? 'e.g. ' : '') + move.example_variation.title"
+            class="grouped-move-title"
+          ></span>
           <div class="grouped-variation-links">
-            vars:
+            variations:
             <template x-for="(var_id, idx) in move.variation_ids">
               <template x-if="idx < 5">
                 <a :href="'/variation/' + var_id + '/?idx=' + groupedMoveSequence()">
@@ -198,7 +201,7 @@
             <label>
               <!-- consider selecting by default? but that could be an unwelcome surprise behavior -->
               <input type="checkbox" x-model="move.sync_shared_values_to_moves" />
-              Sync shared values w/ group
+              Sync shared values with group
               <span x-text="move.in_sync ? '🟢' : '🟡'"></span>
             </label>
           </div>
