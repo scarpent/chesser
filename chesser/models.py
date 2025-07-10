@@ -26,12 +26,16 @@ class Course(models.Model):
 
 
 class Chapter(models.Model):
+    COLOR_CHOICES = [("white", "White"), ("black", "Black")]
+
     title = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    color = models.CharField(
+        max_length=5, choices=COLOR_CHOICES, null=False, blank=False
+    )
 
     def __str__(self):
-        course_title = self.course.title if self.course_id else "(no course)"
-        return f"{course_title}: {self.title}"
+        return f"{self.color.title()}: {self.title}"
 
 
 class Variation(models.Model):

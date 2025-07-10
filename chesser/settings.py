@@ -157,10 +157,8 @@ AWS_S3_REGION_NAME = "us-east-1"
 
 BUILD_TIMESTAMP = str(int(time.time()))
 
-# Enables demo data if database is empty. Intended for first-time
-# preview/experimentation. Set to False once initialized to avoid
-# automatic demo injection on db reset.
-DEMO_DATA_IMPORT = False
+# Increase the limit for number of fields in forms (fixes chapter saving issue)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
 
 CHESSER_URL = (
     "https://chesser-production.up.railway.app"

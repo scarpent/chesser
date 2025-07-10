@@ -173,8 +173,8 @@ class CourseAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
 
 @admin.register(Chapter)
 class ChapterAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
-    list_display = ("title", "course")
-    list_filter = ("course",)
+    list_display = ("title", "color")
+    list_filter = ("color",)
     inlines = [VariationInline]
 
 
