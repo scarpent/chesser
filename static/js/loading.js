@@ -1,4 +1,4 @@
-export function navigateWithSpinner(url, delay = 150) {
+export function navigateWithSpinner(url, delay = 300) {
   window.dispatchEvent(new CustomEvent("show-loading"));
   setTimeout(() => {
     window.location.href = url;
