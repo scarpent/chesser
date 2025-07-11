@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from chesser import util
-from chesser.models import Course, Move, QuizResult, SharedMove, Variation
+from chesser.models import Chapter, Course, Move, QuizResult, SharedMove, Variation
 
 NAG_LOOKUP = {
     1: "!",
@@ -101,10 +101,14 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
         except Variation.DoesNotExist:
             pass  # good to go; note that we'll not reuse the ID
 
+    # TODO: goes away when course goes away
     root_course_id = 1 if import_data.get("color") == "white" else 2
     course = Course.objects.get(id=root_course_id)
-    chapter, created = course.chapter_set.get_or_create(
-        title=import_data["chapter_title"]
+
+    color = import_data.get("color", "").lower()
+    chapter, created = Chapter.objects.get_or_create(
+        title=import_data["chapter_title"],
+        color=color,
     )
     label = "Creating" if created else "Getting"
     print("➤ " * 32)
@@ -123,7 +127,7 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
     if end_move:
         # 1.e4 e5 2.Nf3 Nc6
         #            3   4
-        end_index = end_move * 2 - (1 if course.color == "white" else 0)
+        end_index = end_move * 2 - (1 if color == "white" else 0)
         mainline = " ".join(mainline.split()[:end_index])
         print(f"Shortening mainline to: {mainline}")
 
@@ -154,7 +158,7 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
         else:
             print("🔒️ No changes")
         # later we might re-import in some cases
-        message = f"Mainline already exists in this course, #{variation.id}"
+        message = f"Mainline already exists for this chapter, #{variation.id}"
         print(message)
         raise ValueError(message)
 
@@ -380,7 +384,7 @@ def create_or_get_shared_move(move, opening_color):
 def shared_move_auto_linker(variation, source_variation=None, preview=False) -> int:
     """preview may be used eventually to offer a
     button to update if there are shareable moves"""
-    opening_color = variation.course.color
+    opening_color = variation.chapter.color
     moves_linked = 0
 
     for move in variation.moves.all():
@@ -469,7 +473,7 @@ def shared_move_auto_linker(variation, source_variation=None, preview=False) -> 
         matching_blank_moves = Move.objects.filter(
             san=move.san,
             fen=move.fen,
-            variation__chapter__course__color=opening_color,
+            variation__chapter__color=opening_color,
             text="",
             annotation="",
             alt="",

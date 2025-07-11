@@ -81,9 +81,8 @@ class RegularMoveForm(MoveForm):
             and instance.san
             and instance.variation
             and instance.variation.chapter
-            and instance.variation.chapter.course
         ):
-            color = instance.variation.chapter.course.color
+            color = instance.variation.chapter.color
             valid_qs = SharedMove.objects.filter(
                 fen=instance.fen,
                 san=instance.san,

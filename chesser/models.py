@@ -53,13 +53,6 @@ class Variation(models.Model):
         },
         "original_course": {},  # same as above
     }
-
-    Why include a denormalized `course` field when `chapter` already links to it?
-
-    * Faster queries: avoids joins when checking e.g. variation uniqueness in a course
-    * Efficient indexing: enables direct index on (course, move_sequence), etc.
-    * Simpler code: fewer joins in filters, easier filtering in templates & serializers
-    * Still safe: `chapter.course_id == variation.course_id` is enforced in validation
     """
 
     title = models.CharField(max_length=100)
@@ -78,16 +71,10 @@ class Variation(models.Model):
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=["course", "mainline_moves_str"],
-                name="unique_moves_string_per_course",
+                fields=["chapter", "mainline_moves_str"],
+                name="unique_moves_string_per_chapter",
             ),
         ]
-
-    def clean(self):
-        if self.chapter.course != self.course:
-            raise ValidationError(
-                "Variation's denormalized course must match its chapter's course."
-            )
 
     def __str__(self):
         # beware: keep this simple -- ran into all kinds of django admin
@@ -126,7 +113,7 @@ class Variation(models.Model):
         7    4...Nf6    4...a6     ➤ move 4 = 4 * 2 - 1 = 7
         """
         ply = self.start_move * 2
-        return ply - 2 if self.chapter.course.color == "white" else ply - 1
+        return ply - 2 if self.chapter.color == "white" else ply - 1
 
     @transaction.atomic
     def handle_quiz_result(self, passed):
@@ -258,10 +245,10 @@ class Move(AnnotatedMove):
                 raise ValidationError(
                     f"SharedMove SAN mismatch: {self.san} != {self.shared_move.san}"
                 )
-            if self.variation.chapter.course.color != self.shared_move.opening_color:
+            if self.variation.chapter.color != self.shared_move.opening_color:
                 raise ValidationError(
                     f"SharedMove color mismatch: {self.shared_move.opening_color} "
-                    f"!= {self.variation.chapter.course.color}"
+                    f"!= {self.variation.chapter.color}"
                 )
 
     def save(self, *args, **kwargs):
@@ -296,7 +283,7 @@ class Move(AnnotatedMove):
 
     @property
     def opening_color(self):
-        return self.variation.chapter.course.color
+        return self.variation.chapter.color
 
 
 class SharedMove(AnnotatedMove):
@@ -335,7 +322,7 @@ def get_matching_moves(fen, san, color, exclude_id=None):
     qs = Move.objects.filter(
         fen=fen,
         san=san,
-        variation__chapter__course__color=color,
+        variation__chapter__color=color,
     )
     if exclude_id:
         qs = qs.exclude(id=exclude_id)
