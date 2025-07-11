@@ -1,6 +1,6 @@
 function buildNavQueryString(nav) {
   const params = [];
-  if (nav?.course_id) params.push(`course_id=${nav.course_id}`);
+  if (nav?.color) params.push(`color=${nav.color}`);
   if (nav?.chapter_id) params.push(`chapter_id=${nav.chapter_id}`);
   return params.length ? "?" + params.join("&") : "";
 }

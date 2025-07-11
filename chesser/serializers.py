@@ -56,7 +56,6 @@ def serialize_variation(variation, mode="review"):
     variation_data = {
         "variation_id": variation.id,
         "title": variation.title,
-        "course_id": variation.chapter.course.id,
         "chapter_id": variation.chapter.id,
         "chapter": variation.chapter.title,
         "color": color,
@@ -239,7 +238,6 @@ def serialize_shared_move(
                     "id": group[0].variation.id,
                     "title": group[0].variation.title,
                     "chapter": group[0].variation.chapter.title,
-                    "course": group[0].variation.chapter.course.title,
                 },
                 "shared_move_id": shared_move_id,
                 "shared_dropdown": get_shared_dropdown(

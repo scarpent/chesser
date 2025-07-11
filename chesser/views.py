@@ -7,7 +7,14 @@ from itertools import groupby
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Case, Count, IntegerField, OuterRef, Q, Subquery, When
+from django.db.models import (
+    Case,
+    Count,
+    IntegerField,
+    Q,
+    Value,
+    When,
+)
 from django.db.models.functions import Lower
 from django.http import (
     FileResponse,
@@ -25,7 +32,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
-from chesser.models import Chapter, Course, Move, QuizResult, SharedMove, Variation
+from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 from chesser.serializers import (
     get_final_move_simple_subvariations_html,
     serialize_shared_move,
@@ -36,8 +43,8 @@ from chesser.serializers import (
 QUIZ_RESULT_DEBOUNCE_HOURS = timedelta(hours=3)
 
 
-def home(request, course_id=None, chapter_id=None):
-    home_view = HomeView(course_id=course_id, chapter_id=chapter_id)
+def home(request, color=None, chapter_id=None):
+    home_view = HomeView(color=color, chapter_id=chapter_id)
     return render(
         request,
         "home.html",
@@ -136,12 +143,12 @@ def review_random(request):
 
     one_month_ago = timezone.now() - timezone.timedelta(days=30)
 
-    course_id = request.GET.get("course_id")
+    color = request.GET.get("color")
     chapter_id = request.GET.get("chapter_id")
 
     qs = Variation.objects.all()
-    if course_id:
-        qs = qs.filter(chapter__course_id=course_id)
+    if color:
+        qs = qs.filter(chapter__color=color)
     if chapter_id:
         qs = qs.filter(chapter_id=chapter_id)
 
@@ -167,48 +174,6 @@ def review_random(request):
     else:
         print("🎲 No recent failures; choosing from all")
         variation = random.choice(list(qs))
-
-    return redirect("review_with_id", variation_id=variation.id)
-
-
-def review_random_old(request):
-    """Select a random variation for review (extra study)
-    We'll look for higher level variations that we haven't
-    seen and won't see for a while."""
-
-    now = timezone.now()
-    two_months_later = now + timezone.timedelta(days=60)
-    one_month_ago = now - timezone.timedelta(days=30)
-
-    latest_qr = QuizResult.objects.filter(variation=OuterRef("pk")).order_by(
-        "-datetime"
-    )
-
-    course_id = request.GET.get("course_id")
-    chapter_id = request.GET.get("chapter_id")
-
-    qs = Variation.objects.all()
-    if course_id:
-        qs = qs.filter(chapter__course_id=course_id)
-    if chapter_id:
-        qs = qs.filter(chapter_id=chapter_id)
-
-    candidates = (
-        qs.annotate(last_review=Subquery(latest_qr.values("datetime")[:1]))
-        .filter(
-            level__gte=8,
-            next_review__gte=two_months_later,
-            last_review__lte=one_month_ago,
-        )
-        .select_related("chapter__course")
-        .prefetch_related("moves", "quiz_results")
-    )
-
-    if candidates.exists():
-        variation = random.choice(list(candidates))
-    else:
-        print("🎲 Couldn't limit random choice; choosing from all")
-        variation = random.choice(list(Variation.objects.all()))
 
     return redirect("review_with_id", variation_id=variation.id)
 
@@ -253,19 +218,22 @@ def report_result(request):
 def get_import_context(form_defaults=None):
     form_defaults = form_defaults or {}
 
-    # Fetch courses as a lookup: {id: title}
-    courses = {c["id"]: c["title"] for c in Course.objects.all().values("id", "title")}
-
-    # Build chapter list with label "Course: Chapter"
+    # Build chapter list with label "White: Chapter" or "Black: Chapter"
     chapters = [
         {
             "id": str(chapter.id),
-            "label": f"{courses.get(chapter.course_id, 'Unknown')}: {chapter.title}",
+            "label": f"{chapter.color.title()}: {chapter.title}",
         }
-        for chapter in Chapter.objects.select_related("course").order_by(
-            "course_id", "title"
-        )
+        for chapter in Chapter.objects.annotate(
+            color_order=Case(
+                When(color="white", then=Value(0)),
+                When(color="black", then=Value(1)),
+                default=Value(99),
+                output_field=IntegerField(),
+            )
+        ).order_by("color_order", "title")
     ]
+
     if chapters:
         form_defaults.setdefault("chapter_id", chapters[0]["id"])
 
@@ -417,7 +385,7 @@ class ImportVariationView(View):
 
 
 def get_sorted_variations(chapter_id=None):
-    queryset = Variation.objects.select_related("course", "chapter").annotate(
+    queryset = Variation.objects.select_related("chapter").annotate(
         sort_key=Lower("mainline_moves_str"),
         intro_priority=Case(
             When(is_intro=True, then=0),
@@ -430,8 +398,16 @@ def get_sorted_variations(chapter_id=None):
         queryset = queryset.filter(chapter_id=chapter_id)
         return queryset.order_by("intro_priority", "sort_key").iterator()
     else:
+        # When would we get sorted variations without a chapter?
         return queryset.order_by(
-            "course_id", "chapter__title", "intro_priority", "sort_key"
+            Case(
+                When(color="white", then=Value(0)),
+                When(color="black", then=Value(1)),
+                output_field=IntegerField(),
+            ),
+            "chapter__title",
+            "intro_priority",
+            "sort_key",
         ).iterator()
 
 
@@ -799,9 +775,7 @@ def variation(request, variation_id=None):
         variation = Variation.objects.first()
     else:
         variation = get_object_or_404(
-            Variation.objects.select_related("chapter__course").prefetch_related(
-                "moves"
-            ),
+            Variation.objects.select_related("chapter").prefetch_related("moves"),
             pk=variation_id,
         )
 
@@ -813,18 +787,18 @@ def variation(request, variation_id=None):
     return render(request, "variation.html", context)
 
 
-def home_upcoming(request, course_id=None, chapter_id=None):
-    course_id = request.GET.get("course_id")
+def home_upcoming(request, color=None, chapter_id=None):
+    color = request.GET.get("color")
     chapter_id = request.GET.get("chapter_id")
-    home_view = HomeView(course_id=course_id, chapter_id=chapter_id, upcoming_only=True)
+    home_view = HomeView(color=color, chapter_id=chapter_id, upcoming_only=True)
     return JsonResponse(home_view.data)
 
 
 class HomeView:
-    def __init__(self, course_id=None, chapter_id=None, upcoming_only=False):
+    def __init__(self, color=None, chapter_id=None, upcoming_only=False):
         self.now = timezone.now()
 
-        self.course_id = course_id
+        self.color = color
         self.chapter_id = chapter_id
 
         self.home_data = {
@@ -847,8 +821,8 @@ class HomeView:
 
     def get_variations(self):
         variations = Variation.objects.all()
-        if self.course_id:
-            variations = variations.filter(course_id=self.course_id)
+        if self.color:
+            variations = variations.filter(chapter__color=self.color)
         if self.chapter_id:
             variations = variations.filter(chapter_id=self.chapter_id).prefetch_related(
                 "quiz_results"
@@ -857,36 +831,33 @@ class HomeView:
 
     def get_course_links(self):
         nav = {
-            "course_id": "",
-            "course_title": "",
+            "color": "",
+            "color_title": "",  # title case of color, done here for FE simplicity
             "chapter_id": "",
             "chapter_title": "",
-            "courses": [],
+            "colors": [],
             "chapters": [],
             "variations": [],
-            "courses_var_count": 0,  # total white + black variations
-            "chapters_var_count": 0,  # total white or black variations
+            "total_var_count": 0,  # total white + black variations
+            "color_var_count": 0,  # total white or black variations
         }
-        if not self.course_id:
-            for course in Course.objects.all():
-                variation_count = Variation.objects.filter(
-                    chapter__course=course
-                ).count()
-                nav["courses_var_count"] += variation_count
-                nav["courses"].append(
+        if not self.color:
+            for color in ["white", "black"]:
+                variation_count = Variation.objects.filter(chapter__color=color).count()
+                nav["total_var_count"] += variation_count
+                nav["colors"].append(
                     {
-                        "id": course.id,
-                        "title": course.title,
+                        "id": 1 if color == "white" else 2,
+                        "title": color.title(),
                         "variation_count": variation_count,
                     }
                 )
         elif not self.chapter_id:
-            course = get_object_or_404(Course, id=self.course_id)
             for chapter in (
-                Chapter.objects.filter(course=course).order_by("title").iterator()
+                Chapter.objects.filter(color=self.color).order_by("title").iterator()
             ):
                 variation_count = Variation.objects.filter(chapter=chapter).count()
-                nav["chapters_var_count"] += variation_count
+                nav["color_var_count"] += variation_count
                 nav["chapters"].append(
                     {
                         "id": chapter.id,
@@ -895,15 +866,10 @@ class HomeView:
                     }
                 )
 
-            nav["course_id"] = course.id
-            nav["course_title"] = course.title
+            nav["color"] = self.color
+            nav["color_title"] = self.color.title()
         else:
             variations = get_sorted_variations(self.chapter_id)
-            # qs = (
-            #     Variation.objects.filter(chapter_id=self.chapter_id)
-            #     .annotate(sort_key=Lower("mainline_moves_str"))
-            #     .order_by("sort_key")
-            # )
             previous_moves = []
             for variation in variations:
                 time_since_last_review = util.get_time_ago(
@@ -932,8 +898,8 @@ class HomeView:
                 )
                 previous_moves = current_moves
 
-            nav["course_id"] = self.course_id
-            nav["course_title"] = Course.objects.get(id=self.course_id).title
+            nav["color"] = self.color
+            nav["color_title"] = self.color.title()
             nav["chapter_id"] = self.chapter_id
             nav["chapter_title"] = Chapter.objects.get(id=self.chapter_id).title
 

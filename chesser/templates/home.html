@@ -17,7 +17,7 @@
 
   <div class="course-covers" x-cloak>
     <button
-      @click="window.navigateWithSpinner('/course/1/')"
+      @click="window.navigateWithSpinner('/chapters/white/')"
       class="image-button course-white"
       title="White Openings"
     >
@@ -35,7 +35,7 @@
       />
     </button>
     <button
-      @click="window.navigateWithSpinner('/course/2/')"
+      @click="window.navigateWithSpinner('/chapters/black/')"
       class="image-button course-black"
       title="Black Openings"
     >
@@ -61,18 +61,17 @@
     ></button>
   </div>
 
-  <div
-    x-show="Object.keys(homeData.nav.courses).length > 0"
-    class="courses-container"
-    x-cloak
-  >
-    <h3>📚️ My Book (<span x-text="homeData.nav.courses_var_count"></span>) ➤</h3>
+  <div x-show="homeData.nav.color === ''" class="courses-container" x-cloak>
+    <h3>📚️ My Book (<span x-text="homeData.nav.total_var_count"></span>) ➤</h3>
     <ul>
-      <template x-for="course in homeData.nav.courses" :key="course.id">
+      <template x-for="color in homeData.nav.colors" :key="color.id">
         <li>
           <b>
-            <a :href="'/course/' + course.id + '/'" x-text="course.title"></a>
-            (<span x-text="course.variation_count"></span>)
+            <a
+              :href="'/chapters/' + color.title.toLowerCase() + '/'"
+              x-text="color.title"
+            ></a>
+            (<span x-text="color.variation_count"></span>)
           </b>
         </li>
       </template>
@@ -86,14 +85,14 @@
   >
     <h3>
       📚️ <a href="/">My Book</a> ➤
-      <span x-text="homeData.nav.course_title"></span>
-      (<span x-text="homeData.nav.chapters_var_count"></span>)
+      <span x-text="homeData.nav.color_title"></span>
+      (<span x-text="homeData.nav.color_var_count"></span>)
     </h3>
     <ol>
       <template x-for="chapter in homeData.nav.chapters" :key="chapter.id">
         <li>
           <a
-            :href="'/course/' + homeData.nav.course_id + '/chapter/' + chapter.id + '/'"
+            :href="'/chapters/' + homeData.nav.color + '/' + chapter.id + '/'"
             x-text="chapter.title"
           ></a>
           (<span x-text="chapter.variation_count"></span>)
@@ -105,8 +104,8 @@
   <div x-show="homeData.nav.chapter_id" class="variations-container" x-cloak>
     <h3>
       📚️ <a href="/">My Book</a> ➤
-      <a :href="'/course/' + homeData.nav.course_id + '/'"
-        ><span x-text="homeData.nav.course_title"></span
+      <a :href="'/chapters/' + homeData.nav.color + '/'"
+        ><span x-text="homeData.nav.color_title"></span
       ></a>
       ➤
       <span x-text="homeData.nav.chapter_title"></span>

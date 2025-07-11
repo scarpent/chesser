@@ -101,7 +101,7 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
         except Variation.DoesNotExist:
             pass  # good to go; note that we'll not reuse the ID
 
-    # TODO: goes away when course goes away
+    # TODO: course removal
     root_course_id = 1 if import_data.get("color") == "white" else 2
     course = Course.objects.get(id=root_course_id)
 
@@ -134,7 +134,7 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
     # TODO: use created_at from import_data if it exists?
 
     variation, created = Variation.objects.get_or_create(
-        course=course,
+        course=course,  # TODO: course removal
         mainline_moves_str=mainline,
         defaults={
             "chapter": chapter,

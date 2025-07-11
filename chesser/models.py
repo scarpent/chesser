@@ -17,7 +17,7 @@ REPETITION_INTERVALS = {  # Level value is hours
 # chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
 
 
-class Course(models.Model):
+class Course(models.Model):  # TODO: course removal
     title = models.CharField(max_length=100)
     color = models.CharField(max_length=5)
 
@@ -29,7 +29,7 @@ class Chapter(models.Model):
     COLOR_CHOICES = [("white", "White"), ("black", "Black")]
 
     title = models.CharField(max_length=100)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # TODO: course removal
     color = models.CharField(
         max_length=5, choices=COLOR_CHOICES, null=False, blank=False
     )
@@ -57,7 +57,7 @@ class Variation(models.Model):
 
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # Denormalized field
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # TODO: course removal
     is_intro = models.BooleanField(default=False)
     start_move = models.IntegerField(
         default=2, help_text="Reviews start at this move number"
@@ -77,11 +77,6 @@ class Variation(models.Model):
         ]
 
     def __str__(self):
-        # beware: keep this simple -- ran into all kinds of django admin
-        # list issues in prod when trying to reference course/chapter,
-        # probably having to do with lazy loading, yada yada
-        # (dev sqlite more forgiving than prod postgres)
-        # specifically: QuizResult and Move list views were getting 500s
         return f"{self.title} ({self.id})"
 
     @property
