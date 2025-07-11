@@ -1200,6 +1200,35 @@ with system dark mode settings... */
   border-radius: 8px;
 }
 
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 60px;
+  color: var(--color-headers);
+  user-select: none;
+  pointer-events: none;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #666;
+  border-top-color: var(--color-headers); /* your light tan */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* --------------------------------------------------------- Pawn Promotion */
 .modal-overlay {
   position: fixed;

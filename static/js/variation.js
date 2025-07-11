@@ -91,14 +91,7 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     gotoEditView() {
       const variationId = this.variationData.variation_id;
-      window.location.href = `/edit/${variationId}/`;
-      // (previously, wanted to stay at top of the page if early in variation, but
-      // that is inconsistent/confusing when jumping between views...)
-      // const idxParam =
-      //   this.mainlineMoveIndex + 1 > this.variationData.start_index
-      //     ? `?idx=${this.mainlineMoveIndex}`
-      //     : "";
-      // window.location.href = `/edit/${variationId}/${idxParam}`;
+      window.navigateWithSpinner(`/edit/${variationId}/`);
     },
 
     //--------------------------------------------------------------------------------
@@ -325,7 +318,7 @@ export function variationApp() {
         if (moveElement.classList.contains("highlight")) {
           // Second click on selected mainline move → edit at that move
           const variationId = this.variationData.variation_id;
-          window.location.href = `/edit/${variationId}/?idx=${index}`;
+          window.navigateWithSpinner(`/edit/${variationId}/?idx=${index}`);
         } else {
           this.jumpToMainlineMove(index);
         }

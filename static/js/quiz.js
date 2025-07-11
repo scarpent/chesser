@@ -444,7 +444,7 @@ export function quizApp() {
     gotoVariationView() {
       const variationId = this.variationData.variation_id;
       const idx = this.quizMoveIndex - 1 || 6;
-      window.location.href = `/variation/${variationId}/?idx=${idx}`;
+      window.navigateWithSpinner(`/variation/${variationId}/?idx=${idx}`);
     },
 
     //--------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ export function quizApp() {
         this.quizMoveIndex > this.variationData.start_index
           ? `?idx=${this.quizMoveIndex - 1}`
           : "";
-      window.location.href = `/edit/${variationId}/${idxParam}`;
+      window.navigateWithSpinner(`/edit/${variationId}/${idxParam}`);
     },
 
     //--------------------------------------------------------------------------------
@@ -547,7 +547,7 @@ export function quizApp() {
       // loop; also be mindful of extra study mode!
       if (completedCount === 2 && !this.reviewData.extra_study) {
         console.log(`Quiz ${variationId} already completed — skipping and redirecting`);
-        window.location.href = "/review/";
+        window.navigateWithSpinner("/review/");
         return true;
       }
 

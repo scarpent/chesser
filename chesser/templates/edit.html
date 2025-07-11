@@ -25,27 +25,29 @@
   @keydown.window="handleKeyNavigation($event)"
   x-cloak
 >
+  {% include "includes/loading_overlay.html" %}
+
   <div class="button-container" style="margin-top: 15px">
     <button
       title="Home"
-      @click="window.location.href = '/'"
+      @click="window.navigateWithSpinner('/')"
       class="image-button home-button button-round"
     >
       <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
     </button>
     <button
       title="Review"
-      @click="window.location.href='/review/'"
+      @click="window.navigateWithSpinner('/review/')"
       class="icon-review icon-button"
     ></button>
     <button
       title="Import"
-      @click="window.location.href='/import/'"
+      @click="window.navigateWithSpinner('/import/')"
       class="icon-import icon-button"
     ></button>
     <button
       title="View"
-      @click="window.location.href='/variation/' + variationData.variation_id + '/'"
+      @click="window.navigateWithSpinner('/variation/' + variationData.variation_id + '/')"
       class="icon-variation icon-button"
     ></button>
     <button
@@ -226,10 +228,14 @@
     console.log("variationData:", window.variationData); // Debugging
   </script>
 
-  <!-- caching bugbear in dev calls for this prod redundant cache buster -->
   <script type="module">
+    // dev caching bugbear calls for this prod redundant cache buster
     import { editApp } from "{% static 'js/edit.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+
     window.editApp = editApp;
+    window.navigateWithSpinner = navigateWithSpinner;
+
     document.addEventListener("alpine:init", () => {
       Alpine.data("editApp", editApp);
     });

@@ -12,17 +12,19 @@
 
 <!-- prettier-ignore -->
 {% block content %}
-<body x-data="homeApp()" x-init="initHome()">
+<body x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;">
+  {% include "includes/loading_overlay.html" %}
+
   <div class="course-covers" x-cloak>
     <button
-      @click="window.location.href = '/course/1/'"
+      @click="window.navigateWithSpinner('/course/1/')"
       class="image-button course-white"
       title="White Openings"
     >
       <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
     </button>
     <button
-      @click="window.location.href = '/'"
+      @click="window.navigateWithSpinner('/')"
       class="image-button home-button button-round"
       title="Home"
     >
@@ -33,7 +35,7 @@
       />
     </button>
     <button
-      @click="window.location.href = '/course/2/'"
+      @click="window.navigateWithSpinner('/course/2/')"
       class="image-button course-black"
       title="Black Openings"
     >
@@ -49,12 +51,12 @@
     ></button>
     <button
       title="Review"
-      @click="window.location.href='/review/'"
+      @click="window.navigateWithSpinner('/review/')"
       class="icon-review icon-button icon-button-big-round"
     ></button>
     <button
       title="Import"
-      @click="window.location.href='/import/'"
+      @click="window.navigateWithSpinner('/import/')"
       class="icon-import icon-button icon-button-big-round"
     ></button>
   </div>
@@ -314,14 +316,19 @@
       homeApp,
       nextDueTimer,
     } from "{% static 'js/home.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+
     window.homeApp = homeApp;
     window.nextDueTimer = nextDueTimer;
+    window.navigateWithSpinner = navigateWithSpinner;
+
     document.addEventListener("alpine:init", () => {
       Alpine.data("homeApp", homeApp);
       Alpine.data("nextDueTimer", nextDueTimer);
     });
   </script>
 
+  <script src="{% static 'js/loading.js' %}"></script>
   <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
 </body>
 {% endblock %}

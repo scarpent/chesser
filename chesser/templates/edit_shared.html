@@ -22,32 +22,34 @@
   x-init="initEditor(); document.title = 'Move: ' + moveData.move_verbose"
   x-cloak
 >
+  {% include "includes/loading_overlay.html" %}
+
   <div class="button-container" style="margin-top: 15px">
     <button
       title="Home"
-      @click="window.location.href = '/'"
+      @click="window.navigateWithSpinner('/')"
       class="image-button home-button button-round"
     >
       <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
     </button>
     <button
       title="Review"
-      @click="window.location.href='/review/'"
+      @click="window.navigateWithSpinner('/review/')"
       class="icon-review icon-button"
     ></button>
     <button
       title="Import"
-      @click="window.location.href='/import/'"
+      @click="window.navigateWithSpinner('/import/')"
       class="icon-import icon-button"
     ></button>
     <button
       title="View"
-      @click="window.location.href='/variation/' + moveData.variation_id + '/?idx=' + groupedMoveSequence()"
+      @click="window.navigateWithSpinner('/variation/' + moveData.variation_id + '/?idx=' + groupedMoveSequence())"
       class="icon-variation icon-button"
     ></button>
     <button
       title="Edit"
-      @click="window.location.href='/edit/' + moveData.variation_id + '/?idx=' + groupedMoveSequence()"
+      @click="window.navigateWithSpinner('/edit/' + moveData.variation_id + '/?idx=' + groupedMoveSequence())"
       class="icon-edit icon-button"
     ></button>
     <button
@@ -225,10 +227,14 @@
     console.log("moveData:", window.moveData);
   </script>
 
-  <!-- caching bugbear in dev calls for this prod redundant cache buster -->
   <script type="module">
+    // dev caching bugbear calls for this prod redundant cache buster
     import { editApp } from "{% static 'js/edit-shared.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+
     window.editApp = editApp;
+    window.navigateWithSpinner = navigateWithSpinner;
+
     document.addEventListener("alpine:init", () => {
       Alpine.data("editApp", editApp);
     });

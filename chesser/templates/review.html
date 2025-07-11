@@ -22,6 +22,8 @@
   x-init="initQuiz()"
   @keydown.window="handleKeyNavigation($event)"
 >
+  {% include "includes/loading_overlay.html" %}
+
   <div id="quiz-container">
     <div id="resizable-board" data-board-id="quiz">
       <div id="board"></div>
@@ -29,7 +31,7 @@
         <button
           title="Home"
           class="board-cover-button button-round"
-          @click="window.location.href='/'"
+          @click="window.navigateWithSpinner('/')"
         >
           <img
             src="{% static 'images/chesser-logo-192x192.png' %}"
@@ -67,14 +69,14 @@
           <template x-if="reviewData.total_due_now > 0">
             <button
               title="Next"
-              @click="window.location.href='/review/'"
+              @click="window.navigateWithSpinner('/review/')"
               class="icon-review icon-button"
             ></button>
           </template>
           <template x-if="reviewData.total_due_now == 0">
             <button
               title="Finish"
-              @click="window.location.href='/review/?finish=1'"
+              @click="window.navigateWithSpinner('/review/?finish=1')"
               class="icon-complete icon-button"
             ></button>
           </template>
@@ -85,7 +87,7 @@
       <div class="button-container">
         <button
           title="Home"
-          @click="window.location.href = '/'"
+          @click="window.navigateWithSpinner('/')"
           class="image-button home-button button-round"
         >
           <img
@@ -176,7 +178,7 @@
       <div class="button-container button-container-home">
         <button
           title="Random Extra Study"
-          @click="window.location.href='/review/random/'"
+          @click="window.navigateWithSpinner('/review/random/')"
           class="icon-random icon-button icon-button-big-round"
         ></button>
         <button
@@ -219,10 +221,14 @@
     console.log("reviewData:", window.reviewData);
   </script>
 
-  <!-- dev caching bugbear calls for this prod redundant cache buster -->
   <script type="module">
+    // dev caching bugbear calls for this prod redundant cache buster
     import { quizApp } from "{% static 'js/quiz.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+
     window.quizApp = quizApp;
+    window.navigateWithSpinner = navigateWithSpinner;
+
     document.addEventListener("alpine:init", () => {
       Alpine.data("quizApp", quizApp);
     });

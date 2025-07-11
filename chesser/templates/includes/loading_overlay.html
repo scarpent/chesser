@@ -1,0 +1,12 @@
+<div
+  x-data="{ visible: false }"
+  x-show="visible"
+  x-transition.opacity
+  x-cloak
+  style="display: none"
+  class="loading-overlay"
+  @show-loading.window="setTimeout(() => visible = true, 200)"
+  @hide-loading.window="visible = false"
+>
+  <div class="loading-spinner"></div>
+</div>

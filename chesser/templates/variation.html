@@ -21,6 +21,8 @@
   x-init="initVariation(); document.title = 'Var #' + variationData.variation_id"
   @keydown.window="handleKeyNavigation($event)"
 >
+  {% include "includes/loading_overlay.html" %}
+
   <div id="outer-container" x-cloak>
     <div id="left-column">
       <div id="resizable-board" data-board-id="variation">
@@ -31,7 +33,7 @@
         <div class="button-container variation-button-container">
           <button
             title="Home"
-            @click="window.location.href = '/'"
+            @click="window.navigateWithSpinner('/')"
             class="image-button home-button button-round"
           >
             <img
@@ -41,7 +43,7 @@
           </button>
           <button
             title="Review"
-            @click="window.location.href='/review/'"
+            @click="window.navigateWithSpinner('/review/')"
             class="icon-review icon-button"
           ></button>
           <button
@@ -143,10 +145,14 @@
     window.dispatchEvent(new Event("resize"));
   </script>
 
-  <!-- dev caching bugbear calls for this prod redundant cache buster -->
   <script type="module">
+    // dev caching bugbear calls for this prod redundant cache buster
     import { variationApp } from "{% static 'js/variation.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+
     window.variationApp = variationApp;
+    window.navigateWithSpinner = navigateWithSpinner;
+
     document.addEventListener("alpine:init", () => {
       Alpine.data("variationApp", variationApp);
     });

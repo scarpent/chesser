@@ -43,7 +43,7 @@ export function homeApp() {
     //--------------------------------------------------------------------------------
     goToRandomReview() {
       const url = "/review/random/" + buildNavQueryString(this.homeData.nav);
-      window.location.href = url;
+      window.navigateWithSpinner(url);
     },
   };
 }
