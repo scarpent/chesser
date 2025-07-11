@@ -39,7 +39,7 @@ def serialize_variation(variation, mode="review"):
     include_alt_shapes = mode == "variation"
     for_edit = mode == "edit"
 
-    color = variation.chapter.course.color
+    color = variation.chapter.color
 
     now = timezone.now()
     time_since_last_review = util.get_time_ago(
@@ -136,7 +136,7 @@ def serialize_move(move, for_edit=False):
     if for_edit:
         fen = move.fen
         san = move.san
-        color = move.variation.chapter.course.color
+        color = move.variation.chapter.color
 
         move_data["shared_candidates"] = get_shared_candidates(fen, san, color)
         move_data["shared_dropdown"] = get_shared_dropdown(
@@ -245,7 +245,7 @@ def serialize_shared_move(
                 "shared_dropdown": get_shared_dropdown(
                     group[0].fen,
                     group[0].san,
-                    group[0].variation.chapter.course.color,
+                    group[0].variation.chapter.color,
                     shared_move=shared_move_id,
                 ),
                 "in_sync": move_is_in_sync_with_shared(group[0]),  # all same in group
@@ -304,7 +304,7 @@ def serialize_variation_to_import_format(variation):
     return {
         "variation_id": variation.id,
         "source": variation.source,
-        "color": variation.course.color,
+        "color": variation.chapter.color,
         "chapter_title": variation.chapter.title,
         "variation_title": variation.title,
         "is_intro": variation.is_intro,

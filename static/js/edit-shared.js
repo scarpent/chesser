@@ -148,7 +148,7 @@ export function editApp() {
       const parts = [
         `fen="${this.moveData.fen}"`,
         `san="${this.moveData.san}"`,
-        `variation.chapter.course.color="${this.moveData.color}"`,
+        `variation.chapter.color="${this.moveData.color}"`,
       ];
       return "/admin/chesser/move/?q=" + encodeURIComponent(parts.join(" and "));
     },

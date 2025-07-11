@@ -385,7 +385,7 @@ export function editApp() {
     buildAdminMatchingLink(move) {
       if (!move?.fen || !move?.san || !this.variationData?.color) return "#";
 
-      const query = `fen="${move.fen}" and san="${move.san}" and variation.chapter.course.color="${this.variationData.color}"`;
+      const query = `fen="${move.fen}" and san="${move.san}" and variation.chapter.color="${this.variationData.color}"`;
       return "/admin/chesser/move/?q=" + encodeURIComponent(query);
     },
   }; // return { ... }

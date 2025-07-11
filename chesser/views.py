@@ -411,7 +411,7 @@ class ImportVariationView(View):
         chapter = Chapter.objects.select_related("course").get(
             pk=int(self.form_data.get("chapter_id"))
         )
-        self.incoming_json["color"] = chapter.course.color
+        self.incoming_json["color"] = chapter.color
         self.incoming_json["chapter_title"] = chapter.title
         messages.success(self.request, f"🟢 {chapter.course.title} ➤ {chapter.title}")
 
@@ -644,7 +644,7 @@ def edit_shared_move(request):
         Move.objects.filter(
             fen=fen,
             san=san,
-            variation__chapter__course__color=color,
+            variation__chapter__color=color,
         ).select_related(
             "variation",
             "variation__chapter",
@@ -692,7 +692,7 @@ def save_variation(request):
     variation.start_move = data["start_move"]
     variation.save()
 
-    opening_color = variation.chapter.course.color
+    opening_color = variation.chapter.color
     for idx, move in enumerate(variation.moves.all()):
         move_data = data["moves"][idx]
 

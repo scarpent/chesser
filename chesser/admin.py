@@ -269,10 +269,8 @@ class MoveAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     def matching_moves_link(self, obj):
         fen = obj.fen
         san = obj.san
-        color = obj.variation.chapter.course.color
-        query = (
-            f'fen="{fen}" and san="{san}" and variation.chapter.course.color="{color}"'
-        )
+        color = obj.variation.chapter.color
+        query = f'fen="{fen}" and san="{san}" and variation.chapter.color="{color}"'
         url = reverse("admin:chesser_move_changelist") + f"?q={query}"
         return format_html('<a href="{}">Find matching fen/san/color</a>', url)
 
