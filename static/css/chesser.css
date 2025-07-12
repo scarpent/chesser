@@ -350,7 +350,7 @@ blockquote {
 
 #edit-move-other-links {
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
 }
@@ -1521,6 +1521,11 @@ input.move-alt-fail:focus {
 
   #edit-variation-info {
     margin-bottom: 20px;
+  }
+
+  #edit-move-other-links {
+    justify-content: unset;
+    gap: 20px;
   }
 
   .move-block {
