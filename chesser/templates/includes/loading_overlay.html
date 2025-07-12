@@ -1,12 +1,29 @@
+<!--
+Loading overlay that responds to global events.
+- Spinner shows only after a short delay (400ms) to avoid flicker on fast loads
+- Timer is canceled if a hide event fires (e.g. from browser back nav)
+-->
 <div
-  x-data="{ visible: false }"
+  x-data="{
+    visible: false,
+    timer: null,
+    showWithDelay() {
+      this.timer = setTimeout(() => {
+        this.visible = true;
+      }, 400);
+    },
+    hideNow() {
+      clearTimeout(this.timer);
+      this.visible = false;
+    }
+  }"
   x-show="visible"
   x-transition.opacity
   x-cloak
   style="display: none"
   class="loading-overlay"
-  @show-loading.window="setTimeout(() => visible = true, 400)"
-  @hide-loading.window="visible = false"
+  @show-loading.window="showWithDelay()"
+  @hide-loading.window="hideNow()"
 >
   <div class="loading-spinner"></div>
 </div>

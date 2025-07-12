@@ -6,15 +6,10 @@ export function navigateWithSpinner(url, delay = 150) {
 }
 
 window.addEventListener("pageshow", () => {
-  // Force kill spinner; not using Alpine CustomEvent because
-  // it doesn't want to work on browser "back" navigation
-  // (Alpine may not be ready - let's just brute force it)
+  // Ensure loading overlay is hidden on load or bfcache restore
+  // (Alpine doesn't reset x-data when using browser back)
+  window.dispatchEvent(new CustomEvent("hide-loading"));
   const overlay = document.querySelector(".loading-overlay");
-  if (overlay) {
-    overlay.style.display = "none";
-    overlay.style.opacity = "0";
-    overlay.innerHTML = ""; // optional, for good measure
-  }
 });
 
 // use overlay on all local links
