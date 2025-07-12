@@ -350,8 +350,7 @@ blockquote {
 
 #edit-move-other-links {
   display: flex;
-  justify-content: center;
-  gap: 1em; /* optional: gives consistent spacing between links */
+  gap: 20px;
   align-items: center;
   width: 100%;
 }
