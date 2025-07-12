@@ -316,9 +316,16 @@ export function variationApp() {
         moveElement.classList.contains("variation-mainline-move-item")
       ) {
         if (moveElement.classList.contains("highlight")) {
-          // Second click on selected mainline move → edit at that move
-          const variationId = this.variationData.variation_id;
-          window.navigateWithSpinner(`/edit/${variationId}/?idx=${index}`);
+          if (this.isInSubvariation()) {
+            // Subvar is active → exit subvar, show mainline
+            this.exitSubvariation();
+            this.updateBoard();
+          } else {
+            // Second click on mainline → jump to editor
+            window.navigateWithSpinner(
+              `/edit/${this.variationData.variation_id}/?idx=${index}`
+            );
+          }
         } else {
           this.jumpToMainlineMove(index);
         }
