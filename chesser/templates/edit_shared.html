@@ -154,7 +154,7 @@
               :href="buildAdminMatchingMovesLink(move)"
               target="_blank"
               title="Show all shared moves matching SAN/FEN/shared values"
-              x-text="move.move_ids.length + ' move' + (move.move_ids.length === 1 ? '' : 's')"
+              x-text="move.move_ids.length + ' variation' + (move.move_ids.length === 1 ? '' : 's')"
             ></a>
           </div>
           <div class="grouped-attributes">
@@ -187,7 +187,7 @@
               <template x-if="idx < 5">
                 <a :href="'/variation/' + var_id + '/?idx=' + groupedMoveSequence()">
                   <span
-                    x-text="var_id + (idx < Math.min(move.variation_ids.length, 5) - 1 ? ', ' : '')"
+                    x-text="'#' + var_id + (idx < Math.min(move.variation_ids.length, 5) - 1 ? ', ' : '')"
                   ></span>
                 </a>
               </template>
