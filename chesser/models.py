@@ -17,19 +17,10 @@ REPETITION_INTERVALS = {  # Level value is hours
 # chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
 
 
-class Course(models.Model):  # TODO: course removal
-    title = models.CharField(max_length=100)
-    color = models.CharField(max_length=5)
-
-    def __str__(self):
-        return self.title
-
-
 class Chapter(models.Model):
     COLOR_CHOICES = [("white", "White"), ("black", "Black")]
 
     title = models.CharField(max_length=100)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # TODO: course removal
     color = models.CharField(
         max_length=5, choices=COLOR_CHOICES, null=False, blank=False
     )
@@ -57,7 +48,6 @@ class Variation(models.Model):
 
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # TODO: course removal
     is_intro = models.BooleanField(default=False)
     start_move = models.IntegerField(
         default=2, help_text="Reviews start at this move number"

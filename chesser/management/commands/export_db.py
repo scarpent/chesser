@@ -32,7 +32,6 @@ class Command(BaseCommand):
 
         # Sort models by logical dependency order
         MODEL_ORDER = [
-            "chesser.course",
             "chesser.chapter",
             "chesser.variation",
             "chesser.sharedmove",

@@ -100,7 +100,7 @@ def review(request, variation_id=None):
         # fmt: off
         variation = get_object_or_404(
             Variation.objects.select_related(
-                "chapter__course"
+                "chapter"
             ).prefetch_related(
                 "moves",
                 "quiz_results",
@@ -376,12 +376,10 @@ class ImportVariationView(View):
         return end_move
 
     def set_chapter_info(self):
-        chapter = Chapter.objects.select_related("course").get(
-            pk=int(self.form_data.get("chapter_id"))
-        )
+        chapter = Chapter.objects.get(pk=int(self.form_data.get("chapter_id")))
         self.incoming_json["color"] = chapter.color
         self.incoming_json["chapter_title"] = chapter.title
-        messages.success(self.request, f"🟢 {chapter.course.title} ➤ {chapter.title}")
+        messages.success(self.request, f"🟢 {chapter.color.title()} ➤ {chapter.title}")
 
 
 def get_sorted_variations(chapter_id=None):
@@ -401,8 +399,8 @@ def get_sorted_variations(chapter_id=None):
         # When would we get sorted variations without a chapter?
         return queryset.order_by(
             Case(
-                When(color="white", then=Value(0)),
-                When(color="black", then=Value(1)),
+                When(chapter__color="white", then=Value(0)),
+                When(chapter__color="black", then=Value(1)),
                 output_field=IntegerField(),
             ),
             "chapter__title",
@@ -507,7 +505,7 @@ def clone(request):
 
 def export(request, variation_id=None):
     variation = get_object_or_404(
-        Variation.objects.prefetch_related("moves", "chapter__course"), pk=variation_id
+        Variation.objects.prefetch_related("moves", "chapter"), pk=variation_id
     )
     export_data = serialize_variation_to_import_format(variation)
     return JsonResponse(export_data, json_dumps_params={"indent": 4})
@@ -518,7 +516,7 @@ def variations_tsv(request):
         for v in get_sorted_variations():
             intro = "📌" if v.is_intro else ""
             yield (
-                f"{v.course.title}\t"
+                f"{v.chapter.color.title()}\t"
                 f"{v.chapter.title}\t"
                 f"{intro} {v.title}\t"
                 f"{v.mainline_moves}\t"
@@ -567,7 +565,7 @@ def variations_table(request):
                 yield (
                     f"<tr{highlight}>"
                     f"<td>{v.start_move}</td>"
-                    f"<td>{v.course.title[0]}</td>"
+                    f"<td>{v.chapter.color.title()[0]}</td>"
                     f'<td style="text-align: right">'
                     f'<a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
                     f'<td style="white-space: nowrap;">{v.title} {intro}</td>'
@@ -591,9 +589,7 @@ def edit(request, variation_id=None):
         variation = Variation.objects.first()
     else:
         variation = get_object_or_404(
-            Variation.objects.select_related("chapter__course").prefetch_related(
-                "moves"
-            ),
+            Variation.objects.select_related("chapter").prefetch_related("moves"),
             pk=variation_id,
         )
 
@@ -624,7 +620,6 @@ def edit_shared_move(request):
         ).select_related(
             "variation",
             "variation__chapter",
-            "variation__chapter__course",
             "shared_move",
         )
     )
@@ -808,7 +803,7 @@ class HomeView:
         if not upcoming_only:
             self.home_data.update(
                 {
-                    "nav": self.get_course_links(),
+                    "nav": self.get_nav_data(),
                     "recent": self.get_recently_reviewed(),
                     "recently_added": self.get_recently_added(),
                     "levels": self.get_level_report(),
@@ -829,10 +824,9 @@ class HomeView:
             )
         return variations
 
-    def get_course_links(self):
+    def get_nav_data(self):
         nav = {
             "color": "",
-            "color_title": "",  # title case of color, done here for FE simplicity
             "chapter_id": "",
             "chapter_title": "",
             "colors": [],
@@ -867,7 +861,6 @@ class HomeView:
                 )
 
             nav["color"] = self.color
-            nav["color_title"] = self.color.title()
         else:
             variations = get_sorted_variations(self.chapter_id)
             previous_moves = []
@@ -899,7 +892,6 @@ class HomeView:
                 previous_moves = current_moves
 
             nav["color"] = self.color
-            nav["color_title"] = self.color.title()
             nav["chapter_id"] = self.chapter_id
             nav["chapter_title"] = Chapter.objects.get(id=self.chapter_id).title
 

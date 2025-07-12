@@ -85,7 +85,7 @@
   >
     <h3>
       📚️ <a href="/">My Book</a> ➤
-      <span x-text="homeData.nav.color_title"></span>
+      <span x-text="titleCase(homeData.nav.color)"></span>
       (<span x-text="homeData.nav.color_var_count"></span>)
     </h3>
     <ol>
@@ -105,7 +105,7 @@
     <h3>
       📚️ <a href="/">My Book</a> ➤
       <a :href="'/chapters/' + homeData.nav.color + '/'"
-        ><span x-text="homeData.nav.color_title"></span
+        ><span x-text="titleCase(homeData.nav.color)"></span
       ></a>
       ➤
       <span x-text="homeData.nav.chapter_title"></span>

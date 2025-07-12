@@ -1,7 +1,7 @@
 import pytest
 
 from chesser import serializers, util
-from chesser.models import Chapter, Course, Move, Variation
+from chesser.models import Chapter, Move, Variation
 from chesser.move_resolver import ParsedBlock
 from chesser.tests import assert_equal
 
@@ -12,11 +12,9 @@ def test_exercise_serializers():
     """
     just to exercise things a bit until we write proper tests...
     """
-    course = Course.objects.create(title="Test Course", color="white")
-    chapter = Chapter.objects.create(title="Test Chapter", course=course)
+    chapter = Chapter.objects.create(title="Test Chapter", color="white")
     variation = Variation.objects.create(
         title="Test Variation",
-        course=course,
         chapter=chapter,
         start_move=2,
         mainline_moves_str="1.e4 e5",

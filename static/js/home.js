@@ -45,6 +45,11 @@ export function homeApp() {
       const url = "/review/random/" + buildNavQueryString(this.homeData.nav);
       window.navigateWithSpinner(url);
     },
+
+    //--------------------------------------------------------------------------------
+    titleCase(str) {
+      return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+    },
   };
 }
 

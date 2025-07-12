@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from chesser import util
-from chesser.models import Chapter, Course, Move, QuizResult, SharedMove, Variation
+from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 
 NAG_LOOKUP = {
     1: "!",
@@ -101,10 +101,6 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
         except Variation.DoesNotExist:
             pass  # good to go; note that we'll not reuse the ID
 
-    # TODO: course removal
-    root_course_id = 1 if import_data.get("color") == "white" else 2
-    course = Course.objects.get(id=root_course_id)
-
     color = import_data.get("color", "").lower()
     chapter, created = Chapter.objects.get_or_create(
         title=import_data["chapter_title"],
@@ -134,7 +130,7 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
     # TODO: use created_at from import_data if it exists?
 
     variation, created = Variation.objects.get_or_create(
-        course=course,  # TODO: course removal
+        chapter=chapter,
         mainline_moves_str=mainline,
         defaults={
             "chapter": chapter,

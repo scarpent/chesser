@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from djangoql.admin import DjangoQLSearchMixin
 
-from .models import Chapter, Course, Move, QuizResult, SharedMove, Variation
+from .models import Chapter, Move, QuizResult, SharedMove, Variation
 
 
 class RecentVariationFilter(SimpleListFilter):
@@ -142,7 +142,6 @@ class VariationInline(admin.TabularInline):
     extra = 0  # Number of empty forms to display
     fields = (
         "title",
-        "course",
         "start_move",
         "level",
         "next_review",
@@ -162,12 +161,6 @@ class QuizResultInline(admin.TabularInline):
     extra = 0  # Number of empty forms to display
     readonly_fields = ("datetime", "level", "passed")
     ordering = ("-datetime",)  # datetime descending
-
-
-@admin.register(Course)
-class CourseAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
-    list_display = ("title", "color")
-    inlines = [ChapterInline]
 
 
 @admin.register(Chapter)
