@@ -160,14 +160,14 @@
           </div>
           <div class="grouped-attributes">
             <span
-              x-text="'ann: ' + (move.annotation && move.annotation !== 'none' ? move.annotation + ' 🟢' : '⚪️')"
+              x-text="'ann: ' + (move.annotation && move.annotation !== 'none' ? move.annotation + ' 🟠' : '⚪️')"
             ></span>
-            <span x-text="'alt: ' + (move.alt ? move.alt + ' 🟢': '⚪️')"></span>
+            <span x-text="'alt: ' + (move.alt ? move.alt + ' 🟠': '⚪️')"></span>
             <span
-              x-text="'alt fail: ' + (move.alt_fail ? move.alt_fail + ' 🟢' : '⚪️')"
+              x-text="'alt fail: ' + (move.alt_fail ? move.alt_fail + ' 🟠' : '⚪️')"
             ></span>
             <template x-if="move.shapes && move.shapes.length > 0">
-              <a href="#" @click.prevent="showShapesOverlay(move)">shapes 🟢</a>
+              <a href="#" @click.prevent="showShapesOverlay(move)">shapes 🟠</a>
             </template>
             <template x-if="!move.shapes || move.shapes.length === 0">
               <span>shapes ⚪️</span>
