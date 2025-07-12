@@ -117,10 +117,11 @@
             x-model="move.alt_fail"
             placeholder="Alt move fail"
           />
-          <div id="edit-move-other-links">
-            <span
-              x-text="move.linked_move_ids.length + ' move' + (move.linked_move_ids.length === 1 ? '' : 's')"
-            ></span>
+          <span
+            x-text="move.linked_move_ids.length + ' variation' + (move.linked_move_ids.length === 1 ? '' : 's')"
+          ></span>
+          <div>
+            shared move:
             <a
               :href="'/admin/chesser/sharedmove/' + move.id + '/change/'"
               target="_blank"

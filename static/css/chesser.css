@@ -350,7 +350,9 @@ blockquote {
 
 #edit-move-other-links {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 1em; /* optional: gives consistent spacing between links */
+  align-items: center;
   width: 100%;
 }
 
@@ -1363,7 +1365,7 @@ with system dark mode settings... */
 
 .shared-selected {
   color: white !important;
-  background-color: green !important; /* a light, calm green */
+  background-color: green !important;
 }
 
 .form-standard input.move-alt {
