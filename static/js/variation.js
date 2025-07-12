@@ -311,10 +311,23 @@ export function variationApp() {
       const moveElement = event.target;
       const index = parseInt(moveElement.dataset.index, 10);
 
-      if (
+      const isMainline =
         moveElement.classList.contains("mainline-move") ||
-        moveElement.classList.contains("variation-mainline-move-item")
-      ) {
+        moveElement.classList.contains("variation-mainline-move-item");
+
+      if (isMainline) {
+        if (event.shiftKey) {
+          // ➤ Shift-click → jump straight to shared move editor
+          const move = this.variationData.moves[index];
+          const fen = move.fen;
+          const san = encodeURIComponent(move.san);
+          const color = this.variationData.color;
+          const variationId = this.variationData.variation_id;
+          const url = `/edit-shared-move/?fen=${fen}&san=${san}&color=${color}&variation_id=${variationId}`;
+          window.navigateWithSpinner(url);
+          return;
+        }
+
         if (moveElement.classList.contains("highlight")) {
           if (this.isInSubvariation()) {
             // Subvar is active → exit subvar, show mainline
