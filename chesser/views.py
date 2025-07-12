@@ -605,8 +605,10 @@ def edit_shared_move(request):
     color = request.GET.get("color")
     variation_id = request.GET.get("variation_id")
 
-    if not all([fen, san, color]):
-        return HttpResponseBadRequest("Missing required parameters: fen, san, color")
+    if not all([fen, san, color, variation_id]):
+        return HttpResponseBadRequest(
+            "Missing required parameters: fen, san, color, variation_id"
+        )
 
     shared_moves = list(
         SharedMove.objects.filter(fen=fen, san=san, opening_color=color)
@@ -632,6 +634,13 @@ def edit_shared_move(request):
     move_data["color"] = color
     move_data["move_verbose"] = move_verbose
     move_data["variation_id"] = variation_id
+
+    variation = get_object_or_404(
+        Variation.objects.select_related("chapter").prefetch_related("moves"),
+        pk=variation_id,
+    )
+    move_index = util.get_move_index_from_fen(fen)
+    move_data["analysis_url"] = util.get_analysis_url(variation, index=move_index)
 
     context = {"move_data": json.dumps(move_data)}
 

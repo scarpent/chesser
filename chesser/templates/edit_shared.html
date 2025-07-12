@@ -54,8 +54,7 @@
     ></button>
     <button
       title="Lichess analysis board"
-      @click="window.open('https://lichess.org/analysis/standard/' +
-      moveData.fen.replace(/ /g, '_') + '?color=' + moveData.color, '_blank')"
+      @click="window.open(moveData.analysis_url, '_blank')"
       class="icon-analysis icon-button"
     ></button>
     <button title="Save All" @click="saveAll()" class="icon-save icon-button"></button>

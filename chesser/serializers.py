@@ -49,9 +49,6 @@ def serialize_variation(variation, mode="review"):
 
     source_html = get_source_html(variation.source) if include_html else None
     html = generate_variation_html(variation) if include_html else None
-    url_moves = "_".join([move.san for move in variation.moves.all()])
-    # we'll add current fen/index in UI
-    lichess_url = f"https://lichess.org/analysis/pgn/{url_moves}?color={color}&#"
 
     variation_data = {
         "variation_id": variation.id,
@@ -69,7 +66,7 @@ def serialize_variation(variation, mode="review"):
         "mainline": variation.mainline_moves,
         "source_html": source_html,
         "html": html,
-        "analysis_url": lichess_url,
+        "analysis_url": util.get_analysis_url(variation),
     }
 
     temp_annotations = annotations.copy()

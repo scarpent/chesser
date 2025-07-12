@@ -181,3 +181,49 @@ def normalize_notation(moves):
         old_string = old_string[m.end() :].strip()  # noqa: E203
 
     return new_string.strip()
+
+
+def get_analysis_url(variation, index=None):
+    url_moves = "_".join([move.san for move in variation.moves.all()])
+    # in review/variation/edit screens, the UI will add the index of selected move
+    # in "shared edit" screen we'll specify it here since there's only one move
+    index = "" if index is None else index
+    base_url = "https://lichess.org/analysis/pgn/"
+    return f"{base_url}/{url_moves}?color={variation.chapter.color}&#{index}"
+
+
+def get_move_index_from_fen(fen: str) -> int:
+    """
+    Returns the zero-based ply index from a FEN string.
+
+    The FEN string must be in the format:
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    where the second field is 'w' or 'b' (to move),
+    and the last field is the fullmove number (starting at 1).
+
+    Example:
+        fullmove=1, color='w' → index=0
+        fullmove=1, color='b' → index=1
+        fullmove=2, color='w' → index=2
+        fullmove=2, color='b' → index=3
+    """
+    parts = fen.strip().split()
+    if len(parts) != 6:
+        raise ValueError(f"Invalid FEN string: expected 6 fields, got {len(parts)}")
+
+    color = parts[1]
+    if color not in ("w", "b"):
+        raise ValueError(f"Invalid color in FEN: expected 'w' or 'b', got '{color}'")
+
+    try:
+        fullmove = int(parts[5])
+    except ValueError:
+        raise ValueError(f"Invalid fullmove number in FEN: {parts[5]!r}")
+
+    if fullmove < 1:
+        raise ValueError(f"Fullmove number must be >= 1, got {fullmove}")
+
+    index = (fullmove - 1) * 2
+    if color == "b":
+        index += 1
+    return index
