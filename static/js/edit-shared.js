@@ -205,5 +205,13 @@ export function editApp() {
         ? this.moveData.move_groups[0].move_sequence
         : 0;
     },
+
+    //--------------------------------------------------------------------------------
+    copyFen() {
+      navigator.clipboard.writeText(this.moveData.fen).then(
+        () => console.log("📋️ FEN copied:", this.moveData.fen),
+        (err) => console.error("❌ Failed to copy FEN:", err)
+      );
+    },
   }; // return { ... }
 }

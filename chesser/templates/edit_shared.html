@@ -62,7 +62,13 @@
 
   <div id="edit-variation-info" class="form-standard">
     <div>
-      admin:
+      <a
+        :href="moveData.fen"
+        @click.prevent="copyFen"
+        :title="'Copy FEN ' + moveData.fen"
+        >fen</a
+      >
+      📋️ • admin:
       <a
         :href="buildAdminMatchingSharedMovesLink()"
         target="_blank"
@@ -78,10 +84,7 @@
       >
     </div>
 
-    <div>
-      <span x-text="moveData.fen" class="move-fen"></span>
-      <h2 class="mainline-move move-verbose-edit" x-text="moveData.move_verbose"></h2>
-    </div>
+    <h2 class="mainline-move move-verbose-edit" x-text="moveData.move_verbose"></h2>
   </div>
 
   <div id="boards-container" class="form-standard" style="margin-bottom: 200px">
