@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import UniqueConstraint
 from django.utils import timezone
 
-REPETITION_INTERVALS = {  # Level value is hours
+DEFAULT_REPETITION_INTERVALS = {  # Level value is hours
     1: 4,  # Or maybe try 6? or...?
     2: 1 * 24,
     3: 3 * 24,
@@ -15,6 +16,10 @@ REPETITION_INTERVALS = {  # Level value is hours
     9: 180 * 24,
 }
 # chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
+
+REPETITION_INTERVALS = getattr(
+    settings, "REPETITION_INTERVALS", DEFAULT_REPETITION_INTERVALS
+)
 
 
 class Chapter(models.Model):

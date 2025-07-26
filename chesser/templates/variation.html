@@ -10,8 +10,14 @@
 <link rel="preload" href="{% static 'icons/noto-emoji/back.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/forward.svg' %}" as="image" />
 <link href="{% static 'chessground/chessground.base.css' %}" rel="stylesheet" />
-<link href="{% static 'chessground/chessground.brown.css' %}" rel="stylesheet" />
-<link href="{% static 'chessground/chessground.fantasy.css' %}" rel="stylesheet" />
+<link
+  href="{% static 'chessground/chessground.'|add:CHESS_BOARD_COLOR|add:'.css' %}"
+  rel="stylesheet"
+/>
+<link
+  href="{% static 'chessground/chessground.'|add:CHESS_PIECE_SET|add:'.css' %}"
+  rel="stylesheet"
+/>
 {% endblock %}
 
 <!-- prettier-ignore -->

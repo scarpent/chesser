@@ -81,7 +81,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "chesser.context_processors.build_info",
+                "chesser.context_processors.template_settings",
             ],
         },
     },
@@ -165,3 +165,8 @@ CHESSER_URL = (
     if IS_PRODUCTION
     else "http://localhost:8000"
 )
+
+try:
+    from .local_settings import *  # noqa: F401, F403
+except ImportError:
+    pass
