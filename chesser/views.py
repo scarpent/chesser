@@ -798,6 +798,22 @@ def home_upcoming(request, color=None, chapter_id=None):
     return JsonResponse(home_view.data)
 
 
+"""
+29 July 2025 production timings for home vs home_upcoming
+
+⏱ Testing /
+⏳ Try 100/100: 0.357816s
+✅ Avg time for /: .3735s
+⏱ Testing /home-upcoming/
+⏳ Try 100/100: 0.218543s
+✅ Avg time for /home-upcoming/: .2760s
+
+Nice improvement but I wonder if it's really worth it to have a
+separate endpoint. Seems bloated to return everything but it's
+simpler, code-wise, and not that much slower.
+"""
+
+
 class HomeView:
     def __init__(self, color=None, chapter_id=None, upcoming_only=False):
         self.now = timezone.now()
