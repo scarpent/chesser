@@ -1,5 +1,4 @@
 # run `pip-compile --upgrade` to generate requirements.txt with latest
-# (on work machine, may need export PIP_INDEX_URL=https://pypi.org/simple)
 
 # python-dateutil
 # requests

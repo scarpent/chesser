@@ -2,11 +2,12 @@ import datetime
 import random
 from collections import defaultdict
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Q
 from django.utils.timezone import localtime, now
 
-from chesser.models import REPETITION_INTERVALS, QuizResult, Variation
+from chesser.models import QuizResult, Variation
 
 
 class Command(BaseCommand):
@@ -84,7 +85,7 @@ def simulate_forecast():
         # success = True
 
         new_level = level + 1 if success else 1
-        interval_hours = REPETITION_INTERVALS.get(new_level, 720)
+        interval_hours = settings.REPETITION_INTERVALS.get(new_level, 720)
         next_dt = dt + datetime.timedelta(hours=interval_hours)
 
         while next_dt in review_schedule:

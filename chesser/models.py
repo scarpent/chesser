@@ -4,23 +4,6 @@ from django.db import models, transaction
 from django.db.models import UniqueConstraint
 from django.utils import timezone
 
-DEFAULT_REPETITION_INTERVALS = {  # Level value is hours
-    1: 4,  # Or maybe try 6? or...?
-    2: 1 * 24,
-    3: 3 * 24,
-    4: 7 * 24,
-    5: 14 * 24,
-    6: 30 * 24,
-    7: 60 * 24,
-    8: 120 * 24,
-    9: 180 * 24,
-}
-# chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
-
-REPETITION_INTERVALS = getattr(
-    settings, "REPETITION_INTERVALS", DEFAULT_REPETITION_INTERVALS
-)
-
 
 class Chapter(models.Model):
     COLOR_CHOICES = [("white", "White"), ("black", "Black")]
@@ -111,8 +94,10 @@ class Variation(models.Model):
         new_level = previous_level + 1 if passed else 1
         self.level = new_level
 
-        max_level = max(REPETITION_INTERVALS.keys())
-        hours = REPETITION_INTERVALS.get(new_level, REPETITION_INTERVALS[max_level])
+        max_level = max(settings.REPETITION_INTERVALS.keys())
+        hours = settings.REPETITION_INTERVALS.get(
+            new_level, settings.REPETITION_INTERVALS[max_level]
+        )
         self.next_review = timezone.now() + timezone.timedelta(hours=hours)
 
         self.save()

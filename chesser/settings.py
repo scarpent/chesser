@@ -166,6 +166,19 @@ CHESSER_URL = (
     else "http://localhost:8000"
 )
 
+REPETITION_INTERVALS = {  # Level value is hours
+    1: 4,  # Or maybe try 6? or...?
+    2: 1 * 24,
+    3: 3 * 24,
+    4: 7 * 24,
+    5: 14 * 24,
+    6: 30 * 24,
+    7: 60 * 24,
+    8: 120 * 24,
+    9: 180 * 24,
+}
+# chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
+
 try:
     from .local_settings import *  # noqa: F401, F403
 except ImportError:
