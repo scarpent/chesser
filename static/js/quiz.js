@@ -186,7 +186,9 @@ export function quizApp() {
       } else {
         // e.g. Nge7 => Ne7
         const reambiguateMove = (san) => {
-          return san.replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3");
+          return san
+            .replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3")
+            .replace(/[+#]$/, ""); // strip trailing check/mate
         };
         const normalizedMoveSan = reambiguateMove(move.san);
         const normalizedAnswerSan = reambiguateMove(answer.san);

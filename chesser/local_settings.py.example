@@ -1,4 +1,7 @@
 CHESS_PIECE_SET = "fantasy"  # default piece set
 CHESS_BOARD_COLOR = "brown"  # default board color
 
-# can also define REPETITION_INTERVALS here
+# REPETITION_INTERVALS = {}
+
+# AWS_STORAGE_BUCKET_NAME =
+# AWS_S3_REGION_NAME =
