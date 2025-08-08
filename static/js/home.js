@@ -134,3 +134,9 @@ export function nextDueTimer() {
     },
   };
 }
+
+document.addEventListener("alpine:init", () => {
+  Alpine.store("loading", { visible: true });
+  Alpine.data("homeApp", homeApp);
+  Alpine.data("nextDueTimer", nextDueTimer);
+});
