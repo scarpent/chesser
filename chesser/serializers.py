@@ -317,7 +317,7 @@ def serialize_variation_to_import_format(variation):
         "moves": [
             {
                 "move_num": m.move_num,
-                "fen": m.fen,
+                # "fen": m.fen  # probably don't need this
                 "san": m.san,
                 "annotation": m.get_resolved_field("annotation"),
                 "text": m.get_resolved_field("text"),
