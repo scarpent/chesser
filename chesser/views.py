@@ -1066,122 +1066,16 @@ class HomeView:
 
 def stats(request):
     def row_generator():
-        start = timezone.make_aware(datetime(2025, 3, 20))
-        qs = QuizResult.objects.filter(datetime__gte=start)
-        total = qs.count()
+        all_start = timezone.make_aware(datetime(2025, 3, 20))
+        qs = QuizResult.objects.filter(datetime__gte=all_start)
+        all_total = qs.count()
         passed = qs.filter(passed=True).count()
-        percent = int((passed / total) * 100) if total else 0
+        percent = int((passed / all_total) * 100) if all_total else 0
+        level_labels = [f"L{n}" for n in range(0, 10)] + ["L10+"]
 
         favicon = "favicon-dev.ico" if settings.DEBUG else "favicon.ico"
 
         yield f"<html><head><title>Stats</title><meta name='viewport' content='width=device-width, initial-scale=1.0' /><link rel='icon' href='/static/icons/{favicon}' type='image/x-icon' /><body style='color: #d7af91; background-color: #222; font-family: Helvetica, sans-serif; font-size: 18px; margin-bottom: 222px; padding-top: 50px;'><div><h1>Stats!</h1>"  # noqa: E501
-
-        # Overall
-        yield "<div class='reviews-container'><h2>All Quiz Results</h2>"
-        yield (
-            "<table><tr>"
-            "<th style='padding: 4px; text-align: right'>Passed</th>"
-            "<th style='padding: 4px; text-align: right'>Total</th>"
-            "<th style='padding: 4px; text-align: right'>Percent</th>"
-            "</tr>"
-        )
-        yield (
-            f"<tr><td style='padding: 4px; text-align: right'>{passed}</td>"
-            f"<td style='padding: 4px; text-align: right'>{total}</td>"
-            f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr></table></div>"  # noqa: E501
-        )
-
-        # By Level
-        yield "<div class='levels-container'><h2>Results by Level</h2>"
-        yield "<table><tr>"
-        yield "<th style='padding: 4px; text-align: right'>Level</th>"
-        yield "<th style='padding: 4px; text-align: right'>Passed</th>"
-        yield "<th style='padding: 4px; text-align: right'>Total</th>"
-        yield "<th style='padding: 4px; text-align: right'>Percent</th></tr>"
-
-        level_data = (
-            qs.values("level")
-            .annotate(
-                total_count=Count("id"), passed_count=Count("id", filter=Q(passed=True))
-            )
-            .order_by("level")
-        )
-        for row in level_data:
-            level = row["level"]
-            total = row["total_count"]
-            passed = row["passed_count"]
-            percent = int((passed / total) * 100) if total else 0
-            yield (
-                f"<tr><td style='padding: 4px; text-align: right'>L{level}</td>"
-                f"<td style='padding: 4px; text-align: right'>{passed}</td>"
-                f"<td style='padding: 4px; text-align: right'>{total}</td>"
-                f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr>"
-            )
-        yield "</table></div>"
-
-        # Weekly Summary
-        yield "<div class='reviews-container'><h2>Weekly Summary</h2>"
-        level_labels = [f"L{n}" for n in range(0, 10)] + ["L10+"]
-        yield "<table><tr>"
-        yield "<th style='padding: 4px; text-align: right'>Week Starting</th>"
-        yield "<th style='padding: 4px; text-align: right'>Result</th>"
-        for label in level_labels:
-            yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
-        yield "</tr>"
-
-        current = start
-        one_week = timezone.timedelta(days=7)
-        while current <= timezone.now():
-            week_end = current + one_week
-            week_qs = qs.filter(datetime__gte=current, datetime__lt=week_end)
-            week_total = week_qs.count()
-            week_passed = week_qs.filter(passed=True).count()
-            week_percent = int((week_passed / week_total) * 100) if week_total else 0
-            result_cell = (
-                f"{week_passed}/{week_total} ({week_percent}%)" if week_total else "–"
-            )
-
-            level_counts = defaultdict(lambda: {"passed": 0, "total": 0})
-            levels = week_qs.values("level").annotate(
-                total_count=Count("id"),
-                passed_count=Count("id", filter=Q(passed=True)),
-            )
-            for row in levels:
-                lvl = row["level"]
-                key = f"L{lvl}" if lvl < 10 else "L10+"
-                level_counts[key]["total"] += row["total_count"]
-                level_counts[key]["passed"] += row["passed_count"]
-
-            yield f"<tr><td style='padding: 4px; text-align: right'>{current.date()}</td><td style='padding: 4px; text-align: right'>{result_cell}</td>"  # noqa: E501
-            for label in level_labels:
-                data = level_counts.get(label)
-                if data:
-                    pct = (
-                        int((data["passed"] / data["total"]) * 100)
-                        if data["total"]
-                        else 0
-                    )
-                    val = f"{data['passed']}/{data['total']} ({pct}%)"
-                else:
-                    val = "–"
-                align = (
-                    "right"
-                    if str(val)
-                    .replace("/", "")
-                    .replace("(", "")
-                    .replace(")", "")
-                    .replace("%", "")
-                    .replace(" ", "")
-                    .isdigit()
-                    is False
-                    else "right"
-                )
-                yield f"<td style='padding: 4px; text-align: {align}'>{val}</td>"
-            yield "</tr>"
-
-            current = week_end
-
-        yield "</table></div>"
 
         # Daily Summary
         LAST_DAYS = 8
@@ -1253,6 +1147,112 @@ def stats(request):
             avg = round(total / days) if days else 0
             yield f"<td style='padding: 4px; text-align: right'><b>{avg}</b></td>"
         yield "</tr>"
+
+        yield "</table></div>"
+
+        # Overall
+        yield "<div class='reviews-container'><h2>All Quiz Results</h2>"
+        yield (
+            "<table><tr>"
+            "<th style='padding: 4px; text-align: right'>Passed</th>"
+            "<th style='padding: 4px; text-align: right'>Total</th>"
+            "<th style='padding: 4px; text-align: right'>Percent</th>"
+            "</tr>"
+        )
+        yield (
+            f"<tr><td style='padding: 4px; text-align: right'>{passed}</td>"
+            f"<td style='padding: 4px; text-align: right'>{all_total}</td>"
+            f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr></table></div>"  # noqa: E501
+        )
+
+        # By Level
+        yield "<div class='levels-container'><h2>Results by Level</h2>"
+        yield "<table><tr>"
+        yield "<th style='padding: 4px; text-align: right'>Level</th>"
+        yield "<th style='padding: 4px; text-align: right'>Passed</th>"
+        yield "<th style='padding: 4px; text-align: right'>Total</th>"
+        yield "<th style='padding: 4px; text-align: right'>Percent</th></tr>"
+
+        level_data = (
+            qs.values("level")
+            .annotate(
+                total_count=Count("id"), passed_count=Count("id", filter=Q(passed=True))
+            )
+            .order_by("level")
+        )
+        for row in level_data:
+            level = row["level"]
+            total = row["total_count"]
+            passed = row["passed_count"]
+            percent = int((passed / total) * 100) if total else 0
+            yield (
+                f"<tr><td style='padding: 4px; text-align: right'>L{level}</td>"
+                f"<td style='padding: 4px; text-align: right'>{passed}</td>"
+                f"<td style='padding: 4px; text-align: right'>{total}</td>"
+                f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr>"
+            )
+        yield "</table></div>"
+
+        # Weekly Summary
+        yield "<div class='reviews-container'><h2>Weekly Summary</h2>"
+        yield "<table><tr>"
+        yield "<th style='padding: 4px; text-align: right'>Week Starting</th>"
+        yield "<th style='padding: 4px; text-align: right'>Result</th>"
+        for label in level_labels:
+            yield f"<th style='padding: 4px; text-align: right'>{label}</th>"
+        yield "</tr>"
+
+        current = all_start
+        one_week = timezone.timedelta(days=7)
+        while current <= timezone.now():
+            week_end = current + one_week
+            week_qs = qs.filter(datetime__gte=current, datetime__lt=week_end)
+            week_total = week_qs.count()
+            week_passed = week_qs.filter(passed=True).count()
+            week_percent = int((week_passed / week_total) * 100) if week_total else 0
+            result_cell = (
+                f"{week_passed}/{week_total} ({week_percent}%)" if week_total else "–"
+            )
+
+            level_counts = defaultdict(lambda: {"passed": 0, "total": 0})
+            levels = week_qs.values("level").annotate(
+                total_count=Count("id"),
+                passed_count=Count("id", filter=Q(passed=True)),
+            )
+            for row in levels:
+                lvl = row["level"]
+                key = f"L{lvl}" if lvl < 10 else "L10+"
+                level_counts[key]["total"] += row["total_count"]
+                level_counts[key]["passed"] += row["passed_count"]
+
+            yield f"<tr><td style='padding: 4px; text-align: right'>{current.date()}</td><td style='padding: 4px; text-align: right'>{result_cell}</td>"  # noqa: E501
+            for label in level_labels:
+                data = level_counts.get(label)
+                if data:
+                    pct = (
+                        int((data["passed"] / data["total"]) * 100)
+                        if data["total"]
+                        else 0
+                    )
+                    val = f"{data['passed']}/{data['total']} ({pct}%)"
+                else:
+                    val = "–"
+                align = (
+                    "right"
+                    if str(val)
+                    .replace("/", "")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace("%", "")
+                    .replace(" ", "")
+                    .isdigit()
+                    is False
+                    else "right"
+                )
+                yield f"<td style='padding: 4px; text-align: {align}'>{val}</td>"
+            yield "</tr>"
+
+            current = week_end
 
         yield "</table></div>"
 
