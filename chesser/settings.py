@@ -167,7 +167,7 @@ CHESSER_URL = (
 )
 
 REPETITION_INTERVALS = {  # Level value is hours
-    1: 4,  # Or maybe try 6? or...?
+    1: 7,
     2: 1 * 24,
     3: 3 * 24,
     4: 7 * 24,
@@ -178,6 +178,8 @@ REPETITION_INTERVALS = {  # Level value is hours
     9: 180 * 24,
 }
 # chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
+
+STATS_START_DATE = (2025, 9, 26)
 
 try:
     from .local_settings import *  # noqa: F401, F403

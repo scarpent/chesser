@@ -1,13 +1,42 @@
+![chesser course covers](docs/images/ice-cream-castles-in-the-sky.png)
+
 # Chesser
 
-Single user Django web application for managing chess opening
-repertoire and practicing with spaced repetition.
+A web application for managing your chess opening repertoire and
+practicing with spaced repetition.
 
 It's meant to be simple/fun to work on, using a sqlite db locally,
-simple alpine.js setup with no building, and it's easily deployed.
+simple alpine.js setup with no build step, and it's easily deployed.
 (I use [railway app](https://railway.com/).)
 
+re: gamification
+
+simplicity...
+
+## Bullet Points
+
+- single user -- use it as is or become the lichess chessable...
+- responsive -- mobile is tuned to my device but hoping it will be generally reasonable
+
+## "Issues"
+
+(Maybe create actual issues in github?)
+
+- Mobile: Restart/Show move buttons stay highlighted
+- Mobile: Scroll to top on edit screen
+- Auto reload _mostly_ happens, but not always (but works sorta well and not worth more effort)
+
+## Open / ToDo
+
+Things I'd be willing to work on if important to actual users of the app:
+
+- A light mode (at least, I can see refactoring CSS to better support variables and customization)
+- PGN import (I import from stuff I extracted from chessable and haven't worked with PGN examples, but would like to make this as robust as possible.)
+- Subvariation rendering: The parser/renderer can be extended to do more. I expected it to do more but I'm happy with the current state of things. I didn't find more patterns from my chessable data to automate more things -- I'd rather manually fix at this point. HOWEVER, if others can show samples of a recurring pattern I'd be curious to see about handling it.
+
 ## Thank you / Attribution
+
+Some of the great free software libraries and resources that made chesser possible:
 
 - python/django
 - python-chess
@@ -20,44 +49,6 @@ simple alpine.js setup with no building, and it's easily deployed.
 - "fantasy" piece set for queen logo
   ~ https://github.com/maurimo/chess-art
   ~ https://maurimo.github.io/chess-art/configure.html
-
-## js libraries
-
-```js
-import { Chessground } from "https://cdn.jsdelivr.net/npm/chessground@9.1.1/dist/chessground.min.js";
-import { Chess } from "https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/chess.js";
-
-import { Chessground } from "../chessground/chessground.min.js";
-import { Chess } from "../chessjs/chess.js";
-
-<script
-    defer
-    src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"
-></script>
-
-<script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-```
-
-## Chessable
-
-### getGame
-
-has most things: mainline moves, text, alt moves, and draws
-
-getGame endpoint has lastReviewed/lastUpdated info, but thankfully
-we can get this in bulk instead from courseExplorerData
-
-### courseExplorerData
-
-https://www.chessable.com/api/v1/courseExplorerData?bid=51617
-
-result ➤ futureReviews
-lastUpdated
-nextUpdated
-oid
-
-nextUpdated is next review due
-(variations not due don't show up here?)
 
 ## Service Workers
 

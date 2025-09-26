@@ -10,8 +10,8 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", hours=6)
-    scheduler.add_job(lambda: print("💓 Scheduler heartbeat"), "interval", minutes=30)
+    scheduler.add_job(backup_and_upload, "interval", hours=12)
+    scheduler.add_job(lambda: print("💓 Scheduler heartbeat"), "interval", hours=1)
     scheduler.start()
 
 

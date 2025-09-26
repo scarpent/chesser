@@ -927,7 +927,7 @@ class HomeView:
 
         levels = [
             (" 0 - Not started", 0),
-            (" 1 - 4 hours", 1),
+            (" 1 - 7 hours", 1),
             (" 2 - 1 day", 2),
             (" 3 - 3 days", 3),
             (" 4 - 1 week", 4),
@@ -1066,7 +1066,8 @@ class HomeView:
 
 def stats(request):
     def row_generator():
-        all_start = timezone.make_aware(datetime(2025, 3, 20))
+        yr, mo, dy = settings.STATS_START_DATE
+        all_start = timezone.make_aware(datetime(yr, mo, dy))
         qs = QuizResult.objects.filter(datetime__gte=all_start)
         all_total = qs.count()
         passed = qs.filter(passed=True).count()
