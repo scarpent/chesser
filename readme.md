@@ -52,6 +52,7 @@ Some of the great free software libraries and resources that made chesser possib
 
 ## Service Workers
 
+```
 Situation | What Happens
 Restart Django server (new deploy) | A new BUILD_TIMESTAMP is generated
 Browser loads /service-worker.js?v=newtimestamp | Browser fetches the new service worker
@@ -60,3 +61,4 @@ During activate event | ✅ Old caches are cleaned (except current chesser-cache
 clients.claim() after activate | ✅ New service worker takes control of all open tabs immediately
 
 See browser dev tools ➤ application ➤ (manifest, service workers, storage)
+```
