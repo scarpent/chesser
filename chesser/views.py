@@ -1128,19 +1128,33 @@ def stats(request):
 
         yield "</table></div>"
 
+        qs_learned = QuizResult.objects.filter(datetime__gte=all_start, level__gt=0)
+        total_learned = qs_learned.count()
+        passed_learned = qs_learned.filter(passed=True).count()
+        percent_learned = (
+            int((passed_learned / total_learned) * 100) if total_learned else 0
+        )
+
         # Overall
-        yield "<div class='reviews-container'><h2>All Quiz Results</h2>"
+        yield "<div class='reviews-container'><h2>Quiz Results</h2>"
         yield (
             "<table><tr>"
+            "<th></th>"
             "<th style='padding: 4px; text-align: right'>Passed</th>"
             "<th style='padding: 4px; text-align: right'>Total</th>"
             "<th style='padding: 4px; text-align: right'>Percent</th>"
             "</tr>"
         )
         yield (
-            f"<tr><td style='padding: 4px; text-align: right'>{passed}</td>"
+            "<tr><td>All</td>"
+            f"<td style='padding: 4px; text-align: right'>{passed}</td>"
             f"<td style='padding: 4px; text-align: right'>{all_total}</td>"
-            f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr></table></div>"  # noqa: E501
+            f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr>"
+            "<tr><td>Level 1+</td>"
+            f"<td style='padding: 4px; text-align: right'>{passed_learned}</td>"
+            f"<td style='padding: 4px; text-align: right'>{total_learned}</td>"
+            f"<td style='padding: 4px; text-align: right'>{percent_learned}%</td></tr>"
+            f"</table></div>"  # noqa: E501
         )
 
         # By Level
