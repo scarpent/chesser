@@ -139,9 +139,7 @@ def review(request, variation_id=None):
 
 
 def review_random(request):
-    """Weighted random from top 20 most failed variations in the past month."""
-
-    one_month_ago = timezone.now() - timezone.timedelta(days=30)
+    """Random review of any variation, including unlearned ones"""
 
     color = request.GET.get("color")
     chapter_id = request.GET.get("chapter_id")
@@ -152,28 +150,7 @@ def review_random(request):
     if chapter_id:
         qs = qs.filter(chapter_id=chapter_id)
 
-    failed_qs = (
-        qs.annotate(
-            recent_fails=Count(
-                "quiz_results",
-                filter=Q(
-                    quiz_results__datetime__gte=one_month_ago,
-                    quiz_results__passed=False,
-                ),
-            )
-        )
-        .filter(recent_fails__gt=0, level__lt=5)
-        .order_by("-recent_fails")[:40]
-    )
-
-    failed_list = list(failed_qs)
-
-    if failed_list:
-        weights = [v.recent_fails for v in failed_list]
-        variation = random.choices(failed_list, weights=weights, k=1)[0]
-    else:
-        print("🎲 No recent failures; choosing from all")
-        variation = random.choice(list(qs))
+    variation = random.choice(list(qs))
 
     return redirect("review_with_id", variation_id=variation.id)
 
