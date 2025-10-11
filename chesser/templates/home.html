@@ -302,6 +302,13 @@
       {% csrf_token %}
       <button type="submit" class="logout-button">Logout</button>
     </form>
+    <span
+      style="margin-top: 20px; font-size: 14px; color: gray"
+      title="{{ BUILD_STARTED_AT|date:'c' }}"
+    >
+      Server started: {{ BUILD_STARTED_AT|date:"Y-m-d H:i:s T" }}
+      ({{BUILD_STARTED_AT|timesince }} ago)
+    </span>
   </div>
 
   <script>

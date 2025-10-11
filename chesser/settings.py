@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 import dj_database_url
+from django.utils import timezone
 
 
 def get_local_ip():
@@ -155,6 +156,7 @@ AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "chesser")
 AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
 
+BUILD_STARTED_AT = timezone.now()
 BUILD_TIMESTAMP = str(int(time.time()))
 
 # Increase the limit for number of fields in forms (fixes chapter saving issue)
