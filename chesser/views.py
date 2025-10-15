@@ -150,8 +150,10 @@ def review_random(request):
     if chapter_id:
         qs = qs.filter(chapter_id=chapter_id)
 
-    variation = random.choice(list(qs))
+    if not qs.exists():  # no variations at all, or none matching filters
+        return redirect("review_default")
 
+    variation = random.choice(list(qs))
     return redirect("review_with_id", variation_id=variation.id)
 
 
