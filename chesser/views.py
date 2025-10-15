@@ -505,7 +505,10 @@ def export(request, variation_id=None):
         Variation.objects.prefetch_related("moves", "chapter"), pk=variation_id
     )
     export_data = serialize_variation_to_import_format(variation)
-    return JsonResponse(export_data, json_dumps_params={"indent": 4})
+    return JsonResponse(
+        export_data,
+        json_dumps_params={"indent": 4, "ensure_ascii": False},
+    )
 
 
 def variations_tsv(request):
