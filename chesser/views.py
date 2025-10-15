@@ -300,6 +300,11 @@ class ImportVariationView(View):
             except ValueError:
                 return self.handle_import_errors("Invalid JSON/PGN")
 
+        self.chapter_title = self.incoming_json.get("chapter_title", "Unknown").strip()
+        self.color = self.incoming_json.get("color", "").strip().lower()
+        if self.color not in ["white", "black"]:
+            return self.handle_import_errors("Color must be set as 'white' or 'black'")
+
         try:
             self.set_variation_title()
             self.set_start_move()
@@ -355,7 +360,20 @@ class ImportVariationView(View):
         return end_move
 
     def set_chapter_info(self):
-        chapter = Chapter.objects.get(pk=int(self.form_data.get("chapter_id")))
+        if chapter_id := self.form_data.get("chapter_id"):
+            chapter = Chapter.objects.get(pk=int(chapter_id))
+            created = False
+            self.chapter_title = chapter.title  # override any incoming title
+        else:
+            chapter, created = Chapter.objects.get_or_create(
+                title=self.chapter_title,
+                color=self.color,
+            )
+
+        label = "Creating" if created else "Using existing"
+        print("➤ " * 32)
+        print(f"{label} chapter: {chapter}")
+
         self.incoming_json["color"] = chapter.color
         self.incoming_json["chapter_title"] = chapter.title
         messages.success(self.request, f"🟢 {chapter.color.title()} ➤ {chapter.title}")
