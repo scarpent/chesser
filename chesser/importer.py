@@ -96,7 +96,8 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
     if variation_id := import_data.get("variation_id"):
         try:
             Variation.objects.get(pk=variation_id)
-            # easy enough to remove variation id from import if we're okay with it
+            # alternatively, it would be easy enough to remove
+            # variation id from import if we're okay with it 🤷
             raise ValueError(f"Variation #{variation_id} already exists; not importing")
         except Variation.DoesNotExist:
             pass  # good to go; note that we'll not reuse the ID
