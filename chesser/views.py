@@ -1068,11 +1068,12 @@ def stats(request):
     def row_generator():
         yr, mo, dy = settings.STATS_START_DATE
         all_start = timezone.make_aware(datetime(yr, mo, dy))
-        qs = QuizResult.objects.filter(datetime__gte=all_start)
+        qs = QuizResult.objects.filter(datetime__gte=all_start, level__gt=0)
         all_total = qs.count()
         passed = qs.filter(passed=True).count()
         percent = int((passed / all_total) * 100) if all_total else 0
-        level_labels = [f"L{n}" for n in range(0, 10)] + ["L10+"]
+        # excluding level 0, which is only "learning" and we won't judge
+        level_labels = [f"L{n}" for n in range(1, 10)] + ["L10+"]
 
         favicon = "favicon-dev.ico" if settings.DEBUG else "favicon.ico"
 
@@ -1151,13 +1152,6 @@ def stats(request):
 
         yield "</table></div>"
 
-        qs_learned = QuizResult.objects.filter(datetime__gte=all_start, level__gt=0)
-        total_learned = qs_learned.count()
-        passed_learned = qs_learned.filter(passed=True).count()
-        percent_learned = (
-            int((passed_learned / total_learned) * 100) if total_learned else 0
-        )
-
         # Overall
         yield "<div class='reviews-container'><h2>Quiz Results</h2>"
         yield (
@@ -1173,11 +1167,7 @@ def stats(request):
             f"<td style='padding: 4px; text-align: right'>{passed}</td>"
             f"<td style='padding: 4px; text-align: right'>{all_total}</td>"
             f"<td style='padding: 4px; text-align: right'>{percent}%</td></tr>"
-            "<tr><td>Level 1+</td>"
-            f"<td style='padding: 4px; text-align: right'>{passed_learned}</td>"
-            f"<td style='padding: 4px; text-align: right'>{total_learned}</td>"
-            f"<td style='padding: 4px; text-align: right'>{percent_learned}%</td></tr>"
-            f"</table></div>"  # noqa: E501
+            "</table></div>"
         )
 
         # By Level
@@ -1272,6 +1262,8 @@ def stats(request):
         yield "</table></div>"
 
         # Upcoming Reviews
+        # add back L0 since it is of interest for upcoming workload
+        level_labels = ["L0"] + level_labels
         NEXT_DAYS = 30
         yield f"<div class='reviews-container'><h2>Upcoming Reviews (Next {NEXT_DAYS} Days)</h2>"  # noqa: E501
         yield "<table><tr><th style='padding: 4px; text-align: right'>Date</th>"
@@ -1302,6 +1294,7 @@ def stats(request):
                 total_for_day += row["count"]
 
             yield f"<tr><td style='padding: 4px; text-align: right'>{day}</td>"
+
             for label in level_labels:
                 val = level_counts.get(label) or "–"
                 yield f"<td style='padding: 4px; text-align: right'>{val}</td>"
