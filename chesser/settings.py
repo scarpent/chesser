@@ -186,7 +186,9 @@ STATS_START_DATE = (2025, 9, 26)
 # Scheduler hours can be fractional, e.g., 0.5 for 30 minutes
 HEARTBEAT_INTERVAL_HOURS = 1
 BACKUP_INTERVAL_HOURS = 24
-BACKUP_STARTUP_DELAY_MINUTES = 30  # First backup happens N minutes after start
+# First run happens N minutes after start
+HEARTBEAT_STARTUP_DELAY_MINUTES = 1
+BACKUP_STARTUP_DELAY_MINUTES = 30
 
 
 try:

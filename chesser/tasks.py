@@ -22,6 +22,8 @@ def start_scheduler():
         lambda: print("💓 Scheduler heartbeat"),
         "interval",
         hours=settings.HEARTBEAT_INTERVAL_HOURS,
+        next_run_time=timezone.now()
+        + timedelta(minutes=settings.HEARTBEAT_STARTUP_DELAY_MINUTES),
     )
     scheduler.start()
 
