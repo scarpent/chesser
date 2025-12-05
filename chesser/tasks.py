@@ -1,4 +1,5 @@
 import gzip
+from datetime import timedelta
 from io import StringIO
 
 import boto3
@@ -10,8 +11,18 @@ from django.utils import timezone
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(backup_and_upload, "interval", hours=12)
-    scheduler.add_job(lambda: print("💓 Scheduler heartbeat"), "interval", hours=1)
+    scheduler.add_job(
+        backup_and_upload,
+        "interval",
+        hours=settings.BACKUP_INTERVAL_HOURS,
+        next_run_time=timezone.now()
+        + timedelta(minutes=settings.BACKUP_STARTUP_DELAY_MINUTES),
+    )
+    scheduler.add_job(
+        lambda: print("💓 Scheduler heartbeat"),
+        "interval",
+        hours=settings.HEARTBEAT_INTERVAL_HOURS,
+    )
     scheduler.start()
 
 

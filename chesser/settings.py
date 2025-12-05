@@ -179,9 +179,15 @@ REPETITION_INTERVALS = {  # Level value is hours
     8: 120 * 24,
     9: 180 * 24,
 }
-# chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
+# Chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
 
 STATS_START_DATE = (2025, 9, 26)
+
+# Scheduler hours can be fractional, e.g., 0.5 for 30 minutes
+HEARTBEAT_INTERVAL_HOURS = 1
+BACKUP_INTERVAL_HOURS = 24
+BACKUP_STARTUP_DELAY_MINUTES = 30  # First backup happens N minutes after start
+
 
 try:
     from .local_settings import *  # noqa: F401, F403
