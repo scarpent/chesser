@@ -8,22 +8,27 @@ from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
 
+HEARTBEAT_START = timezone.now() + timedelta(
+    minutes=settings.HEARTBEAT_STARTUP_DELAY_MINUTES,
+)
+BACKUP_START = timezone.now() + timedelta(
+    minutes=settings.BACKUP_STARTUP_DELAY_MINUTES,
+)
+
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.add_job(
-        backup_and_upload,
-        "interval",
-        hours=settings.BACKUP_INTERVAL_HOURS,
-        next_run_time=timezone.now()
-        + timedelta(minutes=settings.BACKUP_STARTUP_DELAY_MINUTES),
-    )
-    scheduler.add_job(
         lambda: print("💓 Scheduler heartbeat"),
         "interval",
         hours=settings.HEARTBEAT_INTERVAL_HOURS,
-        next_run_time=timezone.now()
-        + timedelta(minutes=settings.HEARTBEAT_STARTUP_DELAY_MINUTES),
+        next_run_time=HEARTBEAT_START,
+    )
+    scheduler.add_job(
+        backup_and_upload,
+        "interval",
+        hours=settings.BACKUP_INTERVAL_HOURS,
+        next_run_time=BACKUP_START,
     )
     scheduler.start()
 
