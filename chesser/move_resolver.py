@@ -882,26 +882,38 @@ def parse_fenseq_chunk(raw: str) -> list[ParsedBlock]:
     <fenseq data-fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1">
         1.d4 d5 2.e3 {comment}
     </fenseq>
+    <fenseq>1.e4 e5</fenseq>
+    <fenseq data-fen="">1.e4 e5</fenseq>
 
     turn this fenseq blob into a mostly typical subvar block list
     * fenseq sequences are expected to be depth 1, and *may* have comments
     * we should mostly get "condensed" moves, e.g. 1.e4, but we'll handle 1. e4
 
-    we could make data-fen be optional and use game starting fen if omitted...
-
     this is a bit hairy at the moment but it actually works now so that's good
+
+    going to make data-fen optional so that if ommitted, we can use the
+    standard starting position FEN; it seems that code previous to this only
+    looked for <fenseq so this should be good! 🤞
     """
+    fen = inner_text = ""
     match = re.search(
         r"""<\s*fenseq[^>]*data-fen=["']([^"']+)["'][^>]*>(.*?)</fenseq>""",
         raw,
         re.DOTALL,
     )
-    # "fenseq" type blocks should always match or they'd already be "comment" type
     if not match:
+        match = re.search(
+            r"""<\s*fenseq[^>]*(data-fen=["']{2})?[^>]*>(.*?)</fenseq>""",
+            raw,
+            re.DOTALL,
+        )
+    if not match:  # may be hard to reach this block, if not impossible?
         print(f"🚨 Invalid fenseq block: {raw}")
         return []
 
     fen, inner_text = match.groups()
+    if not fen:
+        fen = chess.STARTING_FEN
     # we don't expect fenseq tags to have parens; we'll strip
     # them here so that we can always add them below
     inner_text = inner_text.strip().strip("()")

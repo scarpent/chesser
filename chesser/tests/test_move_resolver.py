@@ -392,8 +392,11 @@ def test_get_parsed_blocks_first_pass_invalid_type():
 @pytest.mark.parametrize(
     "test_input",
     [
-        ('<fenseq data-fen="start_fen">1.e4 e5 2.Nf3 2...Nc6</fenseq>'),
-        ("<fenseq data-fen='start_fen'>1. e4 e5 2. Nf3 2... Nc6</fenseq>"),
+        (f'<fenseq data-fen="{START_FEN}">1.e4 e5 2.Nf3 2...Nc6</fenseq>'),
+        (f"<fenseq data-fen='{START_FEN}'>1. e4 e5 2. Nf3 2... Nc6</fenseq>"),
+        ('<fenseq data-fen="">1.e4 e5 2.Nf3 2.Nc6</fenseq>'),
+        ("<fenseq data-fen=''>1.e4 e5 2.Nf3 2.Nc6</fenseq>"),
+        ("<fenseq>1.e4 e5 2.Nf3 2.Nc6</fenseq>"),
     ],
 )
 def test_parse_fenseq_chunk_valid(test_input):
@@ -402,7 +405,7 @@ def test_parse_fenseq_chunk_valid(test_input):
     sans = [block.move_parts_raw.san for block in blocks if block.type_ == "move"]
     expected = ["e4", "e5", "Nf3", "Nc6"]
     assert sans == expected
-    assert blocks[0].fen == "start_fen"
+    assert blocks[0].fen == START_FEN
     assert all(b.fen == "" for b in blocks[1:])
     assert all(b.depth == 1 for b in blocks)
     assert all(b.type_ == "move" for b in blocks[1:-1])
@@ -436,7 +439,9 @@ def test_parse_fenseq_chunk_empty():
 
 @mock.patch("chesser.move_resolver.print")
 def test_parse_fenseq_chunk_invalid(mock_print):
-    expected = "<fenseq>1.e4 e5</fenseq>"
+    # this tests the path where fenseq regex doesn't match, but with nh3
+    # policing our html, I'm not sure we could have a fenseq that doesn't match
+    expected = "<fenseq1.e4 e5</fenseq>"
     move_resolver.parse_fenseq_chunk(expected)
     mock_print.assert_called_once_with(f"🚨 Invalid fenseq block: {expected}")
 

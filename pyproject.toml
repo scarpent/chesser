@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 88
-target_version = ['py312']
+target_version = ['py313']
 
 [tool.pyright]
 typeCheckingMode = "basic"
