@@ -1071,7 +1071,7 @@ def stats(request):
         qs = QuizResult.objects.filter(datetime__gte=all_start, level__gt=0)
         all_total = qs.count()
         passed = qs.filter(passed=True).count()
-        percent = int((passed / all_total) * 100) if all_total else 0
+        percent = round((passed / all_total) * 100, 1) if all_total else 0
         # excluding level 0, which is only "learning" and we won't judge
         level_labels = [f"L{n}" for n in range(1, 10)] + ["L10+"]
 
