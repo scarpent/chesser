@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "chesser.middleware.SecurityHeadersMiddleware",
     # WhiteNoise should come immediately after SecurityMiddleware
     # to ensure security headers are applied before serving static files
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -136,13 +137,62 @@ LOGOUT_REDIRECT_URL = "/login/"
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # One year in seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_SECURE = IS_PRODUCTION  # Send session cookie only over HTTPS
-SECURE_SSL_REDIRECT = IS_PRODUCTION  # Redirect HTTP to HTTPS in production
-CSRF_COOKIE_SECURE = IS_PRODUCTION  # Send CSRF cookie only over HTTPS
 
-# If behind a proxy like Railway/Heroku,
-if IS_PRODUCTION:  # ensure Django correctly detects HTTPS requests
+# Keep dev easy: no forced HTTPS, no HSTS.
+# Make prod strict: HSTS + secure cookies + redirect.
+
+if IS_PRODUCTION:
+    # Redirect HTTP -> HTTPS at Django level
+    SECURE_SSL_REDIRECT = True
+
+    # Ensure Django correctly detects HTTPS requests (e.g. if proxy like Railway/Heroku)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
+
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365  # One year in seconds
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # SecurityMiddleware uses these; they’re harmless and good practice.
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+else:
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+# --- Security headers added via custom middleware ---
+# CSP: starter policy that won't break Alpine or inline scripts/styles.
+CHESSER_CSP = "; ".join(
+    [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self' data:",
+        "base-uri 'self'",
+        "frame-ancestors 'none'",
+        "object-src 'none'",
+        "form-action 'self'",
+    ]
+)
+
+# Disable browser features Chesser doesn't need.
+CHESSER_PERMISSIONS_POLICY = ", ".join(
+    [
+        "camera=()",
+        "microphone=()",
+        "geolocation=()",
+        "usb=()",
+        "payment=()",
+    ]
+)
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

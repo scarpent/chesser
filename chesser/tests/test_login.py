@@ -1,18 +1,24 @@
-import pytest
+from urllib.parse import parse_qs, urlparse
+
 from django.test import Client
 from django.urls import reverse
 
 
-@pytest.mark.django_db
 def test_admin_page_unauthenticated():
     client = Client()
     response = client.get("/admin/")
     assert response.status_code == 302
-    # ultimately we redirect to our own login page
-    assert response.url == "/admin/login/?next=/admin/"
+
+    # Response.url is the redirect target.
+    parsed = urlparse(response.url)
+    assert parsed.path == "/login/"
+
+    qs = parse_qs(parsed.query)
+    assert qs["next"] == ["/admin/"]
+
+    assert not response.url.startswith("/admin/login/")
 
 
-@pytest.mark.django_db
 def test_login_page_unauthenticated():
     client = Client()
     response = client.get(reverse("login"))
@@ -20,7 +26,6 @@ def test_login_page_unauthenticated():
     assert "Username:" in response.content.decode()
 
 
-@pytest.mark.django_db
 def test_login_page_authenticated(test_user):
     client = Client()
     client.login(username="testuser", password="testpassword")
