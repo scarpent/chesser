@@ -58,8 +58,10 @@ class Variation(models.Model):
         return f"{self.title} ({self.id})"
 
     @property
-    def mainline_moves(self):  # TODO: maybe don't need this anymore...
+    def mainline_moves(self):
         if not self.mainline_moves_str:
+            # TODO: maybe don't need this anymore, since we should be
+            # able to count on the model being initialized with main
             white_to_move = True
             move_string = ""
             for move in self.moves.iterator():
@@ -73,7 +75,16 @@ class Variation(models.Model):
     @property
     def start_index(self):
         """
-        Translate move numbers to index of array of moves sent to client
+        Return the 0-based index into the client ply array corresponding
+        to this starting move number and color. FEN plies are 1-based,
+        but the client array is 0-based.
+
+        The client represents moves as a flat list of plies:
+        [1w, 1b, 2w, 2b, 3w, 3b, ...]
+
+        For a given move number N:
+        • White starts at index (N * 2) - 2
+        • Black starts at index (N * 2) - 1
 
         idx  white      black      for white, e.g.:
         0    1.e4       1.d4       ➤ move 2 = 2 * 2 - 2 = 2

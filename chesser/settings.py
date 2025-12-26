@@ -179,7 +179,11 @@ REPETITION_INTERVALS = {  # Level value is hours
     8: 120 * 24,
     9: 180 * 24,
 }
-# Chessable: 4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
+# Chessable intervals:
+# Was it this at one time?
+#   4h, 19h, 2d23h, 6d23h, 13d23h, 29d23h, 89d23h, 179d23h
+# Custom schedule now starts with this:
+#   4 hr, 10 hr, 1 day, 2.5 days, 1 week, 2.5 weeks, 1.5 months, 4 months
 
 STATS_START_DATE = (2025, 9, 26)
 
