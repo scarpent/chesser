@@ -301,9 +301,8 @@ class ImportVariationView(View):
                 return self.handle_import_errors("Invalid JSON/PGN")
 
         self.chapter_title = self.incoming_json.get("chapter_title", "Unknown").strip()
+        # Color will come from chapter if existing, or here if new chapter
         self.color = self.incoming_json.get("color", "").strip().lower()
-        if self.color not in ["white", "black"]:
-            return self.handle_import_errors("Color must be set as 'white' or 'black'")
 
         try:
             self.set_variation_title()
@@ -364,7 +363,14 @@ class ImportVariationView(View):
             chapter = Chapter.objects.get(pk=int(chapter_id))
             created = False
             self.chapter_title = chapter.title  # override any incoming title
+            if self.color and self.color != chapter.color:
+                raise ValueError(
+                    f"Chapter color mismatch. {self.color} given but "
+                    f"existing chapter is {chapter.color}"
+                )
         else:
+            if self.color not in ("white", "black"):
+                raise ValueError("Chapter color must be 'white' or 'black'")
             chapter, created = Chapter.objects.get_or_create(
                 title=self.chapter_title,
                 color=self.color,

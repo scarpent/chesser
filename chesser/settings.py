@@ -168,6 +168,11 @@ else:
 
 # --- Security headers added via custom middleware ---
 # CSP: starter policy that won't break Alpine or inline scripts/styles.
+
+# script-src includes 'unsafe-eval' for Alpine.js expression evaluation,
+# and 'unsafe-inline' for current inline scripts/styles used by the app.
+# (e.g. buttons don't work without 'unsafe-inline')
+
 CHESSER_CSP = "; ".join(
     [
         "default-src 'self'",
