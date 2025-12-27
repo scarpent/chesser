@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-#
+
 # Update hosted frontend dependencies for Chesser.
 #
 # This script fetches specific pinned versions of third-party JS libraries
-# (currently Alpine.js and chess.js), stores them under versioned paths in
-# vendorfiles/, and then copies a stable reference into static/ for use by
-# Django templates. The goal is reproducibility, auditability, and minimal
-# frontend tooling — no npm, no bundler, no build step.
+# (currently Alpine.js, chess.js, chessground), stores them under versioned
+# paths in vendorfiles/, and then copies a stable reference into static/ for
+# use by Django templates. The goal is reproducibility, auditability, and
+# minimal frontend tooling — no npm, no bundler, no build step.
 #
 # Versioned vendor copies are kept so upgrades are explicit and reversible.
 # The static/ copies represent the currently active version used by the app.
@@ -92,3 +92,42 @@ echo "Updating chess.js stable copy"
 cp -f "$CHESSJS_VENDOR_FILE" "$CHESSJS_STABLE_FILE"
 
 # ---- chessground ----
+
+CHESSGROUND_VENDOR_DIR="$VENDOR_DIR/chessground/$CHESSGROUND_VER"
+CHESSGROUND_STABLE_DIR="$STATIC_DIR/chessground"
+
+if [[ -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" && "$FORCE_UPDATE" -eq 0 ]]; then
+  echo "chessground v$CHESSGROUND_VER already at $CHESSGROUND_VENDOR_DIR"
+else
+  mkdir -vp "$CHESSGROUND_VENDOR_DIR"
+
+  echo "Fetching chessground v$CHESSGROUND_VER"
+
+  # Standalone bundle
+  curl -fL --show-error --silent \
+    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/dist/chessground.min.js" \
+    -o "$CHESSGROUND_VENDOR_DIR/chessground.min.js"
+
+  # CSS assets
+  curl -fL --show-error --silent \
+    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/assets/chessground.base.css" \
+    -o "$CHESSGROUND_VENDOR_DIR/chessground.base.css"
+
+  curl -fL --show-error --silent \
+    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/assets/chessground.brown.css" \
+    -o "$CHESSGROUND_VENDOR_DIR/chessground.brown.css"
+
+  curl -fL --show-error --silent \
+    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/assets/chessground.cburnett.css" \
+    -o "$CHESSGROUND_VENDOR_DIR/chessground.cburnett.css"
+fi
+
+echo "Updating chessground stable copies"
+mkdir -vp "$CHESSGROUND_STABLE_DIR"
+
+cp -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" "$CHESSGROUND_STABLE_DIR/chessground.min.js"
+cp -f "$CHESSGROUND_VENDOR_DIR/chessground.base.css" "$CHESSGROUND_STABLE_DIR/chessground.base.css"
+cp -f "$CHESSGROUND_VENDOR_DIR/chessground.brown.css" "$CHESSGROUND_STABLE_DIR/chessground.brown.css"
+cp -f "$CHESSGROUND_VENDOR_DIR/chessground.cburnett.css" "$CHESSGROUND_STABLE_DIR/chessground.cburnett.css"
+
+
