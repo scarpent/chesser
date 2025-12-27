@@ -27,7 +27,7 @@ VENDOR_DIR="vendorfiles"
 
 ALPINE_VER="3.15.3"
 CHESSJS_VER="1.4.0"
-CHESSGROUND_VER="9.2.1"
+CHESSGROUND_VER="9.9.0"
 
 FORCE_UPDATE=0
 
@@ -92,8 +92,28 @@ echo "Updating chess.js stable copy"
 cp -f "$CHESSJS_VENDOR_FILE" "$CHESSJS_STABLE_FILE"
 
 # ---- chessground ----
+#
+# chessground is a core UI dependency, but the npm package is deprecated and can
+# lag behind GitHub tags. To keep upgrades reproducible without committing a full
+# git checkout, we build the standalone bundle from a GitHub source tarball.
+#
+# This DOES introduce a manual build tool dependency:
+# - Node.js
+# - pnpm (recommended: `brew install pnpm`)
+#
+# This is not part of Chesser's runtime or deployment cycle. It's only needed
+# when you choose to upgrade chessground and re-vendor the built artifacts.
+#
+# Vendor copies are kept versioned under vendorfiles/; stable copies under
+# static/ are what Django templates actually load.
+#
+# IMPORTANT: keep any local CSS customizations in a separate file such as:
+#   static/chessground/chessground.overrides.css
+# loaded AFTER the upstream chessground CSS, so upgrades are simple replaces.
 
 CHESSGROUND_VENDOR_DIR="$VENDOR_DIR/chessground/$CHESSGROUND_VER"
+CHESSGROUND_TARBALL="$CHESSGROUND_VENDOR_DIR/chessground-v${CHESSGROUND_VER}.tar.gz"
+CHESSGROUND_TMP_DIR="$CHESSGROUND_VENDOR_DIR/_tmp"
 CHESSGROUND_STABLE_DIR="$STATIC_DIR/chessground"
 
 if [[ -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" && "$FORCE_UPDATE" -eq 0 ]]; then
@@ -101,33 +121,86 @@ if [[ -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" && "$FORCE_UPDATE" -eq 0 ]
 else
   mkdir -vp "$CHESSGROUND_VENDOR_DIR"
 
-  echo "Fetching chessground v$CHESSGROUND_VER"
+  # Fail early with a helpful message if build tooling isn't installed.
+  if ! command -v pnpm >/dev/null 2>&1; then
+    echo "ERROR: pnpm is required to build chessground from source." >&2
+    echo "Install with: brew install pnpm" >&2
+    echo "Then re-run this script (optionally with -f)." >&2
+    exit 1
+  fi
 
-  # Standalone bundle
-  curl -fL --show-error --silent \
-    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/dist/chessground.min.js" \
-    -o "$CHESSGROUND_VENDOR_DIR/chessground.min.js"
+  if ! command -v node >/dev/null 2>&1; then
+    echo "ERROR: node is required to build chessground from source." >&2
+    echo "Install with: brew install node" >&2
+    exit 1
+  fi
 
-  # CSS assets
-  curl -fL --show-error --silent \
-    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/assets/chessground.base.css" \
-    -o "$CHESSGROUND_VENDOR_DIR/chessground.base.css"
+  # Download source tarball (cached in vendorfiles/) and build dist output.
+  if [[ -f "$CHESSGROUND_TARBALL" && "$FORCE_UPDATE" -eq 0 ]]; then
+    echo "Chessground v$CHESSGROUND_VER tarball already at $CHESSGROUND_TARBALL"
+  else
+    echo "Fetching chessground v$CHESSGROUND_VER (github source tarball)"
+    curl -fL --show-error --silent \
+      "https://github.com/lichess-org/chessground/archive/refs/tags/v${CHESSGROUND_VER}.tar.gz" \
+      -o "$CHESSGROUND_TARBALL"
+  fi
 
-  curl -fL --show-error --silent \
-    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/assets/chessground.brown.css" \
-    -o "$CHESSGROUND_VENDOR_DIR/chessground.brown.css"
+  rm -rf "$CHESSGROUND_TMP_DIR"
+  mkdir -vp "$CHESSGROUND_TMP_DIR"
 
-  curl -fL --show-error --silent \
-    "https://cdn.jsdelivr.net/npm/chessground@${CHESSGROUND_VER}/assets/chessground.cburnett.css" \
-    -o "$CHESSGROUND_VENDOR_DIR/chessground.cburnett.css"
+  tar -xzf "$CHESSGROUND_TARBALL" -C "$CHESSGROUND_TMP_DIR"
+
+  CHESSGROUND_EXTRACTED_DIR="$(find "$CHESSGROUND_TMP_DIR" -maxdepth 1 -type d -name "chessground-*" | head -n 1)"
+  if [[ -z "$CHESSGROUND_EXTRACTED_DIR" ]]; then
+    echo "ERROR: Could not locate extracted chessground directory" >&2
+    exit 1
+  fi
+
+  echo "Building chessground v$CHESSGROUND_VER (pnpm install + pnpm run dist)"
+  (
+    cd "$CHESSGROUND_EXTRACTED_DIR"
+    pnpm install --frozen-lockfile
+    pnpm run dist
+  )
+
+  # Copy the built standalone bundle + CSS assets into our flat vendor dir.
+  if [[ ! -f "$CHESSGROUND_EXTRACTED_DIR/dist/chessground.min.js" ]]; then
+    echo "ERROR: Expected dist/chessground.min.js not found after build." >&2
+    exit 1
+  fi
+
+  cp -f "$CHESSGROUND_EXTRACTED_DIR/dist/chessground.min.js" "$CHESSGROUND_VENDOR_DIR/chessground.min.js"
+  cp -f "$CHESSGROUND_EXTRACTED_DIR/assets/chessground.base.css"     "$CHESSGROUND_VENDOR_DIR/chessground.base.css"
+  cp -f "$CHESSGROUND_EXTRACTED_DIR/assets/chessground.brown.css"    "$CHESSGROUND_VENDOR_DIR/chessground.brown.css"
+  cp -f "$CHESSGROUND_EXTRACTED_DIR/assets/chessground.cburnett.css" "$CHESSGROUND_VENDOR_DIR/chessground.cburnett.css"
+
+  SOURCE_FILE="$CHESSGROUND_VENDOR_DIR/SOURCE.txt"
+
+  echo "Writing $SOURCE_FILE"
+  {
+    echo "project: chessground"
+    echo "version: v$CHESSGROUND_VER"
+    echo "source: https://github.com/lichess-org/chessground"
+    echo "tarball: https://github.com/lichess-org/chessground/archive/refs/tags/v${CHESSGROUND_VER}.tar.gz"
+    echo "built_at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo
+    echo "build_environment:"
+    echo "  node: $(node --version)"
+    echo "  pnpm: $(pnpm --version)"
+    echo
+    echo "artifacts:"
+    echo "  chessground.min.js:"
+    shasum -a 256 "$CHESSGROUND_VENDOR_DIR/chessground.min.js" | sed 's/^/    /'
+  } >"$SOURCE_FILE"
+
+
+  # Cleanup extracted source tree and tarball
+  rm -rf "$CHESSGROUND_TMP_DIR" "$CHESSGROUND_TARBALL"
 fi
 
 echo "Updating chessground stable copies"
 mkdir -vp "$CHESSGROUND_STABLE_DIR"
-
 cp -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" "$CHESSGROUND_STABLE_DIR/chessground.min.js"
 cp -f "$CHESSGROUND_VENDOR_DIR/chessground.base.css" "$CHESSGROUND_STABLE_DIR/chessground.base.css"
 cp -f "$CHESSGROUND_VENDOR_DIR/chessground.brown.css" "$CHESSGROUND_STABLE_DIR/chessground.brown.css"
 cp -f "$CHESSGROUND_VENDOR_DIR/chessground.cburnett.css" "$CHESSGROUND_STABLE_DIR/chessground.cburnett.css"
-
-
