@@ -86,11 +86,11 @@ check_newer() {
   fi
 
   if [[ "$latest" != "$pinned" ]]; then
-    echo "UPDATE: $pkg pinned=$pinned latest=$latest"
+    echo "📌 $pkg pinned=$pinned latest=$latest"
     return 1
   fi
 
-  echo "OK: $pkg pinned=$pinned"
+  echo "✅ $pkg pinned=$pinned"
   return 0
 }
 
@@ -111,11 +111,11 @@ ALPINE_VENDOR_FILE="$ALPINE_VENDOR_DIR/cdn.min.js"
 ALPINE_STABLE_FILE="$STATIC_DIR/alpine/cdn.min.js"
 
 if [[ -f "$ALPINE_VENDOR_FILE" && "$FORCE_UPDATE" -eq 0 ]]; then
-  echo "Alpine.js v$ALPINE_VER already at $ALPINE_VENDOR_FILE"
+  echo "✅ Alpine.js v$ALPINE_VER already in vendorfiles"
 else
   mkdir -vp "$ALPINE_VENDOR_DIR"
 
-  echo "Fetching Alpine.js v$ALPINE_VER"
+  echo "🦴 Fetching Alpine.js v$ALPINE_VER"
   # -f: fail on HTTP errors
   # -L: follow redirects (unpkg/jsdelivr)
   # --show-error: print errors even with --silent
@@ -125,7 +125,7 @@ else
     -o "$ALPINE_VENDOR_FILE"
 fi
 
-echo "Updating Alpine.js stable copy"
+echo "💾 Updating Alpine.js stable copy"
 cp -f "$ALPINE_VENDOR_FILE" "$ALPINE_STABLE_FILE"
 
 # ---- chess.js ----
@@ -138,11 +138,11 @@ CHESSJS_STABLE_FILE="$STATIC_DIR/chessjs/chess.js"
 CHESSJS_STABLE_MAP_FILE="$STATIC_DIR/chessjs/chess.js.map"
 
 if [[ -f "$CHESSJS_VENDOR_FILE" && "$FORCE_UPDATE" -eq 0 ]]; then
-  echo "chess.js v$CHESSJS_VER already at $CHESSJS_VENDOR_FILE"
+  echo "✅ chess.js v$CHESSJS_VER already in vendorfiles"
 else
   mkdir -vp "$CHESSJS_VENDOR_DIR"
 
-  echo "Fetching chess.js v$CHESSJS_VER..."
+  echo "🦴 Fetching chess.js v$CHESSJS_VER"
   curl -fL --show-error --silent \
     "https://unpkg.com/chess.js@${CHESSJS_VER}/dist/esm/chess.js" \
     -o "$CHESSJS_VENDOR_FILE"
@@ -155,7 +155,7 @@ else
     || true
 fi
 
-echo "Updating chess.js stable copy"
+echo "💾 Updating chess.js stable copy"
 cp -f "$CHESSJS_VENDOR_FILE" "$CHESSJS_STABLE_FILE"
 
 if [[ -f "$CHESSJS_VENDOR_MAP_FILE" ]]; then
@@ -177,12 +177,11 @@ CHESSGROUND_STABLE_DIR="$STATIC_DIR/chessground"
 CHESSGROUND_CDN_BASE="https://cdn.jsdelivr.net/npm/@lichess-org/chessground@${CHESSGROUND_VER}"
 
 if [[ -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" && "$FORCE_UPDATE" -eq 0 ]]; then
-  echo "chessground v$CHESSGROUND_VER already at $CHESSGROUND_VENDOR_DIR"
+  echo "✅ chessground v$CHESSGROUND_VER already in vendorfiles"
 else
   mkdir -vp "$CHESSGROUND_VENDOR_DIR"
 
-  echo "Fetching chessground v$CHESSGROUND_VER"
-
+  echo "🦴 Fetching chessground v$CHESSGROUND_VER"
   curl -fL --show-error --silent \
     "${CHESSGROUND_CDN_BASE}/dist/chessground.min.js" \
     -o "$CHESSGROUND_VENDOR_DIR/chessground.min.js"
@@ -200,7 +199,7 @@ else
     -o "$CHESSGROUND_VENDOR_DIR/chessground.cburnett.css"
 fi
 
-echo "Updating chessground stable copies"
+echo "💾 Updating chessground stable copies"
 mkdir -vp "$CHESSGROUND_STABLE_DIR"
 cp -f "$CHESSGROUND_VENDOR_DIR/chessground.min.js" "$CHESSGROUND_STABLE_DIR/chessground.min.js"
 cp -f "$CHESSGROUND_VENDOR_DIR/chessground.base.css" "$CHESSGROUND_STABLE_DIR/chessground.base.css"
