@@ -10,11 +10,11 @@
 #
 # Versioned vendor copies are kept so upgrades are explicit and reversible.
 # The static/ copies represent the currently active version used by the app.
-# A -f flag is provided to force re-fetching even if files already exist.
+# -f flag is provided to force re-fetching even if files already exist.
+# -n flag is provided to check if newer versions are available.
 #
 # Notes:
 # - curl is run in fail-fast mode to avoid silently accepting partial downloads.
-# - chess.js has its sourcemap reference stripped to avoid WhiteNoise issues.
 # - Caching is handled explicitly at the template level where needed.
 #
 # This script is intended to be run manually when upgrading dependencies,
@@ -129,7 +129,10 @@ cp -f "$ALPINE_VENDOR_FILE" "$ALPINE_STABLE_FILE"
 
 CHESSJS_VENDOR_DIR="$VENDOR_DIR/chessjs/$CHESSJS_VER/dist/esm"
 CHESSJS_VENDOR_FILE="$CHESSJS_VENDOR_DIR/chess.js"
+CHESSJS_VENDOR_MAP_FILE="$CHESSJS_VENDOR_DIR/chess.js.map"
+
 CHESSJS_STABLE_FILE="$STATIC_DIR/chessjs/chess.js"
+CHESSJS_STABLE_MAP_FILE="$STATIC_DIR/chessjs/chess.js.map"
 
 if [[ -f "$CHESSJS_VENDOR_FILE" && "$FORCE_UPDATE" -eq 0 ]]; then
   echo "chess.js v$CHESSJS_VER already at $CHESSJS_VENDOR_FILE"
@@ -141,13 +144,20 @@ else
     "https://unpkg.com/chess.js@${CHESSJS_VER}/dist/esm/chess.js" \
     -o "$CHESSJS_VENDOR_FILE"
 
-  # Make it WhiteNoise-proof: strip sourcemap reference if upstream includes it.
-  sed -i.bak '/sourceMappingURL=.*\.map/d' "$CHESSJS_VENDOR_FILE"
-  rm -f "$CHESSJS_VENDOR_FILE.bak"
+  # Sourcemap (optional but nice for debugging).
+  # If upstream stops shipping it, this should not fail the script.
+  curl -fL --show-error --silent \
+    "https://unpkg.com/chess.js@${CHESSJS_VER}/dist/esm/chess.js.map" \
+    -o "$CHESSJS_VENDOR_MAP_FILE" \
+    || true
 fi
 
 echo "Updating chess.js stable copy"
 cp -f "$CHESSJS_VENDOR_FILE" "$CHESSJS_STABLE_FILE"
+
+if [[ -f "$CHESSJS_VENDOR_MAP_FILE" ]]; then
+  cp -f "$CHESSJS_VENDOR_MAP_FILE" "$CHESSJS_STABLE_MAP_FILE"
+fi
 
 # ---- chessground ----
 
