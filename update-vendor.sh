@@ -30,18 +30,76 @@ CHESSJS_VER="1.4.0"
 CHESSGROUND_VER="9.9.0"
 
 FORCE_UPDATE=0
+CHECK_NEWER=0
 
-while getopts ":f" opt; do
+while getopts ":fn" opt; do
   case "$opt" in
     f)
       FORCE_UPDATE=1
       ;;
+    n)
+      CHECK_NEWER=1
+      ;;
     *)
-      echo -e "Usage: $(basename "$0") [-f]\n-f: force update" >&2
+      echo -e "Usage: $(basename "$0") [-f] [-n]\n-f: force update\n-n: check for newer versions" >&2
       exit 2
       ;;
   esac
 done
+
+npm_latest() {
+  # Prints dist-tags.latest for an npm package, or empty on failure.
+  # Uses Python for URL encoding + JSON parsing to avoid jq dependency.
+  local pkg="$1"
+
+  python3 - "$pkg" <<'PY'
+import json
+import sys
+import urllib.parse
+import urllib.request
+
+pkg = sys.argv[1]
+url = "https://registry.npmjs.org/" + urllib.parse.quote(pkg, safe="")
+try:
+    with urllib.request.urlopen(url, timeout=15) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    print(data.get("dist-tags", {}).get("latest", ""))
+except Exception:
+    # Silence errors; caller prints WARN.
+    print("")
+PY
+}
+
+
+check_newer() {
+  local pkg="$1"
+  local pinned="$2"
+  local latest
+
+  latest="$(npm_latest "$pkg")"
+  if [[ -z "$latest" ]]; then
+   echo "WARN: could not determine latest for $pkg (npm registry lookup failed)"
+   return 0
+  fi
+
+  if [[ "$latest" != "$pinned" ]]; then
+    echo "UPDATE: $pkg pinned=$pinned latest=$latest"
+    return 1
+  fi
+
+  echo "OK: $pkg pinned=$pinned"
+  return 0
+}
+
+if [[ "$CHECK_NEWER" -eq 1 ]]; then
+  outdated=0
+
+  check_newer "alpinejs" "$ALPINE_VER" || outdated=1
+  check_newer "chess.js" "$CHESSJS_VER" || outdated=1
+  check_newer "@lichess-org/chessground" "$CHESSGROUND_VER" || outdated=1
+
+  exit "$outdated"
+fi
 
 # ---- Alpine.js ----
 
