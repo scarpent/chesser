@@ -22,8 +22,11 @@
 
 set -euo pipefail
 
-STATIC_DIR="static"
-VENDOR_DIR="vendorfiles"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
+STATIC_DIR="$REPO_ROOT/static"
+VENDOR_DIR="$REPO_ROOT/vendorfiles"
 
 ALPINE_VER="3.15.3"
 CHESSJS_VER="1.4.0"

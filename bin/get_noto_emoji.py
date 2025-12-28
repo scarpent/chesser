@@ -1,10 +1,22 @@
+#!/usr/bin/env python3
+
 import os
+from pathlib import Path
 
 # Google's Noto Emoji
 # https://github.com/googlefonts/noto-emoji
 
-SOURCE_DIR = os.path.expanduser("~/src/noto-emoji/svg")
-TARGET_DIR = "static/icons/noto-emoji"
+
+def get_repo_root() -> Path:
+    # bin/get_noto_emoji.py -> repo root is one level up
+    return Path(__file__).resolve().parent.parent
+
+
+SOURCE_DIR = Path(os.path.expanduser("~/src/noto-emoji/svg"))
+TARGET_DIR = get_repo_root() / "static" / "icons" / "noto-emoji"
+
+if not SOURCE_DIR.is_dir():
+    raise SystemExit(f"Source dir not found: {SOURCE_DIR}")
 
 # This serves as a reference for the emoji buttons in the app
 emoji_buttons = {

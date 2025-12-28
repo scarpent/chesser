@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
 DEBUG=true
 
 while getopts ":d" opt; do
@@ -20,4 +23,4 @@ watchmedo auto-restart \
   --directory=static --directory=templates --directory=chesser \
   --pattern="*.js;*.css;*.html;*.py" \
   --recursive \
-  -- bash -c "export DEBUG=$DEBUG && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+  -- bash -c "export DEBUG=$DEBUG && python $REPO_ROOT/manage.py collectstatic --noinput && python $REPO_ROOT/manage.py runserver 0.0.0.0:8000"

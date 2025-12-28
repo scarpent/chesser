@@ -3,7 +3,10 @@
 # Safety first ➤ fail early and often
 set -euo pipefail
 
-DB_FILE="./data/chesser.sqlite3"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
+DB_FILE="$REPO_ROOT/data/chesser.sqlite3"
 
 if [ ! -f "$DB_FILE" ]; then
   echo "❌ Safety check failed: $DB_FILE not found."
@@ -18,15 +21,15 @@ if [ "$confirm" != "yes" ]; then
 fi
 
 echo "💥 Flushing dev database..."
-./manage.py flush --no-input
+"$REPO_ROOT/manage.py" flush --no-input
 
 echo "✅ Database reset!"
 
 # Look for the most recent backup
-DB_BACKUP=$(ls -t ./temp/db_backup_*.json 2>/dev/null | head -n 1 || true)
+DB_BACKUP=$(ls -t $REPO_ROOT/temp/db_backup_*.json 2>/dev/null | head -n 1 || true)
 
 if [ -z "$DB_BACKUP" ]; then
-  echo "🟡 No db_backup_*.json file found in ./temp — skipping loaddata."
+  echo "🟡 No db_backup_*.json file found in $REPO_ROOT/temp — skipping loaddata."
   exit 0
 fi
 
@@ -38,7 +41,7 @@ if [ "$confirm" != "yes" ]; then
   exit 0
 fi
 
-./manage.py loaddata "$DB_BACKUP" --verbosity 3
+"$REPO_ROOT/manage.py" loaddata "$DB_BACKUP" --verbosity 3
 
 echo "🦸‍♀️ Creating superuser..."
-./manage.py createsuperuser
+"$REPO_ROOT/manage.py" createsuperuser
