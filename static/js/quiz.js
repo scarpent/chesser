@@ -228,6 +228,15 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    normalizeSan(san) {
+      // "reambiguate" SAN by stripping disambiguation and trailing check/mate indicators
+      // e.g. Nge7+ => Ne7
+      return san
+        .replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3")
+        .replace(/[+#]$/, "");
+    },
+
+    //--------------------------------------------------------------------------------
     checkQuizMove(move) {
       if (this.noMoreMoves()) {
         this.completeQuiz();
@@ -240,14 +249,8 @@ export function quizApp() {
       if (move.san === answer.san) {
         correct = true;
       } else {
-        // e.g. Nge7 => Ne7
-        const reambiguateMove = (san) => {
-          return san
-            .replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3")
-            .replace(/[+#]$/, ""); // strip trailing check/mate
-        };
-        const normalizedMoveSan = reambiguateMove(move.san);
-        const normalizedAnswerSan = reambiguateMove(answer.san);
+        const normalizedMoveSan = this.normalizeSan(move.san);
+        const normalizedAnswerSan = this.normalizeSan(answer.san);
         correct = normalizedMoveSan === normalizedAnswerSan;
         if (correct) {
           console.log(
