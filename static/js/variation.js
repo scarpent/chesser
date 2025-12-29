@@ -394,14 +394,34 @@ export function variationApp() {
     //--------------------------------------------------------------------------------
     handleKeyNavigation(event) {
       if (event.key === "ArrowRight") {
+        event.preventDefault();
+
         if (event.shiftKey) {
-          // Shift + Right → Enter subvariation if available
-          this.enterSubvariation();
+          // Shift always navigates forward; it only *adds* "descend into subvar"
+          // when you're on mainline and a subvariation exists.
+          if (this.isInSubvariation()) {
+            this.nextSubvarMove(); // keep advancing while shift is held
+          } else if (this.getSubvarMoves().length > 0) {
+            this.enterSubvariation(); // descend on first shift-right
+          } else {
+            this.nextMainlineMove(); // no subvar → advance mainline
+          }
         } else {
           this.navigate("forward");
         }
       } else if (event.key === "ArrowLeft") {
-        this.navigate("back");
+        event.preventDefault();
+
+        if (event.shiftKey) {
+          // Symmetry with Shift+Right: Shift navigates back too.
+          if (this.isInSubvariation()) {
+            this.previousSubvarMove();
+          } else {
+            this.previousMainlineMove();
+          }
+        } else {
+          this.navigate("back");
+        }
       } else if (event.key === "a") {
         this.showAltMoveArrows(event);
       }
