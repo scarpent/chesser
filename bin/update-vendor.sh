@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
 
-# Update hosted frontend dependencies for Chesser.
+# Update vendored frontend dependencies for Chesser.
 #
-# This script fetches specific pinned versions of third-party JS libraries
-# (currently Alpine.js, chess.js, chessground), stores them under versioned
-# paths in vendorfiles/, and then copies a stable reference into static/ for
-# use by Django templates. The goal is reproducibility, auditability, and
-# minimal frontend tooling — no npm, no bundler, no build step.
+# This script fetches pinned versions of third-party frontend libraries
+# (currently Alpine.js, chess.js, and chessground), stores versioned copies
+# under vendorfiles/, and updates the corresponding stable files in static/
+# that are served by Django templates.
 #
-# Versioned vendor copies are kept so upgrades are explicit and reversible.
-# The static/ copies represent the currently active version used by the app.
-# -f flag is provided to force re-fetching even if files already exist.
-# -n flag is provided to check if newer versions are available.
+# Usage:
+#   bin/update-vendor.sh        # update missing dependencies
+#   bin/update-vendor.sh -f     # force re-fetch even if files already exist
+#   bin/update-vendor.sh -n     # check if newer upstream versions are available
+#
+# This script is intended to be run manually when upgrading dependencies.
+# It is not part of the normal development or deployment workflow.
+#
+# For background on the vendorfiles/ layout and philosophy, see:
+#   vendorfiles/README.md
 #
 # Notes:
-# - curl is run in fail-fast mode to avoid silently accepting partial downloads.
-# - Caching is handled explicitly at the template level where needed.
-#
-# This script is intended to be run manually when upgrading dependencies,
-# not as part of deployment.
+# - Downloads use curl in fail-fast mode to avoid partial or silent failures.
+# - Static file caching is handled by Django/WhiteNoise and template-level
+#   cache busting where needed.
 
 set -euo pipefail
 
