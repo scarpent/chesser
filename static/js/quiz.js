@@ -18,6 +18,8 @@ export function quizApp() {
     failed: false,
     completed: false,
     quizCompleteOverlay: "", // emoji or empty string
+    annotateTimeoutId: null,
+    opposingTimeoutId: null,
     quizBusy: false,
     runId: 0,
 
@@ -42,6 +44,24 @@ export function quizApp() {
           this.quizBusy = false;
         }
       }
+    },
+
+    withBusyTimeout(delayMs, fn) {
+      if (this.quizBusy) return;
+
+      const myRun = this.runId;
+      this.quizBusy = true;
+
+      this.opposingTimeoutId = setTimeout(() => {
+        try {
+          if (!this.isCurrentRun(myRun)) return;
+          fn();
+        } finally {
+          if (this.isCurrentRun(myRun)) {
+            this.quizBusy = false;
+          }
+        }
+      }, delayMs);
     },
 
     //--------------------------------------------------------------------------------
@@ -171,54 +191,40 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     playOpposingMove() {
-      const myRun = this.runId;
-
-      // If we're already busy, don't queue another opposing move.
-      if (this.quizBusy) return;
-      this.quizBusy = true;
-
-      setTimeout(() => {
-        try {
-          if (!this.isCurrentRun(myRun)) return;
-
-          if (this.quizMoveIndex === -2) {
-            // White quiz starting on first move (not something we'll see often)
-            // (either playing it or missing it and going back)
-            this.quizMoveIndex = 0;
-            return; // try/finally will still clear busy
-          }
-
-          this.quizMoveIndex++;
-
-          if (this.noMoreMoves()) {
-            this.completeQuiz();
-            return;
-          }
-
-          const san = this.variationData.moves[this.quizMoveIndex].san;
-          const move = this.chess.move(san);
-
-          this.board.set({
-            fen: this.chess.fen(),
-            movable: { dests: this.toDests() },
-            lastMove: [move.from, move.to],
-          });
-
-          this.quizMoveIndex++;
-
-          // quizzes *should* end on our move but if we have a
-          // hanging opposing move we'll need to end things here...
-          if (this.noMoreMoves()) {
-            this.completeQuiz();
-            return;
-          }
-        } finally {
-          // Always clear, even if we early-returned or something threw.
-          if (this.isCurrentRun(myRun)) {
-            this.quizBusy = false;
-          }
+      this.withBusyTimeout(250, () => {
+        // 0.25 second delay feels natural
+        if (this.quizMoveIndex === -2) {
+          // White quiz starting on first move (not something we'll see
+          // often, either playing it or missing it and going back)
+          this.quizMoveIndex = 0;
+          return; // try/finally will still clear busy
         }
-      }, 250); // 0.25 second delay feels natural
+
+        this.quizMoveIndex++;
+
+        if (this.noMoreMoves()) {
+          this.completeQuiz();
+          return;
+        }
+
+        const san = this.variationData.moves[this.quizMoveIndex].san;
+        const move = this.chess.move(san);
+
+        this.board.set({
+          fen: this.chess.fen(),
+          movable: { dests: this.toDests() },
+          lastMove: [move.from, move.to],
+        });
+
+        this.quizMoveIndex++;
+
+        // quizzes *should* end on our move but if we have a
+        // hanging opposing move we'll need to end things here...
+        if (this.noMoreMoves()) {
+          this.completeQuiz();
+          return;
+        }
+      });
     },
 
     //--------------------------------------------------------------------------------
@@ -381,6 +387,7 @@ export function quizApp() {
       this.runId += 1; // invalidate any in-flight async work
       this.quizBusy = false; // reset guard (new run starts clean)
       clearTimeout(this.annotateTimeoutId);
+      clearTimeout(this.opposingTimeoutId);
 
       this.chess.reset();
 
@@ -493,7 +500,7 @@ export function quizApp() {
     resetReviewSession() {
       localStorage.removeItem("review_pass");
       localStorage.removeItem("review_fail");
-      localStorage.removeItem("review_complete");
+      localStorage.removeItem("review_session_complete");
       localStorage.removeItem("last_completed_time");
 
       Object.keys(localStorage).forEach((key) => {
