@@ -18,8 +18,33 @@ export function quizApp() {
     failed: false,
     completed: false,
     quizCompleteOverlay: "", // emoji or empty string
-    quizBusy: false, // helps prevent state issues with restarts
+    quizBusy: false,
+    runId: 0,
 
+    // Concurrency model:
+    // - quizBusy prevents overlapping state transitions (move handling, opposing move, restart)
+    // - runId increments on restart so stale async callbacks (timeouts/modals) become no-ops
+
+    isCurrentRun(runId) {
+      return runId === this.runId;
+    },
+
+    async withBusy(fn) {
+      if (this.quizBusy) return;
+
+      const myRun = this.runId;
+      this.quizBusy = true;
+
+      try {
+        return await fn();
+      } finally {
+        if (this.isCurrentRun(myRun)) {
+          this.quizBusy = false;
+        }
+      }
+    },
+
+    //--------------------------------------------------------------------------------
     initQuiz() {
       const boardElement = document.getElementById("board");
 
@@ -99,32 +124,41 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     async handleMove(orig, dest) {
-      if (this.quizBusy) return;
-      this.quizBusy = true;
+      const myRun = this.runId;
 
-      const piece = this.chess.get(orig);
-      const isPromotion =
-        piece && piece.type === "p" && (dest.endsWith("8") || dest.endsWith("1"));
+      await this.withBusy(async () => {
+        // If a restart happened before we even begin, bail.
+        if (!this.isCurrentRun(myRun)) return;
 
-      let move;
-      if (isPromotion) {
-        const promotion = await this.showPromotionModal();
-        move = this.chess.move({ from: orig, to: dest, promotion });
-      } else {
-        move = this.chess.move({ from: orig, to: dest });
-      }
+        const piece = this.chess.get(orig);
+        const isPromotion =
+          piece && piece.type === "p" && (dest.endsWith("8") || dest.endsWith("1"));
 
-      if (!move) {
-        console.error(`Illegal move: ${orig} to ${dest}`);
-        return;
-      }
+        let move;
+        if (isPromotion) {
+          const promotion = await this.showPromotionModal();
+          // If user restarted while modal was open, ignore the result.
+          if (!this.isCurrentRun(myRun)) return;
 
-      this.board.set({
-        fen: this.chess.fen(),
-        movable: { dests: this.toDests() },
+          move = this.chess.move({ from: orig, to: dest, promotion });
+        } else {
+          move = this.chess.move({ from: orig, to: dest });
+        }
+
+        if (!move) {
+          console.error(`Illegal move: ${orig} to ${dest}`);
+          // Important: we do NOT "return" out of handleMove with busy still true anymore.
+          // withBusy() guarantees cleanup.
+          return;
+        }
+
+        this.board.set({
+          fen: this.chess.fen(),
+          movable: { dests: this.toDests() },
+        });
+
+        this.checkQuizMove(move);
       });
-
-      this.checkQuizMove(move);
     },
 
     //--------------------------------------------------------------------------------
@@ -137,36 +171,52 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     playOpposingMove() {
+      const myRun = this.runId;
+
+      // If we're already busy, don't queue another opposing move.
+      if (this.quizBusy) return;
       this.quizBusy = true;
+
       setTimeout(() => {
-        if (this.quizMoveIndex === -2) {
-          // White quiz starting on first move (not something we'll see often)
-          // (either playing it or missing it and going back)
-          this.quizMoveIndex = 0;
-          return;
-        }
-        this.quizMoveIndex++;
-        if (this.noMoreMoves()) {
-          this.completeQuiz();
-          return;
-        }
-        const san = this.variationData.moves[this.quizMoveIndex].san;
-        const move = this.chess.move(san);
+        try {
+          if (!this.isCurrentRun(myRun)) return;
 
-        this.board.set({
-          fen: this.chess.fen(),
-          movable: { dests: this.toDests() },
-          lastMove: [move.from, move.to],
-        });
-        this.quizMoveIndex++;
+          if (this.quizMoveIndex === -2) {
+            // White quiz starting on first move (not something we'll see often)
+            // (either playing it or missing it and going back)
+            this.quizMoveIndex = 0;
+            return; // try/finally will still clear busy
+          }
 
-        this.quizBusy = false;
+          this.quizMoveIndex++;
 
-        // quizzes *should* end on our move but if we have a
-        // hanging opposing move we'll need to end things here...
-        if (this.noMoreMoves()) {
-          this.completeQuiz();
-          return;
+          if (this.noMoreMoves()) {
+            this.completeQuiz();
+            return;
+          }
+
+          const san = this.variationData.moves[this.quizMoveIndex].san;
+          const move = this.chess.move(san);
+
+          this.board.set({
+            fen: this.chess.fen(),
+            movable: { dests: this.toDests() },
+            lastMove: [move.from, move.to],
+          });
+
+          this.quizMoveIndex++;
+
+          // quizzes *should* end on our move but if we have a
+          // hanging opposing move we'll need to end things here...
+          if (this.noMoreMoves()) {
+            this.completeQuiz();
+            return;
+          }
+        } finally {
+          // Always clear, even if we early-returned or something threw.
+          if (this.isCurrentRun(myRun)) {
+            this.quizBusy = false;
+          }
         }
       }, 250); // 0.25 second delay feels natural
     },
@@ -205,7 +255,9 @@ export function quizApp() {
         // that the outcome of the quiz is still pending
         this.status = "🟢";
         this.annotateCircle(move.to, "green");
-        this.playOpposingMove();
+        setTimeout(() => {
+          this.playOpposingMove();
+        }, 0);
       } else if (answer.alt.includes(move.san)) {
         // Alt moves are playable moves; yellow means we won't fail you for it
         this.status = "🟡";
@@ -225,11 +277,13 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     showQuizMove() {
+      if (this.quizBusy) return;
       if (!this.variationData.moves) return;
       if (this.noMoreMoves()) {
         this.status = "💣️🤷";
         return;
       }
+
       const san = this.variationData.moves[this.quizMoveIndex].san;
       const move = this.chess.move(san);
 
@@ -270,6 +324,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     gotoPreviousMove() {
+      clearTimeout(this.annotateTimeoutId);
       this.quizMoveIndex = this.quizMoveIndex - 2;
       this.chess.undo();
       this.chess.undo();
@@ -282,6 +337,8 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     completeQuiz() {
+      const myRun = this.runId;
+
       this.completed = true;
       this.showInfo = true;
       // last move has to have succeeded to have completed the quiz; the board
@@ -312,12 +369,18 @@ export function quizApp() {
         this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
       }
       this.quizCompleteOverlay = this.getQuizCompleteEmoji();
-      this.quizBusy = false;
+      if (this.isCurrentRun(myRun)) {
+        this.quizBusy = false;
+      }
     },
 
     //--------------------------------------------------------------------------------
     restartQuiz(stayFailed = false) {
       if (!this.variationData.moves) return;
+
+      this.runId += 1; // invalidate any in-flight async work
+      this.quizBusy = false; // reset guard (new run starts clean)
+      clearTimeout(this.annotateTimeoutId);
 
       this.chess.reset();
 
