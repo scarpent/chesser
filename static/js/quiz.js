@@ -52,6 +52,7 @@ export function quizApp() {
       const myRun = this.runId;
       this.quizBusy = true;
 
+      clearTimeout(this.opposingTimeoutId);
       this.opposingTimeoutId = setTimeout(() => {
         try {
           if (!this.isCurrentRun(myRun)) return;
@@ -167,16 +168,12 @@ export function quizApp() {
 
         if (!move) {
           console.error(`Illegal move: ${orig} to ${dest}`);
-          // Important: we do NOT "return" out of handleMove with busy still true anymore.
-          // withBusy() guarantees cleanup.
+          // Important: we do NOT "return" out of handleMove with busy
+          // still true anymore. withBusy() guarantees cleanup.
           return;
         }
 
-        this.board.set({
-          fen: this.chess.fen(),
-          movable: { dests: this.toDests() },
-        });
-
+        this.syncBoard();
         this.checkQuizMove(move);
       });
     },
@@ -229,7 +226,7 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     normalizeSan(san) {
-      // "reambiguate" SAN by stripping disambiguation and trailing check/mate indicators
+      // Normalize SAN by removing disambiguation and trailing check/mate indicators
       // e.g. Nge7+ => Ne7
       return san
         .replace(/([NBRQK])([a-h1-8])x?([a-h][1-8][+#]?)/g, "$1$3")
@@ -265,7 +262,7 @@ export function quizApp() {
         this.status = "🟢";
         this.annotateCircle(move.to, "green");
         setTimeout(() => {
-          this.playOpposingMove();
+          if (!this.quizBusy) this.playOpposingMove();
         }, 0);
       } else if (answer.alt.includes(move.san)) {
         // Alt moves are playable moves; yellow means we won't fail you for it
@@ -334,14 +331,26 @@ export function quizApp() {
     //--------------------------------------------------------------------------------
     gotoPreviousMove() {
       clearTimeout(this.annotateTimeoutId);
+      this.annotateTimeoutId = null;
       this.quizMoveIndex = this.quizMoveIndex - 2;
       this.chess.undo();
       this.chess.undo();
-      this.board.set({
-        fen: this.chess.fen(),
-        movable: { dests: this.toDests() },
-      });
+      this.syncBoard();
       this.playOpposingMove();
+    },
+
+    //--------------------------------------------------------------------------------
+    parseShapes(shapesStr) {
+      try {
+        return JSON.parse(shapesStr || "[]");
+      } catch {
+        return [];
+      }
+    },
+
+    //--------------------------------------------------------------------------------
+    syncBoard() {
+      this.board.set({ fen: this.chess.fen(), movable: { dests: this.toDests() } });
     },
 
     //--------------------------------------------------------------------------------
@@ -374,8 +383,10 @@ export function quizApp() {
         return;
       } else {
         // reveal arrows/circles for the last move
-        const shapes = this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]";
-        this.board.set({ drawable: { shapes: JSON.parse(shapes) } });
+        const shapes = this.parseShapes(
+          this.variationData.moves[this.quizMoveIndex - 1].shapes
+        );
+        this.board.set({ drawable: { shapes } });
       }
       this.quizCompleteOverlay = this.getQuizCompleteEmoji();
       if (this.isCurrentRun(myRun)) {
@@ -390,7 +401,9 @@ export function quizApp() {
       this.runId += 1; // invalidate any in-flight async work
       this.quizBusy = false; // reset guard (new run starts clean)
       clearTimeout(this.annotateTimeoutId);
+      this.annotateTimeoutId = null;
       clearTimeout(this.opposingTimeoutId);
+      this.opposingTimeoutId = null;
 
       this.chess.reset();
 
@@ -409,11 +422,7 @@ export function quizApp() {
 
       this.quizCompleteOverlay = "";
       this.goToStartingPosition();
-      this.board.set({
-        fen: this.chess.fen(),
-        movable: { dests: this.toDests() },
-      });
-
+      this.syncBoard();
       this.playOpposingMove();
       this.displayReviewSessionStats();
     },
@@ -563,8 +572,8 @@ export function quizApp() {
         drawable: {
           shapes:
             this.quizMoveIndex > 0
-              ? JSON.parse(
-                  this.variationData.moves[this.quizMoveIndex - 1].shapes || "[]"
+              ? this.parseShapes(
+                  this.variationData.moves[this.quizMoveIndex - 1].shapes
                 )
               : [],
         },
