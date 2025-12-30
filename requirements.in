@@ -1,7 +1,5 @@
 # run `pip-compile --upgrade` to generate requirements.txt with latest
 
-# python-dateutil
-# requests
 django
 dj-database-url
 djangoql
@@ -25,7 +23,6 @@ chess
 pytest
 pytest-cov
 pytest-django
-# time-machine
 
 # utils
 black
