@@ -24,8 +24,10 @@ export function quizApp() {
     runId: 0,
 
     // Concurrency model:
-    // - quizBusy prevents overlapping state transitions (move handling, opposing move, restart)
-    // - runId increments on restart so stale async callbacks (timeouts/modals) become no-ops
+    // - quizBusy prevents overlapping state transitions
+    //   (move handling, opposing move, restart)
+    // - runId increments on restart so stale async callbacks
+    //   (timeouts/modals) become no-ops
 
     isCurrentRun(runId) {
       return runId === this.runId;
@@ -257,19 +259,17 @@ export function quizApp() {
       }
 
       if (correct) {
-        // Green indicates that the move was successful, and purple
-        // that the outcome of the quiz is still pending
         this.status = "🟢";
         this.annotateCircle(move.to, "green");
         setTimeout(() => {
           if (!this.quizBusy) this.playOpposingMove();
         }, 0);
       } else if (answer.alt.includes(move.san)) {
-        // Alt moves are playable moves; yellow means we won't fail you for it
+        // Alt moves are playable moves; yellow means we didn't fail you for it
         this.status = "🟡";
         this.annotateMissedMove(move.from, move.to, "yellow", "green");
       } else if (answer.alt_fail.includes(move.san)) {
-        // Alt moves are playable moves; red means we will fail you for it
+        // Alt moves are playable moves; red means we failed you for it
         this.status = "🔴";
         this.annotateMissedMove(move.from, move.to, "red", "green");
         this.failed = true;
@@ -645,6 +645,9 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     getQuizCompleteEmoji() {
+      // These are just for fun and don't really mean anything other than trying
+      // to show progression as you level up through the quizzes, or commiserate
+      // with you in escalating fashion when you fail.
       const successEmojis = [
         "🔰", // L0
         "🌿", // L1
@@ -697,5 +700,5 @@ export function quizApp() {
         return false;
       }
     },
-  }; // return { ... }
+  };
 }
