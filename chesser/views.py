@@ -213,8 +213,14 @@ def get_import_context(form_defaults=None):
         ).order_by("color_order", "title")
     ]
 
-    if chapters:
-        form_defaults.setdefault("chapter_id", chapters[0]["id"])
+    chapters.insert(
+        0,
+        {
+            "id": "-1",
+            "label": "(From JSON)",
+        },
+    )
+    form_defaults.setdefault("chapter_id", chapters[0]["id"])
 
     return {
         "import_data": json.dumps(
@@ -359,7 +365,9 @@ class ImportVariationView(View):
         return end_move
 
     def set_chapter_info(self):
-        if chapter_id := self.form_data.get("chapter_id"):
+        chapter_id = (self.form_data.get("chapter_id") or "").strip()
+
+        if chapter_id and chapter_id != "-1":
             chapter = Chapter.objects.get(pk=int(chapter_id))
             created = False
             self.chapter_title = chapter.title  # override any incoming title
