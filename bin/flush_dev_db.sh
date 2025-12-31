@@ -38,10 +38,9 @@ echo "📦 Found latest backup: $DB_BACKUP ($(stat -c '%y' "$DB_BACKUP" | cut -d
 read -p "🚀 Load it? (yes/no) " confirm
 if [ "$confirm" != "yes" ]; then
   echo "👍️ Not loading from backup"
-  exit 0
+else
+  "$REPO_ROOT/manage.py" loaddata "$DB_BACKUP" --verbosity 3
 fi
-
-"$REPO_ROOT/manage.py" loaddata "$DB_BACKUP" --verbosity 3
 
 echo "🦸‍♀️ Creating superuser..."
 "$REPO_ROOT/manage.py" createsuperuser
