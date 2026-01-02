@@ -34,7 +34,7 @@
             "move_num": 2,
             "san": "b3",
             "annotation": "",
-            "text": "(4.Nxd4 Nxd4 {or} 4...Ne5?{, which people sometimes play...})\n\n<i>Here's</i> a <b>list</b>:\n\n<ul>\n<li>Apple</li>\n<li>Banana</li>\n</ul>\n\nAnd a blockquote:\n\n\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess.</blockquote>\n\nTrailing...",
+            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\n\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\n\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\n<hr>\n\n\nUnordered List <code>&lt;ul&gt;</code>:\n\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>\n\nOrdered List <code>&lt;ol&gt;</code>:\n<ol>\n  <li>Steal underwear</li>\n  <li>...</li>\n  <li>Profit!</li>\n</ol>\n\n<code>&lt;blockquote&gt;</code>\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\n\nLine<br>Breaks<br>Yo\n\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>",
             "alt": "",
             "alt_fail": "",
             "shapes": []

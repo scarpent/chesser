@@ -134,7 +134,8 @@ blockquote {
   line-height: 1.4;
 }
 
-#right-column ul {
+#right-column ul,
+ol {
   margin: 10px 0;
 }
 
