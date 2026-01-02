@@ -17,9 +17,16 @@ class Command(BaseCommand):
             default="/tmp/upload.json",
             help="Path to JSON file (default: /tmp/upload.json)",
         )
+        parser.add_argument(
+            "-u",
+            "--update",
+            action="store_true",
+            help="Force update existing variations",
+        )
 
     def handle(self, *args, **kwargs):
         file_path = kwargs["file"]
+        force_update = kwargs["update"]
 
         self.stdout.write(f"Importing from file: {file_path}")
 
@@ -40,5 +47,5 @@ class Command(BaseCommand):
         total = len(import_data)
         for count, data in enumerate(import_data, start=1):
             self.stdout.write(f"📥️ {count} of {total}")
-            importer.import_variation(data)
+            importer.import_variation(data, force_update=force_update)
         self.stdout.write("✅ Import complete")

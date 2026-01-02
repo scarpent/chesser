@@ -90,8 +90,28 @@ def get_changes(variation, import_data):
 
 
 @transaction.atomic
-def import_variation(import_data, source_variation_id=0, end_move=None):
+def import_variation(
+    import_data, source_variation_id=0, end_move=None, force_update=False
+):
     """source_variation_id used for cloning"""
+
+    if not force_update:
+        if variation_id := import_data.get("variation_id"):
+            try:
+                Variation.objects.get(pk=variation_id)
+                # alternatively, it would be easy enough to remove
+                # variation id from import if we're okay with it 🤷
+                raise ValueError(
+                    f"Variation #{variation_id} already exists; not importing"
+                )
+            except Variation.DoesNotExist:
+                pass  # good to go; note that we'll not reuse the ID
+    else:
+        if variation_id := import_data.get("variation_id"):
+            print(
+                "⚠️  force_update=True: ignoring variation_id collision "
+                f"checks (variation_id={variation_id})"
+            )
 
     if variation_id := import_data.get("variation_id"):
         try:
@@ -141,7 +161,7 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
 
     if not created and variation.chapter != chapter:
         print(
-            f"⚠️ Variation exists in a different chapter: "
+            f"⚠️  Variation exists in a different chapter: "
             f"'{variation.chapter.title}' vs '{chapter.title}'"
         )
 
@@ -154,10 +174,13 @@ def import_variation(import_data, source_variation_id=0, end_move=None):
             print(f"💥 Changes: {','.join(changes)}")
         else:
             print("🔒️ No changes")
-        # later we might re-import in some cases
+
         message = f"Mainline already exists for this chapter, #{variation.id}"
-        print(message)
-        raise ValueError(message)
+        if force_update:
+            print(f"⚠️  {message} — force_update=True, proceeding with update")
+        else:
+            print(message)
+            raise ValueError(message)
 
     variation.source = import_data.get("source")
     variation.title = import_data["variation_title"]
