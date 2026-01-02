@@ -1,8 +1,8 @@
 # Third-Party Licenses
 
-This project vendors a small number of third-party frontend
-libraries and assets. The following notices and licenses apply
-to those components.
+This project vendors or bundles a small number of third-party
+frontend libraries, assets, and reference materials. The
+following notices and licenses apply to those components.
 
 ## Alpine.js
 
@@ -29,3 +29,14 @@ code is available at the link above.
 
 This project includes a subset of SVG emoji icons derived from
 Noto Emoji.
+
+## Wikibooks – Chess Opening Theory
+
+- License: Creative Commons Attribution-ShareAlike (CC BY-SA)
+- Source: https://en.wikibooks.org/wiki/Chess_Opening_Theory
+
+This project includes opening descriptions adapted from
+_Wikibooks – Chess Opening Theory_, licensed under CC BY-SA.
+
+Some text may be derived from or influenced by versions
+distributed by Lichess, and may include minor modifications.

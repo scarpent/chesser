@@ -1,0 +1,263 @@
+{
+    "source": {},
+    "color": "white",
+    "chapter_title": "Scotch",
+    "variation_title": "Scotch 4...Nxd4",
+    "is_intro": false,
+    "level": 0,
+    "created_at": "2026-01-01T21:34:30+00:00",
+    "next_review": "9999-12-31T23:59:59+00:00",
+    "last_review": "9999-12-31T23:59:59",
+    "start_move": 2,
+    "moves": [
+        {
+            "move_num": 1,
+            "san": "e4",
+            "annotation": "",
+            "text": "<blockquote>Best by test. –Bobby Fischer</blockquote>\n\nThe <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the queen and the king's bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a white pawn on e4, there can't be a black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn centre with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a centre but prepare to undermine it later.</li>\n</ul>\n\n{<i>(<a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4\" rel=\"noopener noreferrer\">See more in Wikibooks...</a>)</i>}",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": [
+                {
+                    "orig": "e4",
+                    "brush": "green"
+                },
+                {
+                    "orig": "d5",
+                    "brush": "red"
+                },
+                {
+                    "orig": "f5",
+                    "brush": "red"
+                },
+                {
+                    "orig": "d1",
+                    "dest": "h5",
+                    "brush": "green"
+                },
+                {
+                    "orig": "f1",
+                    "dest": "c4",
+                    "brush": "green"
+                }
+            ]
+        },
+        {
+            "move_num": 1,
+            "san": "e5",
+            "annotation": "",
+            "text": "1...e5 serves to challenge white's plan of having the center squares to themselves. Of course, just like white's e4 move, e5 opens up the diagonals for blacks Bishop and Queen. While the position is still symmetrical there are few limits to where white can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King's Gambit with (2.f4). Black can take the pawn, but the gambit might allow white a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening's deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where white dreams of checkmating black with a quick Scholar's mate. (2.Qh5 Nc6 3.Bc4 {and white hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 2,
+            "san": "Nf3",
+            "annotation": "",
+            "text": "Nf3 is the classic of all classic moves. The knight on f3 immediately fights for control of the center by attacking the black e5 pawn. It also supports a potential d2-d4 move. Across many openings, it's common to develop the knight before the bishop. This is because, there is usually only one good square for the knight, while the bishop has several options. We can see this in black's most common response, Nc6.\n\nAfter (2...Nc6) to defend the black e5 pawn, white can place the bishop on b5 or c4. That is either Ruy Lopez {(Spanish)} or the Italian game.\n\nBlack could also counterattack with (2...Nf6,) known as the Russian Game or Petrov's.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": [
+                {
+                    "orig": "f3",
+                    "dest": "e5",
+                    "brush": "green"
+                },
+                {
+                    "orig": "e5",
+                    "brush": "red"
+                }
+            ]
+        },
+        {
+            "move_num": 2,
+            "san": "Nc6",
+            "annotation": "",
+            "text": "Black develops the Knight to c6, defending the black e5 pawn while also fighting for control of d4.\n\nWhite now can choose between several well known openings. The Ruy Lopez (3.Bb5), Italian (Bc4), and Scotch (d4) are all solid openings that see regular play at all levels. With the Ruy, white seeks to immediately chase the initiative and attacks the defender of the black e5 pawn. While in the Italian, the bishop on c4 target's the black f7 pawn, the weakest pawn in the starting position. The Scotch with d4 often leads to more concrete variations, starting with the pawns getting exchanged right away.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": [
+                {
+                    "orig": "e5",
+                    "brush": "green"
+                },
+                {
+                    "orig": "c6",
+                    "dest": "e5",
+                    "brush": "green"
+                }
+            ]
+        },
+        {
+            "move_num": 3,
+            "san": "d4",
+            "annotation": "",
+            "text": "With this aggressive pawn advance, White looks to open up the centre.\n\n(3...exd4) is played almost every time. It releases the central tension and leads to a very open game, with a lot of space for both players.\n\n(3...Nxd4{, the Lolli variation, is playable. White can trade on d4,} (4.Nxd4 exd4 5. Qxd4{, taking advantage of the fact Black has traded their knight to centralize their queen, or play}) (4.Nxe5)), threatening Qxd4.\n\nA few tries have been made with (3...d6{, transposing into a Philidor defence, but this affords White a range of good options:} 4.d5{, kicking the knight and expanding in the centre is the most straight-forward, or} 4.Bb5) transposing into an <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bb5/3...d6\" rel=\"noopener noreferrer\">Old Steinitz Spanish</a>.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 3,
+            "san": "exd4",
+            "annotation": "",
+            "text": "Essentially the only move.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 4,
+            "san": "Nxd4",
+            "annotation": "",
+            "text": "Black has now an opportunity to take the initiative that should not be wasted.\n\n(4...Bc5 {(Classical Variation) attacks White's central knight on d4 and forces White to either move it or protect it. Black should expect replies like} 5.Be3{,} 5.Nxc6{, or} 5.Nb3).\n\n(4...Nf6) {(Schmidt Variation) is a common alternative. Black puts immediate attacking pressure on White's pawn on e4.}\n\n(4...Qh4 {(Steinitz Variation) is more aggressive. Black immediately attempts to win White's e-pawn outright and indeed can practically win it by force. However, doing so costs time and White is thought to get more than enough compensation after} 5.Nc3 Bb4 6.Be2 Qxe4 7.Nb5 Bxc3+ 8.bxc3 Kd8 9.O-O).",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 4,
+            "san": "Nxd4",
+            "annotation": "?!",
+            "text": "Dubious. This lets the queen come to (5.Qxd4 {where she's not easily attacked, although people like pushing} 5...c5 {here, which is good for White.} 6.Qe3 {or} 6.Qd3) and other things are fine.\n\nThis is the most popular move at lower levels and is often employed by intermediate players as well.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 5,
+            "san": "Qxd4",
+            "annotation": "",
+            "text": "Now white can go for long castling and often launch a kingside attack. ⚔️",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": [
+                {
+                    "orig": "c1",
+                    "dest": "e3",
+                    "brush": "green"
+                },
+                {
+                    "orig": "c1",
+                    "dest": "f4",
+                    "brush": "green"
+                },
+                {
+                    "orig": "b1",
+                    "dest": "c3",
+                    "brush": "green"
+                },
+                {
+                    "orig": "f2",
+                    "dest": "f3",
+                    "brush": "green"
+                },
+                {
+                    "orig": "g2",
+                    "dest": "g4",
+                    "brush": "green"
+                },
+                {
+                    "orig": "h2",
+                    "dest": "h4",
+                    "brush": "green"
+                },
+                {
+                    "orig": "e1",
+                    "dest": "c1",
+                    "brush": "blue"
+                }
+            ]
+        },
+        {
+            "move_num": 5,
+            "san": "d6",
+            "annotation": "",
+            "text": "Black may have been burned before by (5...Nf6? 6.e5!).",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 6,
+            "san": "Bf4",
+            "annotation": "",
+            "text": "(6.Nc3) and other moves are fine, too.",
+            "alt": "Nc3, Be3",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 6,
+            "san": "Nf6",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 7,
+            "san": "Nc3",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 7,
+            "san": "Be7",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 8,
+            "san": "O-O-O",
+            "annotation": "",
+            "text": "Now c-pawn pushers might find themselves losing their d-pawn:\n\n(8...c5? 9.Qd2 O-O 10.Bxd6!)",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 8,
+            "san": "O-O",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 9,
+            "san": "f3",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": [
+                {
+                    "orig": "g2",
+                    "dest": "g4",
+                    "brush": "green"
+                },
+                {
+                    "orig": "h2",
+                    "dest": "h4",
+                    "brush": "green"
+                },
+                {
+                    "orig": "c1",
+                    "dest": "b1",
+                    "brush": "green"
+                }
+            ]
+        }
+    ],
+    "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nxd4 5.Qxd4 d6 6.Bf4 Nf6 7.Nc3 Be7 8.O-O-O O-O 9.f3"
+}
