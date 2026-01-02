@@ -113,15 +113,6 @@ def import_variation(
                 f"checks (variation_id={variation_id})"
             )
 
-    if variation_id := import_data.get("variation_id"):
-        try:
-            Variation.objects.get(pk=variation_id)
-            # alternatively, it would be easy enough to remove
-            # variation id from import if we're okay with it 🤷
-            raise ValueError(f"Variation #{variation_id} already exists; not importing")
-        except Variation.DoesNotExist:
-            pass  # good to go; note that we'll not reuse the ID
-
     color = import_data.get("color", "").lower()
     chapter, created = Chapter.objects.get_or_create(
         title=import_data["chapter_title"],
