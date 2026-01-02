@@ -17,12 +17,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "filename",
-            help="Output file path. Use '-' to write to stdout.",
+            "-f",
+            "--file",
+            type=str,
+            default="/tmp/export.json",
+            help="Output JSON file path (default: /tmp/export.json). Use '-' for stdout.",  # noqa: E501
         )
 
-    def handle(self, *args, **options):
-        filename = options["filename"]
+    def handle(self, *args, **kwargs):
+        file_path = kwargs["file"]
 
         qs = (
             Variation.objects.select_related("chapter")
@@ -30,12 +33,12 @@ class Command(BaseCommand):
             .order_by("id")
         )
 
-        if filename == "-":
+        if file_path == "-":
             count = self._write_json_list(sys.stdout, qs)
             self._report_count(count)
             return
 
-        out_path = Path(filename)
+        out_path = Path(file_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
         tmp_fd, tmp_name = tempfile.mkstemp(
@@ -43,11 +46,14 @@ class Command(BaseCommand):
             dir=str(out_path.parent),
             text=True,
         )
+
         try:
             with os.fdopen(tmp_fd, "w", encoding="utf-8") as out:
                 count = self._write_json_list(out, qs)
+
             os.replace(tmp_name, out_path)
             self._report_count(count)
+
         except Exception as exc:
             try:
                 os.unlink(tmp_name)
