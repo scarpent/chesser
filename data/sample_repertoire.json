@@ -15,8 +15,8 @@
         {
             "move_num": 1,
             "san": "a3",
-            "annotation": "∞",
-            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved {(see <a href=\"https://github.com/scarpent/chesser/blob/1f77aa7930303f4a6e373ec291c1ccbf474d53b4/chesser/util.py#L13\" target=\"_blank\" rel=\"noopener noreferrer\">source code</a>)}:\n\n<pre>ALLOWED_TAGS = {\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\", \"a\",\n&nbsp; \"hr\", \"br\", \"ul\", \"ol\", \"li\",\n&nbsp; \"code\", \"pre\", \"blockquote\", \"fenseq\",\n}\nALLOWED_ATTRIBUTES = {\n&nbsp; \"a\": {\"href\", \"title\", \"target\"},\n&nbsp; \"fenseq\": {\"data-fen\"},\n}\n</pre>\n\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\n\n<code>&lt;a&gt;</code> tags have <code>rel=\"noopener noreferrer\"</code> added during serialization.\n\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\n\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in another guide.",
+            "annotation": "!",
+            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved {(see <a href=\"https://github.com/scarpent/chesser/blob/1f77aa7930303f4a6e373ec291c1ccbf474d53b4/chesser/util.py#L13\" target=\"_blank\" rel=\"noopener noreferrer\">source code</a>)}:\n\n<pre>ALLOWED_TAGS = {\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\", \"a\",\n&nbsp; \"hr\", \"br\", \"ul\", \"ol\", \"li\",\n&nbsp; \"code\", \"pre\", \"blockquote\", \"fenseq\",\n}\nALLOWED_ATTRIBUTES = {\n&nbsp; \"a\": {\"href\", \"title\", \"target\"},\n&nbsp; \"fenseq\": {\"data-fen\"},\n}\n</pre>\n\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\n\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\n\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in another guide.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -24,8 +24,8 @@
         {
             "move_num": 1,
             "san": "h6",
-            "annotation": "",
-            "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \n\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\n\nWe protectively modify this as:\n\n<code>&lt;a href=\"https://example.com\"\n&nbsp;&nbsp;&nbsp;rel=\"noopener noreferrer\"&gt;Example!&lt;/a&gt;</code>\n\nWe allow <code>target=\"_blank\"</code> to open links in a new browser window or tab.",
+            "annotation": "∞",
+            "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \n\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\n\nWhich is protectively modified during serialization:\n\n<code>&lt;a href=\"https://example.com\"\n&nbsp;&nbsp;&nbsp;rel=\"noopener noreferrer\"&gt;Example!&lt;/a&gt;</code>\n\nThe target attribute is allowed to open links in a new browser window or tab:\n\n<code>target=\"_blank\"</code>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -34,7 +34,7 @@
             "move_num": 2,
             "san": "b3",
             "annotation": "",
-            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\n\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\n\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\n<hr>\n\nUnordered List <code>&lt;ul&gt;</code>:\n\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>\n\nOrdered List <code>&lt;ol&gt;</code>:\n\n<ol>\n  <li>Steal underwear</li>\n  <li>...</li>\n  <li>Profit!</li>\n</ol>\n\n<code>&lt;blockquote&gt;</code>\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\n\nLine<br>Breaks<br>Yo\n\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>",
+            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\n\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\n\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\n<hr>\n\nUnordered List <code>&lt;ul&gt;</code>:\n\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>\n\nOrdered List <code>&lt;ol&gt;</code>:\n\n<ol>\n  <li>Steal underwear</li>\n  <li>...</li>\n  <li>Profit!</li>\n</ol>\n\n<hr>\n\n<code>&lt;blockquote&gt;</code>\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\n\nLine<br>Breaks<br>Yo\n\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -47,19 +47,19 @@
     "source": {},
     "color": "white",
     "chapter_title": "...in the beginning",
-    "variation_title": "Subvariation Formatting Guide",
+    "variation_title": "Subvariation Formatting & Navigation",
     "is_intro": false,
     "level": 0,
     "created_at": "2026-01-02T21:16:27+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
     "last_review": "9999-12-31T23:59:59",
-    "start_move": 2,
+    "start_move": 1,
     "moves": [
         {
             "move_num": 1,
             "san": "e4",
-            "annotation": "∞",
-            "text": "{subvar continues...}\n(1...e5 2.Bc4)\n\n{subvar starts with same move as mainline (1.e4 d5) \"discarded root dupe\"}\n(1.e4 d5)\n{non-mainline root dupe}\n(1...e5 2.Nf3 (2.Nf3 Nc6))\n{we don't discard root dupe if it has no following move:} (1.e4)\n\n{subvar starts with mainline sibling move}\n(1.d4 d5 2.c4)\n{non-mainline root sibling}\n(1...e5 2.Nf3 (2.Nc3))\n\n{subvar doesn't start with a fully qualified move...}\n(e4 e5)\n\n{Use fenseq HTML tag to specify an arbitrary starting point}\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\n\nIf data-fen is omitted or empty, it will use the starting position FEN. These are all the same:\n<pre>&lt;fenseq data-fen=\"START FEN\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\n</pre>\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>",
+            "annotation": "!!",
+            "text": "Chesser has robust subvariation parsing and navigation!\n\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses:\n\n{<pre>Implied comment (1...e5 2.Nf3 {{actual comment}})</pre>}\n\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces:\n\n{<pre>{{(Parenthetically speaking...)}}</pre>}\n\nUse doubled curly braces to show a single literal brace:\n\n<code>{{{{or}}}}</code> ➡️  {{or}}\n\n👀 Let's see what we can do with SAN building blocks...\n<hr>\n\nA subvar may continue directly after the mainline move.\n{<code>(1...e5 2.Bc4)</code>}  ➡️\n(1...e5 2.Bc4)\n\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\n{<code>(1.e4 d5)</code>}  ➡️\n(1.e4 d5)\n\nWe also discard nested subvar root dupes {(2.Nf3}):\n{<code>(1...e5 2.Nf3 (2.Nf3 Nc6))</code>} ➡️\n(1...e5 2.Nf3 (2.Nf3 Nc6))\n\nRoot dupes are left alone when there are no following move:\n{<code>(1.e4)</code>} ➡️\n(1.e4)\n\n<hr>\n\n{subvar starts with mainline sibling move}\n(1.d4 d5 2.c4)\n{non-mainline root sibling}\n(1...e5 2.Nf3 (2.Nc3))\n\n{subvar doesn't start with a fully qualified move...}\n(e4 e5)\n\n{Use fenseq HTML tag to specify an arbitrary starting point}\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\n\nIf data-fen is omitted or empty, it will use the starting position FEN. These are all the same:\n<pre>&lt;fenseq data-fen=\"START FEN\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\n</pre>\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
