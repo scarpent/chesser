@@ -1075,3 +1075,118 @@ def test_known_open_subvar_leading_to_fenseq_pattern():
         move_str_unbalanced=True,
         expected=["1...e5", "3.d4"],
     )
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("", ""),
+        ("no braces here", "no braces here"),
+        ("{single}", "{single}"),
+        ("{{", move_resolver.LITERAL_LBRACE),
+        ("}}", move_resolver.LITERAL_RBRACE),
+        ("{{x}}", f"{move_resolver.LITERAL_LBRACE}x{move_resolver.LITERAL_RBRACE}"),
+        (
+            "a {{b}} c {{d}}",
+            "a "
+            + move_resolver.LITERAL_LBRACE
+            + "b"
+            + move_resolver.LITERAL_RBRACE
+            + " c "
+            + move_resolver.LITERAL_LBRACE
+            + "d"
+            + move_resolver.LITERAL_RBRACE,
+        ),
+        ("{{}}", f"{move_resolver.LITERAL_LBRACE}{move_resolver.LITERAL_RBRACE}"),
+        (
+            "weird }}}}",
+            f"weird {move_resolver.LITERAL_RBRACE}{move_resolver.LITERAL_RBRACE}",
+        ),
+    ],
+)
+def test_escape_literal_braces(text, expected):
+    assert move_resolver.escape_literal_braces(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("", ""),
+        ("no sentinels here", "no sentinels here"),
+        (move_resolver.LITERAL_LBRACE, "{"),
+        (move_resolver.LITERAL_RBRACE, "}"),
+        (
+            f"{move_resolver.LITERAL_LBRACE}x{move_resolver.LITERAL_RBRACE}",
+            "{x}",
+        ),
+        (
+            "a "
+            + move_resolver.LITERAL_LBRACE
+            + "b"
+            + move_resolver.LITERAL_RBRACE
+            + " c",
+            "a {b} c",
+        ),
+    ],
+)
+def test_restore_literal_braces_string(text, expected):
+    assert move_resolver.restore_literal_braces(text) == expected
+
+
+def test_restore_literal_braces_blocks_in_place():
+    # raw has sentinels
+    b1 = make_comment_block(
+        raw=f"{move_resolver.LITERAL_LBRACE}hi{move_resolver.LITERAL_RBRACE}",
+        display="{unused}",
+        depth=0,
+    )
+    # display_text has sentinels
+    b2 = ParsedBlock(
+        type_="comment",
+        raw="{x}",
+        display_text=(
+            f"Use {move_resolver.LITERAL_LBRACE} and {move_resolver.LITERAL_RBRACE}"
+        ),
+        depth=0,
+    )
+
+    blocks = [b1, b2]
+    out = move_resolver.restore_literal_braces(blocks)
+
+    # same list object back (restored in-place)
+    assert out is blocks
+
+    assert b1.raw == "{hi}"
+    assert b2.display_text == "Use { and }"
+
+
+def test_escape_then_extract_chunks_does_not_create_comments():
+    # Without escaping, "{{hello}}" would look like a comment start "{"
+    # at position 0, which is exactly what we're preventing.
+    text = "{{hello}}"
+
+    escaped = move_resolver.escape_literal_braces(text)
+    chunks = move_resolver.extract_ordered_chunks(escaped)
+
+    # It should become a single implied comment chunk containing the literal braces
+    # *as sentinels*, not as real braces. The restore step happens later.
+    assert len(chunks) == 1
+    assert chunks[0].type_ == "comment"
+    assert move_resolver.LITERAL_LBRACE in chunks[0].data
+    assert move_resolver.LITERAL_RBRACE in chunks[0].data
+
+    restored = move_resolver.restore_literal_braces(chunks[0].data)
+    assert restored == "{{hello}}"
+
+
+def test_get_parsed_blocks_from_string_preserves_literal_braces_in_comments():
+    text = "{(Guide: use {{{{ and }}}} to show literal braces)}"
+    escaped = move_resolver.escape_literal_braces(text)
+    blocks = get_parsed_blocks_from_string(escaped, depth=1)
+
+    # Restore like get_parsed_blocks does
+    move_resolver.restore_literal_braces(blocks)
+
+    # We should see the literal braces, not sentinels
+    output = [b.raw for b in blocks]
+    assert " ".join(output) == "{(Guide: use {{ and }} to show literal braces)}"

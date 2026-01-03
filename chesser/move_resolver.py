@@ -9,16 +9,8 @@ import chess
 from chesser.models import Move
 
 AMBIGUOUS = -1
-
-"""
-Previously Parser v2 in serializers.py
-
-Possible further breakdown?
-
-Chunk and ParsedBlock logic → parser_blocks.py
-PathFinder and ResolveStats → resolver.py
-Keep move_resolver.py as an integration layer
-"""
+LITERAL_LBRACE = "\ufff0"  # From Unicode Private Use Area — safe, invisible,
+LITERAL_RBRACE = "\ufff1"  # and extremely unlikely to collide with real text.
 
 
 @dataclass
@@ -160,10 +152,19 @@ class ResolveStats:
 def get_parsed_blocks(move: Move, board: chess.Board) -> list[ParsedBlock]:
     if not (resolved_move_text := move.get_resolved_field("text")):
         return []
+
+    # 1. Protect literal braces
+    resolved_move_text = escape_literal_braces(resolved_move_text)
+
+    # 2. Normal parsing
     chunks = extract_ordered_chunks(resolved_move_text)
     parsed_blocks = get_parsed_blocks_first_pass(chunks)
     pathfinder = PathFinder(parsed_blocks, move.move_verbose, board)
     resolved_blocks = pathfinder.resolve_moves()
+
+    # 3. Restore literal braces
+    restore_literal_braces(resolved_blocks)
+
     return resolved_blocks
 
 
@@ -1113,3 +1114,38 @@ def extract_ordered_chunks(text: str) -> list[Chunk]:
         print(f"❌  Unbalanced parens, depth {paren_depth}: {text[:30]}")
 
     return chunks
+
+
+def escape_literal_braces(text: str) -> str:
+    """
+    Replace doubled braces with sentinel characters so they are not
+    interpreted by the parser.
+    """
+    if not text:
+        return text
+
+    return text.replace("{{", LITERAL_LBRACE).replace("}}", LITERAL_RBRACE)
+
+
+def restore_literal_braces(value):
+    """
+    Restore literal brace sentinels back to visible braces.
+
+    Accepts either:
+      - a string
+      - a list of ParsedBlock objects (restores in-place)
+    """
+    if not value:
+        return value
+
+    if isinstance(value, str):
+        return value.replace(LITERAL_LBRACE, "{").replace(LITERAL_RBRACE, "}")
+
+    # Assume iterable of ParsedBlock
+    for block in value:
+        if block.raw:
+            block.raw = restore_literal_braces(block.raw)
+        if block.display_text:
+            block.display_text = restore_literal_braces(block.display_text)
+
+    return value
