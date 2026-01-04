@@ -47,7 +47,7 @@
     "source": {},
     "color": "white",
     "chapter_title": "...in the beginning",
-    "variation_title": "Subvariation Formatting & Navigation",
+    "variation_title": "Subvariation Syntax",
     "is_intro": false,
     "level": 0,
     "created_at": "2026-01-02T21:16:27+00:00",
@@ -59,7 +59,7 @@
             "move_num": 1,
             "san": "e4",
             "annotation": "!!",
-            "text": "Chesser has robust subvariation parsing and navigation!\n\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses:\n\n{<pre>Implied comment (1...e5 2.Nf3 {{actual comment}})</pre>}\n\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces:\n\n{<pre>{{(Parenthetically speaking...)}}</pre>}\n\nUse doubled curly braces to show a single literal brace:\n\n<code>{{{{or}}}}</code> ➡️  {{or}}\n\n<hr>\n\n👀 Let's see what we can do with SAN building blocks...",
+            "text": "Chesser has robust subvariation and comment parsing.\n\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses:\n\n➡️  {Implied comment (1...e5 2.Nf3 {{actual comment}})}\n\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces:\n\n➡️  {{{(Parenthetically speaking...)}}}\n\nUse doubled curly braces to show a single literal brace:\n\n{{{{or}}}} ➡️  {{or}}\n\n<hr>\n\n👀 Let's see what we can do with SAN building blocks...",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -68,7 +68,7 @@
             "move_num": 1,
             "san": "e5",
             "annotation": "",
-            "text": "A subvar may continue directly after the mainline move.\n{<code>(2.Nc3 2.Nf6)</code>}  ➡️\n(2.Nc3 2.Nf6)\n\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\n{<code>(1...e5 2.d4)</code>}  ➡️\n(1...e5 d4)\n\nWe also discard nested subvar root dupes {(e.g. 2...Nc6}):\n{<code>(2.Nf3 Nc6 (2...Nc6 3.Bc4))</code>} ➡️\n(2.Nf3 Nc6 (2...Nc6 3.Bc4))\n\nRoot dupes are left alone when there are no following moves:\n{<code>(1...e5)</code>} ➡️\n(1...e5)\n\nSubvars may also start with mainline “sibling” moves:\n{<code>(1...d5 exd5)</code>} ➡️\n(1...d5 exd5)\n\nNested subvars may also start with siblings:\n{<code>(1...c5 2.Nf3 (2.Bc4?))</code>} ➡️\n(1...c5 2.Nf3 (2.Bc4?))\n\n❌ marks the spot for parsing errors due to incorrect/ambiguous notation.\n{<code>(2.Nf3 Nc6 3.Bf4)</code>} ➡️\n(2.Nf3 Nc6 3.Bf4)\n\nThe parser will make a go of variations that have missing or incorrect move numbers. The result may or may not resolve into a legal, navigable line.\n{<code>(Nf3 Nc6 Bb5 a6)</code>} ➡️\n(Nf3 Nc6 Bb5 a6)\n\n{Use fenseq HTML tag to specify an arbitrary starting point}\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\n\nIf data-fen is omitted or empty, it will use the starting position FEN. These are all the same:\n<pre>&lt;fenseq data-fen=\"START FEN\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\n</pre>\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>\n\n\n\n\n{alternate move}\n(2.Nf3 {or} 2.Nc3)\n(2.Nf3 {or} 2.Nc3 2.Nf6)\n(2.Nf3 {or} 2.Nc3 {or} 2.d4)",
+            "text": "A subvar may continue directly after the mainline move.\n{(2.Nc3 2.Nf6)}  ➡️\n(2.Nc3 2.Nf6)\n\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\n{(1...e5 2.d4)}  ➡️\n(1...e5 d4)\n\nWe also drop nested root dupes {(e.g. Nc6)}:\n{(2.Nf3 Nc6 (2...Nc6 3.Bc4))} ➡️\n(2.Nf3 Nc6 (2...Nc6 3.Bc4))\n\nRoot dupes are left alone when there are no following moves:\n{(1...e5)} ➡️\n(1...e5)\n\nSubvars may also start with mainline “sibling” moves:\n{(1...d5 exd5)} ➡️\n(1...d5 exd5)\n\nNested subvars may also start with siblings:\n{(1...c5 2.Nf3 (2.Bc4?))} ➡️\n(1...c5 2.Nf3 (2.Bc4?))\n\nSimple alternate moves: Instead of using a nested subvariation, alternate moves can be specified by making them follow a comment. There can be more than one alternate, and an alternate line may include follow-up moves.\n\n(2.Nf3 {or} 2.Nc3)\n(2.Nf3 {or} 2.Nc3 {or} 2.d4)\n(2.Nf3 {or} 2.Nc3 Nf6)\n\n<i>When things go wrong:</i>\n\n❌ marks the spot where parsing failed due to incorrect or ambiguous notation.\n{(2.Nf3 Nc6 3.Bf4)} ➡️\n(2.Nf3 Nc6 3.Bf4)\n\nThe parser will attempt to interpret variations with missing or incorrect move numbers. The result may or may not resolve into a legal, navigable line.\n{(Nf3 Nc6 Bb5 a6)} ➡️\n(Nf3 Nc6 Bb5 a6)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -77,7 +77,7 @@
             "move_num": 2,
             "san": "Nf3",
             "annotation": "",
-            "text": "(2.Nf3 Nc6 (2...Nf6 3.Nc3 (3.Nxe5 Nxe4 4.Qe2 (4.Bc4? d5!) (4.d4 d5)))) X\n\n(2.Nf3 Nc6 (2...Nf6 3.Nc3 (3.Nxe5 Nxe4 4.Qe2 (4.Bc4? d5!) (4.d4 d5) {stepping down}) {stepping\ndown}) {stepping down}) X",
+            "text": "Use the custom &lt;fenseq&gt; HTML tag to specify an arbitrary starting point:\n\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\n\nIf <code>data-fen</code> is omitted or empty, Chesser will use the starting position FEN. These are all the same:\n\n&lt;fenseq data-fen=\"rnbqkbnr/…\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>\n\nClicking the ⏮️ button jumps to the specified FEN before the sequence begins.\n\nAlternation works in &lt;fenseq&gt; blocks, but they don’t otherwise support nesting. They’re meant to be simple, {(mostly)} flat sequences.\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1.e3 d5</fenseq>\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1...d5 2.exd5 {or} 2.e5?</fenseq>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -86,7 +86,7 @@
             "move_num": 2,
             "san": "Nc6",
             "annotation": "",
-            "text": "{subvar continues correctly from black ➤ white}\n(2...Nc6 3.d4 exd4 (3...exd4 Nxd4))\n\n{another root dupe, starting from black mainline with comment}\n(2...Nc6 3.Nc3)",
+            "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\n\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))}\n\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️})\n\n{(The “stepping down ↙️” comments shown here are included for illustration only.)}",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -95,7 +95,7 @@
             "move_num": 3,
             "san": "d4",
             "annotation": "",
-            "text": "<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1.e3 d5</fenseq>\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1...d5 2.exd5 {or} 2.e5?</fenseq>",
+            "text": "",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -104,7 +104,7 @@
             "move_num": 3,
             "san": "exd4",
             "annotation": "",
-            "text": "<pre>Testing preformatted\n</pre>\n\nAnd a <code>code</code> block.\n{ braces } One newline.\n\n\n\nSeveral newlines...\n\n(4.Nxd4 Nxd4 {or} 4...Ne5?{, which people sometimes play...})\n\n<i>Here's</i> a <b>list</b>:\n\n<ul>\n<li>Apple</li>\n<li>Banana</li>\n</ul>\n\nAnd a blockquote:\n\n\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess.</blockquote>\n\nTrailing...",
+            "text": "",
             "alt": "",
             "alt_fail": "",
             "shapes": []
