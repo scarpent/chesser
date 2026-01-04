@@ -59,7 +59,7 @@
             "move_num": 1,
             "san": "e4",
             "annotation": "!!",
-            "text": "Chesser has robust subvariation and comment parsing.\n\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses:\n\n➡️  {Implied comment (1...e5 2.Nf3 {{actual comment}})}\n\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces:\n\n➡️  {{{(Parenthetically speaking...)}}}\n\nUse doubled curly braces to show a single literal brace:\n\n{{{{or}}}} ➡️  {{or}}\n\n<hr>\n\n👀 Let's see what we can do with SAN building blocks...",
+            "text": "<blockquote>Chesser has robust subvariation and comment parsing. –Chesser’s author</blockquote>\n\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses.\n\n<i>Type this:</i>\n{Implied comment (1...e5 {{actual comment}} 2.Nf3 {{...}})}\n\n<i>To display:</i>\nImplied comment (1...e5 {actual comment} 2.Nf3 {...})\n\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces.\n\n<i>Type this:</i>\n{{{(Parenthetically speaking...)}}}\n\n<i>To display:</i>\n{(Parenthetically speaking...)}\n\nUse doubled curly braces to show a single literal brace.\n\n<i>Type this:</i>\n{{{{or}}}}\n\n<i>To display:</i>\n{{or}}",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -86,7 +86,7 @@
             "move_num": 2,
             "san": "Nc6",
             "annotation": "",
-            "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\n\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))}\n\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️})\n\n{(The “stepping down ↙️” comments shown here are included for illustration only.)}",
+            "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\n\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\n\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)}",
             "alt": "",
             "alt_fail": "",
             "shapes": []
