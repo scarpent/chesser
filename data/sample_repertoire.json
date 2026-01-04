@@ -16,7 +16,7 @@
             "move_num": 1,
             "san": "a3",
             "annotation": "!",
-            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved {(see <a href=\"https://github.com/scarpent/chesser/blob/1f77aa7930303f4a6e373ec291c1ccbf474d53b4/chesser/util.py#L13\" target=\"_blank\" rel=\"noopener noreferrer\">source code</a>)}:\n\n<pre>ALLOWED_TAGS = {\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\", \"a\",\n&nbsp; \"hr\", \"br\", \"ul\", \"ol\", \"li\",\n&nbsp; \"code\", \"pre\", \"blockquote\", \"fenseq\",\n}\nALLOWED_ATTRIBUTES = {\n&nbsp; \"a\": {\"href\", \"title\", \"target\"},\n&nbsp; \"fenseq\": {\"data-fen\"},\n}\n</pre>\n\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\n\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\n\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in another guide.",
+            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved {(see <a href=\"https://github.com/scarpent/chesser/blob/1f77aa7930303f4a6e373ec291c1ccbf474d53b4/chesser/util.py#L13\" target=\"_blank\" rel=\"noopener noreferrer\">source code</a>)}:\n\n<pre>ALLOWED_TAGS = {\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\", \"a\",\n&nbsp; \"hr\", \"br\", \"ul\", \"ol\", \"li\",\n&nbsp; \"code\", \"pre\", \"blockquote\", \"fenseq\",\n}\nALLOWED_ATTRIBUTES = {\n&nbsp; \"a\": {\"href\", \"title\", \"target\"},\n&nbsp; \"fenseq\": {\"data-fen\"},\n}\n</pre>\n\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\n\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\n\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in <a href=\"/variation/2/?idx=2\" rel=\"noopener noreferrer\">another guide</a>.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -25,7 +25,7 @@
             "move_num": 1,
             "san": "h6",
             "annotation": "∞",
-            "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \n\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\n\nWhich is protectively modified during serialization:\n\n<code>&lt;a href=\"https://example.com\"\n&nbsp;&nbsp;&nbsp;rel=\"noopener noreferrer\"&gt;Example!&lt;/a&gt;</code>\n\nThe target attribute is allowed to open links in a new browser window or tab:\n\n<code>target=\"_blank\"</code>",
+            "text": "Alert readers will have noticed we also demonstrated hyperlink anchor tags above. \n\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\n\nWhich is protectively modified during serialization:\n\n<code>&lt;a href=\"https://example.com\"\n&nbsp;&nbsp;&nbsp;rel=\"noopener noreferrer\"&gt;Example!&lt;/a&gt;</code>\n\nThe target attribute is allowed to open links in a new browser window or tab:\n\n<code>target=\"_blank\"</code>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -34,7 +34,7 @@
             "move_num": 2,
             "san": "b3",
             "annotation": "",
-            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\n\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\n\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\n<hr>\n\nUnordered List <code>&lt;ul&gt;</code>:\n\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>\n\nOrdered List <code>&lt;ol&gt;</code>:\n\n<ol>\n  <li>Steal underwear</li>\n  <li>...</li>\n  <li>Profit!</li>\n</ol>\n\n<hr>\n\n<code>&lt;blockquote&gt;</code>\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\n\nLine<br>Breaks<br>Yo\n\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>",
+            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\n\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\n\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\n<hr>\n\nUnordered List <code>&lt;ul&gt;</code>:\n\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>\n\nOrdered List <code>&lt;ol&gt;</code>:\n\n<ol>\n  <li>Steal underwear</li>\n  <li>...</li>\n  <li>Profit!</li>\n</ol>\n\n<hr>\n\n<code>&lt;blockquote&gt;</code>\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\n\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>\n\nLine<br>Breaks<br>Yo",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -95,7 +95,7 @@
             "move_num": 3,
             "san": "d4",
             "annotation": "",
-            "text": "",
+            "text": "<i>See also:</i> <a href=\"/variation/1/\" rel=\"noopener noreferrer\">Basic HTML Formatting</a>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -147,7 +147,7 @@
             "move_num": 1,
             "san": "e4",
             "annotation": "",
-            "text": "<blockquote>Best by test. –Bobby Fischer</blockquote>\n\nThe <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>\n\n{<i>(<a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4\" rel=\"noopener noreferrer\">See more in Wikibooks...</a>)</i>}",
+            "text": "<blockquote>Best by test. –Bobby Fischer</blockquote>\n\nThe <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>\n\n{<i>(<a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4\" target=\"_blank\" rel=\"noopener noreferrer\">See more in Wikibooks...</a>)</i>}",
             "alt": "",
             "alt_fail": "",
             "shapes": [
@@ -226,7 +226,7 @@
             "move_num": 3,
             "san": "d4",
             "annotation": "",
-            "text": "With this aggressive pawn advance, White looks to open up the center.\n\n(3...exd4) is played almost every time. It releases the central tension and leads to a very open game, with a lot of space for both players.\n\n(3...Nxd4{, the Lolli variation, is playable. White can trade on d4,} (4.Nxd4 exd4 5.Qxd4{, taking advantage of the fact Black has traded their Knight to centralize their Queen, or play}) (4.Nxe5)), threatening Qxd4.\n\nA few tries have been made with (3...d6{, transposing into a Philidor Defense, but this affords White a range of good options:} 4.d5{, kicking the Knight and expanding in the center is the most straightforward, or} 4.Bb5), transposing into an <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bb5/3...d6\" rel=\"noopener noreferrer\">Old Steinitz Spanish</a>.",
+            "text": "With this aggressive pawn advance, White looks to open up the center.\n\n(3...exd4) is played almost every time. It releases the central tension and leads to a very open game, with a lot of space for both players.\n\n(3...Nxd4{, the Lolli variation, is playable. White can trade on d4,} (4.Nxd4 exd4 5.Qxd4{, taking advantage of the fact Black has traded their Knight to centralize their Queen, or play}) (4.Nxe5)), threatening Qxd4.\n\nA few tries have been made with (3...d6{, transposing into a Philidor Defense, but this affords White a range of good options:} 4.d5{, kicking the Knight and expanding in the center is the most straightforward, or} 4.Bb5), transposing into an <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bb5/3...d6\" rel=\"noopener noreferrer\">Old Steinitz Spanish</a>.\n\n{<i>(<a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._d4\" target=\"_blank\" rel=\"noopener noreferrer\">See: 3.d4 Scotch Game in Wikibooks</a>)</i>}",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -397,5 +397,147 @@
         }
     ],
     "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nxd4 5.Qxd4 d6 6.Bf4 Nf6 7.Nc3 Be7 8.O-O-O O-O 9.f3"
+},
+{
+    "variation_id": 4,
+    "source": {},
+    "color": "black",
+    "chapter_title": "Italian",
+    "variation_title": "Italian 4.Ng5 Knight Attack",
+    "is_intro": false,
+    "level": 0,
+    "created_at": "2026-01-04T21:00:58+00:00",
+    "next_review": "9999-12-31T23:59:59+00:00",
+    "last_review": "9999-12-31T23:59:59",
+    "start_move": 1,
+    "moves": [
+        {
+            "move_num": 1,
+            "san": "e4",
+            "annotation": "",
+            "text": "The <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>\n\n{<i>(<a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4\" target=\"_blank\" rel=\"noopener noreferrer\">See more in Wikibooks...</a>)</i>}",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 1,
+            "san": "e5",
+            "annotation": "",
+            "text": "1...e5 serves to challenge White's plan of having the center squares to themselves. Of course, just like White's e4 move, e5 opens up the diagonals for Black's Bishop and Queen. While the position is still symmetrical there are few limits to where White can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King's Gambit with (2.f4). Black can take the pawn, but the gambit might allow White a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening's deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where White dreams of checkmating Black with a quick Scholar's Mate. (2.Qh5 Nc6 3.Bc4 {and White hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 2,
+            "san": "Nf3",
+            "annotation": "",
+            "text": "Nf3 is the classic of all classics. The Knight on f3 fights for control of the center by attacking Black's e5 pawn. It also supports a potential d2-d4 move.\n\nIt's common to develop the knight before the bishop across a wide range of openings. This is because there is usually only one good square for the knight, while the bishop has several options. We can see this in Black's most common response, Nc6. Black could also counterattack with (2...Nf6), known as the Russian Game or Petrov Defense.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 2,
+            "san": "Nc6",
+            "annotation": "",
+            "text": "Black develops the Knight to c6, defending Black's e5 pawn while also fighting for control of d4.\n\nWhite can now choose between several well-known openings. The Ruy Lopez (3.Bb5), Italian Game (3.Bc4), and Scotch Game (3.d4) are all solid openings that see regular play at all levels. With the Ruy Lopez, White seeks to chase the initiative and attacks the defender of Black’s e5 pawn. In the Italian Game, the Bishop on c4 targets Black’s f7 pawn, the weakest pawn in the starting position. The Scotch Game with 3.d4 often leads to more concrete variations, with the central pawns being exchanged right away.",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 3,
+            "san": "Bc4",
+            "annotation": "",
+            "text": "White develops the bishop to a good square where it controls a valuable diagonal. From c4 the Bishop controls d5 and pressures Black's f7-pawn, the most vulnerable pawn in Black's position. Having developed both their kingside minor pieces quickly, White is ready to castle. White's plans include a swift attack on f7 and building a strong center with c3 and d4.\n\nThere is no immediate threat to Black's position so they have some flexibility in how to respond. It would be good to develop a piece, and there are several options, the top two being (3...Nf6), the Two Knights, or (3...Bc5), the Giuoco Piano, which reflects a choice of whether to keep or to release control of g5.\n\n{<i>(<a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bc4\" target=\"_blank\" rel=\"noopener noreferrer\">See: 3.Bc4 Italian Game in Wikibooks</a>)</i>}",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 3,
+            "san": "Nf6",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 4,
+            "san": "Ng5",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 4,
+            "san": "d5",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 5,
+            "san": "exd5",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 5,
+            "san": "Na5",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 6,
+            "san": "Bb5+",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 6,
+            "san": "c6",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 7,
+            "san": "dxc6",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 7,
+            "san": "bxc6",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        }
+    ],
+    "mainline": "1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 d5 5.exd5 Na5 6.Bb5+ c6 7.dxc6 bxc6"
 }
 ]
