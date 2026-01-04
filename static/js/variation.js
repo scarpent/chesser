@@ -428,6 +428,38 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
+    handleArrowButtonClick(event, direction) {
+      // direction: "back" | "forward"
+      // Mirror ArrowLeft/ArrowRight semantics, including Shift behavior.
+      const isForward = direction === "forward";
+
+      if (event?.shiftKey) {
+        if (isForward) {
+          // Shift always navigates forward; it only *adds* "descend into subvar"
+          // when you're on mainline and a subvariation exists.
+          if (this.isInSubvariation()) {
+            this.nextSubvarMove(); // keep advancing while shift is held
+          } else if (this.getSubvarMoves().length > 0) {
+            this.enterSubvariation(); // descend on first shift-forward
+          } else {
+            this.nextMainlineMove(); // no subvar → advance mainline
+          }
+        } else {
+          // Symmetry with Shift+Right: Shift navigates back too.
+          if (this.isInSubvariation()) {
+            this.previousSubvarMove();
+          } else {
+            this.previousMainlineMove();
+          }
+        }
+        return;
+      }
+
+      // No modifier → current behavior
+      this.navigate(direction);
+    },
+
+    //--------------------------------------------------------------------------------
     enterSubvariation() {
       const subvarMoves = this.getSubvarMoves();
       if (subvarMoves.length > 0) {

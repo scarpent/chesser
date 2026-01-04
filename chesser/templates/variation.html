@@ -55,12 +55,12 @@
           ></button>
           <button
             title="Mainline Back"
-            @click="navigate('back')"
+            @click="handleArrowButtonClick($event, 'back')"
             class="icon-back icon-button"
           ></button>
           <button
             title="Mainline Forward"
-            @click="navigate('forward')"
+            @click="handleArrowButtonClick($event, 'forward')"
             class="icon-forward icon-button"
           ></button>
           <button
