@@ -5,6 +5,8 @@ from dataclasses import dataclass
 
 import chess
 from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from chesser import util
 from chesser.models import Move, SharedMove, get_matching_moves, get_shared_candidates
@@ -395,64 +397,126 @@ def add_alt_shape(shapes, move, color):
     shapes.append({"orig": from_square, "dest": to_square, "brush": color})
 
 
+def normalize_links(source) -> list[dict]:
+    """We allow either a single link dict or a list of link dicts in source."""
+    link = (source or {}).get("link")
+    if not link:
+        return []
+    if isinstance(link, dict):
+        return [link]
+    if isinstance(link, list):
+        return [x for x in link if isinstance(x, dict)]
+    return []
+
+
+def get_links_from_source(source) -> list[str]:
+    """Returns a list of HTML fragments to be concatenated by the caller.
+
+    Different output structures for single or multiple links:
+
+    Single:
+
+        Source: 3.Bc4 Italian Game (Wikibooks)
+
+    Multiple:
+
+        Sources:
+          • 3.Bc4 Italian Game (Wikibooks)
+          • Blah, blah, blah
+    """
+    parts = []
+    links = normalize_links(source)
+
+    if len(links) == 1:
+        info = links[0]
+        url = util.safe_href(info.get("url", ""))
+        text = util.strip_all_html(info.get("text", ""))
+
+        if url and text:
+            parts.append(
+                format_html(
+                    '<p>Source: <a href="{}" target="_blank" rel="noopener">{}</a></p>',
+                    url,
+                    text,
+                )
+            )
+        elif text:
+            parts.append(format_html("<p>Source: {}</p>", text))
+
+    elif len(links) > 1:
+        parts.append('<br/>Sources:<ul style="margin-top: 5px">')
+
+        for info in links:
+            url = util.safe_href(info.get("url", ""))
+            text = util.strip_all_html(info.get("text", ""))
+
+            if url and text:
+                parts.append(
+                    format_html(
+                        '<li><a href="{}" target="_blank" rel="noopener">{}</a></li>',
+                        url,
+                        text,
+                    )
+                )
+            elif text:
+                parts.append(format_html("<li>{}</li>", text))
+
+        parts.append("</ul>")
+
+    return parts
+
+
 def get_source_html(source):
-    """
-    {
-        "my_course": {
-            "course": course,
-            "chapter": chapter,
-            "variation_title": variation_title,
-            "variation_id": variation_id,
-        },
-        "original_course": {},  # same as above
-        "link": {
-            "url": url,
-            "text": link text,
-        }
-    }
-    """
-    link = ""
-    mine = ""
-    original = ""
+    """See Variation in models.py for source structure."""
+    parts = get_links_from_source(source)
 
-    if source_info := source.get("link"):
-        link += (
-            f'<p id="source-link">Source: <a href="{source_info["url"]}"'
-            f'target="_blank" >{util.strip_all_html(source_info["text"])}</a></p>'
-        )
-        if note := source_info.get("note", "").strip():
-            link += f"<p>{note}</p>"
-
+    # My course (Chessable variation link)
     if my_course := source.get("my_course"):
         variation_id = int(my_course["variation_id"])
-        mine = (
-            '<p id="source-variation">Source Variation '
-            '<a href="https://www.chessable.com/variation/'
-            f'{variation_id}/" target="_blank">{variation_id}</a></p>'
-        )
-        if note := my_course.get("note", "").strip():
-            mine += f"<p>{note}</p>"
 
+        parts.append(
+            format_html(
+                "<p>Source Variation "
+                '<a href="https://www.chessable.com/variation/{}/" '
+                'target="_blank" rel="noopener">{}</a></p>',
+                variation_id,
+                variation_id,
+            )
+        )
+
+        if note := my_course.get("note", "").strip():
+            parts.append(format_html("<p>{}</p>", mark_safe(util.clean_html(note))))
+
+    # Original course (also Chessable variation link; we show/sanitize more fields)
     if original_course := source.get("original_course"):
         variation_id = int(original_course["variation_id"])
-        cleaned_course = util.strip_all_html(original_course["course"])
-        cleaned_chapter = util.strip_all_html(original_course["chapter"])
-        cleaned_title = util.strip_all_html(original_course["variation_title"])
 
-        original = (
-            f'<p id="original-variation">{cleaned_course} ➤<br/>'
-            f"{cleaned_chapter} ➤<br/>"
-            f"{cleaned_title} "
-            '<a href="https://www.chessable.com/variation/'
-            f'{variation_id}/" target="_blank">{variation_id}</a></p>'
+        cleaned_course = util.strip_all_html(original_course.get("course", ""))
+        cleaned_chapter = util.strip_all_html(original_course.get("chapter", ""))
+        cleaned_title = util.strip_all_html(original_course.get("variation_title", ""))
+
+        parts.append(
+            format_html(
+                "<p>{} ➤<br/>{} ➤<br/>{} "
+                '<a href="https://www.chessable.com/variation/{}/" '
+                'target="_blank" rel="noopener">{}</a></p>',
+                cleaned_course,
+                cleaned_chapter,
+                cleaned_title,
+                variation_id,
+                variation_id,
+            )
         )
+
         if note := original_course.get("note", "").strip():
-            original += f"<p>{note}</p>"
+            parts.append(format_html("<p>{}</p>", mark_safe(util.clean_html(note))))
 
-    if link + mine + original == "":
-        return "<br>"  # "<p>No source information available.</p>"
+    if not parts:
+        return "<br/>"
 
-    return util.clean_html(link + mine + original)
+    # We might have tried cleaning the whole thing here,
+    # but that would strip out <p>, etc
+    return "".join(parts)
 
 
 def generate_variation_html(variation):

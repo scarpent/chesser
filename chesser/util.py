@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timezone
+from urllib.parse import urlsplit
 
 import nh3
 from django.utils.timesince import timesince
@@ -38,6 +39,22 @@ def clean_html(text):
 
 def strip_all_html(text: str) -> str:
     return nh3.clean(text, tags=set(), attributes={})
+
+
+def safe_href(url: str) -> str:
+    """
+    Allow relative URLs and http(s) absolute URLs.
+    Reject other schemes (javascript:, data:, etc).
+    """
+    url = (url or "").strip()
+    if not url:
+        return ""
+
+    scheme = urlsplit(url).scheme
+    if scheme in {"http", "https", ""}:
+        return url
+
+    return ""
 
 
 def strip_move_numbers(move_str):

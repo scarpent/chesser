@@ -32,11 +32,13 @@ class Variation(models.Model):
             "note": note,  # optional
         },
         "original_course": {},  # same as above
-        "link": {
-            "url": url,
-            "text": link text,
-            "note": note,  # optional
-        }
+        "link": [
+            {
+                "url": url,
+                "text": link text,
+                "note": note,  # optional
+            }
+        ]  # array is optional
     }
 
     Source was originally intended to link to chessable courses, where I
