@@ -444,7 +444,7 @@ def get_links_from_source(source) -> list[str]:
             parts.append(format_html("<p>Source: {}</p>", text))
 
     elif len(links) > 1:
-        parts.append('<br/>Sources:<ul style="margin-top: 5px">')
+        parts.append('<br/>Sources:\n<ul style="margin-top: 5px">')
 
         for info in links:
             url = util.safe_href(info.get("url", ""))

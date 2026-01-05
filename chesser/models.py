@@ -20,7 +20,8 @@ class Chapter(models.Model):
 class Variation(models.Model):
     """
     Level 0 = "unlearned" / never reviewed - it's one time only, and we
-    move on to 1 from there, and return to 1 when we fail a review
+    move on to 1 from there, and return to 1 when we fail a review.
+    (We can manually reset to 0 if we want to reset our reviews for a line.)
 
     source structure:
     {
@@ -41,12 +42,18 @@ class Variation(models.Model):
         ]  # array is optional
     }
 
-    Source was originally intended to link to chessable courses, where I
-    often had an original version and my modified version. Made as a JSONField
-    because I didn't want to fully commit to a structure. This would come
-    in during import and I wasn't concerned about a UI for modifying it. (We
-    can always go to the Django admin if needed.) Adding "link" now as a more
-    general purpose source field, which maybe will call for some UI later.
+    The `source` field is intentionally flexible. It is stored as JSON to avoid
+    prematurely committing to a rigid schema. Conventions may be added over time,
+    but existing data should remain backward-compatible.
+
+    Source was originally intended to link Chessable courses, where I often had
+    both an original version and a modified personal version of a line. This data
+    was imported automatically, and no dedicated UI was initially planned for
+    editing it (the Django admin is sufficient if needed).
+
+    The `link` key was added later as a general-purpose attribution/reference
+    mechanism (videos, studies, articles). It may eventually warrant a small UI,
+    but is currently rendered read-only.
     """
 
     title = models.CharField(max_length=100)
