@@ -141,7 +141,7 @@
     "created_at": "2026-01-02T21:16:27+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
     "last_review": "9999-12-31T23:59:59",
-    "start_move": 2,
+    "start_move": 3,
     "moves": [
         {
             "move_num": 1,
@@ -409,7 +409,7 @@
     "created_at": "2026-01-04T21:00:58+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
     "last_review": "9999-12-31T23:59:59",
-    "start_move": 1,
+    "start_move": 3,
     "moves": [
         {
             "move_num": 1,
@@ -460,7 +460,7 @@
             "move_num": 3,
             "san": "Nf6",
             "annotation": "",
-            "text": "",
+            "text": "Black develops a Knight and attacks the e4-pawn, getting one step closer to castling. This move seems like the most obvious one Black can play in the Italian, but it also comes at a disadvantage of blocking the d8-h4 diagonal of the black queen.\n\nWhite has several ways to proceed from this position: defend the e-pawn, usually with (4.d3), attack f7 with the aggressive (4.Ng5), or sacrifice the pawn for an open center and swift attack.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -469,16 +469,31 @@
             "move_num": 4,
             "san": "Ng5",
             "annotation": "",
-            "text": "",
+            "text": "The Knight Attack!\n\nWe need to know a few things to defend against this very common move at lower levels. {(The top guys play it occasionally, too. Perhaps to mix things up with an irrational position.)}\n\nThis Romantic move is an attack on f7 with the Bishop and Knight, taking advantage of the fact that Black gave up control of g5 and cannot castle yet. However, it is unprincipled to attack before having finished development. Siegbert Tarrasch slammed the move as “bungling,” reflecting the classical view that early attacks without development are suspect.\n\nWhite might be hoping for the \"Fried Liver\" attack:\n\n(4...d5 5.exd5 Nxd5 6.Nxf7! Kxf7 7.Qf3 Ke6)\n\nAnd while an engine might be able to defend this, it’s not a position most humans will enjoy playing.\n\nFearful beginners will sometimes play <fenseq data-fen=\"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3\">3...h6 {to prevent this nasty incursion, but it passively loses a tempo to} 4.d4!</fenseq>, and while not losing outright, it starts us off on our back foot. It's better—and more fun—to learn the lines so that we can happily engage with this aggression.\n\nThere is only one principled response to the Knight incursion: (4...d5!)",
             "alt": "",
             "alt_fail": "",
-            "shapes": []
+            "shapes": [
+                {
+                    "orig": "c4",
+                    "dest": "f7",
+                    "brush": "green"
+                },
+                {
+                    "orig": "g5",
+                    "dest": "f7",
+                    "brush": "green"
+                },
+                {
+                    "orig": "f7",
+                    "brush": "red"
+                }
+            ]
         },
         {
             "move_num": 4,
             "san": "d5",
             "annotation": "",
-            "text": "",
+            "text": "Black has one principled response that meets the attack head-on.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
