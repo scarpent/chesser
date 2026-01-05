@@ -18,7 +18,7 @@ ALLOWED_TAGS = {
 BLOCK_TAGS = {"ul", "ol", "li", "pre", "blockquote"}
 
 ALLOWED_ATTRIBUTES = {
-    "a": {"href", "title", "target"},
+    "a": {"href", "title"},
     "fenseq": {
         "data-fen",
     },
@@ -32,7 +32,7 @@ def clean_html(text):
         text,
         tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
-        url_schemes={"http", "https", "mailto"},
+        url_schemes={"http", "https"},
     )
 
 

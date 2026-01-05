@@ -61,7 +61,7 @@
     ></button>
     <button
       title="Lichess analysis board"
-      @click="window.open(moveData.analysis_url, '_blank')"
+      @click="window.open(moveData.analysis_url, '_blank', 'noopener')"
       class="icon-analysis icon-button"
     ></button>
     <button title="Save All" @click="saveAll()" class="icon-save icon-button"></button>
@@ -79,6 +79,7 @@
       <a
         :href="buildAdminMatchingSharedMovesLink()"
         target="_blank"
+        rel="noopener"
         title="Show all shared moves matching SAN/FEN"
         >shared</a
       >
@@ -86,6 +87,7 @@
       <a
         :href="buildAdminMatchingMovesLink()"
         target="_blank"
+        rel="noopener"
         title="Show all moves matching SAN/FEN"
         >moves</a
       >
@@ -136,6 +138,7 @@
               :href="'/admin/chesser/sharedmove/' + move.id + '/change/'"
               title="Edit Shared Move in Admin"
               target="_blank"
+              rel="noopener"
               x-text="'#' + move.id"
             ></a>
           </div>
@@ -164,6 +167,7 @@
             <a
               :href="buildAdminMatchingMovesLink(move)"
               target="_blank"
+              rel="noopener"
               title="Show all shared moves matching SAN/FEN/shared values"
               x-text="move.move_ids.length + ' variation' + (move.move_ids.length === 1 ? '' : 's')"
             ></a>

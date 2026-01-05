@@ -397,23 +397,44 @@ def add_alt_shape(shapes, move, color):
 
 def get_source_html(source):
     """
-    {"my_course": {"course": "My White Openings", "chapter": "Caro-Kann 2K", "variation_title": "Caro-Kann 3...Bg4", "variation_id": 21090319, "note": ""}, "original_course": {"course": "Keep It Simple: 1. e4", "chapter": "1. Quickstarter Guide", "variation_title": "Quickstarter Guide #56 - Caro-Kann", "variation_id": 6611081, "note": ""}}
-    """  # noqa: E501
+    {
+        "my_course": {
+            "course": course,
+            "chapter": chapter,
+            "variation_title": variation_title,
+            "variation_id": variation_id,
+        },
+        "original_course": {},  # same as above
+        "link": {
+            "url": url,
+            "text": link text,
+        }
+    }
+    """
+    link = ""
     mine = ""
     original = ""
 
+    if source_info := source.get("link"):
+        link += (
+            f'<p id="source-link">Source: <a href="{source_info["url"]}"'
+            f'target="_blank" >{util.strip_all_html(source_info["text"])}</a></p>'
+        )
+        if note := source_info.get("note", "").strip():
+            link += f"<p>{note}</p>"
+
     if my_course := source.get("my_course"):
+        variation_id = int(my_course["variation_id"])
         mine = (
             '<p id="source-variation">Source Variation '
             '<a href="https://www.chessable.com/variation/'
-            f'{my_course["variation_id"]}/" target="_blank">'
-            f'{my_course["variation_id"]}</a></p>'
+            f'{variation_id}/" target="_blank">{variation_id}</a></p>'
         )
         if note := my_course.get("note", "").strip():
-            mine += f"<p>{util.clean_html(note)}</p>"
+            mine += f"<p>{note}</p>"
 
     if original_course := source.get("original_course"):
-
+        variation_id = int(original_course["variation_id"])
         cleaned_course = util.strip_all_html(original_course["course"])
         cleaned_chapter = util.strip_all_html(original_course["chapter"])
         cleaned_title = util.strip_all_html(original_course["variation_title"])
@@ -423,16 +444,15 @@ def get_source_html(source):
             f"{cleaned_chapter} ➤<br/>"
             f"{cleaned_title} "
             '<a href="https://www.chessable.com/variation/'
-            f'{original_course["variation_id"]}/" target="_blank">'
-            f'{original_course["variation_id"]}</a></p>'
+            f'{variation_id}/" target="_blank">{variation_id}</a></p>'
         )
         if note := original_course.get("note", "").strip():
             original += f"<p>{note}</p>"
 
-    if mine + original == "":
-        return "<p>No source information available.</p>"
+    if link + mine + original == "":
+        return "<br>"  # "<p>No source information available.</p>"
 
-    return mine + original
+    return util.clean_html(link + mine + original)
 
 
 def generate_variation_html(variation):

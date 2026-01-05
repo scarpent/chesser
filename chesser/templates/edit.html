@@ -59,7 +59,7 @@
     ></button>
     <button
       title="Lichess analysis board"
-      @click="window.open(variationData.analysis_url, target='_blank')"
+      @click="window.open(variationData.analysis_url, '_blank', 'noopener')"
       class="icon-analysis icon-button"
     ></button>
     <button
@@ -79,6 +79,7 @@
       <a
         :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
         target="_blank"
+        rel="noopener"
         x-text="'#' + variationData.variation_id"
       ></a>
       <span x-show="variationData.is_intro">📌</span>
@@ -101,7 +102,10 @@
       </div>
 
       <div>
-        <a :href="'/export/' + variationData.variation_id + '/'" target="_blank"
+        <a
+          :href="'/export/' + variationData.variation_id + '/'"
+          target="_blank"
+          rel="noopener"
           >export</a
         >
         •
@@ -135,6 +139,7 @@
             <a
               :href="variationData.analysis_url + (index + 1)"
               target="_blank"
+              rel="noopener"
               x-text="move.fen"
             ></a>
           </div>
@@ -219,6 +224,7 @@
               :href="'/admin/chesser/move/' + move.move_id + '/change/'"
               title="Edit Move in Admin"
               target="_blank"
+              rel="noopener"
               x-text="'#' + move.move_id"
             ></a>
           </div>

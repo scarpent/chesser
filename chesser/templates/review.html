@@ -131,7 +131,7 @@
         ></button>
         <button
           title="Lichess Analysis Board"
-          @click="window.open(variationData.analysis_url + quizMoveIndex, target='_blank')"
+          @click="window.open(variationData.analysis_url + quizMoveIndex, '_blank', 'noopener')"
           class="icon-analysis icon-button"
         ></button>
       </div>
@@ -190,7 +190,7 @@
         ></button>
         <button
           title="Lichess Puzzles"
-          @click="window.open('https://lichess.org/training', target='_blank')"
+          @click="window.open('https://lichess.org/training', '_blank', 'noopener')"
           class="icon-puzzles icon-button icon-button-big-round"
         ></button>
       </div>

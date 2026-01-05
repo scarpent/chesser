@@ -46,7 +46,7 @@
   <div class="button-container button-container-home" x-cloak>
     <button
       title="Stats"
-      @click="window.open('/stats/', '_blank')"
+      @click="window.open('/stats/', '_blank', 'noopener')"
       class="icon-stats icon-button icon-button-big-round"
     ></button>
     <button
@@ -227,7 +227,7 @@
     ></button>
     <button
       title="Lichess Puzzles"
-      @click="window.open('https://lichess.org/training', target='_blank')"
+      @click="window.open('https://lichess.org/training', '_blank', 'noopener')"
       class="icon-puzzles icon-button icon-button-big-round"
     ></button>
   </div>
@@ -295,7 +295,7 @@
 
   <div class="links-container" x-cloak>
     <!-- Admin link -->
-    <a href="/admin/" class="admin-link" target="_blank">Admin</a>
+    <a href="/admin/" class="admin-link" target="_blank" rel="noopener">Admin</a>
 
     <!-- Logout form styled as a link -->
     <form method="POST" action="{% url 'logout' %}" class="logout-form">

@@ -29,9 +29,22 @@ class Variation(models.Model):
             "chapter": chapter,
             "variation_title": variation_title,
             "variation_id": variation_id,
+            "note": note,  # optional
         },
         "original_course": {},  # same as above
+        "link": {
+            "url": url,
+            "text": link text,
+            "note": note,  # optional
+        }
     }
+
+    Source was originally intended to link to chessable courses, where I
+    often had an original version and my modified version. Made as a JSONField
+    because I didn't want to fully commit to a structure. This would come
+    in during import and I wasn't concerned about a UI for modifying it. (We
+    can always go to the Django admin if needed.) Adding "link" now as a more
+    general purpose source field, which maybe will call for some UI later.
     """
 
     title = models.CharField(max_length=100)
