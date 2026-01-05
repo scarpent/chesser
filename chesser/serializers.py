@@ -444,7 +444,7 @@ def get_links_from_source(source) -> list[str]:
             parts.append(format_html("<p>Source: {}</p>", text))
 
     elif len(links) > 1:
-        parts.append('<br/>Sources:\n<ul style="margin-top: 5px">')
+        parts.append('<br>Sources:\n<ul style="margin-top: 5px">')
 
         for info in links:
             url = util.safe_href(info.get("url", ""))
@@ -497,7 +497,7 @@ def get_source_html(source):
 
         parts.append(
             format_html(
-                "<p>{} ➤<br/>{} ➤<br/>{} "
+                "<p>{} ➤<br>{} ➤<br>{} "
                 '<a href="https://www.chessable.com/variation/{}/" '
                 'target="_blank" rel="noopener">{}</a></p>',
                 cleaned_course,
@@ -512,7 +512,7 @@ def get_source_html(source):
             parts.append(format_html("<p>{}</p>", mark_safe(util.clean_html(note))))
 
     if not parts:
-        return "<br/>"
+        return "<br>"
 
     # We might have tried cleaning the whole thing here,
     # but that would strip out <p>, etc
