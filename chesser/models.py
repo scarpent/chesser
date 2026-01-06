@@ -37,7 +37,6 @@ class Variation(models.Model):
             {
                 "url": url,
                 "text": link text,
-                "note": note,  # optional
             }
         ]  # array is optional
     }
