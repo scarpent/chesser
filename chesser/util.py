@@ -25,16 +25,44 @@ ALLOWED_ATTRIBUTES = {
     },
 }
 
+# 👾 here there be monsters, we're not supposed to parse HTML with regex, etc,
+# BUT, we're only going to lightly wrangle a single tag from clean html
+ANCHOR_OPEN_RE = re.compile(r"<a\b([^>]*)>", re.IGNORECASE)
+HREF_RE = re.compile(r"""href\s*=\s*(?P<q>["'])(?P<href>.*?)(?P=q)""", re.IGNORECASE)
+REL_OR_TARGET_RE = re.compile(r"""\s+(rel|target)\s*=\s*(["']).*?\2""", re.IGNORECASE)
+
 START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
+def decorate_external_links(html: str) -> str:
+    def repl(match: re.Match) -> str:
+        attrs = match.group(1) or ""
+        href_match = HREF_RE.search(attrs)
+        if not href_match:
+            return match.group(0)
+
+        href = (href_match.group("href") or "").strip().lower()
+        is_external = href.startswith("http://") or href.startswith("https://")
+
+        # Remove any existing rel/target (even though nh3 currently strips them)
+        cleaned_attrs = REL_OR_TARGET_RE.sub("", attrs)
+
+        if is_external:
+            cleaned_attrs += ' target="_blank" rel="noopener noreferrer"'
+
+        return f"<a{cleaned_attrs}>"
+
+    return ANCHOR_OPEN_RE.sub(repl, html)
+
+
 def clean_html(text):
-    return nh3.clean(
+    cleaned = nh3.clean(
         text,
         tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
         url_schemes={"http", "https"},
     )
+    return decorate_external_links(cleaned)
 
 
 def strip_all_html(text: str) -> str:

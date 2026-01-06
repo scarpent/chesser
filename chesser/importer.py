@@ -174,7 +174,8 @@ def import_variation(
             raise ValueError(message)
 
     variation.source = import_data.get("source")
-    variation.title = import_data["variation_title"]
+    # This is displayed with x-text in the template so shouldn't *need* this, but...
+    variation.title = util.strip_all_html(import_data["variation_title"])
     variation.is_intro = import_data.get("is_intro", False)
     variation.start_move = import_data["start_move"]
     if created and import_data["level"] >= 0:

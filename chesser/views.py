@@ -335,7 +335,7 @@ class ImportVariationView(View):
         )
         if not title or title == "TBD":
             raise ValueError("Variation Title not given and not in JSON")
-        self.incoming_json["variation_title"] = title
+        self.incoming_json["variation_title"] = util.strip_all_html(title)
         messages.success(self.request, f"🟢 Title: {title}")
 
     def set_start_move(self):
@@ -380,7 +380,7 @@ class ImportVariationView(View):
             if self.color not in ("white", "black"):
                 raise ValueError("Chapter color must be 'white' or 'black'")
             chapter, created = Chapter.objects.get_or_create(
-                title=self.chapter_title,
+                title=self.strip_all_html(self.chapter_title),
                 color=self.color,
             )
 
@@ -682,7 +682,8 @@ def save_variation(request):
     variation_id = data.get("variation_id")
     print(f"💾 Saving variation {variation_id}")
     variation = get_object_or_404(Variation, pk=variation_id)
-    variation.title = data["title"]  # no sanitization; displayed as x-text
+    # Displayed as x-text, doesn't *need* cleaning, but let's be safe & clean
+    variation.title = util.strip_all_html(data["title"])
     variation.start_move = data["start_move"]
     variation.save()
 
