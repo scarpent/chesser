@@ -229,39 +229,45 @@ def test_render_comment_block_debug_output(capsys):
 @pytest.mark.parametrize(
     "block_data, initial_state, expected_html, expected_state",
     [
+        # NOTE! If you enable the Start Block Log in serializer,
+        # it will need to be inserted into the beginning of
+        # expected_html in each case below: log1, log2, etc.
+        #
+        # e.g. '<!-- Start Block Log: log1 -->
+        #
         # Case 1: Start block with FEN, not already in paragraph
         (
             {"type_": "start", "fen": "some-fen", "depth": 1, "log": "log1"},
             {"in_paragraph": False, "counter": -1},
-            '<!-- Start Block Log: log1 --><p><span class="move subvar-move" data-fen="some-fen" data-index="0">⏮️</span>',  # noqa: E501
+            '<p><span class="move subvar-move" data-fen="some-fen" data-index="0">⏮️</span>',  # noqa: E501
             {"in_paragraph": True, "counter": 0},
         ),
         # Case 2: Start block with FEN, already in paragraph
         (
             {"type_": "start", "fen": "other-fen", "depth": 1, "log": "log2"},
             {"in_paragraph": True, "counter": 4},
-            '<!-- Start Block Log: log2 --><span class="move subvar-move" data-fen="other-fen" data-index="5">⏮️</span>',  # noqa: E501
+            '<span class="move subvar-move" data-fen="other-fen" data-index="5">⏮️</span>',  # noqa: E501
             {"in_paragraph": True, "counter": 5},
         ),
         # Case 3: Start block with depth > 1, not already in paragraph
         (
             {"type_": "start", "fen": "", "depth": 3, "log": "log3"},
             {"in_paragraph": False, "counter": 0},
-            '<!-- Start Block Log: log3 --><p class="subvar-indent depth-3">',
+            '<p class="subvar-indent depth-3">',
             {"in_paragraph": True, "counter": 0},
         ),
         # Case 4: Start block with depth > 1, already in paragraph
         (
             {"type_": "start", "fen": "", "depth": 2, "log": "log4"},
             {"in_paragraph": True, "counter": 2},
-            '<!-- Start Block Log: log4 --></p><p class="subvar-indent depth-2">',
+            '</p><p class="subvar-indent depth-2">',
             {"in_paragraph": True, "counter": 2},
         ),
         # Case 5: No fen, depth 1
         (
             {"type_": "start", "fen": "", "depth": 1, "log": "log5"},
             {"in_paragraph": True, "counter": 0},
-            "<!-- Start Block Log: log5 -->",
+            "",
             {"in_paragraph": True, "counter": 0},
         ),
     ],

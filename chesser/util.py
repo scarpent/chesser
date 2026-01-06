@@ -57,7 +57,7 @@ def decorate_external_links(html: str) -> str:
 
 def clean_html(text):
     cleaned = nh3.clean(
-        text,
+        text or "",
         tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
         url_schemes={"http", "https"},

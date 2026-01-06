@@ -623,7 +623,21 @@ def render_comment_block(block: ParsedBlock, state: RenderState) -> str:
 
 
 def render_start_block(block: ParsedBlock, state: RenderState) -> str:
-    html = f"<!-- Start Block Log: {block.log} -->"
+    """For something that's useful for debugging but doesn't need to be on all
+    the time, you might start with:
+
+        html = f"<!-- Start Block Log: {block.log} -->"
+
+    That will break a set of tests (see: test_render_start_block), which are
+    easily fixed.
+
+    Security note: don't emit block.log directly into HTML. Even inside an HTML
+    comment, untrusted content can "break out" of the comment (e.g. via '-->')
+    and turn the rest into real markup, creating an injection/XSS risk. If you
+    ever need this, gate it behind DEBUG and ensure the emitted content is
+    escaped/neutralized for the context (or log to server output instead).
+    """
+    html = ""
 
     if block.fen:
         if not state.in_paragraph:
