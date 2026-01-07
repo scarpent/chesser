@@ -544,9 +544,10 @@ def generate_variation_html(variation):
 
         move_str += f"{move.san}{resolved_annotation}"
 
-        html += (
-            '<span class="move mainline-move" '
-            f'data-index="{move.sequence}">{move_str}</span>'
+        html += format_html(
+            '<span class="move mainline-move" data-index="{}">{}</span>',
+            move.sequence,
+            move_str,
         )
 
         board.push_san(move.san)  # Mainline moves better be valid
@@ -644,20 +645,22 @@ def render_start_block(block: ParsedBlock, state: RenderState) -> str:
             html += "<p>"
             state.in_paragraph = True
         state.counter += 1
-        html += (
-            f'<span class="move subvar-move" data-fen="{block.fen}" '
-            f'data-index="{state.counter}">⏮️</span>'
+
+        html += format_html(
+            '<span class="move subvar-move" data-fen="{}" data-index="{}">⏮️</span>',
+            block.fen,
+            state.counter,
         )
 
     elif block.depth > 1:
         # use depth and emoji for debug/visualization: <p>{block.depth}🌻
-        para = f'<p class="subvar-indent depth-{block.depth}">'
+        para = format_html('<p class="subvar-indent depth-{}">', block.depth)
         if not state.in_paragraph:  # probably already in a paragraph at depth 2
             html += para
             state.in_paragraph = True
         else:
             # TODO: look out for <p></p>? (not seeing any big gaps so far)
-            html += f"</p>{para}"
+            html += "</p>" + para
 
     return html
 

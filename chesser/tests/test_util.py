@@ -64,6 +64,23 @@ fix_notation_game = "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6 6.Be3 Bg7 7.
             fix_notation_game,
         ),
         (fix_notation_game, fix_notation_game),
+        ("12.O-O+", "12.O-O+"),
+        ("12.O-O#", "12.O-O#"),
+        ("12...O-O-O+", "12...O-O-O+"),
+        ("1.exd8=Q+", "1.exd8=Q+"),
+        ("1...cxb1=N#", "1...cxb1=N#"),
+        ("1.exd6 e.p.", "1.exd6"),
+        ("1.e4 e5 1-0", "1.e4 e5"),
+        ("1.e4 e5 *", "1.e4 e5"),
+        ("1.e4 e5 1/2-1/2", "1.e4 e5"),
+        ("1.Nfxe5+ Nxe5", "1.Nfxe5+ Nxe5"),
+        ("1.Qh4e1", "1.Qh4 e1"),  # or whatever you expect
+        ("\n\t 1. e4 \n e5 \t2. Nf3", "1.e4 e5 2.Nf3"),
+        ("1.e4!? e5?! 2.Nf3!!", "1.e4 e5 2.Nf3"),
+        ("1.e4!? e5?! 2.Nf3!!", "1.e4 e5 2.Nf3"),
+        ("1.e4+?! e5 2.Nf3", "1.e4+ e5 2.Nf3"),
+        ("1.e4?!+ e5 2.Nf3!#", "1.e4+ e5 2.Nf3#"),
+        ("12.O-O-O#!?", "12.O-O-O#"),
     ],
 )
 def test_normalize_notation(test_input, expected):

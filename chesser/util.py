@@ -199,6 +199,11 @@ def normalize_notation(moves):
     will *also* fix really messed up strings like: 1. e4e52. Bc4Nf63. d3c6
 
     move string must start with a number and at least one dot
+
+    removes ! and/or ? annotation glyphs (gui is the place for all annotation)
+
+    this was brought in from another project and the unmangling part is nice,
+    but maybe should be looking at a proper parser
     """
     regex = r"""(?x)
         ^(                                          # one big capture
@@ -211,7 +216,7 @@ def normalize_notation(moves):
                 |
                 O-O(?:-O)?                          # castles
             )
-            [+#]?                                   # check/mate
+            (?:[!?]*[+#]?[!?]*)?                    # annotations/check in any order
         )"""
 
     old_string = moves.strip()
@@ -221,8 +226,12 @@ def normalize_notation(moves):
         m = re.match(regex, old_string)
         if not m:
             break
-        space = "" if m.group()[-1] == "." else " "
-        new_string += f"{m.group()}{space}"
+
+        token = m.group(1)
+        # Drop annotation glyphs; GUI is the only place for annotation, currently
+        token = re.sub(r"[!?]+", "", token)
+        space = "" if token.endswith(".") else " "
+        new_string += f"{token}{space}"
         old_string = old_string[m.end() :].strip()  # noqa: E203
 
     return new_string.strip()

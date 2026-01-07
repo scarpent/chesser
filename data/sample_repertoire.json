@@ -588,7 +588,7 @@
             "move_num": 4,
             "san": "Ng5",
             "annotation": "",
-            "text": "The Knight Attack!\n\nWe need to know a few things to defend against this very common move at lower levels. {(The top guys play it occasionally, too. Perhaps to mix things up with an irrational position.)}\n\nThis Romantic move is an attack on f7 with the Bishop and Knight, taking advantage of the fact that Black gave up control of g5 and cannot castle yet. However, it is unprincipled to attack before having finished development. Siegbert Tarrasch slammed the move as “bungling,” reflecting the classical view that early attacks without development are suspect.\n\nWhite might be hoping for the \"Fried Liver\" attack:\n\n(4...d5 5.exd5 Nxd5 6.Nxf7! Kxf7 7.Qf3 Ke6)\n\nAnd while an engine might be able to defend this, it’s not a position most humans will enjoy playing.\n\nFearful beginners will sometimes play <fenseq data-fen=\"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3\">3...h6 {to prevent this nasty incursion, but it passively loses a tempo to} 4.d4!</fenseq>, and while not losing outright, it starts us off on our back foot. It's better—and more fun—to learn the lines so that we can happily engage with this aggression.\n\nThere is only one principled response to the Knight incursion: (4...d5!)",
+            "text": "The Knight Attack!\n\nWe need to know a few things to defend against this common move at lower levels. {(The top guys play it occasionally, too. Perhaps to mix things up with an irrational position.)}\n\nThis Romantic move is an attack on f7 with the Bishop and Knight, taking advantage of the fact that Black gave up control of g5 and cannot castle yet. However, it is unprincipled to attack before having finished development. Siegbert Tarrasch slammed the move as “bungling,” reflecting the classical view that early attacks without development are suspect.\n\nWhite might be hoping for the “Fried Liver” attack:\n\n(4...d5 5.exd5 Nxd5 6.Nxf7! Kxf7 7.Qf3 Ke6)\n\nAnd while an engine might be able to defend this, it’s not a position most humans will enjoy playing.\n\nFearful beginners sometimes play <fenseq data-fen=\"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3\">3...h6 {to prevent this nasty incursion, but it passively loses a tempo to} 4.d4!</fenseq>, and while not losing outright, it starts us off on our back foot. It's better—and more fun—to learn the lines so that we can happily engage with this aggression.\n\nThere is only one principled response to the Knight incursion: (4...d5!)",
             "alt": "",
             "alt_fail": "",
             "shapes": [
@@ -612,7 +612,7 @@
             "move_num": 4,
             "san": "d5",
             "annotation": "",
-            "text": "Black has one principled response that meets the attack head-on.",
+            "text": "",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -666,7 +666,7 @@
             "move_num": 7,
             "san": "bxc6",
             "annotation": "",
-            "text": "",
+            "text": "&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -715,7 +715,7 @@
             "move_num": 1,
             "san": "Nf6",
             "annotation": "",
-            "text": "The main idea of the Alekhine is to invite White to advance and overextend their pawns, which Black hopes to undermine later. The opening is named after <a href=\"https://en.wikipedia.org/wiki/Alexander_Alekhine\" rel=\"noopener noreferrer\">Alexander Alekhine</a>, who introduced it in 1921. {(The theory and mainlines were developed much later.)}\n\nWhile it is not played very often at the very top level, the Alekhine is not unsound. White’s most popular continuation is (2.e5), dreaming of building a large center with d4, later c4, and sometimes even f4. Black’s plan is to provoke this expansion and then attack and dismantle White’s pawn center.\n\nIf White doesn’t want to follow the main line, they may simply defend the pawn with (2.Nc3), perhaps transposing to the <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nc3/2...Nf6\" rel=\"noopener noreferrer\">Vienna Game</a>.\n\n(2.Bc4 {is the sharp Krejcik Variation. It looks like a gambit, but if Black plays} 2...Nxe4 {White can regain the pawn and prevent Black from castling with} 3.Bxf7+ Kxf7 4.Qh5+)",
+            "text": "The main idea of the Alekhine is to invite White to advance and overextend their pawns, which Black hopes to undermine later. The opening is named after <a href=\"https://en.wikipedia.org/wiki/Alexander_Alekhine\" target=\"_blank\" rel=\"noopener noreferrer\">Alexander Alekhine</a>, who introduced it in 1921. {(The theory and mainlines were developed much later.)}\n\nWhile it is not played very often at the very top level, the Alekhine is not unsound. White’s most popular continuation is (2.e5), dreaming of building a large center with d4, later c4, and sometimes even f4. Black’s plan is to provoke this expansion and then attack and dismantle White’s pawn center.\n\nIf White doesn’t want to follow the main line, they may simply defend the pawn with (2.Nc3), perhaps transposing to the <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nc3/2...Nf6\" target=\"_blank\" rel=\"noopener noreferrer\">Vienna Game</a>.\n\n(2.Bc4 {is the sharp Krejcik Variation. It looks like a gambit, but if Black plays} 2...Nxe4 {White can regain the pawn and prevent Black from castling with} 3.Bxf7+ Kxf7 4.Qh5+)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -821,5 +821,39 @@
         }
     ],
     "mainline": "1.e4 Nf6 2.e5 Nd5 3.d4 b5 4.Bxb5 c5 5.c4 cxd4 6.Nf3 e6 7.Qxd4"
+},
+{
+    "variation_id": 7,
+    "source": {},
+    "color": "white",
+    "chapter_title": "...in the beginning",
+    "variation_title": "Navigation Notes",
+    "is_intro": false,
+    "level": 0,
+    "created_at": "2026-01-06T04:01:30+00:00",
+    "next_review": "9999-12-31T23:59:59+00:00",
+    "last_review": "9999-12-31T23:59:59",
+    "start_move": 1,
+    "moves": [
+        {
+            "move_num": 1,
+            "san": "d4",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        },
+        {
+            "move_num": 1,
+            "san": "d5",
+            "annotation": "",
+            "text": "",
+            "alt": "",
+            "alt_fail": "",
+            "shapes": []
+        }
+    ],
+    "mainline": "1.d4 d5"
 }
 ]

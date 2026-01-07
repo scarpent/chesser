@@ -89,6 +89,18 @@ def get_changes(variation, import_data):
     return changes
 
 
+def get_normalized_mainline(import_data) -> str:
+    # valid mainline string should have no html, I think
+    raw = util.strip_all_html(import_data.get("mainline", "")).strip()
+    if not raw:
+        raise ValueError("Mainline not found or empty")
+
+    normalized = util.normalize_notation(raw)
+    if normalized != raw:
+        print("Normalized mainline notation")
+    return normalized
+
+
 @transaction.atomic
 def import_variation(
     import_data, source_variation_id=0, end_move=None, force_update=False
@@ -122,14 +134,7 @@ def import_variation(
     print("➤ " * 32)
     print(f"{label} chapter: {chapter}")
 
-    mainline = import_data.get("mainline", "").strip()
-    if not mainline:
-        raise ValueError("Mainline not found or empty")
-
-    normalized_mainline = util.normalize_notation(mainline)
-    if normalized_mainline != mainline:
-        print(f"Normalized mainline: {normalized_mainline}")
-        mainline = normalized_mainline
+    mainline = get_normalized_mainline(import_data)
 
     end_index = 1000
     if end_move:
