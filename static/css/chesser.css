@@ -900,10 +900,6 @@ ol {
   margin-bottom: 20px;
 }
 
-.stats-back {
-  display: none;
-}
-
 [x-cloak] {
   display: none !important;
 }
@@ -1663,11 +1659,6 @@ about 500, but also covers our ultimate mobile 450 view */
 
   .subvar-indent.depth-5 {
     margin-left: 40px !important;
-  }
-
-  .stats-back {
-    display: inline-block;
-    margin-bottom: 0.75rem;
   }
 }
 
