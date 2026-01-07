@@ -68,6 +68,56 @@ blockquote {
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* --------------------------------------------------------- Code / Pre */
+
+:root {
+  /* tweak these later if you want; defaults are intentionally subtle */
+  --color-inline-code-bg: rgba(255, 255, 255, 0.06);
+  --color-inline-code-border: rgba(255, 255, 255, 0.1);
+  --color-inline-code-text: #e7d9c7; /* warm-ish to match your header tan */
+
+  --color-pre-bg: rgba(0, 0, 0, 0.35);
+  --color-pre-border: rgba(255, 255, 255, 0.1);
+}
+
+code,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+/* Inline code */
+code {
+  font-size: 0.9em;
+  padding: 0.08em 0.35em;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-inline-code-text);
+}
+
+/* Code inside <pre> shouldn't look like inline chips */
+pre code {
+  font-size: 0.9em;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  letter-spacing: normal;
+}
+
+/* Block code */
+pre {
+  font-size: 0.9em;
+  line-height: 1.35;
+  background: var(--color-pre-bg);
+  border: 1px solid var(--color-pre-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  overflow-x: auto; /* keeps long lines sane */
+  white-space: pre; /* preserves formatting; scrolling handles overflow */
+}
+
 #quiz-container {
   display: flex;
   flex-direction: column;
