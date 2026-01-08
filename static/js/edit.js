@@ -185,59 +185,81 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
-    validateAltMoves(index, field) {
+    validateAltMoves(index, field, evt = null) {
+      // TODO: shared move editor currently doesn't validate; we could share this logic
       const actualSan = this.variationData.moves[index].san;
       const actualMoveVerbose = this.variationData.moves[index].move_verbose;
-      let alternateMoves = this.variationData.moves[index][field];
-      console.log("Validating alt moves for", actualMoveVerbose, "➤", alternateMoves);
 
-      if (
-        !alternateMoves ||
-        typeof alternateMoves !== "string" ||
-        !alternateMoves.trim()
-      )
-        return;
+      // x-model is moveState, and on blur the DOM value is the freshest truth
+      const raw =
+        evt && evt.target && typeof evt.target.value === "string"
+          ? evt.target.value
+          : this.moveState[index][field];
+
+      console.log("Validating alt moves for", actualMoveVerbose, "➤", raw);
+
+      if (!raw || typeof raw !== "string" || !raw.trim()) return;
+
+      // Remove move numbers / dot notation like "1.", "1...", "23..." and
+      // drop tokens that are *only* digits.
+      const cleaned = raw
+        .replace(/\b\d+\.(?:\.\.)?\s*/g, " ") // 1. or 1... (and 23..., etc.)
+        .replace(/\b\d+\b/g, " "); // standalone numbers
 
       // Trim spaces and remove duplicates
       const altMoves = [
         ...new Set(
-          alternateMoves
+          cleaned
             .split(/[,\s]+/)
             .map((m) => m.trim())
             .filter(Boolean)
         ),
       ];
 
-      const bad = [],
-        good = [];
+      const bad = [];
+      const good = [];
 
       const chess = new window.Chess();
       // Play up to previous move so we can check for legal alt moves
       for (let i = 0; i < index; i++) chess.move(this.variationData.moves[i].san);
 
-      altMoves.forEach((altMove) => {
+      for (const altMove of altMoves) {
         if (altMove === actualSan) {
           bad.push(altMove); // Ignore if identical to the actual move
-          return;
+          continue;
         }
+
         try {
-          chess.move(altMove);
+          const result = chess.move(altMove);
+
+          // chess.js may either throw OR return null depending on build/version
+          // (so says the bot; might as well be defensive)
+          if (!result) {
+            console.error(`Invalid move for ${actualMoveVerbose}: ${altMove}`);
+            bad.push(altMove);
+            continue;
+          }
+
           good.push(altMove);
           chess.undo();
         } catch (error) {
           console.error(`Invalid move for ${actualMoveVerbose}: ${altMove}`);
           bad.push(altMove);
         }
-      });
+      }
 
-      // console.log("good/bad:", good, bad);
       if (bad.length)
         console.error(
           `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`
         );
 
-      // Update input with only valid moves
-      this.variationData.moves[index][field] = good.join(", ");
+      const normalized = good.join(", ");
+
+      // Update the model that the inputs are bound to
+      this.moveState[index][field] = normalized;
+
+      // Optional: force the visible input too
+      if (evt && evt.target) evt.target.value = normalized;
     },
 
     //--------------------------------------------------------------------------------

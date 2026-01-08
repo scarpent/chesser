@@ -85,3 +85,35 @@ fix_notation_game = "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6 6.Be3 Bg7 7.
 )
 def test_normalize_notation(test_input, expected):
     assert util.normalize_notation(test_input) == expected
+
+
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        # Basic normalization
+        ("e4 d4 c4", "e4, d4, c4"),
+        ("e4, d4, c4", "e4, d4, c4"),
+        ("e4,d4,c4", "e4, d4, c4"),
+        # Mixed separators + de-duping
+        ("d6 e6, a6, d6", "d6, e6, a6"),
+        # Move numbers and dots stripped
+        ("1. e4 2. d4", "e4, d4"),
+        ("1...d6 e6", "d6, e6"),
+        ("23... a6", "a6"),
+        # Standalone numbers removed
+        ("1 2 3 e4", "e4"),
+        ("e4, 9, d4", "e4, d4"),
+        ("9 e4", "e4"),
+        # Invalid SAN is preserved (no legality validation here)
+        ("b9 e6", "b9, e6"),
+        ("b9, 1...e6", "b9, e6"),
+        # HTML stripped
+        ("<b>e4</b> <i>d4</i>", "e4, d4"),
+        # Empty / falsy inputs
+        ("", ""),
+        ("   ", ""),
+        (None, ""),
+    ],
+)
+def test_normalize_alt_moves(raw, expected):
+    assert util.normalize_alt_moves(raw) == expected

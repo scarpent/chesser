@@ -712,8 +712,8 @@ def save_variation(request):
 
         target_move.annotation = strip_tags(move_data["annotation"])
         target_move.text = util.clean_html(move_data["text"])
-        target_move.alt = strip_tags(move_data["alt"])
-        target_move.alt_fail = strip_tags(move_data["alt_fail"])
+        target_move.alt = util.normalize_alt_moves(move_data["alt"])
+        target_move.alt_fail = util.normalize_alt_moves(move_data["alt_fail"])
         target_move.shapes = get_normalized_shapes(move_data["shapes"])
         target_move.save()
 
@@ -738,8 +738,8 @@ def save_shared_move(request):
         sharedmove = SharedMove.objects.get(id=shared_move_id)
         sharedmove.annotation = strip_tags(shared_move["annotation"])
         sharedmove.text = util.clean_html(shared_move["text"])
-        sharedmove.alt = strip_tags(shared_move["alt"])
-        sharedmove.alt_fail = strip_tags(shared_move["alt_fail"])
+        sharedmove.alt = util.normalize_alt_moves(shared_move["alt"])
+        sharedmove.alt_fail = util.normalize_alt_moves(shared_move["alt_fail"])
         sharedmove.shapes = get_normalized_shapes(shared_move["shapes"])
         sharedmove.save()
         print(f"💾 Saved shared move #{shared_move_id}")

@@ -210,8 +210,8 @@ def import_variation(
         move.san = strip_tags(move_import["san"])
         move.annotation = strip_tags(move_import["annotation"])
         move.text = util.clean_html(move_import["text"])
-        move.alt = strip_tags(move_import.get("alt", ""))
-        move.alt_fail = strip_tags(move_import.get("alt_fail", ""))
+        move.alt = util.normalize_alt_moves(move_import.get("alt", ""))
+        move.alt_fail = util.normalize_alt_moves(move_import.get("alt_fail", ""))
         shapes_raw = move_import.get("shapes")
         move.shapes = json.dumps(shapes_raw) if shapes_raw else ""
 

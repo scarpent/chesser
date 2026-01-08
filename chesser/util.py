@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 import nh3
+from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from django.utils.timezone import localtime
 
@@ -231,6 +232,49 @@ def normalize_notation(moves):
         old_string = old_string[m.end() :].strip()  # noqa: E203
 
     return new_string.strip()
+
+
+_MOVE_NUM_RE = re.compile(r"\b\d+\.(?:\.\.)?\s*")  # 1. or 1...
+
+
+def normalize_alt_moves(value: str) -> str:
+    """
+    Normalize an alt move string into canonical 'a, b, c' format.
+
+    - strips HTML
+    - removes move numbers like '1.' / '1...'
+    - removes standalone numbers
+    - splits on commas / whitespace
+    - de-dupes while preserving order
+
+    Note: This function performs formatting and normalization only.
+    It does not validate move legality; invalid SAN may be stored if
+    bypassing the frontend (e.g. imports or scripts).
+    """
+    if not value:
+        return ""
+
+    s = strip_tags(value).strip()
+    if not s:
+        return ""
+
+    s = _MOVE_NUM_RE.sub(" ", s)
+    s = re.sub(r"\b\d+\b", " ", s)
+
+    parts = re.split(r"[,\s]+", s)
+
+    seen = set()
+    out = []
+    for p in parts:
+        token = p.strip()
+        if not token:
+            continue
+        if token in seen:
+            continue
+        seen.add(token)
+        out.append(token)
+
+    return ", ".join(out)
 
 
 def get_analysis_url(variation, index=None):
