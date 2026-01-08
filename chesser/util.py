@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 import nh3
-from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from django.utils.timezone import localtime
 
@@ -64,10 +63,6 @@ def clean_html(text):
         url_schemes={"http", "https"},
     )
     return decorate_external_links(cleaned)
-
-
-def strip_all_html(text: str) -> str:
-    return strip_tags(text or "")
 
 
 def safe_href(url: str) -> str:

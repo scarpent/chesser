@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 import chess
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 
 from chesser import util
@@ -430,7 +430,7 @@ def get_links_from_source(source) -> list[str]:
     if len(links) == 1:
         info = links[0]
         url = util.safe_href(info.get("url", ""))
-        text = util.strip_all_html(info.get("text", ""))
+        text = strip_tags(info.get("text", ""))
 
         if url and text:
             parts.append(
@@ -448,7 +448,7 @@ def get_links_from_source(source) -> list[str]:
 
         for info in links:
             url = util.safe_href(info.get("url", ""))
-            text = util.strip_all_html(info.get("text", ""))
+            text = strip_tags(info.get("text", ""))
 
             if url and text:
                 parts.append(
@@ -491,9 +491,9 @@ def get_source_html(source):
     if original_course := source.get("original_course"):
         variation_id = int(original_course["variation_id"])
 
-        cleaned_course = util.strip_all_html(original_course.get("course", ""))
-        cleaned_chapter = util.strip_all_html(original_course.get("chapter", ""))
-        cleaned_title = util.strip_all_html(original_course.get("variation_title", ""))
+        cleaned_course = strip_tags(original_course.get("course", ""))
+        cleaned_chapter = strip_tags(original_course.get("chapter", ""))
+        cleaned_title = strip_tags(original_course.get("variation_title", ""))
 
         parts.append(
             format_html(
@@ -588,7 +588,7 @@ def get_final_move_simple_subvariations_html(variation):
             html += f" {util.clean_html(comment)} "
         elif block.type_ == "move":
             move_text = block.move_verbose if previous_type != "move" else block.raw
-            html += f" {util.strip_all_html(move_text)} "
+            html += f" {strip_tags(move_text)} "
         previous_type = block.type_
 
     if html:
@@ -703,7 +703,7 @@ def render_move_block(block: ParsedBlock, state: RenderState) -> str:
         # of render_chunks_with_br in that realm)
         html += (
             f'<span class="move subvar-move" data-fen="{block.fen}" data-index="'
-            f'{state.counter}">{util.strip_all_html(move_text)}{resolved}</span> '
+            f'{state.counter}">{strip_tags(move_text)}{resolved}</span> '
         )
     else:
         html += f" {move_text} {resolved} "

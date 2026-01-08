@@ -25,6 +25,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.views import View
@@ -335,7 +336,7 @@ class ImportVariationView(View):
         )
         if not title or title == "TBD":
             raise ValueError("Variation Title not given and not in JSON")
-        self.incoming_json["variation_title"] = util.strip_all_html(title)
+        self.incoming_json["variation_title"] = strip_tags(title)
         messages.success(self.request, f"🟢 Title: {title}")
 
     def set_start_move(self):
@@ -380,7 +381,7 @@ class ImportVariationView(View):
             if self.color not in ("white", "black"):
                 raise ValueError("Chapter color must be 'white' or 'black'")
             chapter, created = Chapter.objects.get_or_create(
-                title=self.strip_all_html(self.chapter_title),
+                title=self.strip_tags(self.chapter_title),
                 color=self.color,
             )
 
@@ -683,7 +684,7 @@ def save_variation(request):
     print(f"💾 Saving variation {variation_id}")
     variation = get_object_or_404(Variation, pk=variation_id)
     # Displayed as x-text, doesn't *need* cleaning, but let's be safe & clean
-    variation.title = util.strip_all_html(data["title"])
+    variation.title = strip_tags(data["title"])
     variation.start_move = data["start_move"]
     variation.save()
 
@@ -709,10 +710,10 @@ def save_variation(request):
             target_move = move
             shared_move = None
 
-        target_move.annotation = util.strip_all_html(move_data["annotation"])
+        target_move.annotation = strip_tags(move_data["annotation"])
         target_move.text = util.clean_html(move_data["text"])
-        target_move.alt = util.strip_all_html(move_data["alt"])
-        target_move.alt_fail = util.strip_all_html(move_data["alt_fail"])
+        target_move.alt = strip_tags(move_data["alt"])
+        target_move.alt_fail = strip_tags(move_data["alt_fail"])
         target_move.shapes = get_normalized_shapes(move_data["shapes"])
         target_move.save()
 
@@ -735,10 +736,10 @@ def save_shared_move(request):
     for shared_move in data["shared_moves"]:
         shared_move_id = shared_move["id"]
         sharedmove = SharedMove.objects.get(id=shared_move_id)
-        sharedmove.annotation = util.strip_all_html(shared_move["annotation"])
+        sharedmove.annotation = strip_tags(shared_move["annotation"])
         sharedmove.text = util.clean_html(shared_move["text"])
-        sharedmove.alt = util.strip_all_html(shared_move["alt"])
-        sharedmove.alt_fail = util.strip_all_html(shared_move["alt_fail"])
+        sharedmove.alt = strip_tags(shared_move["alt"])
+        sharedmove.alt_fail = strip_tags(shared_move["alt_fail"])
         sharedmove.shapes = get_normalized_shapes(shared_move["shapes"])
         sharedmove.save()
         print(f"💾 Saved shared move #{shared_move_id}")

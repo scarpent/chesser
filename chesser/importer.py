@@ -7,6 +7,7 @@ import chess.pgn
 from django.db import transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.html import strip_tags
 
 from chesser import util
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
@@ -91,7 +92,7 @@ def get_changes(variation, import_data):
 
 def get_normalized_mainline(import_data) -> str:
     # valid mainline string should have no html, I think
-    raw = util.strip_all_html(import_data.get("mainline", "")).strip()
+    raw = strip_tags(import_data.get("mainline", "")).strip()
     if not raw:
         raise ValueError("Mainline not found or empty")
 
@@ -180,7 +181,7 @@ def import_variation(
 
     variation.source = import_data.get("source")
     # This is displayed with x-text in the template so shouldn't *need* this, but...
-    variation.title = util.strip_all_html(import_data["variation_title"])
+    variation.title = strip_tags(import_data["variation_title"])
     variation.is_intro = import_data.get("is_intro", False)
     variation.start_move = import_data["start_move"]
     if created and import_data["level"] >= 0:
@@ -206,11 +207,11 @@ def import_variation(
             sequence=idx,
         )
         move.fen = board.fen()
-        move.san = util.strip_all_html(move_import["san"])
-        move.annotation = util.strip_all_html(move_import["annotation"])
+        move.san = strip_tags(move_import["san"])
+        move.annotation = strip_tags(move_import["annotation"])
         move.text = util.clean_html(move_import["text"])
-        move.alt = util.strip_all_html(move_import.get("alt", ""))
-        move.alt_fail = util.strip_all_html(move_import.get("alt_fail", ""))
+        move.alt = strip_tags(move_import.get("alt", ""))
+        move.alt_fail = strip_tags(move_import.get("alt_fail", ""))
         shapes_raw = move_import.get("shapes")
         move.shapes = json.dumps(shapes_raw) if shapes_raw else ""
 
