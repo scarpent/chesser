@@ -285,6 +285,14 @@ class Move(AnnotatedMove):
 
     @property
     def move_verbose(self):
+        """
+        Canonical move identifier: move number + dots + SAN.
+
+        Annotations like "!" are intentionally excluded because they're
+        editorial metadata, not identity. When comparing mainline/root
+        moves to subvar moves, compare (num, dots, san) rather than the
+        full MoveParts (which includes annotation).
+        """
         dots = "." if self.white_to_move else "..."
         return f"{self.move_num}{dots}{self.san}"
 

@@ -764,6 +764,22 @@ def test_resolve_moves_discards_dupe_root_in_subvar():
         expected=["2.c4", "2...e6", "3.Nc3"],
     )
 
+    # annotation-insensitive root-dupe detection (bidirectional)
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4!",
+        root_board=boards["d4"][0],
+        move_str="( 1.d4 d5 )",
+        expected=["1...d5"],
+    )
+    assert_resolved_moves(
+        boards=boards,
+        root_move="1.d4",
+        root_board=boards["d4"][0],
+        move_str="( 1.d4! d5 )",
+        expected=["1...d5"],
+    )
+
 
 def test_resolve_moves_does_not_always_discard_dupe_root():
     """

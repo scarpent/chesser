@@ -261,6 +261,14 @@ def get_resolved_move_distance(
     return abs(resolved_ply - raw_ply)
 
 
+def same_move_identity(a: MoveParts, b: MoveParts) -> bool:
+    """
+    Returns True if two moves represent the same chess move for identity
+    purposes (ignores annotation).
+    """
+    return a.num == b.num and a.dots == b.dots and a.san == b.san
+
+
 @dataclass
 class StackFrame:
     board: chess.Board
@@ -483,13 +491,15 @@ class PathFinder:
         would be confusing to drop. So we only discard if there is a following
         move. On 16 May 2025, there are 833 with a next move and 105 not.
         """
+        root_parts = self.current.root_block.move_parts_resolved
         this_raw_equals_root_resolved = (
             self.current.root_block.is_playable
-            and block.move_parts_raw == self.current.root_block.move_parts_resolved
+            and root_parts is not None
+            and same_move_identity(block.move_parts_raw, root_parts)
         )
 
         if self.current.move_counter == 1 and (this_raw_equals_root_resolved):
-            # we have a dupe? But is it a *discardable* dupe?
+            # we have a dupe, but is it a *discardable* dupe?
 
             next_block = self.get_next_block()
             assert next_block is not None  # should be at least a subvar end block
