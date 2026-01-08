@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-apscheduler==3.11.1
+apscheduler==3.11.2
     # via -r requirements.in
 asgiref==3.11.0
     # via django
@@ -14,9 +14,9 @@ attrs==25.4.0
     # via flake8-bugbear
 black==25.12.0
     # via -r requirements.in
-boto3==1.42.6
+boto3==1.42.24
     # via -r requirements.in
-botocore==1.42.6
+botocore==1.42.24
     # via
     #   boto3
     #   s3transfer
@@ -28,15 +28,15 @@ click==8.3.1
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.13.0
+coverage[toml]==7.13.1
     # via pytest-cov
 decorator==5.2.1
     # via
     #   ipdb
     #   ipython
-dj-database-url==3.0.1
+dj-database-url==3.1.0
     # via -r requirements.in
-django==6.0
+django==6.0.1
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -68,7 +68,7 @@ iniconfig==2.3.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.8.0
+ipython==9.9.0
     # via
     #   -r requirements.in
     #   ipdb
@@ -98,7 +98,7 @@ packaging==25.0
     #   pytest
 parso==0.8.5
     # via jedi
-pathspec==0.12.1
+pathspec==1.0.2
     # via black
 pexpect==4.9.0
     # via ipython
@@ -152,7 +152,7 @@ s3transfer==0.16.0
     # via boto3
 six==1.17.0
     # via python-dateutil
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via django
 stack-data==0.6.3
     # via ipython
@@ -162,7 +162,7 @@ traitlets==5.14.3
     #   matplotlib-inline
 tzlocal==5.3.1
     # via apscheduler
-urllib3==2.6.1
+urllib3==2.6.3
     # via botocore
 watchdog==6.0.0
     # via -r requirements.in
