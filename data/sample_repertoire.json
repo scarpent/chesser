@@ -4,7 +4,7 @@
     "source": {
         "link": {
             "url": "https://github.com/scarpent/chesser/blob/main/chesser/util.py",
-            "text": "Allowed HTML Tags &amp; Attributes"
+            "text": "Allowed HTML Tags & Attributes"
         }
     },
     "color": "white",
@@ -21,7 +21,7 @@
             "move_num": 1,
             "san": "a3",
             "annotation": "!",
-            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved:\n\n<pre>ALLOWED_TAGS = {\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\", \"a\",\n&nbsp; \"hr\", \"br\", \"ul\", \"ol\", \"li\",\n&nbsp; \"code\", \"pre\", \"blockquote\", \"fenseq\",\n}\nALLOWED_ATTRIBUTES = {\n&nbsp; \"a\": {\"href\", \"title\"},\n&nbsp; \"fenseq\": {\"data-fen\"},\n}\n</pre>\n\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\n\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\n\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in <a href=\"/variation/2/?idx=2\" rel=\"noopener noreferrer\">another guide</a>.",
+            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved:\r\n\r\n<pre><code>ALLOWED_TAGS = {{\r\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\",\r\n&nbsp; \"a\", \"hr\", \"br\", \"ul\", \"ol\", \"li\",\r\n&nbsp; \"code\", \"pre\", \"blockquote\",\r\n&nbsp;\"fenseq\",\r\n}}\r\nALLOWED_ATTRIBUTES = {{\r\n&nbsp; \"a\": {\"href\", \"title\"},\r\n&nbsp; \"fenseq\": {\"data-fen\"},\r\n}}\r\n</code></pre>\r\n\r\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\r\n\r\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\r\n\r\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in <a href=\"/variation/2/?idx=2\">another guide</a>.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -29,8 +29,8 @@
         {
             "move_num": 1,
             "san": "h6",
-            "annotation": "∞",
-            "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \n\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\n\nWhich is protectively modified during serialization/sanitization:\n\n<code>&lt;a href=\"https://example.com\" target=\"_blank\"\n&nbsp;&nbsp;&nbsp;rel=\"noopener\"&gt;Example!&lt;/a&gt;</code>\n\nExternal links will have <code>target=\"_blank\" rel=\"noopener\"</code>",
+            "annotation": "",
+            "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \r\n\r\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\r\n\r\nWhich is protectively modified during serialization/sanitization:\r\n\r\n<code>&lt;a href=\"https://example.com\" target=\"_blank\"\r\n&nbsp;&nbsp;&nbsp;rel=\"noopener\"&gt;Example!&lt;/a&gt;</code>\r\n\r\nExternal links will have <code>target=\"_blank\" rel=\"noopener\"</code>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -39,7 +39,7 @@
             "move_num": 2,
             "san": "b3",
             "annotation": "",
-            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\n\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\n\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\n<hr>\n\nUnordered List <code>&lt;ul&gt;</code>:\n\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>\n\nOrdered List <code>&lt;ol&gt;</code>:\n\n<ol>\n  <li>Steal underwear</li>\n  <li>...</li>\n  <li>Profit!</li>\n</ol>\n\n<hr>\n\n<code>&lt;blockquote&gt;</code>\n\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\n\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>\n\nLine<br>Breaks<br>Yo",
+            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\r\n\r\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\r\n\r\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\r\n<hr>\r\n\r\nUnordered List <code>&lt;ul&gt;</code>:\r\n\r\n<ul>\r\n  <li>Apple</li>\r\n  <li>Banana</li>\r\n</ul>\r\n\r\nOrdered List <code>&lt;ol&gt;</code>:\r\n\r\n<ol>\r\n  <li>Steal underwear</li>\r\n  <li>...</li>\r\n  <li>Profit!</li>\r\n</ol>\r\n\r\n<hr>\r\n\r\n<code>&lt;blockquote&gt;</code>\r\n\r\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\r\n\r\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>\r\n\r\nLine<br>Breaks<br>Yo",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -53,7 +53,7 @@
     "color": "white",
     "chapter_title": "...in the beginning",
     "variation_title": "Subvariation Syntax",
-    "is_intro": false,
+    "is_intro": true,
     "level": 0,
     "created_at": "2026-01-05T19:44:28+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
@@ -64,7 +64,7 @@
             "move_num": 1,
             "san": "e4",
             "annotation": "!!",
-            "text": "<blockquote>Chesser has robust subvariation and comment parsing. –Chesser’s author</blockquote>\n\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses.\n\n<i>Type this:</i>\n{Implied comment (1...e5 {{actual comment}} 2.Nf3 {{...}})}\n\n<i>To display:</i>\nImplied comment (1...e5 {actual comment} 2.Nf3 {...})\n\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces.\n\n<i>Type this:</i>\n{{{(Parenthetically speaking...)}}}\n\n<i>To display:</i>\n{(Parenthetically speaking...)}\n\nUse doubled curly braces to show a single literal brace.\n\n<i>Type this:</i>\n{{{{or}}}}\n\n<i>To display:</i>\n{{or}}",
+            "text": "<blockquote>Chesser has robust subvariation and comment parsing. –Chesser’s author</blockquote>\r\n\r\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses.\r\n\r\n<i>Type this:</i>\r\n{Implied comment (1...e5 {{actual comment}} 2.Nf3 {{...}})}\r\n\r\n<i>To display:</i>\r\nImplied comment (1...e5 {actual comment} 2.Nf3 {...})\r\n\r\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces.\r\n\r\n<i>Type this:</i>\r\n{{{(Parenthetically speaking...)}}}\r\n\r\n<i>To display:</i>\r\n{(Parenthetically speaking...)}\r\n\r\nUse doubled curly braces to show a single literal brace.\r\n\r\n<i>Type this:</i>\r\n{{{{or}}}}\r\n\r\n<i>To display:</i>\r\n{{or}}",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -73,7 +73,7 @@
             "move_num": 1,
             "san": "e5",
             "annotation": "",
-            "text": "A subvar may continue directly after the mainline move.\n{(2.Nc3 2.Nf6)}  ➡️\n(2.Nc3 2.Nf6)\n\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\n{(1...e5 2.d4)}  ➡️\n(1...e5 d4)\n\nWe also drop nested root dupes {(e.g. Nc6)}:\n{(2.Nf3 Nc6 (2...Nc6 3.Bc4))} ➡️\n(2.Nf3 Nc6 (2...Nc6 3.Bc4))\n\nRoot dupes are left alone when there are no following moves:\n{(1...e5)} ➡️\n(1...e5)\n\nSubvars may also start with mainline “sibling” moves:\n{(1...d5 exd5)} ➡️\n(1...d5 exd5)\n\nNested subvars may also start with siblings:\n{(1...c5 2.Nf3 (2.Bc4?))} ➡️\n(1...c5 2.Nf3 (2.Bc4?))\n\nSimple alternate moves: Instead of using a nested subvariation, alternate moves can be specified by making them follow a comment. There can be more than one alternate, and an alternate line may include follow-up moves.\n\n(2.Nf3 {or} 2.Nc3)\n(2.Nf3 {or} 2.Nc3 {or} 2.d4)\n(2.Nf3 {or} 2.Nc3 Nf6)\n\n<i>When things go wrong:</i>\n\n❌ marks the spot where parsing failed due to incorrect or ambiguous notation.\n{(2.Nf3 Nc6 3.Bf4)} ➡️\n(2.Nf3 Nc6 3.Bf4)\n\nThe parser will attempt to interpret variations with missing or incorrect move numbers. The result may or may not resolve into a legal, navigable line.\n{(Nf3 Nc6 Bb5 a6)} ➡️\n(Nf3 Nc6 Bb5 a6)",
+            "text": "A subvar may continue directly after the mainline move.\r\n{(2.Nc3 2.Nf6)}  ➡️\r\n(2.Nc3 2.Nf6)\r\n\r\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\r\n{(1...e5 2.d4)}  ➡️\r\n(1...e5 d4)\r\n\r\nWe also drop nested root dupes {(e.g. Nc6)}:\r\n{(2.Nf3 Nc6 (2...Nc6 3.Bc4))} ➡️\r\n(2.Nf3 Nc6 (2...Nc6 3.Bc4))\r\n\r\nRoot dupes are left alone when there are no following moves:\r\n{(1...e5)} ➡️\r\n(1...e5)\r\n\r\nSubvars may also start with mainline “sibling” moves:\r\n{(1...d5 exd5)} ➡️\r\n(1...d5 exd5)\r\n\r\nNested subvars may also start with siblings:\r\n{(1...c5 2.Nf3 (2.Bc4?))} ➡️\r\n(1...c5 2.Nf3 (2.Bc4?))\r\n\r\nSimple alternate moves: Instead of using a nested subvariation, alternate moves can be specified by making them follow a comment. There can be more than one alternate, and an alternate line may include follow-up moves.\r\n\r\n(2.Nf3 {or} 2.Nc3)\r\n(2.Nf3 {or} 2.Nc3 {or} 2.d4)\r\n(2.Nf3 {or} 2.Nc3 Nf6)\r\n\r\n<i>When things go wrong:</i>\r\n\r\n❌ marks the spot where parsing failed due to incorrect or ambiguous notation.\r\n{(2.Nf3 Nc6 3.Bf4)} ➡️\r\n(2.Nf3 Nc6 3.Bf4)\r\n\r\nThe parser will attempt to interpret variations with missing or incorrect move numbers. The result may or may not resolve into a legal, navigable line.\r\n{(Nf3 Nc6 Bb5 a6)} ➡️\r\n(Nf3 Nc6 Bb5 a6)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -82,7 +82,7 @@
             "move_num": 2,
             "san": "Nf3",
             "annotation": "",
-            "text": "Use the custom &lt;fenseq&gt; HTML tag to specify an arbitrary starting point:\n\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\n\nIf <code>data-fen</code> is omitted or empty, Chesser will use the starting position FEN. These are all the same:\n\n&lt;fenseq data-fen=\"rnbqkbnr/…\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>\n\nClicking the ⏮️ button jumps to the specified FEN before the sequence begins.\n\nAlternation works in &lt;fenseq&gt; blocks, but they don’t otherwise support nesting. They’re meant to be simple, {(mostly)} flat sequences.\n\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1.e3 d5</fenseq>\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1...d5 2.exd5 {or} 2.e5?</fenseq>",
+            "text": "Use the custom <code>&lt;fenseq&gt;</code> HTML tag to specify an arbitrary starting point:\r\n\r\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\r\n\r\nIf <code>data-fen</code> is omitted or empty, Chesser will use the starting position FEN. These are all the same:\r\n\r\n&lt;fenseq data-fen=\"rnbqkbnr/…\"&gt;1.d4 d5&lt;/fenseq&gt;\r\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\r\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\r\n\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>\r\n\r\nClicking the ⏮️ button jumps to the specified FEN before the sequence begins.\r\n\r\nAlternation works in <code>&lt;fenseq&gt;</code> blocks, but they don’t otherwise support nesting. They’re meant to be simple, {(mostly)} flat sequences.\r\n\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1.e3 d5</fenseq>\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1...d5 2.exd5 {or} 2.e5?</fenseq>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -91,7 +91,7 @@
             "move_num": 2,
             "san": "Nc6",
             "annotation": "",
-            "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\n\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\n\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)}",
+            "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\r\n\r\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\r\n\r\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)}",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -100,7 +100,7 @@
             "move_num": 3,
             "san": "d4",
             "annotation": "",
-            "text": "<i>See also:</i> <a href=\"/variation/1/\" rel=\"noopener noreferrer\">Basic HTML Formatting</a>",
+            "text": "<i>See also:</i> <a href=\"/variation/1/\">Basic HTML Formatting</a>",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -796,7 +796,7 @@
             "move_num": 6,
             "san": "Nf3",
             "annotation": "",
-            "text": "Qxd4 is the most common continuation, and it is not a bad move. Beware of the following trap, however:\n\n\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
+            "text": "Qxd4 is the most common continuation, and it's not a bad move. Beware of the following trap, however:\n\n\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -838,8 +838,8 @@
         {
             "move_num": 1,
             "san": "d4",
-            "annotation": "",
-            "text": "",
+            "annotation": "?",
+            "text": "(1.e4 e5)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -847,8 +847,8 @@
         {
             "move_num": 1,
             "san": "d5",
-            "annotation": "",
-            "text": "",
+            "annotation": "!",
+            "text": "(1...d5! 2.c4)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
