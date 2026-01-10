@@ -381,7 +381,7 @@ class ImportVariationView(View):
             if self.color not in ("white", "black"):
                 raise ValueError("Chapter color must be 'white' or 'black'")
             chapter, created = Chapter.objects.get_or_create(
-                title=self.strip_tags(self.chapter_title),
+                title=strip_tags(self.chapter_title),
                 color=self.color,
             )
 
