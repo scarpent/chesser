@@ -1,859 +1,859 @@
 [
-{
-    "variation_id": 1,
-    "source": {
-        "link": {
-            "url": "https://github.com/scarpent/chesser/blob/main/chesser/util.py",
-            "text": "Allowed HTML Tags & Attributes"
-        }
-    },
-    "color": "white",
-    "chapter_title": "...in the beginning",
-    "variation_title": "Basic HTML Formatting",
-    "is_intro": false,
-    "level": 3,
-    "created_at": "2026-01-05T19:44:28+00:00",
-    "next_review": "2026-01-08T15:37:35+00:00",
-    "last_review": "2026-01-05T15:37:35+00:00",
-    "start_move": 1,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "a3",
-            "annotation": "!",
-            "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved:\r\n\r\n<pre><code>ALLOWED_TAGS = {{\r\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\",\r\n&nbsp; \"a\", \"hr\", \"br\", \"ul\", \"ol\", \"li\",\r\n&nbsp; \"code\", \"pre\", \"blockquote\",\r\n&nbsp;\"fenseq\",\r\n}}\r\nALLOWED_ATTRIBUTES = {{\r\n&nbsp; \"a\": {\"href\", \"title\"},\r\n&nbsp; \"fenseq\": {\"data-fen\"},\r\n}}\r\n</code></pre>\r\n\r\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\r\n\r\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\r\n\r\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in <a href=\"/variation/2/?idx=2\">another guide</a>.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
+    {
+        "variation_id": 1,
+        "source": {
+            "link": {
+                "url": "https://github.com/scarpent/chesser/blob/main/chesser/util.py",
+                "text": "Allowed HTML Tags & Attributes"
+            }
         },
-        {
-            "move_num": 1,
-            "san": "h6",
-            "annotation": "",
-            "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \r\n\r\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\r\n\r\nWhich is protectively modified during serialization/sanitization:\r\n\r\n<code>&lt;a href=\"https://example.com\" target=\"_blank\"\r\n&nbsp;&nbsp;&nbsp;rel=\"noopener\"&gt;Example!&lt;/a&gt;</code>\r\n\r\nExternal links will have <code>target=\"_blank\" rel=\"noopener\"</code>",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "b3",
-            "annotation": "",
-            "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\r\n\r\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\r\n\r\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\r\n<hr>\r\n\r\nUnordered List <code>&lt;ul&gt;</code>:\r\n\r\n<ul>\r\n  <li>Apple</li>\r\n  <li>Banana</li>\r\n</ul>\r\n\r\nOrdered List <code>&lt;ol&gt;</code>:\r\n\r\n<ol>\r\n  <li>Steal underwear</li>\r\n  <li>...</li>\r\n  <li>Profit!</li>\r\n</ol>\r\n\r\n<hr>\r\n\r\n<code>&lt;blockquote&gt;</code>\r\n\r\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\r\n\r\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>\r\n\r\nLine<br>Breaks<br>Yo",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        }
-    ],
-    "mainline": "1.a3 h6 2.b3"
-},
-{
-    "variation_id": 2,
-    "source": {},
-    "color": "white",
-    "chapter_title": "...in the beginning",
-    "variation_title": "Subvariation Syntax",
-    "is_intro": true,
-    "level": 0,
-    "created_at": "2026-01-05T19:44:28+00:00",
-    "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
-    "start_move": 1,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "e4",
-            "annotation": "!!",
-            "text": "<blockquote>Chesser has robust subvariation and comment parsing. –Chesser’s author</blockquote>\r\n\r\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses.\r\n\r\n<i>Type this:</i>\r\n{Implied comment (1...e5 {{actual comment}} 2.Nf3 {{...}})}\r\n\r\n<i>To display:</i>\r\nImplied comment (1...e5 {actual comment} 2.Nf3 {...})\r\n\r\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces.\r\n\r\n<i>Type this:</i>\r\n{{{(Parenthetically speaking...)}}}\r\n\r\n<i>To display:</i>\r\n{(Parenthetically speaking...)}\r\n\r\nUse doubled curly braces to show a single literal brace.\r\n\r\n<i>Type this:</i>\r\n{{{{or}}}}\r\n\r\n<i>To display:</i>\r\n{{or}}",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 1,
-            "san": "e5",
-            "annotation": "",
-            "text": "A subvar may continue directly after the mainline move.\r\n{(2.Nc3 2.Nf6)}  ➡️\r\n(2.Nc3 2.Nf6)\r\n\r\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\r\n{(1...e5 2.d4)}  ➡️\r\n(1...e5 d4)\r\n\r\nWe also drop nested root dupes {(e.g. Nc6)}:\r\n{(2.Nf3 Nc6 (2...Nc6 3.Bc4))} ➡️\r\n(2.Nf3 Nc6 (2...Nc6 3.Bc4))\r\n\r\nRoot dupes are left alone when there are no following moves:\r\n{(1...e5)} ➡️\r\n(1...e5)\r\n\r\nSubvars may also start with mainline “sibling” moves:\r\n{(1...d5 exd5)} ➡️\r\n(1...d5 exd5)\r\n\r\nNested subvars may also start with siblings:\r\n{(1...c5 2.Nf3 (2.Bc4?))} ➡️\r\n(1...c5 2.Nf3 (2.Bc4?))\r\n\r\nSimple alternate moves: Instead of using a nested subvariation, alternate moves can be specified by making them follow a comment. There can be more than one alternate, and an alternate line may include follow-up moves.\r\n\r\n(2.Nf3 {or} 2.Nc3)\r\n(2.Nf3 {or} 2.Nc3 {or} 2.d4)\r\n(2.Nf3 {or} 2.Nc3 Nf6)\r\n\r\n<i>When things go wrong:</i>\r\n\r\n❌ marks the spot where parsing failed due to incorrect or ambiguous notation.\r\n{(2.Nf3 Nc6 3.Bf4)} ➡️\r\n(2.Nf3 Nc6 3.Bf4)\r\n\r\nThe parser will attempt to interpret variations with missing or incorrect move numbers. The result may or may not resolve into a legal, navigable line.\r\n{(Nf3 Nc6 Bb5 a6)} ➡️\r\n(Nf3 Nc6 Bb5 a6)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nf3",
-            "annotation": "",
-            "text": "Use the custom <code>&lt;fenseq&gt;</code> HTML tag to specify an arbitrary starting point:\r\n\r\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\r\n\r\nIf <code>data-fen</code> is omitted or empty, Chesser will use the starting position FEN. These are all the same:\r\n\r\n&lt;fenseq data-fen=\"rnbqkbnr/…\"&gt;1.d4 d5&lt;/fenseq&gt;\r\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\r\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\r\n\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>\r\n\r\nClicking the ⏮️ button jumps to the specified FEN before the sequence begins.\r\n\r\nAlternation works in <code>&lt;fenseq&gt;</code> blocks, but they don’t otherwise support nesting. They’re meant to be simple, {(mostly)} flat sequences.\r\n\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1.e3 d5</fenseq>\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1...d5 2.exd5 {or} 2.e5?</fenseq>",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nc6",
-            "annotation": "",
-            "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\r\n\r\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\r\n\r\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)}",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "d4",
-            "annotation": "",
-            "text": "<i>See also:</i> <a href=\"/variation/1/\">Basic HTML Formatting</a>",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "exd4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "a4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "a5",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        }
-    ],
-    "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.a4 a5"
-},
-{
-    "variation_id": 3,
-    "source": {
-        "link": [
+        "color": "white",
+        "chapter_title": "...in the beginning",
+        "variation_title": "Basic HTML Formatting",
+        "is_intro": false,
+        "level": 0,
+        "created_at": "2026-01-05T19:44:28+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 1,
+        "moves": [
             {
-                "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._d4/3...exd4/4._Bc4",
-                "text": "4.Bc4 Scotch Gambit (Wikibooks)"
+                "move_num": 1,
+                "san": "a3",
+                "annotation": "!",
+                "text": "Chesser sanitizes HTML in move text. Only the following tags and attributes are preserved:\r\n\r\n<pre><code>ALLOWED_TAGS = {{\r\n&nbsp; \"b\", \"i\", \"u\", \"em\", \"strong\",\r\n&nbsp; \"a\", \"hr\", \"br\", \"ul\", \"ol\", \"li\",\r\n&nbsp; \"code\", \"pre\", \"blockquote\",\r\n&nbsp;\"fenseq\",\r\n}}\r\nALLOWED_ATTRIBUTES = {{\r\n&nbsp; \"a\": {\"href\", \"title\"},\r\n&nbsp; \"fenseq\": {\"data-fen\"},\r\n}}\r\n</code></pre>\r\n\r\nHere we're using the “preformatted” <code>&lt;pre&gt;</code> block and <code>&lt;code&gt;</code> inline tags.\r\n\r\nChesser normalizes spacing between paragraphs, HTML elements, and subvariations.\r\n\r\nThis guide covers all built-in HTML tags. The custom <code>&lt;fenseq&gt;</code> tag is covered in <a href=\"/variation/2/?idx=2\">another guide</a>.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
             },
             {
-                "url": "https://lichess.org/analysis/pgn/e4_e5_Nf3_Nc6_d4_exd4_Bc4",
-                "text": "Scotch Gambit (Lichess Opening Explorer)"
+                "move_num": 1,
+                "san": "h6",
+                "annotation": "",
+                "text": "Alert readers will have noticed we also demonstrated a hyperlink anchor tag above. \r\n\r\n<code>&lt;a href=\"https://example.com\"&gt;Example!&lt;/a&gt;</code>\r\n\r\nWhich is protectively modified during serialization/sanitization:\r\n\r\n<code>&lt;a href=\"https://example.com\" target=\"_blank\"\r\n&nbsp;&nbsp;&nbsp;rel=\"noopener\"&gt;Example!&lt;/a&gt;</code>\r\n\r\nExternal links will have <code>target=\"_blank\" rel=\"noopener\"</code>",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "b3",
+                "annotation": "",
+                "text": "You can use <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code> for <i>italics</i>, and <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code> for <b>bold</b>.\r\n\r\n<code>&lt;u&gt;</code><u>Underline</u><code>&lt;/u&gt;</code>\r\n\r\n<code>&lt;hr&gt;</code> Horizontal Rule  ➷\r\n<hr>\r\n\r\nUnordered List <code>&lt;ul&gt;</code>:\r\n\r\n<ul>\r\n  <li>Apple</li>\r\n  <li>Banana</li>\r\n</ul>\r\n\r\nOrdered List <code>&lt;ol&gt;</code>:\r\n\r\n<ol>\r\n  <li>Steal underwear</li>\r\n  <li>...</li>\r\n  <li>Profit!</li>\r\n</ol>\r\n\r\n<hr>\r\n\r\n<code>&lt;blockquote&gt;</code>\r\n\r\n<blockquote>There's not the mystery in ten murders that there is in one game of chess. –Sir Arthur Conan Doyle</blockquote>\r\n\r\n<code>Line&lt;br&gt;Breaks&lt;br&gt;Yo</code>\r\n\r\nLine<br>Breaks<br>Yo",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
             }
         ],
-        "my_course": {
-            "course": "My White Openings",
-            "chapter": "Scotch Gambit",
-            "variation_id": 1234567890,
-            "variation_title": "Scotch Gambit Intro",
-            "note": "(This source variation ID doesn't exist. It's just for example.) ⤴️"
-        },
-        "original_course": {
-            "course": "The Scotch Gambit Starter Kit",
-            "chapter": "1) Mainline Scotch Gambit",
-            "variation_id": 13496222,
-            "variation_title": "Mainline Variation: Introduction",
-            "note": "You'll need to be logged on to see this free Chessable course."
-        }
+        "mainline": "1.a3 h6 2.b3"
     },
-    "color": "white",
-    "chapter_title": "...in the beginning",
-    "variation_title": "Source JSON Field",
-    "is_intro": false,
-    "level": 0,
-    "created_at": "2026-01-05T19:44:28+00:00",
-    "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
-    "start_move": 2,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "e4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 1,
-            "san": "e5",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nf3",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nc6",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "d4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "exd4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "Bc4",
-            "annotation": "!",
-            "text": "{\n{{\n&nbsp;&nbsp;\"link\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"url\": \"https://en.wikibooks.org/...\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"text\": \"4.Bc4 Scotch Gambit (Wikibooks)\"\n&nbsp;&nbsp;&nbsp;&nbsp;}},\n&nbsp;&nbsp;&nbsp;&nbsp;{{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"url\": \"https://lichess.org/...\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"text\": \"Scotch Gambit (Lichess Opening Explorer)\",\n&nbsp;&nbsp;&nbsp;&nbsp;}}\n&nbsp;&nbsp;],\n&nbsp;&nbsp;\"my_course\": {{\n&nbsp;&nbsp;&nbsp;&nbsp;\"course\": \"My White Openings\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"chapter\": \"Scotch Gambit\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_id\": 1234567890,\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_title\": \"Scotch Gambit Intro\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"note\": \"(This source variation ID doesn't exist...) ⤴️\"\n&nbsp;&nbsp;}},\n&nbsp;&nbsp;\"original_course\": {{\n&nbsp;&nbsp;&nbsp;&nbsp;\"course\": \"The Scotch Gambit Starter Kit\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"chapter\": \"1) Mainline Scotch Gambit\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_id\": 13496222,\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_title\": \"Mainline Variation: Introduction\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"note\": \"You'll need to be logged on...\"\n&nbsp;&nbsp;}}\n}}\n}",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        }
-    ],
-    "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4"
-},
-{
-    "variation_id": 4,
-    "source": {
-        "link": {
-            "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._d4",
-            "text": "3.d4 Scotch Game (Wikibooks)"
-        }
-    },
-    "color": "white",
-    "chapter_title": "Scotch",
-    "variation_title": "Scotch 4...Nxd4",
-    "is_intro": false,
-    "level": 0,
-    "created_at": "2026-01-05T19:44:28+00:00",
-    "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
-    "start_move": 3,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "e4",
-            "annotation": "",
-            "text": "<blockquote>Best by test. –Bobby Fischer</blockquote>\n\nThe <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": [
-                {
-                    "orig": "e4",
-                    "brush": "green"
-                },
-                {
-                    "orig": "d5",
-                    "brush": "red"
-                },
-                {
-                    "orig": "f5",
-                    "brush": "red"
-                },
-                {
-                    "orig": "d1",
-                    "dest": "h5",
-                    "brush": "green"
-                },
-                {
-                    "orig": "f1",
-                    "dest": "c4",
-                    "brush": "green"
-                }
-            ]
-        },
-        {
-            "move_num": 1,
-            "san": "e5",
-            "annotation": "",
-            "text": "1...e5 serves to challenge White's plan of having the center squares to themselves. Of course, just like White's e4 move, e5 opens up the diagonals for Black's Bishop and Queen. While the position is still symmetrical there are few limits to where White can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King's Gambit with (2.f4). Black can take the pawn, but the gambit might allow White a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening's deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where White dreams of checkmating Black with a quick Scholar's Mate. (2.Qh5 Nc6 3.Bc4 {and White hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nf3",
-            "annotation": "",
-            "text": "Nf3 is the classic of all classics. The Knight on f3 fights for control of the center by attacking Black's e5 pawn. It also supports a potential d2-d4 move.\n\nIt's common to develop the knight before the bishop across a wide range of openings. This is because there is usually only one good square for the knight, while the bishop has several options. We can see this in Black's most common response, Nc6. Black could also counterattack with (2...Nf6), known as the Russian Game or Petrov Defense.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": [
-                {
-                    "orig": "f3",
-                    "dest": "e5",
-                    "brush": "green"
-                },
-                {
-                    "orig": "e5",
-                    "brush": "red"
-                }
-            ]
-        },
-        {
-            "move_num": 2,
-            "san": "Nc6",
-            "annotation": "",
-            "text": "Black develops the Knight to c6, defending Black's e5 pawn while also fighting for control of d4.\n\nWhite can now choose between several well-known openings. The Ruy Lopez (3.Bb5), Italian Game (3.Bc4), and Scotch Game (3.d4) are all solid openings that see regular play at all levels. With the Ruy Lopez, White seeks to chase the initiative and attacks the defender of Black’s e5 pawn. In the Italian Game, the Bishop on c4 targets Black’s f7 pawn, the weakest pawn in the starting position. The Scotch Game with 3.d4 often leads to more concrete variations, with the central pawns being exchanged right away.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": [
-                {
-                    "orig": "e5",
-                    "brush": "green"
-                },
-                {
-                    "orig": "c6",
-                    "dest": "e5",
-                    "brush": "green"
-                }
-            ]
-        },
-        {
-            "move_num": 3,
-            "san": "d4",
-            "annotation": "",
-            "text": "With this aggressive pawn advance, White looks to open up the center.\n\n(3...exd4) is played almost every time. It releases the central tension and leads to a very open game, with a lot of space for both players.\n\n(3...Nxd4{, the Lolli variation, is playable. White can trade on d4,} (4.Nxd4 exd4 5.Qxd4{, taking advantage of the fact Black has traded their Knight to centralize their Queen, or play}) (4.Nxe5)), threatening Qxd4.\n\nA few tries have been made with (3...d6{, transposing into a Philidor Defense, but this affords White a range of good options:} 4.d5{, kicking the Knight and expanding in the center is the most straightforward, or} 4.Bb5), transposing into an <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bb5/3...d6\" rel=\"noopener noreferrer\">Old Steinitz Spanish</a>.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "exd4",
-            "annotation": "",
-            "text": "Essentially the only move. Black contests the center.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "Nxd4",
-            "annotation": "",
-            "text": "Black has now an opportunity to take the initiative that should not be wasted.\n\n(4...Bc5 {(Classical Variation) attacks White's central Knight on d4 and forces White to either move it or protect it. Black should expect replies like} 5.Be3{,} 5.Nxc6{, or} 5.Nb3).\n\n(4...Nf6) {(Schmidt Variation) is a common alternative. Black puts immediate attacking pressure on White's e-pawn.}\n\n(4...Qh4) {(Steinitz Variation) is more aggressive. Black immediately attempts to win White's e-pawn outright and indeed can practically win it by force. However, doing so costs time and White is thought to get more than enough compensation after:}\n\n(4...Qh4 5.Nc3 Bb4 6.Be2 Qxe4 7.Nb5 Bxc3+ 8.bxc3 Kd8 9.O-O)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "Nxd4",
-            "annotation": "?!",
-            "text": "This dubious move is the most popular one at lower levels and is often employed by intermediate players as well. It allows the Queen to centralize on d4, where she's not easily attacked.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 5,
-            "san": "Qxd4",
-            "annotation": "",
-            "text": "Now White can go for long castling and often launch a kingside attack. ⚔️\n\nSome players like pushing (5...c5 {, which is good for White after} 6.Qe3 {, } 6.Qd3){, etc. Black might also play} (5...Qf6{, trying to trade queens, but after} 6.Qc4 Qc6 7.Nc3) we are generally happy to allow the queen trade in return for a strong lead in development.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": [
-                {
-                    "orig": "c1",
-                    "dest": "e3",
-                    "brush": "green"
-                },
-                {
-                    "orig": "c1",
-                    "dest": "f4",
-                    "brush": "green"
-                },
-                {
-                    "orig": "b1",
-                    "dest": "c3",
-                    "brush": "green"
-                },
-                {
-                    "orig": "f2",
-                    "dest": "f3",
-                    "brush": "green"
-                },
-                {
-                    "orig": "g2",
-                    "dest": "g4",
-                    "brush": "green"
-                },
-                {
-                    "orig": "h2",
-                    "dest": "h4",
-                    "brush": "green"
-                },
-                {
-                    "orig": "e1",
-                    "dest": "c1",
-                    "brush": "blue"
-                },
-                {
-                    "orig": "d4",
-                    "brush": "green"
-                }
-            ]
-        },
-        {
-            "move_num": 5,
-            "san": "d6",
-            "annotation": "",
-            "text": "This tepid move is the most popular in online games. Perhaps Black has been burned before by (5...Nf6? 6.e5!).",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 6,
-            "san": "Bf4",
-            "annotation": "",
-            "text": "(6.Nc3) and other moves are fine, too.",
-            "alt": "Nc3, Be3",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 6,
-            "san": "Nf6",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 7,
-            "san": "Nc3",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 7,
-            "san": "Be7",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 8,
-            "san": "O-O-O",
-            "annotation": "",
-            "text": "Now c-pawn pushers might find themselves losing their d-pawn:\n\n(8...c5? 9.Qd2 O-O 10.Bxd6!)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 8,
-            "san": "O-O",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 9,
-            "san": "f3",
-            "annotation": "±",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": [
-                {
-                    "orig": "g2",
-                    "dest": "g4",
-                    "brush": "green"
-                },
-                {
-                    "orig": "h2",
-                    "dest": "h4",
-                    "brush": "green"
-                },
-                {
-                    "orig": "c1",
-                    "dest": "b1",
-                    "brush": "green"
-                }
-            ]
-        }
-    ],
-    "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nxd4 5.Qxd4 d6 6.Bf4 Nf6 7.Nc3 Be7 8.O-O-O O-O 9.f3"
-},
-{
-    "variation_id": 5,
-    "source": {
-        "link": {
-            "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bc4",
-            "text": "3.Bc4 Italian Game (Wikibooks)"
-        }
-    },
-    "color": "black",
-    "chapter_title": "Italian",
-    "variation_title": "Italian 4.Ng5 Knight Attack",
-    "is_intro": false,
-    "level": 0,
-    "created_at": "2026-01-05T19:44:28+00:00",
-    "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
-    "start_move": 3,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "e4",
-            "annotation": "",
-            "text": "The <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 1,
-            "san": "e5",
-            "annotation": "",
-            "text": "1...e5 serves to challenge White's plan of having the center squares to themselves. Of course, just like White's e4 move, e5 opens up the diagonals for Black's Bishop and Queen. While the position is still symmetrical there are few limits to where White can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King's Gambit with (2.f4). Black can take the pawn, but the gambit might allow White a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening's deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where White dreams of checkmating Black with a quick Scholar's Mate. (2.Qh5 Nc6 3.Bc4 {and White hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nf3",
-            "annotation": "",
-            "text": "Nf3 is the classic of all classics. The Knight on f3 fights for control of the center by attacking Black's e5 pawn. It also supports a potential d2-d4 move.\n\nIt's common to develop the knight before the bishop across a wide range of openings. This is because there is usually only one good square for the knight, while the bishop has several options. We can see this in Black's most common response, Nc6. Black could also counterattack with (2...Nf6), known as the Russian Game or Petrov Defense.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 2,
-            "san": "Nc6",
-            "annotation": "",
-            "text": "Black develops the Knight to c6, defending Black's e5 pawn while also fighting for control of d4.\n\nWhite can now choose between several well-known openings. The Ruy Lopez (3.Bb5), Italian Game (3.Bc4), and Scotch Game (3.d4) are all solid openings that see regular play at all levels. With the Ruy Lopez, White seeks to chase the initiative and attacks the defender of Black’s e5 pawn. In the Italian Game, the Bishop on c4 targets Black’s f7 pawn, the weakest pawn in the starting position. The Scotch Game with 3.d4 often leads to more concrete variations, with the central pawns being exchanged right away.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "Bc4",
-            "annotation": "",
-            "text": "White develops the bishop to a good square where it controls a valuable diagonal. From c4 the Bishop controls d5 and pressures Black's f7-pawn, the most vulnerable pawn in Black's position. Having developed both their kingside minor pieces quickly, White is ready to castle. White's plans include a swift attack on f7 and building a strong center with c3 and d4.\n\nThere is no immediate threat to Black's position so they have some flexibility in how to respond. It would be good to develop a piece, and there are several options, the top two being (3...Nf6), the Two Knights, or (3...Bc5), the Giuoco Piano, which reflects a choice of whether to keep or to release control of g5.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "Nf6",
-            "annotation": "",
-            "text": "Black develops a Knight and attacks the e4-pawn, getting one step closer to castling. This move seems like the most obvious one Black can play in the Italian, but it also comes at a disadvantage of blocking the d8-h4 diagonal of the black queen.\n\nWhite has several ways to proceed from this position: defend the e-pawn, usually with (4.d3), attack f7 with the aggressive (4.Ng5), or sacrifice the pawn for an open center and swift attack.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "Ng5",
-            "annotation": "",
-            "text": "The Knight Attack!\n\nWe need to know a few things to defend against this common move at lower levels. {(The top guys play it occasionally, too. Perhaps to mix things up with an irrational position.)}\n\nThis Romantic move is an attack on f7 with the Bishop and Knight, taking advantage of the fact that Black gave up control of g5 and cannot castle yet. However, it is unprincipled to attack before having finished development. Siegbert Tarrasch slammed the move as “bungling,” reflecting the classical view that early attacks without development are suspect.\n\nWhite might be hoping for the “Fried Liver” attack:\n\n(4...d5 5.exd5 Nxd5 6.Nxf7! Kxf7 7.Qf3 Ke6)\n\nAnd while an engine might be able to defend this, it’s not a position most humans will enjoy playing.\n\nFearful beginners sometimes play <fenseq data-fen=\"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3\">3...h6 {to prevent this nasty incursion, but it passively loses a tempo to} 4.d4!</fenseq>, and while not losing outright, it starts us off on our back foot. It's better—and more fun—to learn the lines so that we can happily engage with this aggression.\n\nThere is only one principled response to the Knight incursion: (4...d5!)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": [
-                {
-                    "orig": "c4",
-                    "dest": "f7",
-                    "brush": "green"
-                },
-                {
-                    "orig": "g5",
-                    "dest": "f7",
-                    "brush": "green"
-                },
-                {
-                    "orig": "f7",
-                    "brush": "red"
-                }
-            ]
-        },
-        {
-            "move_num": 4,
-            "san": "d5",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 5,
-            "san": "exd5",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 5,
-            "san": "Na5",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 6,
-            "san": "Bb5+",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 6,
-            "san": "c6",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 7,
-            "san": "dxc6",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 7,
-            "san": "bxc6",
-            "annotation": "",
-            "text": "&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        }
-    ],
-    "mainline": "1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 d5 5.exd5 Na5 6.Bb5+ c6 7.dxc6 bxc6"
-},
-{
-    "variation_id": 6,
-    "source": {
-        "link": [
+    {
+        "variation_id": 2,
+        "source": {},
+        "color": "white",
+        "chapter_title": "...in the beginning",
+        "variation_title": "Subvariation Syntax",
+        "is_intro": true,
+        "level": 0,
+        "created_at": "2026-01-05T19:44:28+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 1,
+        "moves": [
             {
-                "url": "https://www.youtube.com/watch?v=PvmDJopa4kk",
-                "text": "Eric Rosen's YouTube Video"
+                "move_num": 1,
+                "san": "e4",
+                "annotation": "!!",
+                "text": "<blockquote>Chesser has robust subvariation and comment parsing. –Chesser’s author</blockquote>\r\n\r\nSubvariations are enclosed by parentheses and comments by curly braces. Comments may also be implied when they appear outside parentheses.\r\n\r\n<i>Type this:</i>\r\n{Implied comment (1...e5 {{actual comment}} 2.Nf3 {{...}})}\r\n\r\n<i>To display:</i>\r\nImplied comment (1...e5 {actual comment} 2.Nf3 {...})\r\n\r\nShow literal, non-subvariation parens as a comment by enclosing them in curly braces.\r\n\r\n<i>Type this:</i>\r\n{{{(Parenthetically speaking...)}}}\r\n\r\n<i>To display:</i>\r\n{(Parenthetically speaking...)}\r\n\r\nUse doubled curly braces to show a single literal brace.\r\n\r\n<i>Type this:</i>\r\n{{{{or}}}}\r\n\r\n<i>To display:</i>\r\n{{or}}",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
             },
             {
-                "url": "https://lichess.org/study/EjrhlUIa",
-                "text": "Lichess Study: Intro to the O'Sullivan Gambit"
+                "move_num": 1,
+                "san": "e5",
+                "annotation": "",
+                "text": "A subvar may continue directly after the mainline move.\r\n{(2.Nc3 2.Nf6)}  ➡️\r\n(2.Nc3 2.Nf6)\r\n\r\nA subvar may start with the same move as the mainline. This “root dupe” won't be displayed if there are following moves.\r\n{(1...e5 2.d4)}  ➡️\r\n(1...e5 d4)\r\n\r\nWe also drop nested root dupes {(e.g. Nc6)}:\r\n{(2.Nf3 Nc6 (2...Nc6 3.Bc4))} ➡️\r\n(2.Nf3 Nc6 (2...Nc6 3.Bc4))\r\n\r\nRoot dupes are left alone when there are no following moves:\r\n{(1...e5)} ➡️\r\n(1...e5)\r\n\r\nSubvars may also start with mainline “sibling” moves:\r\n{(1...d5 exd5)} ➡️\r\n(1...d5 exd5)\r\n\r\nNested subvars may also start with siblings:\r\n{(1...c5 2.Nf3 (2.Bc4?))} ➡️\r\n(1...c5 2.Nf3 (2.Bc4?))\r\n\r\nSimple alternate moves: Instead of using a nested subvariation, alternate moves can be specified by making them follow a comment. There can be more than one alternate, and an alternate line may include follow-up moves.\r\n\r\n(2.Nf3 {or} 2.Nc3)\r\n(2.Nf3 {or} 2.Nc3 {or} 2.d4)\r\n(2.Nf3 {or} 2.Nc3 Nf6)\r\n\r\n<i>When things go wrong:</i>\r\n\r\n❌ marks the spot where parsing failed due to incorrect or ambiguous notation.\r\n{(2.Nf3 Nc6 3.Bf4)} ➡️\r\n(2.Nf3 Nc6 3.Bf4)\r\n\r\nThe parser will attempt to interpret variations with missing or incorrect move numbers. The result may or may not resolve into a legal, navigable line.\r\n{(Nf3 Nc6 Bb5 a6)} ➡️\r\n(Nf3 Nc6 Bb5 a6)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
             },
             {
-                "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...Nf6",
-                "text": "Alekhine’s Defense (Wikibooks)"
+                "move_num": 2,
+                "san": "Nf3",
+                "annotation": "",
+                "text": "Use the custom <code>&lt;fenseq&gt;</code> HTML tag to specify an arbitrary starting point:\r\n\r\n<fenseq data-fen=\"r1bqk2r/2ppbppp/p1n2n2/1p2p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 w kq - 0 7\">7.Bb3 O-O 8.c3 d5!</fenseq>\r\n\r\nIf <code>data-fen</code> is omitted or empty, Chesser will use the starting position FEN. These are all the same:\r\n\r\n&lt;fenseq data-fen=\"rnbqkbnr/…\"&gt;1.d4 d5&lt;/fenseq&gt;\r\n&lt;fenseq data-fen=\"\"&gt;1.d4 d5&lt;/fenseq&gt;\r\n&lt;fenseq&gt;1.d4 d5&lt;/fenseq&gt;\r\n\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.d4 d5</fenseq>\r\n\r\nClicking the ⏮️ button jumps to the specified FEN before the sequence begins.\r\n\r\nAlternation works in <code>&lt;fenseq&gt;</code> blocks, but they don’t otherwise support nesting. They’re meant to be simple, {(mostly)} flat sequences.\r\n\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1.e3 d5</fenseq>\r\n<fenseq data-fen=\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">1.e4 e5 {or} 1...d5 2.exd5 {or} 2.e5?</fenseq>",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nc6",
+                "annotation": "",
+                "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\r\n\r\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\r\n\r\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)}",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "d4",
+                "annotation": "",
+                "text": "<i>See also:</i> <a href=\"/variation/1/\">Basic HTML Formatting</a>",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "exd4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "a4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "a5",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
             }
-        ]
+        ],
+        "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.a4 a5"
     },
-    "color": "white",
-    "chapter_title": "Alekhine's",
-    "variation_title": "Alekhine's - O'Sullivan Gambit",
-    "is_intro": false,
-    "level": 5,
-    "created_at": "2026-01-05T23:05:58+00:00",
-    "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "2025-12-26T13:16:15+00:00",
-    "start_move": 2,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "e4",
-            "annotation": "",
-            "text": "",
-            "alt": "Nf3, c4, d4",
-            "alt_fail": "",
-            "shapes": []
+    {
+        "variation_id": 3,
+        "source": {
+            "link": [
+                {
+                    "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._d4/3...exd4/4._Bc4",
+                    "text": "4.Bc4 Scotch Gambit (Wikibooks)"
+                },
+                {
+                    "url": "https://lichess.org/analysis/pgn/e4_e5_Nf3_Nc6_d4_exd4_Bc4",
+                    "text": "Scotch Gambit (Lichess Opening Explorer)"
+                }
+            ],
+            "my_course": {
+                "course": "My White Openings",
+                "chapter": "Scotch Gambit",
+                "variation_id": 1234567890,
+                "variation_title": "Scotch Gambit Intro",
+                "note": "(This source variation ID doesn't exist. It's just for example.) ⤴️"
+            },
+            "original_course": {
+                "course": "The Scotch Gambit Starter Kit",
+                "chapter": "1) Mainline Scotch Gambit",
+                "variation_id": 13496222,
+                "variation_title": "Mainline Variation: Introduction",
+                "note": "You'll need to be logged on to see this free Chessable course."
+            }
         },
-        {
-            "move_num": 1,
-            "san": "Nf6",
-            "annotation": "",
-            "text": "The main idea of the Alekhine is to invite White to advance and overextend their pawns, which Black hopes to undermine later. The opening is named after <a href=\"https://en.wikipedia.org/wiki/Alexander_Alekhine\" target=\"_blank\" rel=\"noopener noreferrer\">Alexander Alekhine</a>, who introduced it in 1921. {(The theory and mainlines were developed much later.)}\n\nWhile it is not played very often at the very top level, the Alekhine is not unsound. White’s most popular continuation is (2.e5), dreaming of building a large center with d4, later c4, and sometimes even f4. Black’s plan is to provoke this expansion and then attack and dismantle White’s pawn center.\n\nIf White doesn’t want to follow the main line, they may simply defend the pawn with (2.Nc3), perhaps transposing to the <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nc3/2...Nf6\" target=\"_blank\" rel=\"noopener noreferrer\">Vienna Game</a>.\n\n(2.Bc4 {is the sharp Krejcik Variation. It looks like a gambit, but if Black plays} 2...Nxe4 {White can regain the pawn and prevent Black from castling with} 3.Bxf7+ Kxf7 4.Qh5+)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
+        "color": "white",
+        "chapter_title": "...in the beginning",
+        "variation_title": "Source JSON Field",
+        "is_intro": false,
+        "level": 0,
+        "created_at": "2026-01-05T19:44:28+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 2,
+        "moves": [
+            {
+                "move_num": 1,
+                "san": "e4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 1,
+                "san": "e5",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nf3",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nc6",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "d4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "exd4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "Bc4",
+                "annotation": "!",
+                "text": "{\n{{\n&nbsp;&nbsp;\"link\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"url\": \"https://en.wikibooks.org/...\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"text\": \"4.Bc4 Scotch Gambit (Wikibooks)\"\n&nbsp;&nbsp;&nbsp;&nbsp;}},\n&nbsp;&nbsp;&nbsp;&nbsp;{{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"url\": \"https://lichess.org/...\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"text\": \"Scotch Gambit (Lichess Opening Explorer)\",\n&nbsp;&nbsp;&nbsp;&nbsp;}}\n&nbsp;&nbsp;],\n&nbsp;&nbsp;\"my_course\": {{\n&nbsp;&nbsp;&nbsp;&nbsp;\"course\": \"My White Openings\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"chapter\": \"Scotch Gambit\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_id\": 1234567890,\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_title\": \"Scotch Gambit Intro\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"note\": \"(This source variation ID doesn't exist...) ⤴️\"\n&nbsp;&nbsp;}},\n&nbsp;&nbsp;\"original_course\": {{\n&nbsp;&nbsp;&nbsp;&nbsp;\"course\": \"The Scotch Gambit Starter Kit\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"chapter\": \"1) Mainline Scotch Gambit\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_id\": 13496222,\n&nbsp;&nbsp;&nbsp;&nbsp;\"variation_title\": \"Mainline Variation: Introduction\",\n&nbsp;&nbsp;&nbsp;&nbsp;\"note\": \"You'll need to be logged on...\"\n&nbsp;&nbsp;}}\n}}\n}",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            }
+        ],
+        "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4"
+    },
+    {
+        "variation_id": 4,
+        "source": {
+            "link": {
+                "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._d4",
+                "text": "3.d4 Scotch Game (Wikibooks)"
+            }
         },
-        {
-            "move_num": 2,
-            "san": "e5",
-            "annotation": "",
-            "text": "Black's knight is under attack. The most popular, and probably best, move is (2...Nd5), although rarely (2...Ne4) and even (2...Ng8) have been played, with poorer results.",
-            "alt": "Nc3",
-            "alt_fail": "",
-            "shapes": []
+        "color": "white",
+        "chapter_title": "Scotch",
+        "variation_title": "Scotch 4...Nxd4",
+        "is_intro": false,
+        "level": 0,
+        "created_at": "2026-01-05T19:44:28+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 3,
+        "moves": [
+            {
+                "move_num": 1,
+                "san": "e4",
+                "annotation": "",
+                "text": "<blockquote>Best by test. –Bobby Fischer</blockquote>\n\nThe <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [
+                    {
+                        "orig": "e4",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "d5",
+                        "brush": "red"
+                    },
+                    {
+                        "orig": "f5",
+                        "brush": "red"
+                    },
+                    {
+                        "orig": "d1",
+                        "dest": "h5",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "f1",
+                        "dest": "c4",
+                        "brush": "green"
+                    }
+                ]
+            },
+            {
+                "move_num": 1,
+                "san": "e5",
+                "annotation": "",
+                "text": "1...e5 serves to challenge White's plan of having the center squares to themselves. Of course, just like White's e4 move, e5 opens up the diagonals for Black's Bishop and Queen. While the position is still symmetrical there are few limits to where White can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King's Gambit with (2.f4). Black can take the pawn, but the gambit might allow White a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening's deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where White dreams of checkmating Black with a quick Scholar's Mate. (2.Qh5 Nc6 3.Bc4 {and White hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nf3",
+                "annotation": "",
+                "text": "Nf3 is the classic of all classics. The Knight on f3 fights for control of the center by attacking Black's e5 pawn. It also supports a potential d2-d4 move.\n\nIt's common to develop the knight before the bishop across a wide range of openings. This is because there is usually only one good square for the knight, while the bishop has several options. We can see this in Black's most common response, Nc6. Black could also counterattack with (2...Nf6), known as the Russian Game or Petrov Defense.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [
+                    {
+                        "orig": "f3",
+                        "dest": "e5",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "e5",
+                        "brush": "red"
+                    }
+                ]
+            },
+            {
+                "move_num": 2,
+                "san": "Nc6",
+                "annotation": "",
+                "text": "Black develops the Knight to c6, defending Black's e5 pawn while also fighting for control of d4.\n\nWhite can now choose between several well-known openings. The Ruy Lopez (3.Bb5), Italian Game (3.Bc4), and Scotch Game (3.d4) are all solid openings that see regular play at all levels. With the Ruy Lopez, White seeks to chase the initiative and attacks the defender of Black’s e5 pawn. In the Italian Game, the Bishop on c4 targets Black’s f7 pawn, the weakest pawn in the starting position. The Scotch Game with 3.d4 often leads to more concrete variations, with the central pawns being exchanged right away.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [
+                    {
+                        "orig": "e5",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "c6",
+                        "dest": "e5",
+                        "brush": "green"
+                    }
+                ]
+            },
+            {
+                "move_num": 3,
+                "san": "d4",
+                "annotation": "",
+                "text": "With this aggressive pawn advance, White looks to open up the center.\n\n(3...exd4) is played almost every time. It releases the central tension and leads to a very open game, with a lot of space for both players.\n\n(3...Nxd4{, the Lolli variation, is playable. White can trade on d4,} (4.Nxd4 exd4 5.Qxd4{, taking advantage of the fact Black has traded their Knight to centralize their Queen, or play}) (4.Nxe5)), threatening Qxd4.\n\nA few tries have been made with (3...d6{, transposing into a Philidor Defense, but this affords White a range of good options:} 4.d5{, kicking the Knight and expanding in the center is the most straightforward, or} 4.Bb5), transposing into an <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bb5/3...d6\" rel=\"noopener noreferrer\">Old Steinitz Spanish</a>.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "exd4",
+                "annotation": "",
+                "text": "Essentially the only move. Black contests the center.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "Nxd4",
+                "annotation": "",
+                "text": "Black has now an opportunity to take the initiative that should not be wasted.\n\n(4...Bc5 {(Classical Variation) attacks White's central Knight on d4 and forces White to either move it or protect it. Black should expect replies like} 5.Be3{,} 5.Nxc6{, or} 5.Nb3).\n\n(4...Nf6) {(Schmidt Variation) is a common alternative. Black puts immediate attacking pressure on White's e-pawn.}\n\n(4...Qh4) {(Steinitz Variation) is more aggressive. Black immediately attempts to win White's e-pawn outright and indeed can practically win it by force. However, doing so costs time and White is thought to get more than enough compensation after:}\n\n(4...Qh4 5.Nc3 Bb4 6.Be2 Qxe4 7.Nb5 Bxc3+ 8.bxc3 Kd8 9.O-O)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "Nxd4",
+                "annotation": "?!",
+                "text": "This dubious move is the most popular one at lower levels and is often employed by intermediate players as well. It allows the Queen to centralize on d4, where she's not easily attacked.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 5,
+                "san": "Qxd4",
+                "annotation": "",
+                "text": "Now White can go for long castling and often launch a kingside attack. ⚔️\n\nSome players like pushing (5...c5 {, which is good for White after} 6.Qe3 {, } 6.Qd3){, etc. Black might also play} (5...Qf6{, trying to trade queens, but after} 6.Qc4 Qc6 7.Nc3) we are generally happy to allow the queen trade in return for a strong lead in development.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [
+                    {
+                        "orig": "c1",
+                        "dest": "e3",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "c1",
+                        "dest": "f4",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "b1",
+                        "dest": "c3",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "f2",
+                        "dest": "f3",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "g2",
+                        "dest": "g4",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "h2",
+                        "dest": "h4",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "e1",
+                        "dest": "c1",
+                        "brush": "blue"
+                    },
+                    {
+                        "orig": "d4",
+                        "brush": "green"
+                    }
+                ]
+            },
+            {
+                "move_num": 5,
+                "san": "d6",
+                "annotation": "",
+                "text": "This tepid move is the most popular in online games. Perhaps Black has been burned before by (5...Nf6? 6.e5!).",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 6,
+                "san": "Bf4",
+                "annotation": "",
+                "text": "(6.Nc3) and other moves are fine, too.",
+                "alt": "Nc3, Be3",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 6,
+                "san": "Nf6",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 7,
+                "san": "Nc3",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 7,
+                "san": "Be7",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 8,
+                "san": "O-O-O",
+                "annotation": "",
+                "text": "Now c-pawn pushers might find themselves losing their d-pawn:\n\n(8...c5? 9.Qd2 O-O 10.Bxd6!)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 8,
+                "san": "O-O",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 9,
+                "san": "f3",
+                "annotation": "±",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [
+                    {
+                        "orig": "g2",
+                        "dest": "g4",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "h2",
+                        "dest": "h4",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "c1",
+                        "dest": "b1",
+                        "brush": "green"
+                    }
+                ]
+            }
+        ],
+        "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Nxd4 Nxd4 5.Qxd4 d6 6.Bf4 Nf6 7.Nc3 Be7 8.O-O-O O-O 9.f3"
+    },
+    {
+        "variation_id": 5,
+        "source": {
+            "link": {
+                "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bc4",
+                "text": "3.Bc4 Italian Game (Wikibooks)"
+            }
         },
-        {
-            "move_num": 2,
-            "san": "Nd5",
-            "annotation": "",
-            "text": "White's pawn is now weak and needs reinforcement. The most intuitive move is (3.d4), but White can also keep on attacking the knight and play (3.c4) first.\n\n(3.Nc3 {is an option for White to avoid the sharpest lines of the Alekhine. In compensation for doubled pawns, White can accelerate their development after} 3...Nxc3 4.dxc3{, or strengthen their center and grab extra space with} 4.bxc3{.}",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
+        "color": "black",
+        "chapter_title": "Italian",
+        "variation_title": "Italian 4.Ng5 Knight Attack",
+        "is_intro": false,
+        "level": 0,
+        "created_at": "2026-01-05T19:44:28+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 3,
+        "moves": [
+            {
+                "move_num": 1,
+                "san": "e4",
+                "annotation": "",
+                "text": "The <i>King's Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King's Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there's a White pawn on e4, there can't be a Black pawn on e4, which means White's g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White's e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 1,
+                "san": "e5",
+                "annotation": "",
+                "text": "1...e5 serves to challenge White's plan of having the center squares to themselves. Of course, just like White's e4 move, e5 opens up the diagonals for Black's Bishop and Queen. While the position is still symmetrical there are few limits to where White can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King's Gambit with (2.f4). Black can take the pawn, but the gambit might allow White a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening's deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where White dreams of checkmating Black with a quick Scholar's Mate. (2.Qh5 Nc6 3.Bc4 {and White hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nf3",
+                "annotation": "",
+                "text": "Nf3 is the classic of all classics. The Knight on f3 fights for control of the center by attacking Black's e5 pawn. It also supports a potential d2-d4 move.\n\nIt's common to develop the knight before the bishop across a wide range of openings. This is because there is usually only one good square for the knight, while the bishop has several options. We can see this in Black's most common response, Nc6. Black could also counterattack with (2...Nf6), known as the Russian Game or Petrov Defense.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nc6",
+                "annotation": "",
+                "text": "Black develops the Knight to c6, defending Black's e5 pawn while also fighting for control of d4.\n\nWhite can now choose between several well-known openings. The Ruy Lopez (3.Bb5), Italian Game (3.Bc4), and Scotch Game (3.d4) are all solid openings that see regular play at all levels. With the Ruy Lopez, White seeks to chase the initiative and attacks the defender of Black’s e5 pawn. In the Italian Game, the Bishop on c4 targets Black’s f7 pawn, the weakest pawn in the starting position. The Scotch Game with 3.d4 often leads to more concrete variations, with the central pawns being exchanged right away.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "Bc4",
+                "annotation": "",
+                "text": "White develops the bishop to a good square where it controls a valuable diagonal. From c4 the Bishop controls d5 and pressures Black's f7-pawn, the most vulnerable pawn in Black's position. Having developed both their kingside minor pieces quickly, White is ready to castle. White's plans include a swift attack on f7 and building a strong center with c3 and d4.\n\nThere is no immediate threat to Black's position so they have some flexibility in how to respond. It would be good to develop a piece, and there are several options, the top two being (3...Nf6), the Two Knights, or (3...Bc5), the Giuoco Piano, which reflects a choice of whether to keep or to release control of g5.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "Nf6",
+                "annotation": "",
+                "text": "Black develops a Knight and attacks the e4-pawn, getting one step closer to castling. This move seems like the most obvious one Black can play in the Italian, but it also comes at a disadvantage of blocking the d8-h4 diagonal of the black queen.\n\nWhite has several ways to proceed from this position: defend the e-pawn, usually with (4.d3), attack f7 with the aggressive (4.Ng5), or sacrifice the pawn for an open center and swift attack.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "Ng5",
+                "annotation": "",
+                "text": "The Knight Attack!\n\nWe need to know a few things to defend against this common move at lower levels. {(The top guys play it occasionally, too. Perhaps to mix things up with an irrational position.)}\n\nThis Romantic move is an attack on f7 with the Bishop and Knight, taking advantage of the fact that Black gave up control of g5 and cannot castle yet. However, it is unprincipled to attack before having finished development. Siegbert Tarrasch slammed the move as “bungling,” reflecting the classical view that early attacks without development are suspect.\n\nWhite might be hoping for the “Fried Liver” attack:\n\n(4...d5 5.exd5 Nxd5 6.Nxf7! Kxf7 7.Qf3 Ke6)\n\nAnd while an engine might be able to defend this, it’s not a position most humans will enjoy playing.\n\nFearful beginners sometimes play <fenseq data-fen=\"r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3\">3...h6 {to prevent this nasty incursion, but it passively loses a tempo to} 4.d4!</fenseq>, and while not losing outright, it starts us off on our back foot. It's better—and more fun—to learn the lines so that we can happily engage with this aggression.\n\nThere is only one principled response to the Knight incursion: (4...d5!)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": [
+                    {
+                        "orig": "c4",
+                        "dest": "f7",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "g5",
+                        "dest": "f7",
+                        "brush": "green"
+                    },
+                    {
+                        "orig": "f7",
+                        "brush": "red"
+                    }
+                ]
+            },
+            {
+                "move_num": 4,
+                "san": "d5",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 5,
+                "san": "exd5",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 5,
+                "san": "Na5",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 6,
+                "san": "Bb5+",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 6,
+                "san": "c6",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 7,
+                "san": "dxc6",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 7,
+                "san": "bxc6",
+                "annotation": "",
+                "text": "&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n&nbsp;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            }
+        ],
+        "mainline": "1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6 4.Ng5 d5 5.exd5 Na5 6.Bb5+ c6 7.dxc6 bxc6"
+    },
+    {
+        "variation_id": 6,
+        "source": {
+            "link": [
+                {
+                    "url": "https://www.youtube.com/watch?v=PvmDJopa4kk",
+                    "text": "Eric Rosen's YouTube Video"
+                },
+                {
+                    "url": "https://lichess.org/study/EjrhlUIa",
+                    "text": "Lichess Study: Intro to the O'Sullivan Gambit"
+                },
+                {
+                    "url": "https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...Nf6",
+                    "text": "Alekhine’s Defense (Wikibooks)"
+                }
+            ]
         },
-        {
-            "move_num": 3,
-            "san": "d4",
-            "annotation": "",
-            "text": "With his knight finally safe, Black can start to put pressure on White's pawn center. The most aggressive move in this position is (3...d6) or (3...e6).",
-            "alt": "Nc3, Nf3, c4",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 3,
-            "san": "b5",
-            "annotation": "?",
-            "text": "<i>The O'Sullivan Gambit!</i>\n\nThis is a poor but tricky move that scores well in online games. Eric Rosen has shared a video and lichess study about it, shown in this variation’s sources.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "Bxb5",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 4,
-            "san": "c5",
-            "annotation": "",
-            "text": "Black hopes for (5.dxc5?? Qa5+), winning the bishop.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 5,
-            "san": "c4",
-            "annotation": "",
-            "text": "Eric covers a possible counter trap for White:\n\n(5.Bc4 cxd4 6.Bxd5 Qa5+ 7.Nc3 dxc3 8.b4! {Allowing White to take on a8. <i>Not:</i>} 8.Bxa8 cxb2+), which is a disaster.",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 5,
-            "san": "cxd4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 6,
-            "san": "Nf3",
-            "annotation": "",
-            "text": "Qxd4 is the most common continuation, and it's not a bad move. Beware of the following trap, however:\n\n\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 6,
-            "san": "e6",
-            "annotation": "",
-            "text": "Engine likes 6...e6, (6...a6{, and} 6...Bb7), among other things. (6...a6 {is played the most and scores the best for White.} 7.cxd5 Qa5+ 8.Qd2)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 7,
-            "san": "Qxd4",
-            "annotation": "",
-            "text": "",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        }
-    ],
-    "mainline": "1.e4 Nf6 2.e5 Nd5 3.d4 b5 4.Bxb5 c5 5.c4 cxd4 6.Nf3 e6 7.Qxd4"
-},
-{
-    "variation_id": 7,
-    "source": {},
-    "color": "white",
-    "chapter_title": "...in the beginning",
-    "variation_title": "Navigation Notes",
-    "is_intro": false,
-    "level": 0,
-    "created_at": "2026-01-06T04:01:30+00:00",
-    "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
-    "start_move": 1,
-    "moves": [
-        {
-            "move_num": 1,
-            "san": "d4",
-            "annotation": "?",
-            "text": "(1.e4 e5)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        },
-        {
-            "move_num": 1,
-            "san": "d5",
-            "annotation": "!",
-            "text": "(1...d5! 2.c4)",
-            "alt": "",
-            "alt_fail": "",
-            "shapes": []
-        }
-    ],
-    "mainline": "1.d4 d5"
-}
+        "color": "white",
+        "chapter_title": "Alekhine's",
+        "variation_title": "Alekhine's - O'Sullivan Gambit",
+        "is_intro": false,
+        "level": 0,
+        "created_at": "2026-01-05T23:05:58+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 2,
+        "moves": [
+            {
+                "move_num": 1,
+                "san": "e4",
+                "annotation": "",
+                "text": "",
+                "alt": "Nf3, c4, d4",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 1,
+                "san": "Nf6",
+                "annotation": "",
+                "text": "The main idea of the Alekhine is to invite White to advance and overextend their pawns, which Black hopes to undermine later. The opening is named after <a href=\"https://en.wikipedia.org/wiki/Alexander_Alekhine\" target=\"_blank\" rel=\"noopener noreferrer\">Alexander Alekhine</a>, who introduced it in 1921. {(The theory and mainlines were developed much later.)}\n\nWhile it is not played very often at the very top level, the Alekhine is not unsound. White’s most popular continuation is (2.e5), dreaming of building a large center with d4, later c4, and sometimes even f4. Black’s plan is to provoke this expansion and then attack and dismantle White’s pawn center.\n\nIf White doesn’t want to follow the main line, they may simply defend the pawn with (2.Nc3), perhaps transposing to the <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nc3/2...Nf6\" target=\"_blank\" rel=\"noopener noreferrer\">Vienna Game</a>.\n\n(2.Bc4 {is the sharp Krejcik Variation. It looks like a gambit, but if Black plays} 2...Nxe4 {White can regain the pawn and prevent Black from castling with} 3.Bxf7+ Kxf7 4.Qh5+)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "e5",
+                "annotation": "",
+                "text": "Black's knight is under attack. The most popular, and probably best, move is (2...Nd5), although rarely (2...Ne4) and even (2...Ng8) have been played, with poorer results.",
+                "alt": "Nc3",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 2,
+                "san": "Nd5",
+                "annotation": "",
+                "text": "White's pawn is now weak and needs reinforcement. The most intuitive move is (3.d4), but White can also keep on attacking the knight and play (3.c4) first.\n\n(3.Nc3 {is an option for White to avoid the sharpest lines of the Alekhine. In compensation for doubled pawns, White can accelerate their development after} 3...Nxc3 4.dxc3{, or strengthen their center and grab extra space with} 4.bxc3{.}",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "d4",
+                "annotation": "",
+                "text": "With his knight finally safe, Black can start to put pressure on White's pawn center. The most aggressive move in this position is (3...d6) or (3...e6).",
+                "alt": "Nc3, Nf3, c4",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 3,
+                "san": "b5",
+                "annotation": "?",
+                "text": "<i>The O'Sullivan Gambit!</i>\n\nThis is a poor but tricky move that scores well in online games. Eric Rosen has shared a video and lichess study about it, shown in this variation’s sources.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "Bxb5",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 4,
+                "san": "c5",
+                "annotation": "",
+                "text": "Black hopes for (5.dxc5?? Qa5+), winning the bishop.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 5,
+                "san": "c4",
+                "annotation": "",
+                "text": "Eric covers a possible counter trap for White:\n\n(5.Bc4 cxd4 6.Bxd5 Qa5+ 7.Nc3 dxc3 8.b4! {Allowing White to take on a8. <i>Not:</i>} 8.Bxa8 cxb2+), which is a disaster.",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 5,
+                "san": "cxd4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 6,
+                "san": "Nf3",
+                "annotation": "",
+                "text": "Qxd4 is the most common continuation, and it's not a bad move. Beware of the following trap, however:\n\n\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 6,
+                "san": "e6",
+                "annotation": "",
+                "text": "Engine likes 6...e6, (6...a6{, and} 6...Bb7), among other things. (6...a6 {is played the most and scores the best for White.} 7.cxd5 Qa5+ 8.Qd2)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 7,
+                "san": "Qxd4",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            }
+        ],
+        "mainline": "1.e4 Nf6 2.e5 Nd5 3.d4 b5 4.Bxb5 c5 5.c4 cxd4 6.Nf3 e6 7.Qxd4"
+    },
+    {
+        "variation_id": 7,
+        "source": {},
+        "color": "white",
+        "chapter_title": "...in the beginning",
+        "variation_title": "Navigation Notes",
+        "is_intro": false,
+        "level": 0,
+        "created_at": "2026-01-06T04:01:30+00:00",
+        "next_review": "9999-12-31T23:59:59+00:00",
+        "last_review": "9999-12-31T23:59:59",
+        "start_move": 1,
+        "moves": [
+            {
+                "move_num": 1,
+                "san": "d4",
+                "annotation": "?",
+                "text": "(1.e4 e5)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            },
+            {
+                "move_num": 1,
+                "san": "d5",
+                "annotation": "!",
+                "text": "(1...d5! 2.c4)",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": []
+            }
+        ],
+        "mainline": "1.d4 d5"
+    }
 ]

@@ -65,7 +65,7 @@ class Variation(models.Model):
     next_review = models.DateTimeField(default=timezone.now, db_index=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     source = models.JSONField(null=True, blank=True, default=dict)
-    mainline_moves_str = models.TextField(null=True, blank=True)
+    mainline_moves_str = models.TextField(null=False)
 
     class Meta:
         constraints = [
@@ -77,21 +77,6 @@ class Variation(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.id})"
-
-    @property
-    def mainline_moves(self):
-        if not self.mainline_moves_str:
-            # TODO: maybe don't need this anymore, since we should be
-            # able to count on the model being initialized with main
-            white_to_move = True
-            move_string = ""
-            for move in self.moves.iterator():
-                prefix = f"{move.move_num}." if white_to_move else ""
-                white_to_move = not white_to_move
-                move_string += f"{prefix}{move.san} "
-            self.mainline_moves_str = move_string.strip()
-            self.save(update_fields=["mainline_moves_str"])
-        return self.mainline_moves_str
 
     @property
     def start_index(self):

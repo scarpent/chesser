@@ -163,7 +163,7 @@ def import_variation(
         )
 
     label = "Creating" if created else "Updating"
-    print(f"{label} variation #{variation.id}: {variation.mainline_moves}")
+    print(f"{label} variation #{variation.id}: {variation.mainline_moves_str}")
 
     if not created:
         changes = get_changes(variation, import_data)

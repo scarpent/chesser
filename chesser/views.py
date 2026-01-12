@@ -241,7 +241,7 @@ def import_view(request):
             variation = Variation.objects.get(pk=variation_id)
             form_defaults["original_variation_id"] = variation.id
             form_defaults["clone_variation_title"] = variation.title
-            form_defaults["original_variation_moves"] = variation.mainline_moves
+            form_defaults["original_variation_moves"] = variation.mainline_moves_str
         except Variation.DoesNotExist:
             messages.error(request, f"❌ Could not find variation #{variation_id}")
 
@@ -534,7 +534,7 @@ def variations_tsv(request):
                 f"{v.chapter.color.title()}\t"
                 f"{v.chapter.title}\t"
                 f"{intro} {v.title}\t"
-                f"{v.mainline_moves}\t"
+                f"{v.mainline_moves_str}\t"
                 f"{settings.CHESSER_URL}/variation/{v.id}/\n"
             )
 
@@ -572,7 +572,7 @@ def variations_table(request):
                 )
 
                 moves_html, current_moves = util.get_common_move_prefix_html(
-                    v.mainline_moves, previous_moves, use_class=False
+                    v.mainline_moves_str, previous_moves, use_class=False
                 )
                 previous_moves = current_moves
                 intro = "📌" if v.is_intro else ""

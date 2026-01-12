@@ -65,7 +65,7 @@ def serialize_variation(variation, mode="review"):
         "time_since_last_review": time_since_last_review,
         "time_until_next_review": time_until_next_review,
         "created_at": util.format_local_date(variation.created_at),
-        "mainline": variation.mainline_moves,
+        "mainline": variation.mainline_moves_str,
         "source_html": source_html,
         "html": html,
         "analysis_url": util.get_analysis_url(variation),
@@ -329,7 +329,7 @@ def serialize_variation_to_import_format(variation):
             }
             for m in variation.moves.all().order_by("sequence")
         ],
-        "mainline": variation.mainline_moves,
+        "mainline": variation.mainline_moves_str,
     }
 
 
