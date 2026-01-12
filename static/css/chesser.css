@@ -436,6 +436,20 @@ ol {
   width: 225px;
 }
 
+/* Grouped move text should read like display text, not a form control */
+pre.grouped-move-text {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+
+  padding: 0; /* remove textarea-like padding */
+  margin: 0; /* you already set margin:0 but keep it here for certainty */
+
+  font-size: 14px; /* keep your size */
+  line-height: 1.35; /* optional: matches your pre default */
+}
+
 .edit-board canvas {
   width: 100% !important;
   height: 100% !important;
