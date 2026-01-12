@@ -208,10 +208,10 @@ def import_variation(
         )
         move.fen = board.fen()
         move.san = strip_tags(move_import["san"])
-        move.annotation = strip_tags(move_import["annotation"])
+        move.annotation = strip_tags(move_import.get("annotation") or "")
         move.text = util.clean_html(move_import["text"])
-        move.alt = util.normalize_alt_moves(move_import.get("alt", ""))
-        move.alt_fail = util.normalize_alt_moves(move_import.get("alt_fail", ""))
+        move.alt = util.normalize_alt_moves(move_import.get("alt") or "")
+        move.alt_fail = util.normalize_alt_moves(move_import.get("alt_fail") or "")
         shapes_raw = move_import.get("shapes")
         move.shapes = json.dumps(shapes_raw) if shapes_raw else ""
 

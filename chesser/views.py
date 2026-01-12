@@ -710,11 +710,11 @@ def save_variation(request):
             target_move = move
             shared_move = None
 
-        target_move.annotation = strip_tags(move_data["annotation"])
+        target_move.annotation = strip_tags(move_data.get("annotation") or "")
         target_move.text = util.clean_html(move_data["text"])
-        target_move.alt = util.normalize_alt_moves(move_data["alt"])
-        target_move.alt_fail = util.normalize_alt_moves(move_data["alt_fail"])
-        target_move.shapes = get_normalized_shapes(move_data["shapes"])
+        target_move.alt = util.normalize_alt_moves(move_data.get("alt") or "")
+        target_move.alt_fail = util.normalize_alt_moves(move_data.get("alt_fail") or "")
+        target_move.shapes = get_normalized_shapes(move_data.get("shapes") or "")
         target_move.save()
 
         move.shared_move = shared_move  # link/unlink as needed
