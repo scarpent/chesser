@@ -5,8 +5,11 @@
 A web application for managing your chess opening repertoire and
 practicing with spaced repetition.
 
+This is a _hobby_ project. It's a single user application, with white and black repertoires organized by chapters. (At one time it had a course model but I took
+that out to keep it simple.)
+
 It's meant to be simple/fun to work on, using a sqlite db locally,
-simple alpine.js setup with no build step, and it's easily deployed.
+a simple alpine.js setup with no build step, and it's easily deployed.
 (I use [railway app](https://railway.com/).)
 
 re: gamification
