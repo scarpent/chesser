@@ -2,6 +2,7 @@
 *.pyc
 /temp/
 chesser_cleanup.py
+data/chesser_demo.sqlite3
 data/chesser.sqlite3
 eval_moves.py
 lcov.info

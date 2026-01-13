@@ -758,7 +758,7 @@
             "move_num": 1,
             "san": "Nf6",
             "annotation": "",
-            "text": "The main idea of the Alekhine is to invite White to advance and overextend their pawns, which Black hopes to undermine later. The opening is named after <a href=\"https://en.wikipedia.org/wiki/Alexander_Alekhine\" target=\"_blank\" rel=\"noopener noreferrer\">Alexander Alekhine</a>, who introduced it in 1921. {(The theory and mainlines were developed much later.)}\r\n\r\nWhile it is not played very often at the very top level, the Alekhine is not unsound. White’s most popular continuation is (2.e5), dreaming of building a large center with d4, later c4, and sometimes even f4. Black’s plan is to provoke this expansion and then attack and dismantle White’s pawn center.\r\n\r\nIf White doesn’t want to follow the main line, they may simply defend the pawn with (2.Nc3), perhaps transposing to the <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nc3/2...Nf6\" target=\"_blank\" rel=\"noopener noreferrer\">Vienna Game</a>.\r\n\r\n(2.Bc4 {is the sharp Krejcik Variation. It looks like a gambit, but if Black plays} 2...Nxe4 {White can regain the pawn and prevent Black from castling with} 3.Bxf7+ Kxf7 4.Qh5+)",
+            "text": "The main idea of the Alekhine is to invite White to advance and overextend their pawns, which Black hopes to undermine later. The opening is named after <a href=\"https://en.wikipedia.org/wiki/Alexander_Alekhine\" target=\"_blank\" rel=\"noopener noreferrer\">Alexander Alekhine</a>, who introduced it in 1921. {(The theory and mainlines were developed much later.)}\n\nWhile it is not played very often at the very top level, the Alekhine is not unsound. White’s most popular continuation is (2.e5), dreaming of building a large center with d4, later c4, and sometimes even f4. Black’s plan is to provoke this expansion and then attack and dismantle White’s pawn center.\n\nIf White doesn’t want to follow the main line, they may simply defend the pawn with (2.Nc3), perhaps transposing to the <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nc3/2...Nf6\" target=\"_blank\" rel=\"noopener noreferrer\">Vienna Game</a>.\n\n(2.Bc4 {is the sharp Krejcik Variation. It looks like a gambit, but if Black plays} 2...Nxe4 {White can regain the pawn and prevent Black from castling with} 3.Bxf7+ Kxf7 4.Qh5+)",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -776,7 +776,7 @@
             "move_num": 2,
             "san": "Nd5",
             "annotation": "",
-            "text": "White's pawn is now weak and needs reinforcement. The most intuitive move is (3.d4), but White can also keep on attacking the knight and play (3.c4) first.\r\n\r\n(3.Nc3 {is an option for White to avoid the sharpest lines of the Alekhine. In compensation for doubled pawns, White can accelerate their development after} 3...Nxc3 4.dxc3{, or strengthen their center and grab extra space with} 4.bxc3{.}",
+            "text": "White's pawn is now weak and needs reinforcement. The most intuitive move is (3.d4), but White can also keep on attacking the knight and play (3.c4) first.\n\n(3.Nc3 {is an option for White to avoid the sharpest lines of the Alekhine. In compensation for doubled pawns, White can accelerate their development after} 3...Nxc3 4.dxc3{, or strengthen their center and grab extra space with} 4.bxc3{.})",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -794,7 +794,7 @@
             "move_num": 3,
             "san": "b5",
             "annotation": "?",
-            "text": "<i>The O'Sullivan Gambit!</i>\r\n\r\nThis is a poor but tricky move that scores well in online games. Eric Rosen has shared a video and lichess study about it, shown in this variation’s sources.",
+            "text": "<i>The O'Sullivan Gambit!</i>\n\nThis is a poor but tricky move that scores well in online games. Eric Rosen has shared a video and lichess study about it, shown in this variation’s sources.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -821,7 +821,7 @@
             "move_num": 5,
             "san": "c4",
             "annotation": "",
-            "text": "Eric covers a possible counter trap for White:\r\n\r\n(5.Bc4 cxd4 6.Bxd5 Qa5+ 7.Nc3 dxc3 8.b4! {Allowing White to take on a8. <i>Not:</i>} 8.Bxa8 cxb2+), which is a disaster.",
+            "text": "Eric covers a possible counter trap for White:\n\n(5.Bc4 cxd4 6.Bxd5 Qa5+ 7.Nc3 dxc3 8.b4! {Allowing White to take on a8. <i>Not:</i>} 8.Bxa8 cxb2+), which is a disaster.",
             "alt": "",
             "alt_fail": "",
             "shapes": []
@@ -839,7 +839,7 @@
             "move_num": 6,
             "san": "Nf3",
             "annotation": "",
-            "text": "Qxd4 is the most common continuation, and it's not a bad move. Beware of the following trap, however:\r\n\r\n\r\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
+            "text": "Qxd4 is the most common continuation, and it's not a bad move. Beware of the following trap, however:\n\n\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
             "alt": "",
             "alt_fail": "",
             "shapes": []

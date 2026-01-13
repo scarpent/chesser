@@ -787,18 +787,60 @@ pre.grouped-move-text {
   margin-right: auto;
 }
 
-/* Admin and Logout links */
+/* Admin, Logout, Source links */
+/* Admin | Logout | Source Code */
 .links-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  align-items: baseline;
   margin: 75px 0;
+  gap: 10px;
+  font-size: 16px;
+  flex-wrap: wrap;
 }
 
-.admin-link,
+.links-container > * {
+  margin: 0; /* neutralize any surprise margins */
+}
+
+.links-sep {
+  color: #666;
+  user-select: none;
+}
+
+/* Make the logout form not act like a block */
+.logout-form {
+  display: inline;
+}
+
+/* Make the button visually match links */
 .logout-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: cyan; /* match your <a> */
   cursor: pointer;
-  font-size: 16px;
+}
+
+.logout-button:hover {
+  text-decoration: underline;
+}
+
+/* Put the server-started on its own line */
+.server-started {
+  flex-basis: 100%;
+  margin-top: 12px;
+  font-size: 14px;
+  color: gray;
+  text-align: center;
+}
+
+.server-started {
+  margin-top: 20px;
+  font-size: 14px;
+  color: gray;
 }
 
 .course-covers {

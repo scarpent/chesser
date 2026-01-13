@@ -295,17 +295,23 @@
 
   <div class="links-container" x-cloak>
     <!-- Admin link -->
-    <a href="/admin/" class="admin-link" target="_blank" rel="noopener">Admin</a>
+    <a href="/admin/" target="_blank" rel="noopener">Admin</a>
+
+    <span class="links-sep" aria-hidden="true">|</span>
 
     <!-- Logout form styled as a link -->
     <form method="POST" action="{% url 'logout' %}" class="logout-form">
       {% csrf_token %}
       <button type="submit" class="logout-button">Logout</button>
     </form>
-    <span
-      style="margin-top: 20px; font-size: 14px; color: gray"
-      title="{{ BUILD_STARTED_AT|date:'c' }}"
+
+    <span class="links-sep" aria-hidden="true">|</span>
+
+    <a href="https://github.com/scarpent/chesser" target="_blank" rel="noopener"
+      >Source Code / Docs</a
     >
+
+    <span class="server-started" title="{{ BUILD_STARTED_AT|date:'c' }}">
       Server started: {{ BUILD_STARTED_AT|date:"Y-m-d H:i:s T" }}
       ({{BUILD_STARTED_AT|timesince }} ago)
     </span>
