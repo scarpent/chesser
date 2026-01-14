@@ -60,11 +60,11 @@ export DEBUG="$DEBUG"
 export CHESSER_ENV="$CHESSER_ENV"
 
 demo_user_exists() {
-  python "$REPO_ROOT/manage.py" shell --quiet -c \
+  python "$REPO_ROOT/manage.py" shell -c \
 "from django.contrib.auth import get_user_model
 User=get_user_model()
 import sys
-sys.exit(0 if User.objects.filter(username='demo').exists() else 1)"
+sys.exit(0 if User.objects.filter(username='demo').exists() else 1)"  >/dev/null
 }
 
 echo "$MODE_EMOJI Starting Chesser"
