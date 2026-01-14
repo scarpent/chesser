@@ -9,9 +9,16 @@ class ChesserConfig(AppConfig):
     name = "chesser"
 
     def ready(self):
-        # Avoid duplicate scheduler starts in dev autoreloader subprocesses
-        if not settings.IS_PRODUCTION and os.environ.get("RUN_MAIN") != "true":
-            return
+        if settings.IS_DEMO:
+            return  # No backups in demo mode
+
+        # In development, require explicit opt-in for scheduler
+        if settings.IS_DEVELOPMENT:
+            if os.getenv("CHESSER_RUN_SCHEDULER", "false").lower() != "true":
+                return
+            if os.environ.get("RUN_MAIN") != "true":
+                # Avoid duplicate scheduler starts in dev autoreloader subprocesses
+                return
 
         print("🕐️ Starting scheduler")
         from chesser.tasks import start_scheduler

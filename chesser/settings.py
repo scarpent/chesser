@@ -2,6 +2,7 @@ import os
 import socket
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 import dj_database_url
 from django.utils import timezone
@@ -22,25 +23,90 @@ def get_local_ip():
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-IS_PRODUCTION = (
-    os.getenv("RAILWAY_ENVIRONMENT_NAME") is not None
-    or os.getenv("DATABASE_URL") is not None
-)
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
+
+# --------------------------------------------------------------------
+# Environment inputs (only raw env reads here)
+# --------------------------------------------------------------------
+
+CHESSER_ENV = os.getenv("CHESSER_ENV", "development").lower()
+IS_HOSTED = os.getenv("CHESSER_HOSTED", "false").lower() == "true"
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "chesser-production.up.railway.app",
-]
+CHESSER_URL = os.getenv("CHESSER_URL", "http://localhost:8000")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# --------------------------------------------------------------------
+# Derived flags (no side effects / no guards)
+# --------------------------------------------------------------------
+
+IS_DEVELOPMENT = CHESSER_ENV == "development"
+IS_DEMO = CHESSER_ENV == "demo"
+IS_PRODUCTION = CHESSER_ENV == "production"
+
+# --------------------------------------------------------------------
+# Computed values (pure derivations)
+# --------------------------------------------------------------------
+
+parsed = urlparse(CHESSER_URL)
+CHESSER_HOST = parsed.hostname  # hostname only, no scheme/port
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+if CHESSER_HOST and CHESSER_HOST not in ("localhost", "127.0.0.1"):
+    ALLOWED_HOSTS.append(CHESSER_HOST)
+
 INTERNAL_IPS = ["localhost", "127.0.0.1"]
 
-if not IS_PRODUCTION and os.environ.get("RUN_MAIN") == "true":
+if IS_DEVELOPMENT and not IS_HOSTED:
+    # In local dev/demo, allow LAN IP for phone testing, etc.
     if local_ip := get_local_ip():
         print(f"Local IP: {local_ip}")
-        ALLOWED_HOSTS.append(local_ip)  # Allow LAN IP for local development
+        ALLOWED_HOSTS.append(local_ip)
+
+# --------------------------------------------------------------------
+# Database
+# --------------------------------------------------------------------
+
+if IS_PRODUCTION:
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+else:
+    sqlite_name = "chesser_demo.sqlite3" if IS_DEMO else "chesser.sqlite3"
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "data" / sqlite_name,
+        }
+    }
+
+# --------------------------------------------------------------------
+# Guards
+# --------------------------------------------------------------------
+
+VALID_ENVS = {"development", "demo", "production"}
+if CHESSER_ENV not in VALID_ENVS:
+    raise ValueError(
+        f"Invalid CHESSER_ENV={CHESSER_ENV!r}; must be one of {sorted(VALID_ENVS)}"
+    )
+
+# If hosted, require CHESSER_URL be a real URL with a scheme
+if IS_HOSTED and "://" not in CHESSER_URL:
+    raise ValueError(
+        "CHESSER_URL must include scheme when hosted, e.g. https://example.com"
+    )
+
+# If production, require DATABASE_URL.
+if IS_PRODUCTION and not DATABASE_URL:
+    raise ValueError("DATABASE_URL is required when CHESSER_ENV=production")
+
+# If production, prevent accidental localhost deployment.
+if IS_PRODUCTION and CHESSER_HOST in ("localhost", "127.0.0.1"):
+    raise ValueError("Refusing production mode with localhost CHESSER_URL/host")
+
+if IS_HOSTED and CHESSER_HOST in ("localhost", "127.0.0.1", None):
+    raise ValueError("CHESSER_URL must be set to the public hostname when hosted")
+
+
+# --------------------------------------------------------------------
 
 INSTALLED_APPS = [
     "chesser",
@@ -91,20 +157,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "chesser.wsgi.application"
 
-if IS_PRODUCTION:
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    if not DATABASE_URL:
-        raise ValueError("DATABASE_URL is not set along with IS_PRODUCTION.")
-    # Parse the DATABASE_URL environment variable (contains password, etc)
-    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "data" / "chesser.sqlite3",
-        }
-    }
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -141,30 +193,36 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # Keep dev easy: no forced HTTPS, no HSTS.
 # Make prod strict: HSTS + secure cookies + redirect.
 
-if IS_PRODUCTION:
+# Defaults (non-hosted)
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+USE_X_FORWARDED_HOST = False
+SECURE_PROXY_SSL_HEADER = None  # or omit entirely
+
+# Hosted overrides
+if IS_HOSTED:
     # Redirect HTTP -> HTTPS at Django level
     SECURE_SSL_REDIRECT = True
 
-    # Ensure Django correctly detects HTTPS requests (e.g. if proxy like Railway/Heroku)
+    # Ensure Django correctly detects HTTPS requests (e.g. via proxy)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     USE_X_FORWARDED_HOST = True
 
-    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365  # One year in seconds
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-    # SecurityMiddleware uses these; they’re harmless and good practice.
+    # SecurityMiddleware uses these; they're harmless and good practice.
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"
-else:
-    SECURE_SSL_REDIRECT = False
-    SECURE_HSTS_SECONDS = 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
 
 # --- Security headers added via custom middleware ---
 # CSP: starter policy that won't break Alpine or inline scripts/styles.
@@ -216,12 +274,6 @@ BUILD_TIMESTAMP = str(int(time.time()))
 
 # Increase the limit for number of fields in forms (fixes chapter saving issue)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
-
-CHESSER_URL = (
-    "https://chesser-production.up.railway.app"
-    if IS_PRODUCTION
-    else "http://localhost:8000"
-)
 
 REPETITION_INTERVALS = {  # Level value is hours
     1: 7,
