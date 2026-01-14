@@ -72,6 +72,8 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
 
 
 def backup():
+    # NOTE: dump is ~20MB for ~1,200 variations; StringIO is acceptable
+    # for now. Switch to streaming if backup size grows significantly.
     buffer = StringIO()
     print("➡️  Running export_db")
     call_command("export_db", stdout=buffer)
