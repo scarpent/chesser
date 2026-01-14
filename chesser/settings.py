@@ -41,8 +41,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # --------------------------------------------------------------------
 
 IS_DEVELOPMENT = CHESSER_ENV == "development"
-IS_DEMO = CHESSER_ENV == "demo"
 IS_PRODUCTION = CHESSER_ENV == "production"
+IS_DEMO = CHESSER_ENV == "demo"
 
 # --------------------------------------------------------------------
 # Computed values (pure derivations)
