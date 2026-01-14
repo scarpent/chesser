@@ -64,7 +64,7 @@ echo "  🌍 CHESSER_ENV=$CHESSER_ENV"
 echo "  🪲 DEBUG=$DEBUG"
 echo "  📁 REPO_ROOT=$REPO_ROOT"
 echo "  🔌 http://0.0.0.0:$PORT"
-echo "  👀 watchmedo: static/, templates/, chesser/"
+echo -e "  👀 watchmedo: static/, templates/, chesser/\n"
 
 if [[ "$CHESSER_ENV" == "demo" ]]; then
   python "$REPO_ROOT/manage.py" migrate --noinput
@@ -74,6 +74,11 @@ fi
 # Re-run collectstatic on every restart because we intentionally use
 # production-style static handling (WhiteNoise + hashed manifest)
 # instead of Django's default dev static serving.
+
+# Scheduler is started explicitly by the web process (gunicorn/runserver),
+# not during management commands or short-lived processes.
+
+# Disable Django autoreloader; watchmedo handles restarts
 
 watchmedo auto-restart \
   --directory=static \
@@ -85,5 +90,5 @@ watchmedo auto-restart \
     export DEBUG=$DEBUG
     export CHESSER_ENV=$CHESSER_ENV
     python \"$REPO_ROOT/manage.py\" collectstatic --noinput &&
-    python \"$REPO_ROOT/manage.py\" runserver 0.0.0.0:$PORT
+    CHESSER_START_SCHEDULER=false python \"$REPO_ROOT/manage.py\" runserver --noreload 0.0.0.0:$PORT
   "

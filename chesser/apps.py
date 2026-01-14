@@ -9,16 +9,27 @@ class ChesserConfig(AppConfig):
     name = "chesser"
 
     def ready(self):
-        if settings.IS_DEMO:
-            return  # No backups in demo mode
+        """
+        Start the Chesser background scheduler. (Used for backups.)
 
-        # In development, require explicit opt-in for scheduler
-        if settings.IS_DEVELOPMENT:
-            if os.getenv("CHESSER_RUN_SCHEDULER", "false").lower() != "true":
-                return
-            if os.environ.get("RUN_MAIN") != "true":
-                # Avoid duplicate scheduler starts in dev autoreloader subprocesses
-                return
+        The scheduler is intentionally started only in the long-running web
+        process (e.g. gunicorn or runserver) and is gated by the
+        CHESSER_START_SCHEDULER environment variable. This prevents it from
+        running during short-lived management commands such as migrate,
+        collectstatic, or shell.
+
+        Demo mode disables the scheduler entirely.
+
+        Note:
+        If switching back to Django's built-in autoreloader (instead of
+        watchmedo), a RUN_MAIN guard may be required to avoid starting the
+        scheduler twice in development.
+        """
+        if settings.IS_DEMO:
+            return  # No backups needed
+
+        if os.getenv("CHESSER_START_SCHEDULER", "false").lower() != "true":
+            return
 
         print("🕐️ Starting scheduler")
         from chesser.tasks import start_scheduler
