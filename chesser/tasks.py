@@ -45,7 +45,7 @@ def start_scheduler():
 
 def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
     if not can_upload_to_s3():
-        print("AWS S3 upload not configured (missing env vars)")
+        print("AWS s3 upload not configured (missing env vars)")
         return False
 
     try:
@@ -56,15 +56,13 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
             region_name=settings.AWS_S3_REGION_NAME,
         )
 
-        with open(local_filepath, "rb") as uploaded_file:
-            file_data = uploaded_file.read()
-
-        s3_client.put_object(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=s3_object_key,
-            Body=file_data,
-            ContentType=content_type,
-        )
+        with open(local_filepath, "rb") as upload_file:
+            s3_client.put_object(
+                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Key=s3_object_key,
+                Body=upload_file,
+                ContentType=content_type,
+            )
     except Exception as e:
         print(f"❌ Error uploading object key {s3_object_key} to S3: {e}", flush=True)
         return False
@@ -92,7 +90,7 @@ def backup_and_upload():
     path_to_backup, content_type = backup()
 
     if not can_upload_to_s3():
-        print("⛔️ S3 not configured; not uploading to AWS; keeping local backup only")
+        print("⛔️ s3 not configured; not uploading to AWS; keeping local backup only")
         return False
 
     datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
