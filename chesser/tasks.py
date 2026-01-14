@@ -8,34 +8,44 @@ from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
 
-HEARTBEAT_START = timezone.now() + timedelta(
-    minutes=settings.HEARTBEAT_STARTUP_DELAY_MINUTES,
-)
-BACKUP_START = timezone.now() + timedelta(
-    minutes=settings.BACKUP_STARTUP_DELAY_MINUTES,
-)
+
+def can_upload_to_s3():
+    required = [
+        settings.AWS_ACCESS_KEY_ID,
+        settings.AWS_SECRET_ACCESS_KEY,
+        settings.AWS_STORAGE_BUCKET_NAME,
+        settings.AWS_S3_REGION_NAME,
+    ]
+    return all(required)
 
 
 def start_scheduler():
+    heartbeat_start = timezone.now() + timedelta(
+        minutes=settings.HEARTBEAT_STARTUP_DELAY_MINUTES,
+    )
+    backup_start = timezone.now() + timedelta(
+        minutes=settings.BACKUP_STARTUP_DELAY_MINUTES,
+    )
+
     scheduler = BackgroundScheduler()
     scheduler.add_job(
         lambda: print("💓 Scheduler heartbeat"),
         "interval",
         hours=settings.HEARTBEAT_INTERVAL_HOURS,
-        next_run_time=HEARTBEAT_START,
+        next_run_time=heartbeat_start,
     )
     scheduler.add_job(
         backup_and_upload,
         "interval",
         hours=settings.BACKUP_INTERVAL_HOURS,
-        next_run_time=BACKUP_START,
+        next_run_time=backup_start,
     )
     scheduler.start()
 
 
 def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
-    if not settings.AWS_ACCESS_KEY_ID:
-        print("AWS access key not set")
+    if not can_upload_to_s3():
+        print("AWS S3 upload not configured (missing env vars)")
         return False
 
     try:
@@ -56,7 +66,7 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
             ContentType=content_type,
         )
     except Exception as e:
-        print(f"Error uploading to S3: {e}")
+        print(f"❌ Error uploading object key {s3_object_key} to S3: {e}", flush=True)
         return False
 
     print(f"✌️  Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
@@ -81,8 +91,8 @@ def backup():
 def backup_and_upload():
     path_to_backup, content_type = backup()
 
-    if not settings.AWS_ACCESS_KEY_ID:
-        print("⛔️ Not uploading to s3 for want of an AWS access key")
+    if not can_upload_to_s3():
+        print("⛔️ S3 not configured; not uploading to AWS; keeping local backup only")
         return False
 
     datestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
