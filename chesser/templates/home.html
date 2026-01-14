@@ -13,7 +13,9 @@
 <!-- prettier-ignore -->
 {% block content %}
 <body x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;">
-  {% include "includes/loading_overlay.html" %}
+  {% include "includes/loading_overlay.html" %} {% if IS_DEMO %}
+  <div class="demo-banner">🧪 <b>Demo mode</b> — changes are not saved</div>
+  {% endif %}
 
   <div class="course-covers" x-cloak>
     <button

@@ -4,10 +4,15 @@
 :root {
   --vh: 100%; /* using js for mobile vh; this is the fallback */
   --color-headers: #d7af91;
-  --color-button-border: #7b4f11;
   --color-bg-dark: #222;
   --color-text-light: #ccc;
   --color-bg-form: #1a1a1a;
+
+  /* Accent / brand */
+  --color-accent-border: #7b4f11;
+
+  /* Backward-compatible alias */
+  --color-button-border: var(--color-accent-border);
 }
 
 body {
@@ -1166,6 +1171,25 @@ more washed out with all the white paper */
 
 .import-status li {
   list-style: none;
+}
+
+/* ------------------------------------------- Demo Mode Banner (Home, etc) */
+
+.demo-banner {
+  width: 100%;
+  box-sizing: border-box;
+
+  margin: 0 0 20px 0;
+  padding: 12px 20px;
+
+  /* background-color: #2a2a2a; */
+  background-color: #2f261b; /* dark warm brown */
+  border: 2px solid var(--color-accent-border);
+  border-radius: 10px;
+
+  font-size: 18px;
+  color: var(--color-text-light);
+  text-align: center;
 }
 
 /* ------------------------------------------------------ Scrollbar Styling */

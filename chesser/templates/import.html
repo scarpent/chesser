@@ -11,6 +11,9 @@
 <!-- prettier-ignore -->
 {% block content %}
 <body x-data="importApp()" x-init="init()" x-cloak>
+  {% include "includes/loading_overlay.html" %}{% if IS_DEMO %}
+  <div class="demo-banner">🧪 <b>Demo mode</b> — changes are not saved</div>
+  {% endif %}
   <div class="button-container" style="margin-top: 20px" x-cloak>
     <button
       title="Home"

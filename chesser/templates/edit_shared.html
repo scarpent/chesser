@@ -29,7 +29,9 @@
   x-init="initEditor(); document.title = 'Move: ' + moveData.move_verbose"
   x-cloak
 >
-  {% include "includes/loading_overlay.html" %}
+  {% include "includes/loading_overlay.html" %}{% if IS_DEMO %}
+  <div class="demo-banner">🧪 <b>Demo mode</b> — changes are not saved</div>
+  {% endif %}
 
   <div class="button-container" style="margin-top: 15px">
     <button

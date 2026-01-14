@@ -57,7 +57,7 @@ if CHESSER_HOST and CHESSER_HOST not in ("localhost", "127.0.0.1"):
 
 INTERNAL_IPS = ["localhost", "127.0.0.1"]
 
-if IS_DEVELOPMENT and not IS_HOSTED:
+if not IS_HOSTED:
     # In local dev/demo, allow LAN IP for phone testing, etc.
     if local_ip := get_local_ip():
         print(f"Local LAN access enabled: http://{local_ip}:8000")
