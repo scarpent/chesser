@@ -50,14 +50,22 @@ while getopts ":dph" opt; do
 done
 
 MODE_EMOJI="🛠️"
-if [ "$CHESSER_ENV" = "demo" ]; then
+if [[ "$CHESSER_ENV" = "demo" ]]; then
   MODE_EMOJI="🧪"
-elif [ "$DEBUG" = "false" ]; then
+elif [[ "$DEBUG" = "false" ]]; then
   MODE_EMOJI="🚀"
 fi
 
 export DEBUG="$DEBUG"
 export CHESSER_ENV="$CHESSER_ENV"
+
+demo_user_exists() {
+  python "$REPO_ROOT/manage.py" shell --quiet -c \
+"from django.contrib.auth import get_user_model
+User=get_user_model()
+import sys
+sys.exit(0 if User.objects.filter(username='demo').exists() else 1)"
+}
 
 echo "$MODE_EMOJI Starting Chesser"
 echo "  🌍 CHESSER_ENV=$CHESSER_ENV"
@@ -68,7 +76,12 @@ echo -e "  👀 watchmedo: static/, templates/, chesser/\n"
 
 if [[ "$CHESSER_ENV" == "demo" ]]; then
   python "$REPO_ROOT/manage.py" migrate --noinput
-  # python "$REPO_ROOT/manage.py" seed_demo   # add later
+  if demo_user_exists; then
+    echo "🧪 Demo user exists; skipping seed_demo"
+  else
+    echo "🧪 Seeding demo data"
+    python "$REPO_ROOT/manage.py" seed_demo
+  fi
 fi
 
 # Re-run collectstatic on every restart because we intentionally use

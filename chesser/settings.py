@@ -94,7 +94,6 @@ if IS_HOSTED and "://" not in CHESSER_URL:
         "CHESSER_URL must include scheme when hosted, e.g. https://example.com"
     )
 
-# If production, require DATABASE_URL.
 if IS_PRODUCTION and not DATABASE_URL:
     raise ValueError("DATABASE_URL is required when CHESSER_ENV=production")
 
@@ -104,7 +103,6 @@ if IS_PRODUCTION and CHESSER_HOST in ("localhost", "127.0.0.1"):
 
 if IS_HOSTED and CHESSER_HOST in ("localhost", "127.0.0.1", None):
     raise ValueError("CHESSER_URL must be set to the public hostname when hosted")
-
 
 # --------------------------------------------------------------------
 
