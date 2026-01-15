@@ -6,7 +6,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponse
 from django.test import RequestFactory
 
-from chesser.decorators import demo_write_guard
+from chesser.decorators import demo_readonly
 
 
 def _attach_session_and_messages(request):
@@ -25,24 +25,24 @@ def _ok_view(request):
 
 
 @pytest.mark.django_db
-def test_demo_write_guard_allows_when_not_demo(settings):
+def test_demo_readonly_allows_when_not_demo(settings):
     settings.IS_DEMO = False
     rf = RequestFactory()
     request = _attach_session_and_messages(rf.post("/whatever/"))
 
-    wrapped = demo_write_guard()(_ok_view)
+    wrapped = demo_readonly()(_ok_view)
     response = wrapped(request)
     assert response.status_code == 200
     assert response.content == b"ok"
 
 
 @pytest.mark.django_db
-def test_demo_write_guard_redirects_with_message_for_form_posts(settings):
+def test_demo_readonly_redirects_with_message_for_form_posts(settings):
     settings.IS_DEMO = True
     rf = RequestFactory()
     request = _attach_session_and_messages(rf.post("/import-json/"))
 
-    wrapped = demo_write_guard(redirect_to="import")(_ok_view)
+    wrapped = demo_readonly(redirect_to="import")(_ok_view)
     response = wrapped(request)
 
     assert response.status_code == 302
@@ -54,12 +54,12 @@ def test_demo_write_guard_redirects_with_message_for_form_posts(settings):
 
 
 @pytest.mark.django_db
-def test_demo_write_guard_returns_403_json_for_ajax(settings):
+def test_demo_readonly_returns_403_json_for_ajax(settings):
     settings.IS_DEMO = True
     rf = RequestFactory()
     request = _attach_session_and_messages(rf.post("/save-variation/"))
 
-    wrapped = demo_write_guard(json_response=True)(_ok_view)
+    wrapped = demo_readonly(json_response=True)(_ok_view)
     response = wrapped(request)
 
     assert response.status_code == 403

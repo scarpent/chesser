@@ -21,7 +21,7 @@ def is_demo_mode() -> bool:
     return bool(getattr(settings, "IS_DEMO", False))
 
 
-def demo_write_guard(*, json_response: bool = False, redirect_to: str = "home"):
+def demo_readonly(*, json_response: bool = False, redirect_to: str = "home"):
     """Block write actions in demo mode.
 
     - json_response=True: return 403 JSON for fetch/XHR endpoints.
