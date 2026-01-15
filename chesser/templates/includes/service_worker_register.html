@@ -1,4 +1,4 @@
-{% load static %}
+{% load static %} {% if not debug %}
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
@@ -13,3 +13,4 @@
     });
   }
 </script>
+{% endif %}
