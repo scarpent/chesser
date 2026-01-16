@@ -245,9 +245,8 @@
   </script>
 
   <script type="module">
-    // dev caching bugbear calls for this prod redundant cache buster
-    import { editApp } from "{% static 'js/edit-shared.js' %}?v={{ BUILD_TIMESTAMP }}";
-    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { editApp } from "{% static 'js/edit-shared.js' %}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}";
 
     window.editApp = editApp;
     window.navigateWithSpinner = navigateWithSpinner;

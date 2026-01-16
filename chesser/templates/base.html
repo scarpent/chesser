@@ -12,15 +12,7 @@
     {% endif %}
     <!-- prettier-ignore -->
     {% block head_extra %}{% endblock %}
-    {% if debug %}
-    <!-- local dev caching bugbear calls for this cache buster -->
-    <link
-      href="{% static 'css/chesser.css' %}?v={{ BUILD_TIMESTAMP }}"
-      rel="stylesheet"
-    />
-    {% else %}
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
-    {% endif %}
     <link rel="manifest" href="{% static 'manifest.json' %}" />
     <meta name="theme-color" content="#000000" />
   </head>

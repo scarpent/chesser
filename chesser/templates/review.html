@@ -229,9 +229,8 @@
   </script>
 
   <script type="module">
-    // dev caching bugbear calls for this prod redundant cache buster
-    import { quizApp } from "{% static 'js/quiz.js' %}?v={{ BUILD_TIMESTAMP }}";
-    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { quizApp } from "{% static 'js/quiz.js' %}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}";
 
     window.quizApp = quizApp;
     window.navigateWithSpinner = navigateWithSpinner;

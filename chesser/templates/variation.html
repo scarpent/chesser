@@ -153,9 +153,8 @@
   </script>
 
   <script type="module">
-    // dev caching bugbear calls for this prod redundant cache buster
-    import { variationApp } from "{% static 'js/variation.js' %}?v={{ BUILD_TIMESTAMP }}";
-    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { variationApp } from "{% static 'js/variation.js' %}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}";
 
     window.variationApp = variationApp;
     window.navigateWithSpinner = navigateWithSpinner;

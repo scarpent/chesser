@@ -113,8 +113,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # WhiteNoise serves static files in dev & prod; goes before
+    # staticfiles to disable Django's default static handling
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
-    "whitenoise.runserver_nostatic",  # serves static files in dev & prod
     "django_extensions",
     "djangoql",
 ]
@@ -172,12 +174,12 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-# Ensure this line is present to collect static files from apps
+# To collect static files from apps
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "chesser.storage.HashedURLStorage",
     },
 }
 

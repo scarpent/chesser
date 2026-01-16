@@ -324,13 +324,9 @@
     console.log("homeData:", window.homeData);
   </script>
 
-  <!-- dev caching bugbear calls for this redundant in prod cache buster -->
   <script type="module">
-    import {
-      homeApp,
-      nextDueTimer,
-    } from "{% static 'js/home.js' %}?v={{ BUILD_TIMESTAMP }}";
-    import { navigateWithSpinner } from "{% static 'js/loading.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { homeApp, nextDueTimer } from "{% static 'js/home.js' %}";
+    import { navigateWithSpinner } from "{% static 'js/loading.js' %}";
 
     window.homeApp = homeApp;
     window.nextDueTimer = nextDueTimer;

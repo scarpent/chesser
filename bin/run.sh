@@ -60,11 +60,18 @@ export DEBUG="$DEBUG"
 export CHESSER_ENV="$CHESSER_ENV"
 
 demo_user_exists() {
-  python "$REPO_ROOT/manage.py" shell -c \
-"from django.contrib.auth import get_user_model
-User=get_user_model()
-import sys
-sys.exit(0 if User.objects.filter(username='demo').exists() else 1)"  >/dev/null
+  # Inline python avoids noisy shell/shell_plus output and is script-friendly.
+  python - <<'PY' >/dev/null 2>&1
+import os, django, sys
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "chesser.settings")
+django.setup()
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+sys.exit(0 if User.objects.filter(username="demo").exists() else 1)
+PY
 }
 
 echo "$MODE_EMOJI Starting Chesser"
@@ -103,5 +110,5 @@ watchmedo auto-restart \
     export DEBUG=$DEBUG
     export CHESSER_ENV=$CHESSER_ENV
     python \"$REPO_ROOT/manage.py\" collectstatic --noinput &&
-    CHESSER_START_SCHEDULER=false python \"$REPO_ROOT/manage.py\" runserver --noreload 0.0.0.0:$PORT
+    CHESSER_START_SCHEDULER=false python \"$REPO_ROOT/manage.py\" runserver --noreload --nostatic 0.0.0.0:$PORT
   "

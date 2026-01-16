@@ -197,9 +197,8 @@ string will import if unique, e.g. ➤
     console.log("importData:", window.importData);
   </script>
 
-  <!-- dev caching bugbear calls for this prod redundant cache buster -->
   <script type="module">
-    import { importApp } from "{% static 'js/import.js' %}?v={{ BUILD_TIMESTAMP }}";
+    import { importApp } from "{% static 'js/import.js' %}";
     window.importApp = importApp;
     document.addEventListener("alpine:init", () => {
       Alpine.data("importApp", importApp);
