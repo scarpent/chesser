@@ -1,9 +1,22 @@
-{% load static %} {% if not debug %}
+{% if not debug %}
 <script>
+  // PWA mode: register the service worker in non-debug environments.
+  //
+  // Note: service workers persist per-origin. If you ever run Chesser locally
+  // with DEBUG=false (or hit a demo/prod-like environment on the same origin),
+  // a previously-registered worker may keep controlling pages and caching
+  // responses even after you stop registering it in dev.
+  //
+  // Dev cleanup tip:
+  //   Append ?swkill=1 in DEBUG mode to unregister all service workers:
+  //     http://localhost:8000/?swkill=1
+  //
+  // (We intentionally do NOT add cache-busting query params here; the browser
+  // already manages SW update checks.)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker
-        .register("/service-worker.js?v={{ BUILD_TIMESTAMP }}")
+        .register("/service-worker.js")
         .then(function (registration) {
           console.log("✅ Service Worker registered with scope:", registration.scope);
         })
@@ -13,4 +26,17 @@
     });
   }
 </script>
-{% endif %}
+
+{% else %} {% if request.GET.swkill %}
+<script>
+  // DEBUG-only escape hatch: unregister all service workers for this origin.
+  // Use when dev behavior seems "cached" or weird:
+  //   /?swkill=1
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      regs.forEach((reg) => reg.unregister());
+      console.log("🧹 Unregistered service workers for this origin (DEBUG).");
+    });
+  }
+</script>
+{% endif %} {% endif %}
