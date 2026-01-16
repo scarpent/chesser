@@ -34,7 +34,6 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
-from chesser.decorators import demo_readonly, is_demo_mode
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 from chesser.serializers import (
     get_final_move_simple_subvariations_html,
@@ -163,7 +162,7 @@ def review_random(request):
 @csrf_exempt
 @require_POST
 def report_result(request):
-    if is_demo_mode():
+    if settings.IS_DEMO:
         total_due_now, total_due_soon = Variation.due_counts()
         return JsonResponse(
             {
@@ -271,7 +270,6 @@ def handle_upload_errors(request, error_message):
 
 @csrf_protect
 @require_POST
-@demo_readonly(redirect_to="import")
 def upload_json_data(request):
     file = request.FILES.get("uploaded_file")
     if not file:
@@ -291,7 +289,6 @@ def upload_json_data(request):
 
 
 @method_decorator(csrf_protect, name="dispatch")
-@method_decorator(demo_readonly(redirect_to="import"), name="dispatch")
 class ImportVariationView(View):
     def dispatch(self, request, *args, **kwargs):
         if request.method != "POST":
@@ -443,7 +440,6 @@ def handle_clone_errors(request, form_data, error_message):
 
 
 @require_POST
-@demo_readonly(redirect_to="import")
 def clone(request):
     form_data = request.POST
     original_variation_id = int(form_data.get("original_variation_id"))
@@ -694,7 +690,6 @@ def get_normalized_shapes(shapes):
 @csrf_exempt
 @require_POST
 @transaction.atomic
-@demo_readonly(json_response=True)
 def save_variation(request):
     data = json.loads(request.body)
     variation_id = data.get("variation_id")
@@ -743,7 +738,6 @@ def save_variation(request):
 @csrf_exempt
 @require_POST
 @transaction.atomic
-@demo_readonly(json_response=True)
 def save_shared_move(request):
     data = json.loads(request.body)
     color = data.get("color")

@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.utils.http import urlencode
+
+from chesser.demo import demo_block_response
 
 
 class LoginRequiredMiddleware:
@@ -70,3 +74,68 @@ class SecurityHeadersMiddleware:
             response.headers.setdefault("Permissions-Policy", permissions)
 
         return response
+
+
+class DemoReadonlyMiddleware:
+    """
+    Demo mode write-protection backstop.
+
+    Conceptual model:
+      - Default behavior in demo: block unsafe writes
+        everywhere (POST/PUT/PATCH/DELETE).
+      - Some endpoints are "demo-aware no-ops" (e.g. report_result)
+        and must be allowlisted.
+      - A few blocked POSTs should redirect somewhere specific
+        (e.g. import page), which we support via DEMO_REDIRECT_BY_PREFIX.
+
+    This middleware should run AFTER SessionMiddleware + MessageMiddleware
+    so that redirect-based blocks can show a message banner.
+    """
+
+    UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+    # Endpoints that must still be allowed to run unsafe methods in demo mode.
+    # Keep this list small and explicit.
+    ALLOWLIST_PREFIXES = (
+        "/login/",
+        "/logout/",
+        "/accounts/",
+        "/admin/login/",
+        "/admin/logout/",
+        "/report-result/",  # demo-aware no-op write (handled in-view)
+    )
+
+    # Optional redirect mapping for blocked (non-JSON) POSTs.
+    # Keys are path prefixes; values are Django URL names (preferred) or paths.
+    # This helps keep users on the page they were using, without needing decorators.
+    DEMO_REDIRECT_BY_PREFIX = {
+        "/upload-json-data/": "import",
+    }
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def _redirect_target_for_path(self, path: str) -> str:
+        for prefix, target in self.DEMO_REDIRECT_BY_PREFIX.items():
+            if path.startswith(prefix):
+                return target
+        return "referer"
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        if (
+            getattr(settings, "IS_DEMO", False)
+            and request.method in self.UNSAFE_METHODS
+        ):
+            path = request.path or "/"
+
+            for prefix in self.ALLOWLIST_PREFIXES:
+                if path.startswith(prefix):
+                    return self.get_response(request)
+
+            redirect_to = self._redirect_target_for_path(path)
+
+            # Default deny: block the write attempt.
+            # demo_block_response decides JSON vs redirect based on request headers.
+            return demo_block_response(request, redirect_to=redirect_to)
+
+        return self.get_response(request)

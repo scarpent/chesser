@@ -122,19 +122,35 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # Django’s built-in security hardening (HSTS, SSL redirects, etc.)
     "django.middleware.security.SecurityMiddleware",
-    "chesser.middleware.SecurityHeadersMiddleware",
-    # WhiteNoise should come immediately after SecurityMiddleware
-    # to ensure security headers are applied before serving static files
+    # WhiteNoise must come immediately after SecurityMiddleware.
+    # It may short-circuit requests for static files, but responses
+    # still flow back through later middleware for header injection.
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    # Chesser-specific security headers (CSP, Referrer-Policy, etc.).
+    # Safe to run after WhiteNoise; headers will still be applied
+    # to static-file responses as they unwind the middleware stack.
+    "chesser.middleware.SecurityHeadersMiddleware",
+    # Session handling (required for auth, messages, etc.)
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # Standard Django request/response conveniences
     "django.middleware.common.CommonMiddleware",
+    # CSRF protection for form and fetch POSTs
     "django.middleware.csrf.CsrfViewMiddleware",
+    # Authentication (request.user)
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Django messages framework (flash messages)
     "django.contrib.messages.middleware.MessageMiddleware",
+    # Demo-mode write protection backstop.
+    # Placed after sessions/messages so redirects can show a banner.
+    "chesser.middleware.DemoReadonlyMiddleware",
+    # Clickjacking protection (X-Frame-Options)
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Require login for most views (Chesser-specific policy)
     "chesser.middleware.LoginRequiredMiddleware",
 ]
+
 
 ROOT_URLCONF = "chesser.urls"
 
