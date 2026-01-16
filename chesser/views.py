@@ -23,6 +23,7 @@ from django.http import (
     StreamingHttpResponse,
 )
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
@@ -33,6 +34,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
+from chesser.decorators import demo_readonly, is_demo_mode
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 from chesser.serializers import (
     get_final_move_simple_subvariations_html,
@@ -161,6 +163,17 @@ def review_random(request):
 @csrf_exempt
 @require_POST
 def report_result(request):
+    if is_demo_mode():
+        total_due_now, total_due_soon = Variation.due_counts()
+        return JsonResponse(
+            {
+                "status": "ignored",
+                "message": "Demo mode: result not saved.",
+                "total_due_now": total_due_now,
+                "total_due_soon": total_due_soon,
+            }
+        )
+
     data = json.loads(request.body)
     variation_id = data.get("variation_id")
     passed = data.get("passed")
@@ -258,6 +271,7 @@ def handle_upload_errors(request, error_message):
 
 @csrf_protect
 @require_POST
+@demo_readonly(redirect_to="import")
 def upload_json_data(request):
     file = request.FILES.get("uploaded_file")
     if not file:
@@ -277,6 +291,7 @@ def upload_json_data(request):
 
 
 @method_decorator(csrf_protect, name="dispatch")
+@method_decorator(demo_readonly(redirect_to="import"), name="dispatch")
 class ImportVariationView(View):
     def dispatch(self, request, *args, **kwargs):
         if request.method != "POST":
@@ -428,6 +443,7 @@ def handle_clone_errors(request, form_data, error_message):
 
 
 @require_POST
+@demo_readonly(redirect_to="import")
 def clone(request):
     form_data = request.POST
     original_variation_id = int(form_data.get("original_variation_id"))
@@ -678,6 +694,7 @@ def get_normalized_shapes(shapes):
 @csrf_exempt
 @require_POST
 @transaction.atomic
+@demo_readonly(json_response=True)
 def save_variation(request):
     data = json.loads(request.body)
     variation_id = data.get("variation_id")
@@ -726,6 +743,7 @@ def save_variation(request):
 @csrf_exempt
 @require_POST
 @transaction.atomic
+@demo_readonly(json_response=True)
 def save_shared_move(request):
     data = json.loads(request.body)
     color = data.get("color")
@@ -1091,12 +1109,15 @@ def stats(request):
         # excluding level 0, which is only "learning" and we won't judge
         level_labels = [f"L{n}" for n in range(1, 10)] + ["L10+"]
 
-        favicon = "favicon-dev.ico" if settings.DEBUG else "favicon.ico"
+        favicon = "icons/favicon-dev.ico" if settings.DEBUG else "icons/favicon.ico"
+        favicon_link = (
+            f"<link rel='icon' href='{static(favicon)}' type='image/x-icon' />"
+        )
 
         yield (
             "<html><head><title>Stats</title>"
             "<meta name='viewport' content='width=device-width, initial-scale=1.0' />"
-            f"<link rel='icon' href='/static/icons/{favicon}' type='image/x-icon' />"
+            f"{favicon_link}"
             "<style>"
             ".mobile-header{display:none;}"
             ".mobile-header a{color:cyan;text-decoration:none;font-weight:bold;}"
