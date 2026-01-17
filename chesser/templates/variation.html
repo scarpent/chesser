@@ -138,8 +138,12 @@
   {% include "includes/landscape_overlay.html" %}
   {% include "includes/service_worker_register.html" %}
 
+  <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
+  {{ variation_data|json_script:"variation-data" }}
   <script>
-    window.variationData = JSON.parse("{{ variation_data|escapejs }}");
+    window.variationData = JSON.parse(
+      document.getElementById("variation-data").textContent
+    );
     console.log("variationData:", window.variationData);
 
     // Set --vh custom property on initial load and resize

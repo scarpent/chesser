@@ -192,8 +192,10 @@ string will import if unique, e.g. ➤
   {% include "includes/landscape_overlay.html" %}
   {% include "includes/service_worker_register.html" %}
 
+  <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
+  {{ import_data|json_script:"import-data" }}
   <script>
-    window.importData = JSON.parse("{{ import_data|escapejs }}");
+    window.importData = JSON.parse(document.getElementById("import-data").textContent);
     console.log("importData:", window.importData);
   </script>
 

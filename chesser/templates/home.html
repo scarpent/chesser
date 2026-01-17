@@ -319,8 +319,10 @@
     </span>
   </div>
 
+  <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
+  {{ home_data|json_script:"home-data" }}
   <script>
-    window.homeData = JSON.parse("{{ home_data_json|escapejs }}");
+    window.homeData = JSON.parse(document.getElementById("home-data").textContent);
     console.log("homeData:", window.homeData);
   </script>
 

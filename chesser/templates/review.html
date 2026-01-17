@@ -221,9 +221,15 @@
   {% include "includes/landscape_overlay.html" %}
   {% include "includes/service_worker_register.html" %}
 
+  <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
+  {{ variation_data|json_script:"variation-data" }}
+  <!-- prettier-ignore -->
+  {{ review_data|json_script:"review-data" }}
   <script>
-    window.variationData = JSON.parse("{{ variation_data|escapejs }}");
-    window.reviewData = JSON.parse("{{ review_data|escapejs }}");
+    window.variationData = JSON.parse(
+      document.getElementById("variation-data").textContent
+    );
+    window.reviewData = JSON.parse(document.getElementById("review-data").textContent);
     console.log("variationData:", window.variationData);
     console.log("reviewData:", window.reviewData);
   </script>

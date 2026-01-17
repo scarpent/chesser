@@ -47,11 +47,7 @@ QUIZ_RESULT_DEBOUNCE_HOURS = timedelta(hours=3)
 
 def home(request, color=None, chapter_id=None):
     home_view = HomeView(color=color, chapter_id=chapter_id)
-    return render(
-        request,
-        "home.html",
-        {"home_data_json": json.dumps(home_view.home_data)},
-    )
+    return render(request, "home.html", {"home_data": home_view.home_data})
 
 
 def service_worker(request):
@@ -134,8 +130,8 @@ def review(request, variation_id=None):
     }
 
     context = {
-        "variation_data": json.dumps(variation_data),
-        "review_data": json.dumps(review_data),
+        "variation_data": variation_data,
+        "review_data": review_data,
     }
     return render(request, "review.html", context)
 
@@ -236,12 +232,10 @@ def get_import_context(form_defaults=None):
     form_defaults.setdefault("chapter_id", chapters[0]["id"])
 
     return {
-        "import_data": json.dumps(
-            {
-                "chapters": chapters,
-                "form_defaults": form_defaults,
-            }
-        )
+        "import_data": {
+            "chapters": chapters,
+            "form_defaults": form_defaults,
+        }
     }
 
 
@@ -621,7 +615,7 @@ def edit(request, variation_id=None):
         )
 
     variation_data = serialize_variation(variation, mode="edit") if variation else {}
-    context = {"variation_data": json.dumps(variation_data)}
+    context = {"variation_data": variation_data}
 
     return render(request, "edit.html", context)
 
@@ -669,7 +663,7 @@ def edit_shared_move(request):
     move_index = util.get_move_index_from_fen(fen)
     move_data["analysis_url"] = util.get_analysis_url(variation, index=move_index)
 
-    context = {"move_data": json.dumps(move_data)}
+    context = {"move_data": move_data}
 
     return render(request, "edit_shared.html", context)
 
@@ -814,7 +808,7 @@ def variation(request, variation_id=None):
     variation_data = (
         serialize_variation(variation, mode="variation") if variation else {}
     )
-    context = {"variation_data": json.dumps(variation_data)}
+    context = {"variation_data": variation_data}
 
     return render(request, "variation.html", context)
 
