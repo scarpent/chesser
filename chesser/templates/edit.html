@@ -25,241 +25,234 @@
 {% endblock %}
 
 <!-- prettier-ignore -->
-{% block content %}
-<body
+{% block body_attrs %}
   x-data="editApp()"
   x-init="initEditor(); setPageTitle('Edit #' + variationData.variation_id);"
   @keydown.window="handleKeyNavigation($event)"
   x-cloak
->
-  {% include "includes/loading_overlay.html" %} {% if IS_DEMO %}
-  <div class="demo-banner">🧪 <b>Demo mode</b> — changes are not saved</div>
-  {% endif %}
+{% endblock %}
 
-  <div class="button-container" style="margin-top: 15px">
-    <button
-      title="Home"
-      @click="window.navigateWithSpinner('/')"
-      class="image-button home-button button-round"
-    >
-      <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
-    </button>
-    <button
-      title="Review"
-      @click="window.navigateWithSpinner('/review/')"
-      class="icon-review icon-button"
-    ></button>
-    <button
-      title="Import"
-      @click="window.navigateWithSpinner('/import/')"
-      class="icon-import icon-button"
-    ></button>
-    <button
-      title="View"
-      @click="window.navigateWithSpinner('/variation/' + variationData.variation_id + '/')"
-      class="icon-variation icon-button"
-    ></button>
-    <button
-      title="Lichess analysis board"
-      @click="window.open(variationData.analysis_url, '_blank', 'noopener')"
-      class="icon-analysis icon-button"
-    ></button>
-    <button
-      title="Save"
-      @click="saveVariation()"
-      class="icon-save icon-button"
-    ></button>
+{% block content %}
+<!-- prettier-ignore -->
+{% if IS_DEMO %}
+<div class="demo-banner">🧪 <b>Demo mode</b> — changes are not saved</div>
+{% endif %}
+
+<div class="button-container" style="margin-top: 15px">
+  <button
+    title="Home"
+    @click="window.navigateWithSpinner('/')"
+    class="image-button home-button button-round"
+  >
+    <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
+  </button>
+  <button
+    title="Review"
+    @click="window.navigateWithSpinner('/review/')"
+    class="icon-review icon-button"
+  ></button>
+  <button
+    title="Import"
+    @click="window.navigateWithSpinner('/import/')"
+    class="icon-import icon-button"
+  ></button>
+  <button
+    title="View"
+    @click="window.navigateWithSpinner('/variation/' + variationData.variation_id + '/')"
+    class="icon-variation icon-button"
+  ></button>
+  <button
+    title="Lichess analysis board"
+    @click="window.open(variationData.analysis_url, '_blank', 'noopener')"
+    class="icon-analysis icon-button"
+  ></button>
+  <button title="Save" @click="saveVariation()" class="icon-save icon-button"></button>
+</div>
+
+<div id="edit-variation-info" class="form-standard">
+  <div>
+    <a
+      :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
+      x-text="variationData.chapter"
+    ></a>
+    •
+    <a
+      :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
+      target="_blank"
+      rel="noopener"
+      x-text="'#' + variationData.variation_id"
+    ></a>
+    <span x-show="variationData.is_intro">📌</span>
   </div>
 
-  <div id="edit-variation-info" class="form-standard">
+  <div>
+    <label for="variation-title">Variation Title:</label>
+    <input
+      type="text"
+      id="variation-title"
+      x-model="variationData.title"
+      class="variation-title-input"
+    />
+  </div>
+
+  <div class="edit-sundry">
+    <div class="form-start-and-end">
+      <label for="start-move">Start Move:</label>
+      <input type="text" id="start-move" x-model="variationData.start_move" />
+    </div>
+
     <div>
       <a
-        :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
-        x-text="variationData.chapter"
-      ></a>
-      •
-      <a
-        :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
+        :href="'/export/' + variationData.variation_id + '/'"
         target="_blank"
         rel="noopener"
-        x-text="'#' + variationData.variation_id"
-      ></a>
-      <span x-show="variationData.is_intro">📌</span>
+        >export</a
+      >
+      •
+      <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
+      <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
+      <template x-if="variationData.level === 0">
+        <span>
+          •
+          <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
+        </span>
+      </template>
     </div>
-
-    <div>
-      <label for="variation-title">Variation Title:</label>
-      <input
-        type="text"
-        id="variation-title"
-        x-model="variationData.title"
-        class="variation-title-input"
-      />
-    </div>
-
-    <div class="edit-sundry">
-      <div class="form-start-and-end">
-        <label for="start-move">Start Move:</label>
-        <input type="text" id="start-move" x-model="variationData.start_move" />
-      </div>
-
-      <div>
-        <a
-          :href="'/export/' + variationData.variation_id + '/'"
-          target="_blank"
-          rel="noopener"
-          >export</a
-        >
-        •
-        <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
-        <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
-        <template x-if="variationData.level === 0">
-          <span>
-            •
-            <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
-          </span>
-        </template>
-      </div>
-    </div>
-
-    <div id="edit-mainline-moves" x-html="renderMainlineMoveLinks()"></div>
   </div>
 
-  <!-- Generate multiple boards dynamically -->
-  <div id="boards-container" class="form-standard" style="margin-bottom: 1000px">
-    <template x-for="(move, index) in variationData.moves" :key="index">
-      <div class="move-block" :id="'move-block-' + index">
-        <div class="edit-board" :id="'edit-board-' + index"></div>
-        <div class="edit-move-text-container">
-          <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>
-          <textarea
-            class="edit-move-text"
-            x-model="moveState[index].text"
-            rows="8"
-          ></textarea>
-          <div class="move-fen">
-            <a
-              :href="variationData.analysis_url + (index + 1)"
-              target="_blank"
-              rel="noopener"
-              x-text="move.fen"
-            ></a>
-          </div>
+  <div id="edit-mainline-moves" x-html="renderMainlineMoveLinks()"></div>
+</div>
+
+<!-- Generate multiple boards dynamically -->
+<div id="boards-container" class="form-standard" style="margin-bottom: 1000px">
+  <template x-for="(move, index) in variationData.moves" :key="index">
+    <div class="move-block" :id="'move-block-' + index">
+      <div class="edit-board" :id="'edit-board-' + index"></div>
+      <div class="edit-move-text-container">
+        <h2 class="mainline-move move-verbose-edit" x-text="move.move_verbose"></h2>
+        <textarea
+          class="edit-move-text"
+          x-model="moveState[index].text"
+          rows="8"
+        ></textarea>
+        <div class="move-fen">
+          <a
+            :href="variationData.analysis_url + (index + 1)"
+            target="_blank"
+            rel="noopener"
+            x-text="move.fen"
+          ></a>
         </div>
-        <div class="edit-move-other-container">
-          <select
-            :value="move.shared_move_id"
-            @change="move.shared_move_id = $event.target.value; updateSharedMoveState(index)"
-            :class="{ 'shared-selected': move.shared_move_id && !isNaN(parseInt(move.shared_move_id)) }"
-          >
-            <template x-for="item in move.shared_dropdown" :key="item.value">
-              <option
-                :value="String(item.value)"
-                x-text="item.label"
-                :selected="item.value === move.shared_move_id"
-              ></option>
-            </template>
-          </select>
-          <select class="annotation" x-model="moveState[index].annotation">
-            <template x-for="[key, value] in Object.entries(variationData.annotations)">
-              <option
-                :value="key"
-                x-text="value"
-                :selected="key === moveState[index].annotation"
-              ></option>
-            </template>
-          </select>
-          <input
-            type="text"
-            class="move-alt"
-            x-model="moveState[index].alt"
-            placeholder="Alternative move"
-            @blur="validateAltMoves(index, 'alt', $event)"
-          />
-          <input
-            type="text"
-            class="move-alt-fail"
-            x-model="moveState[index].alt_fail"
-            placeholder="Alt move fail"
-            @blur="validateAltMoves(index, 'alt_fail', $event)"
-          />
-          <div>
-            <button
-              title="Save"
-              class="icon-save icon-button"
-              :class="{
+      </div>
+      <div class="edit-move-other-container">
+        <select
+          :value="move.shared_move_id"
+          @change="move.shared_move_id = $event.target.value; updateSharedMoveState(index)"
+          :class="{ 'shared-selected': move.shared_move_id && !isNaN(parseInt(move.shared_move_id)) }"
+        >
+          <template x-for="item in move.shared_dropdown" :key="item.value">
+            <option
+              :value="String(item.value)"
+              x-text="item.label"
+              :selected="item.value === move.shared_move_id"
+            ></option>
+          </template>
+        </select>
+        <select class="annotation" x-model="moveState[index].annotation">
+          <template x-for="[key, value] in Object.entries(variationData.annotations)">
+            <option
+              :value="key"
+              x-text="value"
+              :selected="key === moveState[index].annotation"
+            ></option>
+          </template>
+        </select>
+        <input
+          type="text"
+          class="move-alt"
+          x-model="moveState[index].alt"
+          placeholder="Alternative move"
+          @blur="validateAltMoves(index, 'alt', $event)"
+        />
+        <input
+          type="text"
+          class="move-alt-fail"
+          x-model="moveState[index].alt_fail"
+          placeholder="Alt move fail"
+          @blur="validateAltMoves(index, 'alt_fail', $event)"
+        />
+        <div>
+          <button
+            title="Save"
+            class="icon-save icon-button"
+            :class="{
                 'save-success': move.saved === 'success',
                 'save-pending': move.saved === 'pending',
                 'save-error': move.saved === 'error'
               }"
-              @click.prevent="saveFromMove(index)"
-            ></button>
-            <button
-              title="Previous Move"
-              class="icon-back icon-button"
-              @click.prevent="scrollToMoveBlock(index - 1)"
-            ></button>
-            <button
-              title="Next Move"
-              class="icon-forward icon-button"
-              @click.prevent="scrollToMoveBlock(index + 1)"
-            ></button>
-            <!-- utterly defeated trying to scroll to top on mobile; will use this for now -->
-            <button
-              title="Go to Top"
-              class="icon-up icon-button"
-              @click.prevent="scrollToMoveBlock(0)"
-            ></button>
-          </div>
-          <div id="edit-move-other-links">
-            <a :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
-              >📖 view</a
-            >
-            <template x-if="move.matching_move_count > 1 || move.shared">
-              <a
-                :href="'/edit-shared-move/?san=' + encodeURIComponent(move.san) + '&fen=' + move.fen + '&color=' + variationData.color + '&variation_id=' + variationData.variation_id"
-                title="Shared Move Editor"
-                x-text="'=' + move.matching_move_count"
-              ></a>
-            </template>
+            @click.prevent="saveFromMove(index)"
+          ></button>
+          <button
+            title="Previous Move"
+            class="icon-back icon-button"
+            @click.prevent="scrollToMoveBlock(index - 1)"
+          ></button>
+          <button
+            title="Next Move"
+            class="icon-forward icon-button"
+            @click.prevent="scrollToMoveBlock(index + 1)"
+          ></button>
+          <!-- utterly defeated trying to scroll to top on mobile; will use this for now -->
+          <button
+            title="Go to Top"
+            class="icon-up icon-button"
+            @click.prevent="scrollToMoveBlock(0)"
+          ></button>
+        </div>
+        <div id="edit-move-other-links">
+          <a :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
+            >📖 view</a
+          >
+          <template x-if="move.matching_move_count > 1 || move.shared">
             <a
-              :href="'/admin/chesser/move/' + move.move_id + '/change/'"
-              title="Edit Move in Admin"
-              target="_blank"
-              rel="noopener"
-              x-text="'#' + move.move_id"
+              :href="'/edit-shared-move/?san=' + encodeURIComponent(move.san) + '&fen=' + move.fen + '&color=' + variationData.color + '&variation_id=' + variationData.variation_id"
+              title="Shared Move Editor"
+              x-text="'=' + move.matching_move_count"
             ></a>
-          </div>
+          </template>
+          <a
+            :href="'/admin/chesser/move/' + move.move_id + '/change/'"
+            title="Edit Move in Admin"
+            target="_blank"
+            rel="noopener"
+            x-text="'#' + move.move_id"
+          ></a>
         </div>
       </div>
-    </template>
-  </div>
+    </div>
+  </template>
+</div>
 
-  <!-- prettier-ignore -->
-  {% include "includes/landscape_overlay.html" %}
+<!-- prettier-ignore -->
+{% include "includes/landscape_overlay.html" %}
   {% include "includes/service_worker_register.html" %}
 
-  <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
-  {{ variation_data|json_script:"variation-data" }}
-  <script>
-    window.variationData = JSON.parse(
-      document.getElementById("variation-data").textContent
-    );
-    console.log("variationData:", window.variationData);
-  </script>
+<!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
+{{ variation_data|json_script:"variation-data" }}
+<script>
+  window.variationData = JSON.parse(
+    document.getElementById("variation-data").textContent
+  );
+  console.log("variationData:", window.variationData);
+</script>
 
-  <script type="module">
-    import { editApp } from "{% static 'js/edit.js' %}";
-    import { navigateWithSpinner } from "{% static 'js/loading.js' %}";
+<script type="module">
+  import { editApp } from "{% static 'js/edit.js' %}";
 
-    window.editApp = editApp;
-    window.navigateWithSpinner = navigateWithSpinner;
+  window.editApp = editApp;
 
-    document.addEventListener("alpine:init", () => {
-      Alpine.data("editApp", editApp);
-    });
-  </script>
-
-  <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-</body>
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("editApp", editApp);
+  });
+</script>
 {% endblock %}

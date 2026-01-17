@@ -22,153 +22,146 @@
 {% endblock %}
 
 <!-- prettier-ignore -->
-{% block content %}
-<body
+{% block body_attrs %}
   x-data="variationApp()"
   x-init="initVariation(); setPageTitle('Var #' + variationData.variation_id);"
   @keydown.window="handleKeyNavigation($event)"
->
-  {% include "includes/loading_overlay.html" %}
+{% endblock %}
 
-  <div id="outer-container" x-cloak>
-    <div id="left-column">
-      <div id="resizable-board" data-board-id="variation">
-        <div id="board"></div>
-        <div id="resize-handle"></div>
-      </div>
-      <div id="underboard">
-        <div class="button-container variation-button-container">
-          <button
-            title="Home"
-            @click="window.navigateWithSpinner('/')"
-            class="image-button home-button button-round"
-          >
-            <img
-              src="{% static 'images/chesser-logo-192x192.png' %}"
-              alt="Chesser Logo"
-            />
-          </button>
-          <button
-            title="Review"
-            @click="window.navigateWithSpinner('/review/')"
-            class="icon-review icon-button"
-          ></button>
-          <button
-            title="Mainline Back"
-            @click="handleArrowButtonClick($event, 'back')"
-            class="icon-back icon-button"
-          ></button>
-          <button
-            title="Mainline Forward"
-            @click="handleArrowButtonClick($event, 'forward')"
-            class="icon-forward icon-button"
-          ></button>
-          <button
-            title="Edit"
-            @click="gotoEditView()"
-            class="icon-edit icon-button"
-          ></button>
-          <button
-            title="Lichess Analysis Board"
-            @click="window.open(variationData.analysis_url + (mainlineMoveIndex + 1), '_blank', 'noopener')"
-            class="icon-analysis icon-button"
-          ></button>
-        </div>
-        <div class="variation-info-container">
-          <div
-            x-text="variationData.is_intro ? '📌 ' + variationData.title : variationData.title"
-          ></div>
-          <div class="variation-state-info">
-            <span
-              x-show="variationData.level === 0 || variationData.level >= 9"
-              x-text="variationData.level === 0 ? '🌱' : '🌳'"
-            ></span>
-            <span x-text="'L' + variationData.level"></span>
-            <span x-text="'S' + variationData.start_move"></span>
-            <span x-text="'N➤' + variationData.time_until_next_review"></span>
-            <span x-text="'#' + variationData.variation_id"></span>
-            <template x-if="variationData.level > 0">
-              <span>
-                <a :href="'/review/' + variationData.variation_id + '/'">extra study</a>
-                ✏️
-              </span>
-            </template>
-            <template x-if="variationData.level === 0">
-              <span>
-                <a :href="'/review/' + variationData.variation_id + '/?learn=1'"
-                  >learn</a
-                >
-                📖
-              </span>
-            </template>
-          </div>
-          <div
-            id="variation-mainline-moves"
-            x-html="renderMainlineMoveLinks()"
-            class="mainline-moves"
-          ></div>
-        </div>
-        <p id="alts"></p>
-        <div id="chapter-title-and-fen">
-          <div>
-            Chapter:
-            <a
-              :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
-              ><span x-text="variationData.chapter"></span
-            ></a>
-          </div>
-          <div>
-            <a
-              :href="`#${currentFen}`"
-              @click.prevent="copyCurrentFen"
-              title="Copy FEN for currently displayed position"
-              >fen</a
-            >
-            📋️
-          </div>
-        </div>
-        <div id="source" x-html="variationData.source_html"></div>
-        {% include "includes/history.html" %}
-      </div>
+{% block content %}
+<div id="outer-container" x-cloak>
+  <div id="left-column">
+    <div id="resizable-board" data-board-id="variation">
+      <div id="board"></div>
+      <div id="resize-handle"></div>
     </div>
-    <div id="right-column" x-html="variationData.html"></div>
+    <div id="underboard">
+      <div class="button-container variation-button-container">
+        <button
+          title="Home"
+          @click="window.navigateWithSpinner('/')"
+          class="image-button home-button button-round"
+        >
+          <img
+            src="{% static 'images/chesser-logo-192x192.png' %}"
+            alt="Chesser Logo"
+          />
+        </button>
+        <button
+          title="Review"
+          @click="window.navigateWithSpinner('/review/')"
+          class="icon-review icon-button"
+        ></button>
+        <button
+          title="Mainline Back"
+          @click="handleArrowButtonClick($event, 'back')"
+          class="icon-back icon-button"
+        ></button>
+        <button
+          title="Mainline Forward"
+          @click="handleArrowButtonClick($event, 'forward')"
+          class="icon-forward icon-button"
+        ></button>
+        <button
+          title="Edit"
+          @click="gotoEditView()"
+          class="icon-edit icon-button"
+        ></button>
+        <button
+          title="Lichess Analysis Board"
+          @click="window.open(variationData.analysis_url + (mainlineMoveIndex + 1), '_blank', 'noopener')"
+          class="icon-analysis icon-button"
+        ></button>
+      </div>
+      <div class="variation-info-container">
+        <div
+          x-text="variationData.is_intro ? '📌 ' + variationData.title : variationData.title"
+        ></div>
+        <div class="variation-state-info">
+          <span
+            x-show="variationData.level === 0 || variationData.level >= 9"
+            x-text="variationData.level === 0 ? '🌱' : '🌳'"
+          ></span>
+          <span x-text="'L' + variationData.level"></span>
+          <span x-text="'S' + variationData.start_move"></span>
+          <span x-text="'N➤' + variationData.time_until_next_review"></span>
+          <span x-text="'#' + variationData.variation_id"></span>
+          <template x-if="variationData.level > 0">
+            <span>
+              <a :href="'/review/' + variationData.variation_id + '/'">extra study</a>
+              ✏️
+            </span>
+          </template>
+          <template x-if="variationData.level === 0">
+            <span>
+              <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
+              📖
+            </span>
+          </template>
+        </div>
+        <div
+          id="variation-mainline-moves"
+          x-html="renderMainlineMoveLinks()"
+          class="mainline-moves"
+        ></div>
+      </div>
+      <p id="alts"></p>
+      <div id="chapter-title-and-fen">
+        <div>
+          Chapter:
+          <a
+            :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
+            ><span x-text="variationData.chapter"></span
+          ></a>
+        </div>
+        <div>
+          <a
+            :href="`#${currentFen}`"
+            @click.prevent="copyCurrentFen"
+            title="Copy FEN for currently displayed position"
+            >fen</a
+          >
+          📋️
+        </div>
+      </div>
+      <div id="source" x-html="variationData.source_html"></div>
+      {% include "includes/history.html" %}
+    </div>
   </div>
+  <div id="right-column" x-html="variationData.html"></div>
+</div>
 
-  <!-- prettier-ignore -->
-  {% include "includes/landscape_overlay.html" %}
+<!-- prettier-ignore -->
+{% include "includes/landscape_overlay.html" %}
   {% include "includes/service_worker_register.html" %}
 
-  <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
-  {{ variation_data|json_script:"variation-data" }}
-  <script>
-    window.variationData = JSON.parse(
-      document.getElementById("variation-data").textContent
+<!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
+{{ variation_data|json_script:"variation-data" }}
+<script>
+  window.variationData = JSON.parse(
+    document.getElementById("variation-data").textContent
+  );
+  console.log("variationData:", window.variationData);
+
+  // Set --vh custom property on initial load and resize
+  window.addEventListener("resize", () => {
+    document.documentElement.style.setProperty(
+      "--vh",
+      `${window.innerHeight * 0.01}px`
     );
-    console.log("variationData:", window.variationData);
+  });
+  window.dispatchEvent(new Event("resize"));
+</script>
 
-    // Set --vh custom property on initial load and resize
-    window.addEventListener("resize", () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`
-      );
-    });
-    window.dispatchEvent(new Event("resize"));
-  </script>
+<script type="module">
+  import { variationApp } from "{% static 'js/variation.js' %}";
 
-  <script type="module">
-    import { variationApp } from "{% static 'js/variation.js' %}";
-    import { navigateWithSpinner } from "{% static 'js/loading.js' %}";
+  window.variationApp = variationApp;
 
-    window.variationApp = variationApp;
-    window.navigateWithSpinner = navigateWithSpinner;
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("variationApp", variationApp);
+  });
+</script>
 
-    document.addEventListener("alpine:init", () => {
-      Alpine.data("variationApp", variationApp);
-    });
-  </script>
-
-  <script src="{% static 'js/resize.js' %}"></script>
-  <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-</body>
+<script src="{% static 'js/resize.js' %}"></script>
 {% endblock %}

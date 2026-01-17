@@ -21,5 +21,14 @@
     <link rel="manifest" href="{% static 'manifest.json' %}" />
     <meta name="theme-color" content="#000000" />
   </head>
-  {% block content %}{% endblock %}
+  <body {% block body_attrs %}{% endblock %}>
+    <!-- prettier-ignore -->
+    {% include "includes/loading_overlay.html" %}
+
+    {% block content %}{% endblock %}
+
+    <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
+    <script type="module" src="{% static 'js/chesser-bootstrap.js' %}"></script>
+    {% block body_extra %}{% endblock %}
+  </body>
 </html>

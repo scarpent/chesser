@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       e.preventDefault();
-      window.navigateWithSpinner(href);
+      navigateWithSpinner(href);
     });
   });
 });
