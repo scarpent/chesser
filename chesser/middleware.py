@@ -99,7 +99,6 @@ class DemoReadonlyMiddleware:
     ALLOWLIST_PREFIXES = (
         "/login/",
         "/logout/",
-        "/accounts/",
         "/admin/login/",
         "/admin/logout/",
         "/report-result/",  # demo-aware no-op write (handled in-view)
