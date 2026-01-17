@@ -1,8 +1,5 @@
-# chesser/demo.py
 from __future__ import annotations
 
-from django.contrib import messages
-from django.contrib.messages.api import MessageFailure
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 
@@ -60,12 +57,6 @@ def demo_block_response(
         resp = JsonResponse({"status": "demo_disabled", "message": msg}, status=403)
         resp[DEMO_READONLY_HEADER] = "1"
         return resp
-
-    # Best-effort: if messages middleware isn't installed/active, don't 500.
-    try:
-        messages.warning(request, f"🧪 {msg}")
-    except MessageFailure:
-        pass
 
     if redirect_to == "referer":
         referer = request.META.get("HTTP_REFERER")
