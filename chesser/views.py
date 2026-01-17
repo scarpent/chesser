@@ -30,7 +30,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
@@ -88,6 +88,7 @@ def trigger_error(request):
     raise Exception("💣️ test error 🧨")
 
 
+@ensure_csrf_cookie
 def review(request, variation_id=None):
     if variation_id is None:
         extra_study = False
@@ -155,7 +156,7 @@ def review_random(request):
     return redirect("review_with_id", variation_id=variation.id)
 
 
-@csrf_exempt
+@csrf_protect
 @require_POST
 def report_result(request):
     if settings.IS_DEMO:
@@ -605,6 +606,7 @@ def variations_table(request):
     )
 
 
+@ensure_csrf_cookie
 def edit(request, variation_id=None):
     if variation_id is None:
         variation = Variation.objects.first()
@@ -620,6 +622,7 @@ def edit(request, variation_id=None):
     return render(request, "edit.html", context)
 
 
+@ensure_csrf_cookie
 def edit_shared_move(request):
     fen = request.GET.get("fen")
     san = request.GET.get("san")
@@ -681,7 +684,7 @@ def get_normalized_shapes(shapes):
         return json.dumps(shapes_list, separators=(", ", ": "))
 
 
-@csrf_exempt
+@csrf_protect
 @require_POST
 @transaction.atomic
 def save_variation(request):
@@ -729,7 +732,7 @@ def save_variation(request):
     return JsonResponse({"status": "success"})
 
 
-@csrf_exempt
+@csrf_protect
 @require_POST
 @transaction.atomic
 def save_shared_move(request):

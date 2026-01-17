@@ -161,7 +161,11 @@ export function editApp() {
       try {
         const response = await fetch("/save-variation/", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          credentials: "same-origin",
           body: JSON.stringify(payload),
         });
 

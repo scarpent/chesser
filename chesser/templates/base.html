@@ -10,6 +10,8 @@
     {% else %}
     <link rel="icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon" />
     {% endif %}
+    <!-- Global helpers (must load before page JS) -->
+    <script src="{% static 'js/csrf.js' %}"></script>
     <!-- prettier-ignore -->
     {% block head_extra %}{% endblock %}
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />

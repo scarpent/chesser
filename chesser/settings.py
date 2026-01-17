@@ -23,7 +23,8 @@ def get_local_ip():
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
+DEFAULT_SECRET_KEY = "fallback-secret-key"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", DEFAULT_SECRET_KEY)
 
 # --------------------------------------------------------------------
 # Environment inputs (only raw env reads here)
@@ -81,6 +82,10 @@ else:
 # --------------------------------------------------------------------
 # Guards
 # --------------------------------------------------------------------
+
+# Never allow the default fallback-secret-key outside of local dev.
+if (IS_HOSTED or IS_PRODUCTION) and SECRET_KEY == DEFAULT_SECRET_KEY:
+    raise ValueError("DJANGO_SECRET_KEY is required when hosted/production")
 
 VALID_ENVS = {"development", "demo", "production"}
 if CHESSER_ENV not in VALID_ENVS:

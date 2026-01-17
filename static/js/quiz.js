@@ -597,7 +597,11 @@ export function quizApp() {
       try {
         const response = await fetch("/report-result/", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          credentials: "same-origin",
           body: JSON.stringify({ variation_id: variationId, passed }),
         });
 
