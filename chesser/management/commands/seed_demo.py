@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+from datetime import timedelta
 from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
+
+from chesser.models import Variation
 
 # Keep in sync with static/js/demo-login-autofill.js
 DEMO_USERNAME = "demo"
@@ -60,6 +66,7 @@ class Command(BaseCommand):
 
         if not skip_import:
             self._import_demo_data(file_path=file_path)
+            self._simulate_demo_reviews()
 
         self.stdout.write(self.style.SUCCESS("✅ Demo seed complete"))
 
@@ -94,3 +101,37 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(self.style.SUCCESS("✅ Demo data imported"))
+
+    def _simulate_demo_reviews(self) -> None:
+        """
+        After importing the sample repertoire, tweak a couple variations so the
+        demo review queue looks "alive" immediately (one due now, one due soon).
+
+        We match by exact title first, then fall back to icontains so small title
+        edits don't silently break demo behavior.
+        """
+        now = timezone.now()
+
+        rules = [
+            ("Italian 4.Ng5 Knight Attack", now - timedelta(minutes=1), "due now"),
+            ("Alekhine's - O'Sullivan Gambit", now + timedelta(days=1), "due in 1 day"),
+        ]
+
+        for title, next_review, label in rules:
+            qs = Variation.objects.filter(title=title)
+            if not qs.exists():
+                qs = Variation.objects.filter(title__icontains=title)
+
+            count = qs.update(next_review=next_review)
+            if count:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"🕒 Demo review setup: set {count} variation(s) matching {title!r} to {label}"  # noqa: E501
+                    )
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"⚠️ Demo review setup: no variation found matching {title!r}"
+                    )
+                )
