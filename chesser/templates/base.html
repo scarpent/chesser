@@ -1,10 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-demo="{% if IS_DEMO %}1{% else %}0{% endif %}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Chesser{% endblock %}</title>
+    <title>
+      {% block title %}Chesser{% endblock %}{% if IS_DEMO %} (Demo){% endif %}
+    </title>
     {% if debug %}
     <link rel="icon" href="{% static 'icons/favicon-dev.ico' %}" type="image/x-icon" />
     {% else %}
@@ -12,6 +14,7 @@
     {% endif %}
     <!-- Global helpers (must load before page JS) -->
     <script src="{% static 'js/csrf.js' %}"></script>
+    <script src="{% static 'js/chesser-util.js' %}"></script>
     <!-- prettier-ignore -->
     {% block head_extra %}{% endblock %}
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />

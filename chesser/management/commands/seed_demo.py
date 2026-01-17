@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
-# Keep in sync with static/js/demo_login_autofill.js
+# Keep in sync with static/js/demo-login-autofill.js
 DEMO_USERNAME = "demo"
 DEMO_PASSWORD = "demo"
 

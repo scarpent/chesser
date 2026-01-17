@@ -28,7 +28,7 @@
 {% block content %}
 <body
   x-data="editApp()"
-  x-init="initEditor(); document.title = 'Edit #' + variationData.variation_id"
+  x-init="initEditor(); setPageTitle('Edit #' + variationData.variation_id);"
   @keydown.window="handleKeyNavigation($event)"
   x-cloak
 >
