@@ -15,6 +15,7 @@
     <!-- Global helpers (must load before page JS) -->
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="{% static 'js/chesser-util.js' %}"></script>
+    <script defer src="{% static 'js/loading.js' %}"></script>
     <!-- prettier-ignore -->
     {% block head_extra %}{% endblock %}
     <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
@@ -30,7 +31,6 @@
     {% block content %}{% endblock %}
 
     <script defer src="{% static 'alpine/cdn.min.js' %}"></script>
-    <script type="module" src="{% static 'js/chesser-bootstrap.js' %}"></script>
     {% block body_extra %}{% endblock %}
   </body>
 </html>

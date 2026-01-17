@@ -149,6 +149,11 @@ def review_random(request):
     if chapter_id:
         qs = qs.filter(chapter_id=chapter_id)
 
+    if settings.IS_DEMO and not chapter_id:
+        # exclude instructional chapters in demo mode for
+        # random review, unless a specific chapter is requested
+        qs = qs.exclude(chapter__title__icontains="in the beginning")
+
     if not qs.exists():  # no variations at all, or none matching filters
         return redirect("review_default")
 

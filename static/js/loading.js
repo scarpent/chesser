@@ -1,10 +1,3 @@
-export function navigateWithSpinner(url, delay = 150) {
-  window.dispatchEvent(new CustomEvent("show-loading"));
-  setTimeout(() => {
-    window.location.href = url;
-  }, delay);
-}
-
 window.addEventListener("pageshow", () => {
   // Ensure loading overlay is hidden on load or bfcache restore
   // (Alpine doesn't reset x-data when using browser back)
@@ -32,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       e.preventDefault();
-      navigateWithSpinner(href);
+      window.navigateWithSpinner(href);
     });
   });
 });
