@@ -13,9 +13,19 @@
     <link href="{% static 'css/login.css' %}" rel="stylesheet" />
   </head>
   <body>
+    {% if IS_DEMO %}
+    <div class="demo-hint">
+      🧪 Demo mode — log in with <strong>demo</strong> / <strong>demo</strong>
+    </div>
+    {% endif %}
+
     <form method="post">
       {% csrf_token %} {{ form.as_p }}
       <button type="submit">Login</button>
     </form>
+
+    {% if IS_DEMO %}
+    <script src="{% static 'js/demo_login_autofill.js' %}"></script>
+    {% endif %}
   </body>
 </html>
