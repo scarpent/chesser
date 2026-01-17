@@ -24,6 +24,8 @@
   <body {% block body_attrs %}{% endblock %}>
     <!-- prettier-ignore -->
     {% include "includes/loading_overlay.html" %}
+    {% include "includes/landscape_overlay.html" %}
+    {% include "includes/service_worker_register.html" %}
 
     {% block content %}{% endblock %}
 

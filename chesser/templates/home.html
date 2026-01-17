@@ -292,10 +292,6 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
   </template>
 </div>
 
-<!-- prettier-ignore -->
-{% include "includes/landscape_overlay.html" %}
-  {% include "includes/service_worker_register.html" %}
-
 <div class="links-container" x-cloak>
   <!-- Admin link -->
   <a href="/admin/" target="_blank" rel="noopener">Admin</a>
@@ -323,7 +319,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
 <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
 {{ home_data|json_script:"home-data" }}
 <script>
-  window.homeData = JSON.parse(document.getElementById("home-data").textContent);
+  window.homeData = window.readJsonScript("home-data");
   console.log("homeData:", window.homeData);
 </script>
 

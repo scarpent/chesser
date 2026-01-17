@@ -17,3 +17,9 @@ function setPageTitle(baseTitle) {
 // Expose globally for Alpine expressions.
 window.isDemoMode = isDemoMode;
 window.setPageTitle = setPageTitle;
+
+window.readJsonScript = function (id) {
+  const el = document.getElementById(id);
+  if (!el) throw new Error(`json_script element not found: ${id}`);
+  return JSON.parse(el.textContent);
+};

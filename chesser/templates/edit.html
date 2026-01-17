@@ -26,10 +26,10 @@
 
 <!-- prettier-ignore -->
 {% block body_attrs %}
-  x-data="editApp()"
-  x-init="initEditor(); setPageTitle('Edit #' + variationData.variation_id);"
-  @keydown.window="handleKeyNavigation($event)"
-  x-cloak
+x-data="editApp()"
+x-init="initEditor(); setPageTitle('Edit #' + variationData.variation_id);"
+@keydown.window="handleKeyNavigation($event)"
+x-cloak
 {% endblock %}
 
 {% block content %}
@@ -233,16 +233,10 @@
   </template>
 </div>
 
-<!-- prettier-ignore -->
-{% include "includes/landscape_overlay.html" %}
-  {% include "includes/service_worker_register.html" %}
-
 <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
 {{ variation_data|json_script:"variation-data" }}
 <script>
-  window.variationData = JSON.parse(
-    document.getElementById("variation-data").textContent
-  );
+  window.variationData = window.readJsonScript("variation-data");
   console.log("variationData:", window.variationData);
 </script>
 

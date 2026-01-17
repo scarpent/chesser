@@ -9,13 +9,10 @@ window.addEventListener("pageshow", () => {
   // Ensure loading overlay is hidden on load or bfcache restore
   // (Alpine doesn't reset x-data when using browser back)
   window.dispatchEvent(new CustomEvent("hide-loading"));
-  const overlay = document.querySelector(".loading-overlay");
 });
 
 // use overlay on all local links
 document.addEventListener("DOMContentLoaded", () => {
-  const origin = window.location.origin;
-
   document.querySelectorAll("a[href]").forEach((link) => {
     const href = link.getAttribute("href");
 

@@ -24,9 +24,9 @@
 
 <!-- prettier-ignore -->
 {% block body_attrs %}
-  x-data="quizApp()"
-  x-init="initQuiz()"
-  @keydown.window="handleKeyNavigation($event)"
+x-data="quizApp()"
+x-init="initQuiz()"
+@keydown.window="handleKeyNavigation($event)"
 {% endblock %}
 
 {% block content %}
@@ -210,19 +210,13 @@
   </div>
 </div>
 
-<!-- prettier-ignore -->
-{% include "includes/landscape_overlay.html" %}
-  {% include "includes/service_worker_register.html" %}
-
 <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
 {{ variation_data|json_script:"variation-data" }}
 <!-- prettier-ignore -->
 {{ review_data|json_script:"review-data" }}
 <script>
-  window.variationData = JSON.parse(
-    document.getElementById("variation-data").textContent
-  );
-  window.reviewData = JSON.parse(document.getElementById("review-data").textContent);
+  window.variationData = window.readJsonScript("variation-data");
+  window.reviewData = window.readJsonScript("review-data");
   console.log("variationData:", window.variationData);
   console.log("reviewData:", window.reviewData);
 </script>

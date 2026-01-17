@@ -24,9 +24,9 @@
 
 <!-- prettier-ignore -->
 {% block body_attrs %}
-  x-data="editApp()"
-  x-init="initEditor(); setPageTitle('Move: ' + moveData.move_verbose);"
-  x-cloak
+x-data="editApp()"
+x-init="initEditor(); setPageTitle('Move: ' + moveData.move_verbose);"
+x-cloak
 {% endblock %}
 
 {% block content %}
@@ -234,14 +234,10 @@
   </div>
 </div>
 
-<!-- prettier-ignore -->
-{% include "includes/landscape_overlay.html" %}
-  {% include "includes/service_worker_register.html" %}
-
 <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
 {{ move_data|json_script:"move-data" }}
 <script>
-  window.moveData = JSON.parse(document.getElementById("move-data").textContent);
+  window.moveData = window.readJsonScript("move-data");
   console.log("moveData:", window.moveData);
 </script>
 
