@@ -5,6 +5,10 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
+# Keep in sync with static/js/demo_login_autofill.js
+DEMO_USERNAME = "demo"
+DEMO_PASSWORD = "demo"
+
 
 class Command(BaseCommand):
     help = "Seed demo data (demo mode only)"  # noqa: A003
@@ -19,14 +23,14 @@ class Command(BaseCommand):
         parser.add_argument(
             "--username",
             type=str,
-            default="demo",
-            help="Demo username (default: demo)",
+            default=DEMO_USERNAME,
+            help=f"Demo username (default: {DEMO_USERNAME})",
         )
         parser.add_argument(
             "--password",
             type=str,
             default=None,
-            help="Demo password (default: demo)",
+            help=f"Demo password (default: {DEMO_PASSWORD})",
         )
         parser.add_argument(
             "--skip-user",
@@ -47,7 +51,7 @@ class Command(BaseCommand):
 
         file_path = Path(kwargs["file"])
         username = kwargs["username"]
-        password = kwargs["password"] or "demo"
+        password = kwargs["password"] or DEMO_PASSWORD
         skip_user = kwargs["skip_user"]
         skip_import = kwargs["skip_import"]
 
