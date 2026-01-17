@@ -4,21 +4,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>
       {% block title %}Chesser{% endblock %}{% if IS_DEMO %} (Demo){% endif %}
     </title>
+
     {% if debug %}
     <link rel="icon" href="{% static 'icons/favicon-dev.ico' %}" type="image/x-icon" />
     {% else %}
     <link rel="icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon" />
     {% endif %}
+
+    <!-- Core styles (should load before any JS runs) -->
+    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
     <!-- Global helpers (must load before page JS) -->
     <script src="{% static 'js/csrf.js' %}"></script>
     <script src="{% static 'js/chesser-util.js' %}"></script>
+    <!-- Global page behavior (safe to defer) -->
     <script defer src="{% static 'js/loading.js' %}"></script>
-    <!-- prettier-ignore -->
+
     {% block head_extra %}{% endblock %}
-    <link href="{% static 'css/chesser.css' %}" rel="stylesheet" />
+
     <link rel="manifest" href="{% static 'manifest.json' %}" />
     <meta name="theme-color" content="#000000" />
   </head>
