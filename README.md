@@ -1,6 +1,6 @@
-![chesser course covers](docs/images/ice-cream-castles-in-the-sky.png)
-
 # Chesser
+
+![chesser course covers](docs/images/ice-cream-castles-in-the-sky.png)
 
 A web application for managing your chess opening repertoire and
 practicing with spaced repetition.
@@ -52,6 +52,21 @@ Some of the great free software libraries and resources that made chesser possib
 - "fantasy" piece set for queen logo
   ~ https://github.com/maurimo/chess-art
   ~ https://maurimo.github.io/chess-art/configure.html
+
+## Home Page
+
+| UI Button, etc.                                  |                                           |
+| ------------------------------------------------ | ----------------------------------------- |
+| ![Chesser](docs/images/chesser-logo-32.png)      | **Logo** Always goes to homepage.         |
+| ![White Castle](docs/images/castle-white-32.jpg) | **White Book** Homepage showing chapters  |
+|                                                  | for our white repertoire.                 |
+| ![Black Castle](docs/images/castle-black-32.jpg) | **Black Book** Same for black repertoire. |
+| ![Stats](docs/images/noto-32/stats.png)          | **Stats** On Reviews: daily, weekly, etc. |
+| ![Review](docs/images/noto-32/review.png)        | **Review**                                |
+| ![Import](docs/images/noto-32/import.png)        | **Import**                                |
+| ![Random](docs/images/noto-32/random.png)        | **Random**                                |
+| ![Puzzles](docs/images/noto-32/puzzles.png)      | **Puzzles**                               |
+|                                                  | **Admin**                                 |
 
 ## Service Workers
 

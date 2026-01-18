@@ -1192,6 +1192,26 @@ more washed out with all the white paper */
   text-align: center;
 }
 
+/* ------------------------------------------------------ Help Link Styling */
+
+.help-link-container {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.help-link {
+  font-style: italic;
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.help-link:hover {
+  opacity: 1;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  padding: 2px 4px;
+}
+
 /* ------------------------------------------------------ Scrollbar Styling */
 
 /* Webkit browsers (Chrome, Edge, Safari) */
