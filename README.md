@@ -82,8 +82,20 @@ Some of the great free software libraries and resources that made chesser possib
 | ![Variation](docs/images/noto-32/variation.png) | _View:_ Open full variation view. (“Book” view.)                     |
 | ![Edit](docs/images/noto-32/edit.png)           | _Edit:_ Open variation editor.                                       |
 | ![Analysis](docs/images/noto-32/analysis.png)   | _Analysis:_ Open line in Lichess analysis board at the current move. |
+| 🟢🟡🔴                                          | TBD (To Be Documented)                                               |
+
+### Review Completion Toolbar
+
+|                                             |                                                                        |
+| ------------------------------------------- | ---------------------------------------------------------------------- |
+| ![Back](docs/images/noto-32/back.png)       | _Mainline Back:_ Step backward through the variation. (Arrow Left.)    |
+| ![Forward](docs/images/noto-32/forward.png) | _Mainline Forward:_ Step forward through the variation. (Arrow Right.) |
+| 🟢🔴🔰🌿😬, etc.                            | _Status:_ Result of the review.                                        |
+| ![Review](docs/images/noto-32/review.png)   | _Review:_ Start/continue quiz session for currently due reviews.       |
 
 Review session stats are somewhat sticky. You can leave an active session and come back and it will resume if “not too much” time has passed.
+
+“Extra study” text will be red if initiated from failed quiz, green otherwise.
 
 ## Service Workers
 
