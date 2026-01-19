@@ -39,4 +39,5 @@ This project includes opening descriptions adapted from
 _Wikibooks – Chess Opening Theory_, licensed under CC BY-SA.
 
 Some text may be derived from or influenced by versions
-distributed by Lichess, and may include minor modifications.
+distributed by Lichess, and may include minor modifications
+and major additions sparked by chesser's author's inspiration.

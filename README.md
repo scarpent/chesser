@@ -57,7 +57,7 @@ Some of the great free software libraries and resources that made chesser possib
 
 ## Home Page
 
-| UI Button, etc.                                  | What It Is                                                       |
+| UI Element                                       | What It Is                                                       |
 | ------------------------------------------------ | ---------------------------------------------------------------- |
 | ![Chesser](docs/images/chesser-logo-32.png)      | _Logo_ always returns to root homepage.                          |
 | ![White Castle](docs/images/castle-white-32.jpg) | _White Book:_ Homepage showing white repertoire chapters.        |
@@ -73,7 +73,7 @@ Some of the great free software libraries and resources that made chesser possib
 
 ## Review Page
 
-| UI Button, etc.                                 | What It Is                                                           |
+| UI Element                                      | What It Is                                                           |
 | ----------------------------------------------- | -------------------------------------------------------------------- |
 | ![Home](docs/images/chesser-logo-32.png)        | _Home:_ Return to homepage.                                          |
 | ![Restart](docs/images/noto-32/restart.png)     | _Restart:_ Restart current review session (Resets failure state.)    |
