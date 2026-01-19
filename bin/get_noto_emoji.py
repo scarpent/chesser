@@ -81,7 +81,7 @@ for name, emoji in emoji_buttons.items():
     copy_file(source, target)
 
 
-print(f"\nCopying Noto Emoji 72x72 PNG files from {PNG_SOURCE_DIR} to {PNG_TARGET_DIR}")
+print(f"\nCopying Noto Emoji PNG files from {PNG_SOURCE_DIR} to {PNG_TARGET_DIR}")
 for name, emoji in emoji_buttons.items():
     codepoints = emoji_to_codepoint(emoji)
     source = PNG_SOURCE_DIR / f"emoji_u{codepoints}.png"

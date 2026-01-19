@@ -53,6 +53,8 @@ Some of the great free software libraries and resources that made chesser possib
   ~ https://github.com/maurimo/chess-art
   ~ https://maurimo.github.io/chess-art/configure.html
 
+<a id="home-page"></a>
+
 ## Home Page
 
 | UI Button, etc.                                  | What It Is                                                       |
@@ -66,6 +68,8 @@ Some of the great free software libraries and resources that made chesser possib
 | ![Random](docs/images/noto-32/random.png)        | _Random Review:_ “Extra study” review chosen at random.          |
 | ![Puzzles](docs/images/noto-32/puzzles.png)      | _Puzzles:_ Open lichess puzzle training page.                    |
 | (text link)                                      | _Admin:_ Open Django admin. (Unavailable in demo mode.)          |
+
+<a id="review-page"></a>
 
 ## Review Page
 
