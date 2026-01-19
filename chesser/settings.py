@@ -21,6 +21,19 @@ def get_local_ip():
         return None
 
 
+def validate_secret_key(secret_key: str) -> None:
+    if not secret_key or not secret_key.strip():
+        raise ValueError("DJANGO_SECRET_KEY is required.")
+
+    if secret_key == DEFAULT_SECRET_KEY:
+        raise ValueError("DJANGO_SECRET_KEY must be overridden for hosted/production.")
+
+    if len(secret_key) < 32:
+        raise ValueError(
+            "DJANGO_SECRET_KEY looks too short (<32 chars). " "Use a long random value."
+        )
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_SECRET_KEY = "fallback-secret-key"
@@ -83,9 +96,10 @@ else:
 # Guards
 # --------------------------------------------------------------------
 
-# Never allow the default fallback-secret-key outside of local dev.
-if (IS_HOSTED or IS_PRODUCTION) and SECRET_KEY == DEFAULT_SECRET_KEY:
-    raise ValueError("DJANGO_SECRET_KEY is required when hosted/production")
+if IS_HOSTED or IS_PRODUCTION:
+    validate_secret_key(SECRET_KEY)
+    if DEBUG:
+        raise ValueError("DEBUG must be false for hosted/production")
 
 VALID_ENVS = {"development", "demo", "production"}
 if CHESSER_ENV not in VALID_ENVS:
@@ -323,6 +337,10 @@ HEARTBEAT_STARTUP_DELAY_MINUTES = 1
 BACKUP_STARTUP_DELAY_MINUTES = 30
 
 
+# Optional local overrides. Loaded after env-derived configuration
+# and safety guards. In hosted/production deployments, configure via
+# environment variables; do not deploy a local_settings.py that changes
+# security-sensitive settings like DEBUG/SECRET_KEY.
 try:
     from .local_settings import *  # noqa: F401, F403
 except ImportError:

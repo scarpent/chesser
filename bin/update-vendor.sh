@@ -104,7 +104,21 @@ if [[ "$CHECK_NEWER" -eq 1 ]]; then
   check_newer "chess.js" "$CHESSJS_VER" || outdated=1
   check_newer "@lichess-org/chessground" "$CHESSGROUND_VER" || outdated=1
 
+  if [[ "$outdated" -eq 1 ]]; then
+    cat <<'EOF'
+
+⬆️  Updates available.
+To upgrade Chesser's vendored frontend deps:
+  1) Edit the pinned version constants near the top of this script:
+       ALPINE_VER / CHESSJS_VER / CHESSGROUND_VER
+  2) Re-run:
+       bin/update-vendor.sh -f
+
+EOF
+  fi
+
   exit "$outdated"
+fi
 fi
 
 # ---- Alpine.js ----
