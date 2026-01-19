@@ -55,18 +55,17 @@ Some of the great free software libraries and resources that made chesser possib
 
 ## Home Page
 
-| UI Button, etc.                                  |                                           |
-| ------------------------------------------------ | ----------------------------------------- |
-| ![Chesser](docs/images/chesser-logo-32.png)      | **Logo** Always goes to homepage.         |
-| ![White Castle](docs/images/castle-white-32.jpg) | **White Book** Homepage showing chapters  |
-|                                                  | for our white repertoire.                 |
-| ![Black Castle](docs/images/castle-black-32.jpg) | **Black Book** Same for black repertoire. |
-| ![Stats](docs/images/noto-32/stats.png)          | **Stats** On Reviews: daily, weekly, etc. |
-| ![Review](docs/images/noto-32/review.png)        | **Review**                                |
-| ![Import](docs/images/noto-32/import.png)        | **Import**                                |
-| ![Random](docs/images/noto-32/random.png)        | **Random**                                |
-| ![Puzzles](docs/images/noto-32/puzzles.png)      | **Puzzles**                               |
-|                                                  | **Admin**                                 |
+| UI Button, etc.                                  | What It Is                                                |
+| ------------------------------------------------ | --------------------------------------------------------- |
+| ![Chesser](docs/images/chesser-logo-32.png)      | _Logo_ always goes to homepage.                           |
+| ![White Castle](docs/images/castle-white-32.jpg) | _White Book:_ Homepage showing white repertoire chapters. |
+| ![Black Castle](docs/images/castle-black-32.jpg) | _Black Book:_ Same for black repertoire.                  |
+| ![Stats](docs/images/noto-32/stats.png)          | _Stats_ for reviews: daily, weekly, etc.                  |
+| ![Review](docs/images/noto-32/review.png)        | _Review:_ Start/continue review session.                  |
+| ![Import](docs/images/noto-32/import.png)        | _Import (and Export)_ via miscellaneous formats.          |
+| ![Random](docs/images/noto-32/random.png)        | _Random Review:_ “Extra study” review chosen at random.   |
+| ![Puzzles](docs/images/noto-32/puzzles.png)      | _Puzzles:_ Launch lichess puzzle training page.           |
+| (text link)                                      | _Admin:_ Launch Django admin. (Unavailable in demo mode.) |
 
 ## Service Workers
 
