@@ -76,7 +76,7 @@ Some of the great free software libraries and resources that made chesser possib
 | UI Element                                      | What It Is                                                           |
 | ----------------------------------------------- | -------------------------------------------------------------------- |
 | ![Home](docs/images/chesser-logo-32.png)        | _Home:_ Return to homepage.                                          |
-| ![Restart](docs/images/noto-32/restart.png)     | _Restart:_ Restart current review session (Resets failure state.)    |
+| ![Restart](docs/images/noto-32/restart.png)     | _Restart_ current review session (Resets failure state.)             |
 | ![Show Move](docs/images/noto-32/showmove.png)  | _Show Move:_ Reveal correct move. (Fails quiz unless restarted.)     |
 | ![Info](docs/images/noto-32/info.png)           | _Variation Info:_ Toggle variation details.                          |
 | ![Variation](docs/images/noto-32/variation.png) | _View:_ Open full variation view. (“Book” view.)                     |
