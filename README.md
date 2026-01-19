@@ -5,29 +5,65 @@
 A web application for managing your chess opening repertoire and
 practicing with spaced repetition.
 
-This is a _hobby_ project. It's a single user application, with white and black repertoires organized by chapters. (At one time it had a course model but I took
-that out to keep it simple.)
+This is a _hobby_ project: a single-user application with white and black repertoires
+organized by chapters. That said, it’s robust and capable. As of January 2026 I've been
+using it for my 1,200+ variation repertoire since March 2025, completing roughly 14,500
+reviews.
 
-It's meant to be simple/fun to work on, using a sqlite db locally,
-a simple alpine.js setup with no build step, and it's easily deployed.
-(I use [railway app](https://railway.com/).)
+Chesser is intentionally simple and pleasant to work on: SQLite locally, a lightweight
+Alpine.js frontend with no build step, and straightforward deployment. It benefits from
+the Django framework with its powerful built-in admin, although most tasks are
+accomplished in the app UI.
 
-re: gamification
+I use [Railway](https://railway.com/) and deploy directly from GitHub. A demo version
+is available at [chesser-demo.up.railway.app](https://chesser-demo.up.railway.app/).
+More on local/hosted usage below!
 
-simplicity...
+# Why I built Chesser
 
-## Bullet Points
+I used [Chessable](https://www.chessable.com/) for five years and liked the platform.
+The killer feature there is all the great content. But as I painstakingly built up my
+repertoire, I was mistrustful about how well they would maintain things. Import and
+exporting wasn't very comprehensive. The UI for editing things is clunky, and I get the
+feeling their hands are tied with improving it. I mostly notice cosmetic updates.
 
-- single user -- use it as is or become the lichess chessable...
-- responsive -- mobile is tuned to my device but hoping it will be generally reasonable
+For example, saving a variation results in two modal dialogs in sequence:
+
+1. “Update variation? You are about to update this variation, go ahead?”
+2. “Done! You've updated the variation. Would you like to see it?”
+
+Playing a new move can trigger an even longer warning explaining that the variation is
+now considered a new one—and ending with “We will improve this process in the next
+iteration of this tool.” That message has been there for six years.
+
+To be fair to Chessable, they are supporting a large userbase and a lot of authors and
+content. It’s much easier for a single-user app to sidestep these issues and prioritize
+clarity over backward compatibility.
+
+This isn’t to rag on Chessable, but to offer a simpler, open, and transparent system—one
+where your data is yours, the formats are inspectable, and the software can be run and
+modified without permission.
+
+The import/export JSON format is intended to benefit the free software community if it’s
+adopted. It already supports rich concepts like alternate moves and board shapes–illustrative
+arrows and circles and their colors. (See [sample_repertoire.json][1].)
+A more ambitious developer could extend Chesser to be multiuser and add support for courses.
+
+[1]: https://github.com/scarpent/chesser/blob/main/data/sample_repertoire.json
+
+As it stands, you can run your own Chesser locally or as a hosted instance with little
+effort and expense. (For example, I run it on a $5/month hobby account on Railway.)
 
 ## "Issues"
 
-(Maybe create actual issues in github?)
+(Maybe create actual issues in github)
 
 - Mobile: Restart/Show move buttons stay highlighted
 - Mobile: Scroll to top on edit screen
 - Auto reload _mostly_ happens, but not always (but works sorta well and not worth more effort)
+- (not really an issue, but...) variation editing has one key limitation with building up the line -- you don't do that in the app...
+
+- responsive -- mobile is tuned to my device but hoping it will be generally reasonable
 
 ## Open / ToDo
 
@@ -96,16 +132,3 @@ Some of the great free software libraries and resources that made chesser possib
 Review session stats are somewhat sticky. You can leave an active session and come back and it will resume if “not too much” time has passed.
 
 “Extra study” text will be red if initiated from failed quiz, green otherwise.
-
-## Service Workers
-
-```
-Situation | What Happens
-Restart Django server (new deploy) | A new BUILD_TIMESTAMP is generated
-Browser loads /service-worker.js?v=newtimestamp | Browser fetches the new service worker
-New service worker installs immediately (skipWaiting) | ✅ No "waiting" phase — it activates right away
-During activate event | ✅ Old caches are cleaned (except current chesser-cache)
-clients.claim() after activate | ✅ New service worker takes control of all open tabs immediately
-
-See browser dev tools ➤ application ➤ (manifest, service workers, storage)
-```
