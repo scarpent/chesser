@@ -55,17 +55,31 @@ Some of the great free software libraries and resources that made chesser possib
 
 ## Home Page
 
-| UI Button, etc.                                  | What It Is                                                |
-| ------------------------------------------------ | --------------------------------------------------------- |
-| ![Chesser](docs/images/chesser-logo-32.png)      | _Logo_ always goes to homepage.                           |
-| ![White Castle](docs/images/castle-white-32.jpg) | _White Book:_ Homepage showing white repertoire chapters. |
-| ![Black Castle](docs/images/castle-black-32.jpg) | _Black Book:_ Same for black repertoire.                  |
-| ![Stats](docs/images/noto-32/stats.png)          | _Stats_ for reviews: daily, weekly, etc.                  |
-| ![Review](docs/images/noto-32/review.png)        | _Review:_ Start/continue review session.                  |
-| ![Import](docs/images/noto-32/import.png)        | _Import (and Export)_ via miscellaneous formats.          |
-| ![Random](docs/images/noto-32/random.png)        | _Random Review:_ “Extra study” review chosen at random.   |
-| ![Puzzles](docs/images/noto-32/puzzles.png)      | _Puzzles:_ Launch lichess puzzle training page.           |
-| (text link)                                      | _Admin:_ Launch Django admin. (Unavailable in demo mode.) |
+| UI Button, etc.                                  | What It Is                                                       |
+| ------------------------------------------------ | ---------------------------------------------------------------- |
+| ![Chesser](docs/images/chesser-logo-32.png)      | _Logo_ always returns to root homepage.                          |
+| ![White Castle](docs/images/castle-white-32.jpg) | _White Book:_ Homepage showing white repertoire chapters.        |
+| ![Black Castle](docs/images/castle-black-32.jpg) | _Black Book:_ Same for black repertoire.                         |
+| ![Stats](docs/images/noto-32/stats.png)          | _Stats_ for reviews: daily, weekly, etc.                         |
+| ![Review](docs/images/noto-32/review.png)        | _Review:_ Start/continue quiz session for currently due reviews. |
+| ![Import](docs/images/noto-32/import.png)        | _Import (and Export)_ via miscellaneous formats.                 |
+| ![Random](docs/images/noto-32/random.png)        | _Random Review:_ “Extra study” review chosen at random.          |
+| ![Puzzles](docs/images/noto-32/puzzles.png)      | _Puzzles:_ Open lichess puzzle training page.                    |
+| (text link)                                      | _Admin:_ Open Django admin. (Unavailable in demo mode.)          |
+
+## Review Page
+
+| UI Button, etc.                                 | What It Is                                                           |
+| ----------------------------------------------- | -------------------------------------------------------------------- |
+| ![Home](docs/images/chesser-logo-32.png)        | _Home:_ Return to homepage.                                          |
+| ![Restart](docs/images/noto-32/restart.png)     | _Restart:_ Restart current review session (Resets failure state.)    |
+| ![Show Move](docs/images/noto-32/showmove.png)  | _Show Move:_ Reveal correct move. (Fails quiz unless restarted.)     |
+| ![Info](docs/images/noto-32/info.png)           | _Variation Info:_ Toggle variation details.                          |
+| ![Variation](docs/images/noto-32/variation.png) | _View:_ Open full variation view. (“Book” view.)                     |
+| ![Edit](docs/images/noto-32/edit.png)           | _Edit:_ Open variation editor.                                       |
+| ![Analysis](docs/images/noto-32/analysis.png)   | _Analysis:_ Open line in Lichess analysis board at the current move. |
+
+Review session stats are somewhat sticky. You can leave an active session and come back and it will resume if “not too much” time has passed.
 
 ## Service Workers
 
