@@ -136,7 +136,7 @@ class Command(BaseCommand):
                 2,
                 [
                     (now, 1, True),
-                    (now - timedelta(hours=7), 0, True),
+                    (now - timedelta(hours=7), 1, False),
                     (now - timedelta(hours=15), 0, False),
                 ],
             ),

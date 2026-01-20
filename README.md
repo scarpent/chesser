@@ -19,7 +19,7 @@ I use [Railway](https://railway.com/) and deploy directly from GitHub. A demo ve
 is available at [chesser-demo.up.railway.app](https://chesser-demo.up.railway.app/).
 More on local/hosted usage below!
 
-# Why I built Chesser
+## Why I built Chesser
 
 I used [Chessable](https://www.chessable.com/) for five years and liked the platform.
 The killer feature there is all the great content. But as I painstakingly built up my
