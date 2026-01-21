@@ -122,12 +122,13 @@ Some of the great free software libraries and resources that made chesser possib
 
 ### Review Completion Toolbar
 
-|                                             |                                                                        |
-| ------------------------------------------- | ---------------------------------------------------------------------- |
-| ![Back](docs/images/noto-32/back.png)       | _Mainline Back:_ Step backward through the variation. (Arrow Left.)    |
-| ![Forward](docs/images/noto-32/forward.png) | _Mainline Forward:_ Step forward through the variation. (Arrow Right.) |
-| 🟢🔴🔰🌿😬, etc.                            | _Status:_ Result of the review.                                        |
-| ![Review](docs/images/noto-32/review.png)   | _Review:_ Start/continue quiz session for currently due reviews.       |
+|                                               |                                                                            |
+| --------------------------------------------- | -------------------------------------------------------------------------- |
+| ![Back](docs/images/noto-32/back.png)         | _Mainline Back:_ Step backward through the variation. (Arrow Left.)        |
+| ![Forward](docs/images/noto-32/forward.png)   | _Mainline Forward:_ Step forward through the variation. (Arrow Right.)     |
+| 🟢🔴🔰🌿😬, etc.                              | _Status:_ Result of the review. There is a progression of good/bad emojis. |
+| ![Review](docs/images/noto-32/review.png)     | _Review:_ Continue quiz session.                                           |
+| ![Complete](docs/images/noto-32/complete.png) | _Complete:_ No more reviews! (Returns to homepage.)                        |
 
 Review session stats are somewhat sticky. You can leave an active session and come back and it will resume if “not too much” time has passed.
 

@@ -833,19 +833,12 @@ pre.grouped-move-text {
   text-decoration: underline;
 }
 
-/* Put the server-started on its own line */
 .server-started {
   flex-basis: 100%;
-  margin-top: 12px;
-  font-size: 14px;
-  color: gray;
-  text-align: center;
-}
-
-.server-started {
   margin-top: 20px;
   font-size: 14px;
   color: gray;
+  text-align: center;
 }
 
 .course-covers {
