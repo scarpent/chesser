@@ -337,10 +337,11 @@ HEARTBEAT_STARTUP_DELAY_MINUTES = 1
 BACKUP_STARTUP_DELAY_MINUTES = 30
 
 
-# Optional local overrides. Loaded after env-derived configuration
-# and safety guards. In hosted/production deployments, configure via
-# environment variables; do not deploy a local_settings.py that changes
-# security-sensitive settings like DEBUG/SECRET_KEY.
+# Optional instance-specific overrides (uncommitted by default).
+# `local_settings.py` is ignored by git to avoid accidental secret leaks.
+# If present at runtime, it is loaded last to allow small, non-invasive
+# customizations without editing committed settings. (See more in
+# local_settings.py.example.)
 try:
     from .local_settings import *  # noqa: F401, F403
 except ImportError:

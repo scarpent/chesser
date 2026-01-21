@@ -1,3 +1,24 @@
+"""
+Optional instance-specific overrides for Chesser.
+
+Copy this file to `local_settings.py` to override settings without editing the
+committed settings modules. Despite the name, `local_settings.py` can be used
+in any environment (development, demo, staging, or production) and is
+intentionally not committed to source control.
+
+This is especially useful for forks: keep your customizations in one private
+file and minimize merge conflicts when pulling upstream changes.
+
+Deployment notes:
+- `local_settings.py` is ignored by git by default (see `.gitignore`).
+- If you deploy via git and want this file included, you must remove it from
+  `.gitignore` or commit it explicitly.
+- Prefer environment variables for hosted/production deployments.
+- Avoid overriding security-sensitive settings here (e.g. SECRET_KEY, DEBUG,
+  ALLOWED_HOSTS) unless you fully understand the implications.
+"""
+
+
 CHESS_PIECE_SET = "fantasy"  # default piece set
 CHESS_BOARD_COLOR = "brown"  # default board color
 

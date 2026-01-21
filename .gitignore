@@ -6,5 +6,9 @@ data/chesser_demo.sqlite3
 data/chesser.sqlite3
 eval_moves.py
 lcov.info
-local_settings.py
 staticfiles
+
+# Instance-specific overrides (copy from local_settings.py.example).
+# Ignored by default to prevent accidental commits of secrets;
+# remove this line if you intentionally want to commit it.
+local_settings.py
