@@ -17,7 +17,7 @@ accomplished in the app UI.
 
 I use [Railway](https://railway.com/) and deploy directly from GitHub. A demo version
 is available at [chesser-demo.up.railway.app](https://chesser-demo.up.railway.app/).
-More on local/hosted usage below!
+More on [local/hosted](#local-development) usage below!
 
 ## Why I built Chesser
 
@@ -133,3 +133,22 @@ Some of the great free software libraries and resources that made chesser possib
 Review session stats are somewhat sticky. You can leave an active session and come back and it will resume if “not too much” time has passed.
 
 “Extra study” text will be red if initiated from failed quiz, green otherwise.
+
+<a id="local-dev"></a>
+
+## Local Development
+
+Mac-centric but we can make things more agnostic as needed.
+
+- venv
+- install requirements
+- run.sh
+- ...detailed instructions to follow...
+
+## Railway
+
+- add github service, connect to repo
+- add postgress db
+- configure environment variaables
+- deploy!
+- ...detailed instructions to follow...
