@@ -272,6 +272,13 @@ def validate_mainline_string(sans, mainline_str):
     return True
 
 
+def primary_glyph(nags: set[int]) -> str:
+    for n in (1, 2, 3, 4, 5, 6):
+        if n in nags:
+            return NAG_LOOKUP[n]
+    return ""
+
+
 def convert_pgn_to_json(
     pgn_text,
     color="",
@@ -300,19 +307,11 @@ def convert_pgn_to_json(
         next_node = node.variations[0]
         san = board.san(next_node.move)
 
-        # Collect annotation from NAG (Numeric Annotation Glyphs)
-        annotation = ""
-        nags = list(next_node.nags)
-        if nags:
-            nag = nags[0]
-            if nag in NAG_LOOKUP:
-                annotation = NAG_LOOKUP[nag]
-
         moves.append(
             {
                 "move_num": move_number,
                 "san": san,
-                "annotation": annotation,
+                "annotation": primary_glyph(next_node.nags),
                 "text": extract_move_text(next_node),
                 "alt": "",
                 "alt_fail": "",
@@ -340,61 +339,78 @@ def convert_pgn_to_json(
 
 
 # NAG = Numeric Annotation Glyphs (PGN supports either NAG numbers or glyphs)
-NAG_TO_GLYPH = {1: "!", 2: "?", 3: "!!", 4: "??", 5: "!?", 6: "?!"}
+NAG_LOOKUP = {1: "!", 2: "?", 3: "!!", 4: "??", 5: "!?", 6: "?!"}
 
 
-def nags_as_glyphs(nags: set[int]) -> str:
-    # Keep stable-ish order: common glyphs first
-    ordered = [1, 2, 3, 4, 5, 6]
-    glyphs = [NAG_TO_GLYPH[n] for n in ordered if n in nags]
-    # Optionally: ignore unknown nags entirely
-    return "".join(glyphs)
+def nags_to_glyphs(nags: set[int]) -> str:
+    order = [1, 2, 3, 4, 5, 6]
+    return "".join(NAG_LOOKUP[n] for n in order if n in nags)
 
 
-def render_line(start: chess.pgn.GameNode) -> str:
+def move_token_with_number(parent_board, move, nags: set[int]) -> str:
+    num = parent_board.fullmove_number
+    prefix = f"{num}." if parent_board.turn == chess.WHITE else f"{num}..."
+    san = parent_board.san(move) + nags_to_glyphs(nags)
+    return f"{prefix}{san}"
+
+
+def render_variation_line(start: chess.pgn.GameNode) -> str:
     """
-    Render a variation line starting at `start` including its
-    mainline continuation. Includes comments and nested subvariations.
+    Render a variation starting at `start` (a move node), continuing down its mainline.
+    Prints move numbers and keeps the important ordering:
+      - print a move
+      - its comment
+      - then (at each position) print main reply first, then sibling alternatives
     """
-    out = []
-    node = start
-    while node is not None and not node.is_end():
-        mv = node.move
-        if mv is None:
-            # root
-            node = node.variation(0) if node.variations else None
-            continue
+    parts: list[str] = []
+    cur: chess.pgn.GameNode | None = start
 
-        san = node.parent.board().san(mv)
-        san += nags_as_glyphs(node.nags)
+    while cur is not None and cur.move is not None:
+        parent = cur.parent
+        pb = parent.board()
 
-        out.append(san)
+        parts.append(move_token_with_number(pb, cur.move, cur.nags))
 
-        if node.comment:
-            out.append(f"{{{node.comment.strip()}}}")
+        if cur.comment:
+            parts.append(f"{{{cur.comment.strip()}}}")
 
-        # nested subvariations branching *from this node*
-        for v in node.variations[1:]:
-            out.append(f"({render_line(v)})")
+        # If there is a continuation, we want:
+        #   main next move, its comment, then sibling alternatives at that
+        #   same position, then continue beyond the main next move.
+        if cur.variations:
+            main = cur.variations[0]
 
-        node = node.variation(0) if node.variations else None
+            # emit the main next move immediately (so siblings appear "after" it)
+            nb = cur.board()  # position after cur.move (i.e., before next ply)
+            parts.append(move_token_with_number(nb, main.move, main.nags))
+            if main.comment:
+                parts.append(f"{{{main.comment.strip()}}}")
 
-    return " ".join(out).strip()
+            # emit sibling alternatives to that next ply
+            for alt in cur.variations[1:]:
+                parts.append(f"({render_variation_line(alt)})")
+
+            # continue from main's continuation (already emitted main's token/comment)
+            cur = main.variations[0] if main.variations else None
+        else:
+            cur = None
+
+    return " ".join(parts).strip()
 
 
 def extract_move_text(node: chess.pgn.GameNode) -> str:
-    """
-    Returns only the move's comment and immediate subvariations
-    from THIS node (not siblings from the parent).
-    """
-    parts = []
+    parts: list[str] = []
 
+    # 1) comment on the move itself
     if node.comment:
         parts.append(f"{{{node.comment.strip()}}}")
 
-    # Immediate subvariations that branch from the position AFTER this move
-    for v in node.variations[1:]:
-        parts.append(f"({render_line(v)})")
+    # 2) sibling alternatives to THIS move (i.e., other replies at the parent position)
+    # attach them to the mainline move only (which is what your loop is iterating)
+    if node.parent is not None:
+        for alt in node.parent.variations[1:]:
+            if alt is not node:
+                parts.append(f"({render_variation_line(alt)})")
 
     return "\n\n".join(parts).strip()
 
