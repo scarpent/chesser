@@ -339,19 +339,62 @@ def convert_pgn_to_json(
     }
 
 
+# NAG = Numeric Annotation Glyphs (PGN supports either NAG numbers or glyphs)
+NAG_TO_GLYPH = {1: "!", 2: "?", 3: "!!", 4: "??", 5: "!?", 6: "?!"}
+
+
+def nags_as_glyphs(nags: set[int]) -> str:
+    # Keep stable-ish order: common glyphs first
+    ordered = [1, 2, 3, 4, 5, 6]
+    glyphs = [NAG_TO_GLYPH[n] for n in ordered if n in nags]
+    # Optionally: ignore unknown nags entirely
+    return "".join(glyphs)
+
+
+def render_line(start: chess.pgn.GameNode) -> str:
+    """
+    Render a variation line starting at `start` including its
+    mainline continuation. Includes comments and nested subvariations.
+    """
+    out = []
+    node = start
+    while node is not None and not node.is_end():
+        mv = node.move
+        if mv is None:
+            # root
+            node = node.variation(0) if node.variations else None
+            continue
+
+        san = node.parent.board().san(mv)
+        san += nags_as_glyphs(node.nags)
+
+        out.append(san)
+
+        if node.comment:
+            out.append(f"{{{node.comment.strip()}}}")
+
+        # nested subvariations branching *from this node*
+        for v in node.variations[1:]:
+            out.append(f"({render_line(v)})")
+
+        node = node.variation(0) if node.variations else None
+
+    return " ".join(out).strip()
+
+
 def extract_move_text(node: chess.pgn.GameNode) -> str:
     """
-    Returns only the move's comment and immediate subvariations,
-    without the mainline children.
+    Returns only the move's comment and immediate subvariations
+    from THIS node (not siblings from the parent).
     """
     parts = []
 
     if node.comment:
-        parts.append(node.comment.strip())
+        parts.append(f"{{{node.comment.strip()}}}")
 
-    for subvar in node.parent.variations[1:]:
-        if subvar is not node:
-            parts.append(f"({str(subvar).strip()})")
+    # Immediate subvariations that branch from the position AFTER this move
+    for v in node.variations[1:]:
+        parts.append(f"({render_line(v)})")
 
     return "\n\n".join(parts).strip()
 
