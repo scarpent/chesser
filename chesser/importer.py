@@ -348,11 +348,18 @@ def nags_to_glyphs(nags: set[int]) -> str:
     return "".join(NAG_LOOKUP[n] for n in order if n in nags and n in NAG_LOOKUP)
 
 
-def move_token_with_number(parent_board, move, nags: set[int]) -> str:
-    num = parent_board.fullmove_number
-    prefix = f"{num}." if parent_board.turn == chess.WHITE else f"{num}..."
+def move_token(parent_board, move, nags: set[int], force_number: bool) -> str:
     san = parent_board.san(move) + nags_to_glyphs(nags)
-    return f"{prefix}{san}"
+
+    # White moves always get a number
+    if parent_board.turn == chess.WHITE:
+        return f"{parent_board.fullmove_number}.{san}"
+
+    # Black moves only get "..."" if forced
+    if force_number:
+        return f"{parent_board.fullmove_number}...{san}"
+
+    return san
 
 
 def render_variation_line(start: chess.pgn.GameNode) -> str:
@@ -366,14 +373,22 @@ def render_variation_line(start: chess.pgn.GameNode) -> str:
     parts: list[str] = []
     cur: chess.pgn.GameNode | None = start
 
+    # At the start of a variation, Black moves should show "..."
+    force_number = True
+
     while cur is not None and cur.move is not None:
         parent = cur.parent
         pb = parent.board()
 
-        parts.append(move_token_with_number(pb, cur.move, cur.nags))
+        parts.append(move_token(pb, cur.move, cur.nags, force_number))
+
+        # Once we print a move, continuation is smooth again
+        force_number = False
 
         if cur.comment:
             parts.append(f"{{{cur.comment.strip()}}}")
+            # After a comment, black move numbers should restart
+            force_number = True
 
         # If there is a continuation, we want:
         #   main next move, its comment, then sibling alternatives at that
@@ -383,13 +398,17 @@ def render_variation_line(start: chess.pgn.GameNode) -> str:
 
             # emit the main next move immediately (so siblings appear "after" it)
             nb = cur.board()  # position after cur.move (i.e., before next ply)
-            parts.append(move_token_with_number(nb, main.move, main.nags))
+            parts.append(move_token(nb, main.move, main.nags, force_number))
+            force_number = False
+
             if main.comment:
                 parts.append(f"{{{main.comment.strip()}}}")
+                force_number = True
 
             # emit sibling alternatives to that next ply
             for alt in cur.variations[1:]:
                 parts.append(f"({render_variation_line(alt)})")
+                force_number = True  # variation break resets numbering
 
             # continue from main's continuation (already emitted main's token/comment)
             cur = main.variations[0] if main.variations else None
