@@ -4,7 +4,7 @@ import chess
 import chess.pgn
 import pytest
 
-from chesser.importer import extract_move_text
+from chesser.pgn_import import extract_move_text
 
 PGN_QGD = """\
 [Event "?"]

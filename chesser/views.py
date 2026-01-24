@@ -35,6 +35,7 @@ from django.views.decorators.http import require_POST
 
 from chesser import importer, util
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
+from chesser.pgn_import import convert_pgn_to_json
 from chesser.serializers import (
     get_final_move_simple_subvariations_html,
     serialize_shared_move,
@@ -314,7 +315,7 @@ class ImportVariationView(View):
         if not self.incoming_json:
             # If the JSON is invalid, we can try to parse it as PGN
             try:
-                pgn_to_json = importer.convert_pgn_to_json(form_json_or_pgn)
+                pgn_to_json = convert_pgn_to_json(form_json_or_pgn)
                 self.incoming_json = pgn_to_json
             except ValueError:
                 return self.handle_import_errors("Invalid JSON/PGN")
