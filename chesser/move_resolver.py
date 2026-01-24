@@ -62,7 +62,9 @@ class ParsedBlock:
     log: list[str] = field(default_factory=list)
 
     def __str__(self):
-        resolved = tuple(self.move_parts_resolved) if self.move_parts_resolved else "⛔️"
+        resolved = (
+            tuple(self.move_parts_resolved) if self.move_parts_resolved else "⛔️"
+        )
         return f"{self.type_} {self.raw} ➤ {self.display_text} {tuple(self.move_parts_raw)} ➤ {resolved} = {self.raw_to_resolved_distance} {self.fen} D{self.depth} {self.log}"  # noqa: E501
 
     @property
@@ -177,8 +179,7 @@ def get_move_parsed_block(text: str, depth: int) -> ParsedBlock:
     )
 
 
-MOVE_PARTS_REGEX = re.compile(
-    r"""(?x)                # verbose 💬
+MOVE_PARTS_REGEX = re.compile(r"""(?x)                # verbose 💬
     ^(\d*)                  # optional move number
     (\.*)\s*                # optional dots
     (                       #
@@ -189,8 +190,7 @@ MOVE_PARTS_REGEX = re.compile(
     )?                      # optional san
     ([^a-zA-Z0-9]*)$        # optional trailing annotation, including + and #
                             # which are part of san, but not required there
-    """
-)
+    """)
 
 
 def get_move_parts(text: str) -> MoveParts:

@@ -12,6 +12,7 @@ from django.utils.html import strip_tags
 from chesser import util
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 
+# NAG = Numeric Annotation Glyphs (PGN supports either NAG numbers or glyphs)
 NAG_LOOKUP = {
     1: "!",
     2: "?",
@@ -338,13 +339,13 @@ def convert_pgn_to_json(
     }
 
 
-# NAG = Numeric Annotation Glyphs (PGN supports either NAG numbers or glyphs)
-NAG_LOOKUP = {1: "!", 2: "?", 3: "!!", 4: "??", 5: "!?", 6: "?!"}
-
-
 def nags_to_glyphs(nags: set[int]) -> str:
-    order = [1, 2, 3, 4, 5, 6]
-    return "".join(NAG_LOOKUP[n] for n in order if n in nags)
+    # Prefer common punctuation-style NAGs in a stable order,
+    # then append any other known NAGs (e.g. =, ±, ∞) deterministically.
+    common = [1, 2, 3, 4, 5, 6]
+    rest = sorted(n for n in nags if n not in common)
+    order = common + rest
+    return "".join(NAG_LOOKUP[n] for n in order if n in nags and n in NAG_LOOKUP)
 
 
 def move_token_with_number(parent_board, move, nags: set[int]) -> str:
