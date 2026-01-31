@@ -49,7 +49,7 @@ adopted. It already supports rich concepts like alternate moves and board shapes
 arrows and circles and their colors. (See [sample_repertoire.json][1].)
 A more ambitious developer could extend Chesser to be multiuser and add support for courses.
 
-[1]: https://github.com/scarpent/chesser/blob/main/data/sample_repertoire.json
+[1]: https://github.com/scarpent/chesser/blob/main/examples/sample_repertoire.json
 
 As it stands, you can run your own Chesser locally or as a hosted instance with little
 effort and expense. (For example, I run it on a $5/month hobby account on Railway.)

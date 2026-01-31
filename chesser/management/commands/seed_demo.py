@@ -24,8 +24,10 @@ class Command(BaseCommand):
         parser.add_argument(
             "--file",
             type=str,
-            default=str(Path(settings.BASE_DIR) / "data" / "sample_repertoire.json"),
-            help="Path to demo JSON (default: data/sample_repertoire.json)",
+            default=str(
+                Path(settings.BASE_DIR) / "examples" / "sample_repertoire.json"
+            ),
+            help="Path to demo JSON (default: examples/sample_repertoire.json)",
         )
         parser.add_argument(
             "--username",
