@@ -221,3 +221,9 @@ def test_extract_pgn_directives_multiple_directives_interleaved_with_text():
         {"orig": "f3", "brush": "red"},
         {"orig": "g4", "dest": "f3", "brush": "green"},
     ]
+
+
+def test_extract_pgn_directives_cal_same_square_becomes_circle():
+    cleaned, shapes = extract_pgn_directives("[%cal Ga1a1] x")
+    assert cleaned == "x"
+    assert shapes == [{"orig": "a1", "brush": "green"}]
