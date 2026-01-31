@@ -9,6 +9,7 @@ from django.utils.html import strip_tags
 
 from chesser import util
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
+from chesser.pgn_import import extract_pgn_directives
 
 
 def get_utc_datetime(date_string):
@@ -187,13 +188,17 @@ def import_variation(
             move_num=move_import["move_num"],
             sequence=idx,
         )
+        raw_text = move_import.get("text") or ""
+        text_without_directives, directive_shapes = extract_pgn_directives(raw_text)
+
         move.fen = board.fen()
         move.san = strip_tags(move_import["san"])
         move.annotation = strip_tags(move_import.get("annotation") or "")
-        move.text = util.clean_html(move_import["text"])
+        move.text = util.clean_html(text_without_directives)
         move.alt = util.normalize_alt_moves(move_import.get("alt") or "")
         move.alt_fail = util.normalize_alt_moves(move_import.get("alt_fail") or "")
-        shapes_raw = move_import.get("shapes")
+        # we'll prefer shapes from regular import field; maybe we should warn if both...
+        shapes_raw = move_import.get("shapes") or directive_shapes
         move.shapes = json.dumps(shapes_raw) if shapes_raw else ""
 
         move.save()

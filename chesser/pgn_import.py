@@ -1,9 +1,17 @@
+import re
 from io import StringIO
 
 import chess
 import chess.pgn
 
 from chesser import util
+
+# PGN directives like [%csl ...] and [%cal ...]
+_DIRECTIVE_RE = re.compile(r"\[%([a-zA-Z]+)\s+([^\]]*)\]")
+
+_CAL_CSL_COLORS = {"G": "green", "R": "red", "B": "blue", "Y": "yellow"}
+_SQUARE_RE = re.compile(r"^[a-h][1-8]$")
+_ARROW_RE = re.compile(r"^[a-h][1-8][a-h][1-8]$")
 
 # NAG = Numeric Annotation Glyphs (PGN supports either NAG numbers or glyphs)
 NAG_LOOKUP = {
@@ -194,3 +202,66 @@ def extract_move_text(node: chess.pgn.GameNode) -> str:
                 parts.append(f"({render_variation_line(alt)})")
 
     return "\n\n".join(parts).strip()
+
+
+def extract_pgn_directives(text: str) -> tuple[str, list[dict]]:
+    """
+    Extract Lichess/ChessBase-style PGN directives from comment text:
+      - [%csl ...] => circles
+      - [%cal ...] => arrows
+    Discard all other directives (e.g. clk/eval) by stripping them from text.
+    Returns (text_without_directives, shapes).
+    """
+    if not text:
+        return "", []
+
+    shapes: list[dict] = []
+
+    def add_circle(color_letter: str, sq: str):
+        brush = _CAL_CSL_COLORS.get(color_letter)
+        if not brush or not _SQUARE_RE.match(sq):
+            return
+        shape = {"orig": sq, "brush": brush}
+        if shape not in shapes:
+            shapes.append(shape)
+
+    def add_arrow(color_letter: str, coords: str):
+        brush = _CAL_CSL_COLORS.get(color_letter)
+        if not brush or not _ARROW_RE.match(coords):
+            return
+
+        orig = coords[:2]
+        dest = coords[2:]
+
+        # Treat "arrow to self" as a circle highlight
+        if orig == dest:
+            shape = {"orig": orig, "brush": brush}
+        else:
+            shape = {"orig": orig, "dest": dest, "brush": brush}
+
+        if shape not in shapes:
+            shapes.append(shape)
+
+    for m in _DIRECTIVE_RE.finditer(text):
+        key = m.group(1).lower()
+        payload = (m.group(2) or "").strip()
+
+        if key == "csl":
+            # Example payload: "Rf3,Yd4"
+            for token in re.split(r"[\s,]+", payload):
+                if token:
+                    add_circle(token[0], token[1:])
+        elif key == "cal":
+            # Example payload: "Gg4f3,Rc1h6"
+            for token in re.split(r"[\s,]+", payload):
+                if token:
+                    add_arrow(token[0], token[1:])
+
+    # strip all directives (including csl/cal, eval, clk, etc.)
+    cleaned = _DIRECTIVE_RE.sub("", text)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+
+    if cleaned in ("{}", "{ }"):
+        cleaned = ""
+
+    return cleaned, shapes

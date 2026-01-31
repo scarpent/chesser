@@ -4,7 +4,7 @@ import chess
 import chess.pgn
 import pytest
 
-from chesser.pgn_import import extract_move_text
+from chesser.pgn_import import extract_move_text, extract_pgn_directives
 
 PGN_QGD = """\
 [Event "?"]
@@ -125,3 +125,99 @@ def test_variation_order_main_then_siblings_not_garbled() -> None:
 
     assert idx_e3 != -1 and idx_alt != -1, f"Expected both moves in text:\n{text}"
     assert idx_e3 < idx_alt, f"Expected 6.e3 to appear before 6.Nxd5??:\n{text}"
+
+
+def test_extract_pgn_directives_empty_text():
+    cleaned, shapes = extract_pgn_directives("")
+    assert cleaned == ""
+    assert shapes == []
+
+
+def test_extract_pgn_directives_no_directives_preserves_text():
+    cleaned, shapes = extract_pgn_directives("White's pawn-pushing idea.")
+    assert cleaned == "White's pawn-pushing idea."
+    assert shapes == []
+
+
+def test_extract_pgn_directives_extracts_csl_circle_and_cal_arrow_and_strips_tags():
+    text = "[%csl Rf3][%cal Gg4f3] White's pawn-pushing"
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "White's pawn-pushing"
+    assert shapes == [
+        {"orig": "f3", "brush": "red"},
+        {"orig": "g4", "dest": "f3", "brush": "green"},
+    ]
+
+
+def test_extract_pgn_directives_handles_commas_and_spaces_in_payload():
+    text = "Idea [%csl Rf3, Yd4] and [%cal Gg4f3, Rc1h6]!"
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "Idea and !"
+    assert shapes == [
+        {"orig": "f3", "brush": "red"},
+        {"orig": "d4", "brush": "yellow"},
+        {"orig": "g4", "dest": "f3", "brush": "green"},
+        {"orig": "c1", "dest": "h6", "brush": "red"},
+    ]
+
+
+def test_extract_pgn_directives_strips_unknown_directives_like_eval_and_clk():
+    text = "[%eval +0.6][%clk 0:03:21] Keep pressure."
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "Keep pressure."
+    assert shapes == []
+
+
+def test_extract_pgn_directives_ignores_invalid_squares_and_arrows():
+    text = "[%csl Zf3,Rf9][%cal Gg4f9,Ga1a1] Text"
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "Text"
+    assert shapes == [{"orig": "a1", "brush": "green"}]
+
+
+def test_extract_pgn_directives_dedupes_identical_shapes_within_same_comment():
+    text = "[%csl Rf3,Rf3][%cal Gg4f3,Gg4f3] Stuff"
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "Stuff"
+    assert shapes == [
+        {"orig": "f3", "brush": "red"},
+        {"orig": "g4", "dest": "f3", "brush": "green"},
+    ]
+
+
+def test_extract_pgn_directives_removes_empty_brace_comments():
+    cleaned, shapes = extract_pgn_directives("{}")
+    assert cleaned == ""
+    assert shapes == []
+
+    cleaned, shapes = extract_pgn_directives("{ }")
+    assert cleaned == ""
+    assert shapes == []
+
+
+def test_extract_pgn_directives_allows_directives_inside_braces_and_strips_to_text():
+    # This simulates PGN node.comment content that still includes braces
+    text = "{[%csl Rf3][%cal Gg4f3] White's pawn-pushing}"
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "{ White's pawn-pushing}"
+    assert shapes == [
+        {"orig": "f3", "brush": "red"},
+        {"orig": "g4", "dest": "f3", "brush": "green"},
+    ]
+
+
+def test_extract_pgn_directives_multiple_directives_interleaved_with_text():
+    text = "A [%csl Rf3] B [%eval -0.2] C [%cal Gg4f3] D"
+    cleaned, shapes = extract_pgn_directives(text)
+
+    assert cleaned == "A B C D"
+    assert shapes == [
+        {"orig": "f3", "brush": "red"},
+        {"orig": "g4", "dest": "f3", "brush": "green"},
+    ]
