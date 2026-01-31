@@ -10,6 +10,31 @@ from chesser.models import Variation
 from chesser.serializers import serialize_variation_to_import_format
 
 
+def _write_iterencoded_with_line_indent(out, chunks, prefix="    "):
+    """
+    Write iterencoded JSON chunks, adding `prefix` only at the start of each line.
+    This avoids inserting spaces mid-token (iterencode yields small chunks).
+    """
+    at_line_start = True
+
+    for chunk in chunks:
+        if not chunk:
+            continue
+
+        parts = chunk.split("\n")
+
+        for i, part in enumerate(parts):
+            if i > 0:
+                out.write("\n")
+                at_line_start = True
+
+            if part:
+                if at_line_start:
+                    out.write(prefix)
+                    at_line_start = False
+                out.write(part)
+
+
 class Command(BaseCommand):
     help = "Bulk export all variations as a JSON list (ordered by ID)."  # noqa: A003
 
@@ -65,6 +90,8 @@ class Command(BaseCommand):
         """
         Stream a JSON list and return the number of variations written.
         """
+        encoder = json.JSONEncoder(indent=4, ensure_ascii=False)
+
         out.write("[\n")
         first = True
         count = 0
@@ -76,7 +103,9 @@ class Command(BaseCommand):
                 out.write(",\n")
             first = False
 
-            json.dump(data, out, indent=4, ensure_ascii=False)
+            _write_iterencoded_with_line_indent(
+                out, encoder.iterencode(data), prefix="    "
+            )
             count += 1
 
         out.write("\n]\n")
