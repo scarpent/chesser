@@ -130,7 +130,7 @@ class Command(BaseCommand):
                 ],
             ),
             (
-                "Alekhine's - O'Sullivan Gambit",
+                "Alekhine’s - O’Sullivan Gambit",
                 now + timedelta(days=1),
                 "due in 1 day",
                 2,
