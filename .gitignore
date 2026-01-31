@@ -2,8 +2,6 @@
 *.pyc
 /temp/
 chesser_cleanup.py
-data/chesser_demo.sqlite3
-data/chesser.sqlite3
 eval_moves.py
 lcov.info
 staticfiles
@@ -12,3 +10,13 @@ staticfiles
 # Ignored by default to prevent accidental commits of secrets;
 # remove this line if you intentionally want to commit it.
 local_settings.py
+
+# Runtime data (databases, backups, etc.)
+data/**
+
+# Keep directory structure in repo
+!data/.gitkeep
+
+# Common local databases (explicit for clarity)
+data/chesser_demo.sqlite3
+data/chesser.sqlite3
