@@ -201,11 +201,10 @@ def test_extract_pgn_directives_removes_empty_brace_comments():
 
 
 def test_extract_pgn_directives_allows_directives_inside_braces_and_strips_to_text():
-    # This simulates PGN node.comment content that still includes braces
     text = "{[%csl Rf3][%cal Gg4f3] White's pawn-pushing}"
     cleaned, shapes = extract_pgn_directives(text)
 
-    assert cleaned == "{ White's pawn-pushing}"
+    assert cleaned == "{White's pawn-pushing}"
     assert shapes == [
         {"orig": "f3", "brush": "red"},
         {"orig": "g4", "dest": "f3", "brush": "green"},

@@ -259,6 +259,10 @@ def extract_pgn_directives(text: str) -> tuple[str, list[dict]]:
 
     # strip all directives (including csl/cal, eval, clk, etc.)
     cleaned = _DIRECTIVE_RE.sub("", text)
+    if cleaned != text:
+        # there were directives: strip remaining leading space
+        cleaned = re.sub(r"^\s*{\s+", "{", cleaned, flags=re.MULTILINE)
+
     cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
 
     if cleaned in ("{}", "{ }"):
