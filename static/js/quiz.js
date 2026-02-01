@@ -19,6 +19,10 @@ export function quizApp() {
     quizBusy: false,
     runId: 0,
 
+    // Shapes render scheduling (helps during rapid navigation after completion)
+    _shapeRenderGen: 0,
+    _pendingShapesRaf: null,
+
     // Concurrency model:
     // - quizBusy prevents overlapping state transitions
     //   (move handling, opposing move, restart)
@@ -130,7 +134,7 @@ export function quizApp() {
         if (ms.length)
           dests.set(
             s,
-            ms.map((m) => m.to)
+            ms.map((m) => m.to),
           );
       });
       return dests;
@@ -249,7 +253,7 @@ export function quizApp() {
         correct = normalizedMoveSan === normalizedAnswerSan;
         if (correct) {
           console.log(
-            `move.san (${move.san}) !== answer.san (${answer.san}), but normalized/reambiguated values matched! ${normalizedMoveSan} === ${normalizedAnswerSan}`
+            `move.san (${move.san}) !== answer.san (${answer.san}), but normalized/reambiguated values matched! ${normalizedMoveSan} === ${normalizedAnswerSan}`,
           );
         }
       }
@@ -345,6 +349,33 @@ export function quizApp() {
     },
 
     //--------------------------------------------------------------------------------
+    _cancelPendingShapeApply() {
+      if (this._pendingShapesRaf !== null) {
+        cancelAnimationFrame(this._pendingShapesRaf);
+        this._pendingShapesRaf = null;
+      }
+    },
+
+    _scheduleShapesApply(shapes) {
+      // Apply shapes on next paint, and only if this is still the latest request
+      this._shapeRenderGen += 1;
+      const myGen = this._shapeRenderGen;
+
+      this._cancelPendingShapeApply();
+
+      this._pendingShapesRaf = requestAnimationFrame(() => {
+        this._pendingShapesRaf = null;
+        if (myGen !== this._shapeRenderGen) return;
+
+        this.board.set({
+          drawable: {
+            shapes: shapes || [],
+          },
+        });
+      });
+    },
+
+    //--------------------------------------------------------------------------------
     syncBoard() {
       this.board.set({ fen: this.chess.fen(), movable: { dests: this.toDests() } });
     },
@@ -380,7 +411,7 @@ export function quizApp() {
       } else {
         // reveal arrows/circles for the last move
         const shapes = this.parseShapes(
-          this.variationData.moves[this.quizMoveIndex - 1].shapes
+          this.variationData.moves[this.quizMoveIndex - 1].shapes,
         );
         this.board.set({ drawable: { shapes } });
       }
@@ -400,6 +431,9 @@ export function quizApp() {
       this.annotateTimeoutId = null;
       clearTimeout(this.opposingTimeoutId);
       this.opposingTimeoutId = null;
+
+      // cancel any pending "apply shapes on next paint"
+      this._cancelPendingShapeApply();
 
       this.chess.reset();
 
@@ -448,8 +482,8 @@ export function quizApp() {
         totalDue === 0
           ? "💤" // nothing due, rest easy
           : totalDue > 24
-          ? "🙈" // yikes! better study
-          : "🏃"; // manageable, keep on running
+            ? "🙈" // yikes! better study
+            : "🏃"; // manageable, keep on running
 
       this.reviewStats = `${extra}<span>✏️</span>
         <span>${passed}/${totalCompleted}</span>
@@ -563,17 +597,21 @@ export function quizApp() {
 
     //--------------------------------------------------------------------------------
     updateBoard() {
+      // Clear shapes immediately so rapid nav doesn't leave stale highlights behind
+      // (Shapes will be applied on the next paint.)
+      this._cancelPendingShapeApply();
       this.board.set({
         fen: this.chess.fen(),
-        drawable: {
-          shapes:
-            this.quizMoveIndex > 0
-              ? this.parseShapes(
-                  this.variationData.moves[this.quizMoveIndex - 1].shapes
-                )
-              : [],
-        },
+        drawable: { shapes: [] },
       });
+
+      const shapes =
+        this.quizMoveIndex > 0
+          ? this.parseShapes(this.variationData.moves[this.quizMoveIndex - 1].shapes)
+          : [];
+
+      this._scheduleShapesApply(shapes);
+
       this.quizCompleteOverlay = "";
     },
 

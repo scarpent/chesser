@@ -9,6 +9,10 @@ export function variationApp() {
     subvarMoveIndex: -1,
     currentFen: "", // current board state, whether mainline or subvariation
 
+    // Shapes render scheduling (helps during rapid navigation)
+    _shapeRenderGen: 0,
+    _pendingShapesRaf: null,
+
     initVariation() {
       const boardElement = document.getElementById("board");
       if (boardElement && window.Chessground && window.Chess) {
@@ -116,19 +120,50 @@ export function variationApp() {
     },
 
     //--------------------------------------------------------------------------------
+    _cancelPendingShapeApply() {
+      if (this._pendingShapesRaf !== null) {
+        cancelAnimationFrame(this._pendingShapesRaf);
+        this._pendingShapesRaf = null;
+      }
+    },
+
+    _scheduleShapesApply(shapes) {
+      // Apply shapes on next paint, and only if this is still the latest render request
+      this._shapeRenderGen += 1;
+      const myGen = this._shapeRenderGen;
+
+      this._cancelPendingShapeApply();
+
+      this._pendingShapesRaf = requestAnimationFrame(() => {
+        this._pendingShapesRaf = null;
+        if (myGen !== this._shapeRenderGen) return;
+
+        this.board.set({
+          drawable: {
+            shapes: shapes || [],
+          },
+        });
+      });
+    },
+
+    //--------------------------------------------------------------------------------
     updateBoard() {
       this.currentFen = this.chess.fen();
+
+      // Clear shapes immediately so rapid nav doesn't leave stale highlights behind
+      // (Shapes will be applied on the next paint.)
+      this._cancelPendingShapeApply();
       this.board.set({
         fen: this.currentFen,
-        drawable: {
-          shapes:
-            this.mainlineMoveIndex >= 0
-              ? JSON.parse(
-                  this.variationData.moves[this.mainlineMoveIndex].shapes || "[]"
-                )
-              : [],
-        },
+        drawable: { shapes: [] },
       });
+
+      const shapes =
+        this.mainlineMoveIndex >= 0
+          ? JSON.parse(this.variationData.moves[this.mainlineMoveIndex].shapes || "[]")
+          : [];
+
+      this._scheduleShapesApply(shapes);
 
       this.highlightMainlineMove();
       this.updateAlts();
@@ -141,7 +176,7 @@ export function variationApp() {
         .forEach((el) => el.classList.remove("highlight"));
 
       const mainlineMoveElement = document.querySelector(
-        `.mainline-move[data-index="${this.mainlineMoveIndex}"]`
+        `.mainline-move[data-index="${this.mainlineMoveIndex}"]`,
       );
       if (mainlineMoveElement) {
         mainlineMoveElement.classList.add("highlight");
@@ -208,7 +243,11 @@ export function variationApp() {
 
         // Set board position from the move's FEN
         this.currentFen = moveElement.dataset.fen;
+
+        // Clear shapes immediately and cancel any pending mainline apply
+        this._cancelPendingShapeApply();
         this.board.set({ fen: this.currentFen, drawable: { shapes: [] } }); // Clear shapes
+
         // Alts don't really make sense in subvariations
         const altsElement = document.getElementById("alts");
         if (altsElement) altsElement.innerHTML = `<b>Alts ➤</b>`;
@@ -229,8 +268,8 @@ export function variationApp() {
       if (this.mainlineMoveIndex < 0) return [];
       return Array.from(
         document.querySelectorAll(
-          `.subvariations[data-mainline-index="${this.mainlineMoveIndex}"] .subvar-move`
-        )
+          `.subvariations[data-mainline-index="${this.mainlineMoveIndex}"] .subvar-move`,
+        ),
       );
     },
 
@@ -299,7 +338,11 @@ export function variationApp() {
       const altShapes = this.variationData.moves[this.mainlineMoveIndex].alt_shapes;
       if (!altShapes || this.isInSubvariation()) return;
 
-      this.board.set({ drawable: { shapes: JSON.parse(altShapes) } });
+      // Clear immediately; apply on next paint to avoid stale/laggy overlays when spamming 'a'
+      this._cancelPendingShapeApply();
+      this.board.set({ drawable: { shapes: [] } });
+
+      this._scheduleShapesApply(JSON.parse(altShapes));
     },
 
     //--------------------------------------------------------------------------------
@@ -332,7 +375,7 @@ export function variationApp() {
           } else {
             // Second click on mainline → jump to editor
             window.navigateWithSpinner(
-              `/edit/${this.variationData.variation_id}/?idx=${index}`
+              `/edit/${this.variationData.variation_id}/?idx=${index}`,
             );
           }
         } else {
@@ -366,7 +409,7 @@ export function variationApp() {
       }
       navigator.clipboard.writeText(this.currentFen).then(
         () => console.log("📋️ FEN copied:", this.currentFen),
-        (err) => console.error("❌ Failed to copy FEN:", err)
+        (err) => console.error("❌ Failed to copy FEN:", err),
       );
     },
 
