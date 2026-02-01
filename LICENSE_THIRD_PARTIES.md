@@ -40,4 +40,8 @@ _Wikibooks – Chess Opening Theory_, licensed under CC BY-SA.
 
 Some text may be derived from or influenced by versions
 distributed by Lichess, and may include minor modifications
-and major additions sparked by chesser's author's inspiration.
+and major additions sparked by Chesser's author's inspiration.
+
+John Bartholomew's Scandi line in the sample repertoire is also
+generously provided CC BY-SA. Please acknowledge JB's authorship
+if you use it!
