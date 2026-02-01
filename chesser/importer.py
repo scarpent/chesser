@@ -127,14 +127,17 @@ def import_variation(
         mainline = " ".join(mainline.split()[:end_index])
         print(f"Shortening mainline to: {mainline}")
 
-    # TODO: use created_at from import_data if it exists?
+    import_created_at = import_data.get("created_at")
+    created_at = (
+        get_utc_datetime(import_created_at) if import_created_at else timezone.now()
+    )
 
     variation, created = Variation.objects.get_or_create(
         chapter=chapter,
         mainline_moves_str=mainline,
         defaults={
             "chapter": chapter,
-            "created_at": timezone.now(),
+            "created_at": created_at,
         },
     )
 
