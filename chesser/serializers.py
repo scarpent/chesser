@@ -708,6 +708,7 @@ def render_move_block(block: ParsedBlock, state: RenderState) -> str:
     else:
         html += f" {move_text} {resolved} "
 
+    """
     # is this expensive enough to care about? likely won't keep doing
     # the board but should always include the parsed block for moves
     try:
@@ -715,7 +716,9 @@ def render_move_block(block: ParsedBlock, state: RenderState) -> str:
     except Exception:
         board = "(no board)"
 
-    html += f"<!-- {block}\n{board} -->"  # phew! this is useful
+    # phew! this is useful for debugging; but it will break some special parens cleanup
+    html += f"<!-- {block}\n{board} -->"
+    """
 
     return html
 
@@ -772,13 +775,12 @@ def generate_subvariations_html(
     # This might be the place to do various cleanup? e.g. <p></p>,
     # although that one we might want to handle/prevent earlier.
     # There are also extra spaces between move spans and punctuation
-    # [,.!?] which are more easily removed here 🧹
-    html = re.sub(
-        r"<\/span> +(<!--[^<>]*?-->) *([,.!?])",
-        r"</span>\1\2",
-        html,
-        flags=re.DOTALL,
-    )
+    # [,.!?] which are more easily removed here, along with parens 🧹
+
+    # TODO: should really have some tests for these cleanups
+
+    html = re.sub(r"\( +<span", r"(<span", html)
+    html = re.sub(r"<\/span> +([),.!?])", r"</span>\1", html)
 
     return (
         '<div class="subvariations" data-mainline-index="'
