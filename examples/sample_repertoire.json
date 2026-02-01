@@ -749,8 +749,8 @@
                 "move_num": 1,
                 "san": "d5",
                 "annotation": "",
-                "text": "{No hesitation: We’re aiming to knock out White’s e-pawn! I began playing the Scandinavian Defense (also known as the “Center Counter”) some 25+ years ago as a scholastic player in my native Minnesota.\n\nA local master, FM Leonard Johnson, often seemed to obtain effortlessly good positions with this opening, and I thought “Hey, why can’t I do that too?” :)\n\nThe “Scandi” has served me well over the years, and in 2025 I published a mammoth 225,000+ word course about the opening on <a href=\"https://chessiverse.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Chessiverse.com</a> called “<a href=\"https://chessiverse.com/courses/scandi\" target=\"_blank\" rel=\"noopener noreferrer\">The Comprehensive Scandinavian: A Complete Repertoire Based on 3...Qa5</a>.”}",
-                "alt": "",
+                "text": "{No hesitation: We’re aiming to knock out White’s e-pawn! I began playing the Scandinavian Defense (also known as the “Center Counter”) some 25+ years ago as a scholastic player in my native Minnesota.\r\n\r\nA local master, FM Leonard Johnson, often seemed to obtain effortlessly good positions with this opening, and I thought “Hey, why can’t I do that too?” :)\r\n\r\nThe “Scandi” has served me well over the years, and in 2025 I published a mammoth 225,000+ word course about the opening on <a href=\"https://chessiverse.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Chessiverse.com</a> called “<a href=\"https://chessiverse.com/courses/scandi\" target=\"_blank\" rel=\"noopener noreferrer\">The Comprehensive Scandinavian: A Complete Repertoire Based on 3...Qa5</a>.”}",
+                "alt": "c5, e5, e6, c6, d6, g6",
                 "alt_fail": "",
                 "shapes": []
             },
@@ -768,7 +768,7 @@
                 "san": "Qxd5",
                 "annotation": "",
                 "text": "Achieving central clarity. Black has a gambit alternative in {2...Nf6}, but I’ve usually preferred to recover the pawn straight away.",
-                "alt": "",
+                "alt": "Nf6",
                 "alt_fail": "",
                 "shapes": []
             },
@@ -970,9 +970,9 @@
                 "move_num": 10,
                 "san": "c5",
                 "annotation": "",
-                "text": "Due to the d-file pin, Black will next regain the piece with 10...Rxd4 or 10...cxd4, with an extra pawn to boot. Even after seeing it dozens of times, I’m mesmerized by the sequence beginning with <fenseq data-fen=\"2kr1bnr/ppp1pppp/2n5/5q2/2PP2b1/4BN2/PP2BPPP/RN1QK2R b KQ - 2 7\">7...Bxf3! 8.Bxf3 Nxd4!</fenseq>. It’s incredible that it all checks out for Black.\n\nThanks to my friend/Chesser creator Scott Carpenter for allowing me to present my favorite Scandinavian line! If the Scandinavian Defense appeals to you, please check out my <a href=\"https://chessiverse.com/courses/scandi\" target=\"_blank\" rel=\"noopener noreferrer\">complete coverage on Chessiverse.</a> Also, take advantage of our 600+ human-like bots!",
+                "text": "Due to the d-file pin, Black will next regain the piece with 10...Rxd4 or 10...cxd4, with an extra pawn to boot. Even after seeing it dozens of times, I’m mesmerized by the sequence beginning with <fenseq data-fen=\"2kr1bnr/ppp1pppp/2n5/5q2/2PP2b1/4BN2/PP2BPPP/RN1QK2R b KQ - 2 7\">7...Bxf3! 8.Bxf3 Nxd4!</fenseq>. It’s incredible that it all checks out for Black.\r\n\r\nThanks to my friend/Chesser creator Scott Carpenter for allowing me to present my favorite Scandinavian line! If the Scandinavian Defense appeals to you, please check out my <a href=\"https://chessiverse.com/courses/scandi\" target=\"_blank\" rel=\"noopener noreferrer\">complete coverage on Chessiverse.</a> Also, take advantage of our 600+ human-like bots!",
                 "alt": "",
-                "alt_fail": "",
+                "alt_fail": "Qe4, Nf6",
                 "shapes": [
                     {
                         "orig": "d4",
