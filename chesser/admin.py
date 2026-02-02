@@ -153,7 +153,7 @@ class VariationInline(admin.TabularInline):
     @admin.display(description="Mainline Moves")
     def mainline_moves_display(self, obj):
         link = reverse("admin:chesser_variation_change", args=[obj.id])
-        return format_html('<a href="{}">{}</a>', link, obj.mainline_moves)
+        return format_html('<a href="{}">{}</a>', link, obj.mainline_moves_str)
 
 
 class QuizResultInline(admin.TabularInline):
@@ -181,7 +181,12 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "level",
         "next_review",
     )
-    list_filter = ("chapter",)
+    list_filter = (
+        "is_intro",
+        "archived",
+        "chapter__color",
+        "chapter",
+    )
     inlines = [MoveInline, QuizResultInline]
     readonly_fields = ("created_at", "view_on_site_link")
 

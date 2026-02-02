@@ -39,6 +39,11 @@ def get_changes(variation, import_data):
     if variation.start_move != import_data["start_move"]:
         changes.add("start_move")
 
+    if variation.is_intro != import_data.get("is_intro", False):
+        changes.add("is_intro")
+    if variation.archived != import_data.get("archived", False):
+        changes.add("archived")
+
     for idx, move_import in enumerate(import_data["moves"]):
         try:
             move = Move.objects.get(
@@ -168,6 +173,7 @@ def import_variation(
     # This is displayed with x-text in the template so shouldn't *need* this, but...
     variation.title = strip_tags(import_data["variation_title"])
     variation.is_intro = import_data.get("is_intro", False)
+    variation.archived = import_data.get("archived", False)
     variation.start_move = import_data["start_move"]
     if created and import_data["level"] >= 0:
         variation.level = import_data["level"]

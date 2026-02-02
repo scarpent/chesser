@@ -17,6 +17,14 @@ class Chapter(models.Model):
         return f"{self.color.title()}: {self.title}"
 
 
+class VariationQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(archived=False)
+
+    def archived(self):
+        return self.filter(archived=True)
+
+
 class Variation(models.Model):
     """
     Level 0 = "unlearned" / never reviewed - it's one time only, and we
@@ -58,6 +66,7 @@ class Variation(models.Model):
     title = models.CharField(max_length=100)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     is_intro = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False, db_index=True)
     start_move = models.IntegerField(
         default=2, help_text="Reviews start at this move number"
     )
@@ -66,6 +75,8 @@ class Variation(models.Model):
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     source = models.JSONField(null=True, blank=True, default=dict)
     mainline_moves_str = models.TextField(null=False)
+
+    objects = VariationQuerySet.as_manager()
 
     class Meta:
         constraints = [
@@ -132,7 +143,8 @@ class Variation(models.Model):
     @classmethod
     def due_for_review(cls):
         return (
-            cls.objects.filter(next_review__lte=timezone.now())
+            cls.objects.active()
+            .filter(next_review__lte=timezone.now())
             .order_by("next_review")
             .first()
         )
@@ -150,7 +162,7 @@ class Variation(models.Model):
         We'll not look too far ahead, we want this to be fairly immediate.
         """
         now = timezone.now()
-        total_due_now = cls.objects.filter(next_review__lte=now).count()
+        total_due_now = cls.objects.active().filter(next_review__lte=now).count()
 
         if total_due_now < 5:
             relatively_soon = 2
@@ -160,9 +172,11 @@ class Variation(models.Model):
             relatively_soon = 8
 
         soon = now + timezone.timedelta(minutes=relatively_soon)
-        total_due_soon = cls.objects.filter(
-            next_review__gte=now, next_review__lte=soon
-        ).count()
+        total_due_soon = (
+            cls.objects.active()
+            .filter(next_review__gte=now, next_review__lte=soon)
+            .count()
+        )
 
         return total_due_now, total_due_soon
 

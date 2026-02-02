@@ -55,7 +55,7 @@ def simulate_forecast():
 
     # Build forecast input: next_review -> {'level': int}
     cutoff = now() + datetime.timedelta(days=365)
-    for var in Variation.objects.filter(next_review__lte=cutoff):
+    for var in Variation.objects.active().filter(next_review__lte=cutoff):
         dt = var.next_review
         while dt in review_schedule:  # unlikely, but just in case
             dt += datetime.timedelta(seconds=1)  # prevent overwrite
