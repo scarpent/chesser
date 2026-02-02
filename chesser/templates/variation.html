@@ -78,21 +78,28 @@ x-init="initVariation(); setPageTitle('Var #' + variationData.variation_id);"
           x-text="variationData.is_intro ? '📌 ' + variationData.title : variationData.title"
         ></div>
         <div class="variation-state-info">
+          <span x-show="variationData.archived" title="Archived variation"
+            >🗄️ Archived</span
+          >
           <span
-            x-show="variationData.level === 0 || variationData.level >= 9"
+            x-show="!variationData.archived && (variationData.level === 0 || variationData.level >= 9)"
             x-text="variationData.level === 0 ? '🌱' : '🌳'"
           ></span>
           <span x-text="'L' + variationData.level"></span>
           <span x-text="'S' + variationData.start_move"></span>
-          <span x-text="'N➤' + variationData.time_until_next_review"></span>
+          <span
+            x-show="!variationData.archived"
+            x-text="'N➤' + variationData.time_until_next_review"
+          ></span>
           <span x-text="'#' + variationData.variation_id"></span>
-          <template x-if="variationData.level > 0">
+          <template x-if="variationData.archived || variationData.level > 0">
             <span>
               <a :href="'/review/' + variationData.variation_id + '/'">extra study</a>
               ✏️
             </span>
           </template>
-          <template x-if="variationData.level === 0">
+
+          <template x-if="!variationData.archived && variationData.level === 0">
             <span>
               <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
               📖
@@ -141,7 +148,7 @@ x-init="initVariation(); setPageTitle('Var #' + variationData.variation_id);"
   window.addEventListener("resize", () => {
     document.documentElement.style.setProperty(
       "--vh",
-      `${window.innerHeight * 0.01}px`
+      `${window.innerHeight * 0.01}px`,
     );
   });
   window.dispatchEvent(new Event("resize"));

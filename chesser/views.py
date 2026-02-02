@@ -144,7 +144,7 @@ def review_random(request):
     color = request.GET.get("color")
     chapter_id = request.GET.get("chapter_id")
 
-    qs = Variation.objects.all()
+    qs = Variation.objects.active()
     if color:
         qs = qs.filter(chapter__color=color)
     if chapter_id:
@@ -408,13 +408,17 @@ class ImportVariationView(View):
 
 
 def get_sorted_variations(chapter_id=None):
-    queryset = Variation.objects.select_related("chapter").annotate(
-        sort_key=Lower("mainline_moves_str"),
-        intro_priority=Case(
-            When(is_intro=True, then=0),
-            default=1,
-            output_field=IntegerField(),
-        ),
+    queryset = (
+        Variation.objects.active()
+        .select_related("chapter")
+        .annotate(
+            sort_key=Lower("mainline_moves_str"),
+            intro_priority=Case(
+                When(is_intro=True, then=0),
+                default=1,
+                output_field=IntegerField(),
+            ),
+        )
     )
 
     if chapter_id is not None:
@@ -615,7 +619,7 @@ def variations_table(request):
 @ensure_csrf_cookie
 def edit(request, variation_id=None):
     if variation_id is None:
-        variation = Variation.objects.first()
+        variation = Variation.objects.active().first()
     else:
         variation = get_object_or_404(
             Variation.objects.select_related("chapter").prefetch_related("moves"),
@@ -807,7 +811,7 @@ def save_shared_move(request):
 
 def variation(request, variation_id=None):
     if variation_id is None:
-        variation = Variation.objects.first()
+        variation = Variation.objects.active().first()
     else:
         variation = get_object_or_404(
             Variation.objects.select_related("chapter").prefetch_related("moves"),
@@ -870,15 +874,17 @@ class HomeView:
     def data(self):
         return self.home_data
 
-    def get_variations(self):
-        variations = Variation.objects.all()
+    def get_variations(self, include_archived=False):
+        qs = Variation.objects.all()
         if self.color:
-            variations = variations.filter(chapter__color=self.color)
+            qs = qs.filter(chapter__color=self.color)
         if self.chapter_id:
-            variations = variations.filter(chapter_id=self.chapter_id).prefetch_related(
-                "quiz_results"
-            )
-        return variations
+            qs = qs.filter(chapter_id=self.chapter_id).prefetch_related("quiz_results")
+
+        if not include_archived:
+            qs = qs.active()
+
+        return qs
 
     def get_nav_data(self):
         nav = {
@@ -893,7 +899,9 @@ class HomeView:
         }
         if not self.color:
             for color in ["white", "black"]:
-                variation_count = Variation.objects.filter(chapter__color=color).count()
+                variation_count = (
+                    Variation.objects.active().filter(chapter__color=color).count()
+                )
                 nav["total_var_count"] += variation_count
                 nav["colors"].append(
                     {
@@ -906,7 +914,9 @@ class HomeView:
             for chapter in (
                 Chapter.objects.filter(color=self.color).order_by("title").iterator()
             ):
-                variation_count = Variation.objects.filter(chapter=chapter).count()
+                variation_count = (
+                    Variation.objects.active().filter(chapter=chapter).count()
+                )
                 nav["color_var_count"] += variation_count
                 nav["chapters"].append(
                     {
@@ -969,6 +979,16 @@ class HomeView:
             (" 9 - 6 months", 9),
             ("10+", 10),
         ]
+
+        # archived count (same filters, but includes archived)
+        archived_count = self.get_variations(include_archived=True).archived().count()
+        if archived_count:
+            level_counts.append(
+                {
+                    "label": "🗄️ Archived",
+                    "count": archived_count,
+                }
+            )
 
         variations = self.get_variations()
         for label, level in levels:
@@ -1338,9 +1358,8 @@ def stats(request):
             day_end = day_start + timezone.timedelta(days=1)
 
             day_qs = (
-                Variation.objects.filter(
-                    next_review__gte=day_start, next_review__lt=day_end
-                )
+                Variation.objects.active()
+                .filter(next_review__gte=day_start, next_review__lt=day_end)
                 .values("level")
                 .annotate(count=Count("id"))
             )

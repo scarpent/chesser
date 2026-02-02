@@ -3,6 +3,7 @@ from datetime import timezone as dt_timezone
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 
 from chesser.models import Variation
@@ -28,12 +29,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         minutes = options["minutes"]
 
-        oldest = (
-            Variation.objects.exclude(next_review=END_OF_TIME_DT)
-            .order_by("next_review")
-            .first()
-        )
+        qs = Variation.objects.active().exclude(next_review=END_OF_TIME_DT)
 
+        oldest = qs.order_by("next_review").first()
         if not oldest:
             self.stdout.write(
                 self.style.ERROR("❌ No variations with a valid next_review found.")
@@ -43,15 +41,11 @@ class Command(BaseCommand):
         target = timezone.now() + timezone.timedelta(minutes=minutes)
         delta = target - oldest.next_review
 
-        count = 0
         with transaction.atomic():
-            for var in Variation.objects.exclude(next_review=END_OF_TIME_DT):
-                var.next_review += delta
-                var.save(update_fields=["next_review"])
-                count += 1
+            updated = qs.update(next_review=F("next_review") + delta)
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"✅ Shifted next_review on {count} variations by {delta}."
+                f"✅ Shifted next_review on {updated} variations by {delta}."
             )
         )

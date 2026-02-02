@@ -21,6 +21,7 @@ def _normalize_variation_dict(v: dict) -> dict:
         out["variation_id"] = int(out["variation_id"])
 
     out["is_intro"] = bool(out.get("is_intro", False))
+    out["archived"] = bool(out.get("archived", False))
     out["start_move"] = int(out.get("start_move") or 0)
     out["level"] = int(out.get("level") or 0)
 

@@ -83,6 +83,7 @@ x-cloak
       x-text="'#' + variationData.variation_id"
     ></a>
     <span x-show="variationData.is_intro">📌</span>
+    <span x-show="variationData.archived">🗄️ Archived</span>
   </div>
 
   <div>
@@ -111,7 +112,7 @@ x-cloak
       •
       <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
       <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
-      <template x-if="variationData.level === 0">
+      <template x-if="variationData.level === 0 && !variationData.archived">
         <span>
           •
           <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
