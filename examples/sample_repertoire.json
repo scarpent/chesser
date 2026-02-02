@@ -91,7 +91,7 @@
                 "move_num": 2,
                 "san": "Nc6",
                 "annotation": "",
-                "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\n\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\n\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)}",
+                "text": "Chesser handles deeply nested subvariations, indicating depth with tabs.\n\n{(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5)))} ➡️\n\n(2...Nc6 3.d4 exd4 (3...d6 4.Nc3 Nf6 (4...exd4 5.Nxd4 Nf6 (5...Nxd4 6.Qxd4)  (5... Be7 6.Bf4) 6.Bb5 {stepping down ↙️}) {stepping down ↙️}) {stepping down ↙️ (these comments included for illustration only...)})",
                 "alt": "",
                 "alt_fail": "",
                 "shapes": []
