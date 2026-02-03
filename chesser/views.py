@@ -1002,7 +1002,6 @@ class HomeView:
                     }
                 )
 
-        # archived count (same filters, but includes archived)
         archived_count = self.get_variations(include_archived=True).archived().count()
         if archived_count:
             level_counts.append(

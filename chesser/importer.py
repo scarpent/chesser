@@ -11,6 +11,52 @@ from chesser import util
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 from chesser.pgn_import import extract_pgn_directives
 
+NORMALIZED_ANNOTATIONS = {
+    # Counterplay
+    "⇆": "⇄",
+    # Winning advantage (ASCII → Unicode)
+    "+-": "±",
+    "-+": "∓",
+    # Slight advantage (common ASCII forms → Informant glyphs)
+    "+=": "⩲",  # White slightly better
+    "+/=": "⩲",
+    "=+/": "⩲",  # rare typo variant
+    "=+": "⩱",  # Black slightly better
+    "=/+": "⩱",
+    # Equality cleanup
+    "==": "=",  # sometimes typed
+    # Checkmate (older notation)
+    "++": "#",
+    # Delta variants (with the idea)
+    "Δ": "△",
+    # Only move
+    "[]": "□",
+    # Zugzwang (optional, only if you allow ASCII shorthand)
+    "ZZ": "⊙",
+    # Unclear position (optional, very risky outside eval fields)
+    "~": "∞",
+    # Attack
+    "->": "→",
+}
+
+
+def normalize_annotation(value: str) -> str:
+    """
+    Normalize an *annotation token* (not free-form text).
+
+    - trims whitespace
+    - collapses common ASCII variants to canonical glyphs
+    - returns "" for falsy/blank inputs
+    """
+    if not value:
+        return ""
+
+    token = value.strip()
+    if not token:
+        return ""
+
+    return NORMALIZED_ANNOTATIONS.get(token, token)
+
 
 def get_utc_datetime(date_string):
     """
@@ -199,10 +245,11 @@ def import_variation(
         )
         raw_text = move_import.get("text") or ""
         text_without_directives, directive_shapes = extract_pgn_directives(raw_text)
+        stripped_annotation = strip_tags(move_import.get("annotation") or "")
 
         move.fen = board.fen()
         move.san = strip_tags(move_import["san"])
-        move.annotation = strip_tags(move_import.get("annotation") or "")
+        move.annotation = normalize_annotation(stripped_annotation)
         move.text = util.clean_html(text_without_directives)
         move.alt = util.normalize_alt_moves(move_import.get("alt") or "")
         move.alt_fail = util.normalize_alt_moves(move_import.get("alt_fail") or "")

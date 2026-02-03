@@ -12,7 +12,7 @@ from chesser import util
 from chesser.models import Move, SharedMove, get_matching_moves, get_shared_candidates
 from chesser.move_resolver import ParsedBlock, get_parsed_blocks
 
-annotations = {
+ANNOTATIONS = {
     "none": "No annotation",
     "?": "? Poor",
     "?!": "?! Dubious",
@@ -28,7 +28,13 @@ annotations = {
     "∓": "∓ Black Moderate",
     "+-": "+- White Decisive",
     "-+": "-+ Black Decisive",
+    "□": "□ Only Move",
+    "⇄": "⇄ Counterplay",
+    "⊙": "⊙ Zugzwang",
+    "↑": "↑ Initiative",
+    "→": "→ Attack",
 }
+
 
 BLOCK_TAG_RE = re.compile(
     rf"</?({'|'.join(util.BLOCK_TAGS)})\b[^>]*>",
@@ -72,7 +78,7 @@ def serialize_variation(variation, mode="review"):
         "analysis_url": util.get_analysis_url(variation),
     }
 
-    temp_annotations = annotations.copy()
+    temp_annotations = ANNOTATIONS.copy()
     moves = []
     for move in variation.moves.all():
         # preserve "unknown" annotations in dropdown
@@ -182,7 +188,7 @@ def serialize_shared_move(
         "total_matching_moves": len(matching_moves),
     }
 
-    temp_annotations = annotations.copy()
+    temp_annotations = ANNOTATIONS.copy()
 
     # Editable SharedMove blocks
     for shared_move in shared_moves:
