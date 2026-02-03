@@ -986,16 +986,6 @@ class HomeView:
             ("10+", 10),
         ]
 
-        # archived count (same filters, but includes archived)
-        archived_count = self.get_variations(include_archived=True).archived().count()
-        if archived_count:
-            level_counts.append(
-                {
-                    "label": "🗄️ Archived",
-                    "count": archived_count,
-                }
-            )
-
         variations = self.get_variations()
         for label, level in levels:
             if level == 10:
@@ -1011,6 +1001,16 @@ class HomeView:
                         "count": count,
                     }
                 )
+
+        # archived count (same filters, but includes archived)
+        archived_count = self.get_variations(include_archived=True).archived().count()
+        if archived_count:
+            level_counts.append(
+                {
+                    "label": "Archived 🗄️",
+                    "count": archived_count,
+                }
+            )
 
         return level_counts
 
