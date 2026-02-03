@@ -911,18 +911,24 @@ class HomeView:
                     }
                 )
         elif not self.chapter_id:
-            for chapter in (
-                Chapter.objects.filter(color=self.color).order_by("title").iterator()
-            ):
-                variation_count = (
-                    Variation.objects.active().filter(chapter=chapter).count()
+            chapters = (
+                Chapter.objects.filter(color=self.color)
+                .annotate(
+                    variation_count=Count(
+                        "variation", filter=Q(variation__archived=False)
+                    )
                 )
-                nav["color_var_count"] += variation_count
+                .filter(variation_count__gt=0)
+                .order_by("title")
+            )
+
+            for chapter in chapters.iterator():
+                nav["color_var_count"] += chapter.variation_count
                 nav["chapters"].append(
                     {
                         "id": chapter.id,
                         "title": chapter.title,
-                        "variation_count": variation_count,
+                        "variation_count": chapter.variation_count,
                     }
                 )
 
