@@ -1120,9 +1120,30 @@ class HomeView:
         return added
 
 
+def get_demo_start_date():
+    """
+    Demo stats start date:
+    - 10 days before the earliest QuizResult.datetime
+    - If no quiz results exist, 10 days before now
+    """
+    earliest = (
+        QuizResult.objects.order_by("datetime")
+        .values_list("datetime", flat=True)
+        .first()
+    )
+
+    base = timezone.localtime(earliest or timezone.now())
+    start_date = (base - timedelta(days=10)).date()
+    return (start_date.year, start_date.month, start_date.day)
+
+
 def stats(request):
-    def row_generator():
+    if settings.IS_DEMO:
+        yr, mo, dy = get_demo_start_date()
+    else:
         yr, mo, dy = settings.STATS_START_DATE
+
+    def row_generator():
         all_start = timezone.make_aware(datetime(yr, mo, dy))
         qs = QuizResult.objects.filter(datetime__gte=all_start, level__gt=0)
         all_total = qs.count()
