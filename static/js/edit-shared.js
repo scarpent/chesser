@@ -24,7 +24,7 @@ export function editApp() {
                   coordinates: false,
                   movable: { free: false, showDests: false },
                   highlight: { lastMove: true, check: true },
-                })
+                }),
               );
               const parsedShapes = move.shapes ? JSON.parse(move.shapes) : [];
               this.boards[index].setShapes(parsedShapes);
@@ -38,7 +38,7 @@ export function editApp() {
         this.$nextTick(() => {
           this.moveData.move_groups.forEach((group, index) => {
             const select = document.querySelector(
-              `#grouped-move-block-${index} select`
+              `#grouped-move-block-${index} select`,
             );
             if (select) {
               group.shared_move_id = select.value;
@@ -160,6 +160,26 @@ export function editApp() {
     },
 
     //--------------------------------------------------------------------------------
+    buildAdminMatchingVariationsLink(grouped_move) {
+      if (
+        grouped_move &&
+        grouped_move.variation_ids &&
+        grouped_move.variation_ids.length
+      ) {
+        const ids = grouped_move.variation_ids.join(",");
+        return `/admin/chesser/variation/?q=id in (${ids})`;
+      }
+
+      // Fallback: try the identity filter route (less ideal, but consistent)
+      const parts = [
+        `moves.fen="${this.moveData.fen}"`,
+        `moves.san="${this.moveData.san}"`,
+        `chapter.color="${this.moveData.color}"`,
+      ];
+      return "/admin/chesser/variation/?q=" + encodeURIComponent(parts.join(" and "));
+    },
+
+    //--------------------------------------------------------------------------------
     showShapesOverlay(move) {
       this.overlayVisible = true;
       this.$nextTick(() => {
@@ -172,7 +192,7 @@ export function editApp() {
               coordinates: false,
               movable: { free: false },
               drawable: { enabled: false },
-            }
+            },
           );
         } else {
           this.overlayBoard.set({
@@ -210,7 +230,7 @@ export function editApp() {
     copyFen() {
       navigator.clipboard.writeText(this.moveData.fen).then(
         () => console.log("📋️ FEN copied:", this.moveData.fen),
-        (err) => console.error("❌ Failed to copy FEN:", err)
+        (err) => console.error("❌ Failed to copy FEN:", err),
       );
     },
   }; // return { ... }

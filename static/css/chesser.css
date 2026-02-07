@@ -87,8 +87,9 @@ blockquote {
 
 code,
 pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 }
 
 /* Inline code */
@@ -898,7 +899,9 @@ pre.grouped-move-text {
 
 .image-button img {
   object-fit: contain; /* contain is disastrous for `.landscape-overlay img` */
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
 }
 .image-button.course-black img,
 .image-button.course-white img {
@@ -1029,7 +1032,9 @@ button:hover {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
 
 .icon-button-big-round:active,
@@ -1061,7 +1066,9 @@ more washed out with all the white paper */
 .icon-button.save-success {
   background-color: #28a745 !important;
   border-color: #28a745 !important;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .icon-button.save-error {

@@ -165,13 +165,18 @@ x-cloak
               ></option>
             </template>
           </select>
-          <a
-            :href="buildAdminMatchingMovesLink(move)"
-            target="_blank"
-            rel="noopener"
-            title="Show all shared moves matching SAN/FEN/shared values"
+          <span
             x-text="move.move_ids.length + ' variation' + (move.move_ids.length === 1 ? '' : 's')"
-          ></a>
+          ></span>
+          <span class="admin-hint">
+            (<a
+              :href="buildAdminMatchingMovesLink(move)"
+              target="_blank"
+              rel="noopener"
+              title="Open matching moves in Django admin"
+              >moves</a
+            >)
+          </span>
         </div>
         <div class="grouped-attributes">
           <span
@@ -198,7 +203,14 @@ x-cloak
           class="grouped-move-title"
         ></span>
         <div class="grouped-variation-links">
-          variations:
+          <a
+            :href="buildAdminMatchingVariationsLink(move)"
+            target="_blank"
+            rel="noopener"
+            title="Show all variations for this group"
+          >
+            variations</a
+          >:
           <template x-for="(var_id, idx) in move.variation_ids">
             <template x-if="idx < 3">
               <a :href="'/variation/' + var_id + '/?idx=' + groupedMoveSequence()">

@@ -175,6 +175,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "clickable_title",
+        "is_active",
         "chapter",
         "ply",
         "start_move",
@@ -190,9 +191,15 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
     inlines = [MoveInline, QuizResultInline]
     readonly_fields = ("created_at", "view_on_site_link")
 
+    actions = ["archive_selected", "unarchive_selected"]
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.annotate(_ply=models.Count("moves"))
+
+    @admin.display(boolean=True, description="Active")
+    def is_active(self, obj):
+        return not obj.archived
 
     @admin.display(ordering="_ply")
     def ply(self, obj):
@@ -210,6 +217,22 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         url = reverse("variation", args=[obj.id])
         return format_html(
             '<a href="{}" target="_blank">Variation #{}</a>', url, obj.id
+        )
+
+    @admin.action(description="Archive selected variations")
+    def archive_selected(self, request, queryset):
+        updated = queryset.filter(archived=False).update(archived=True)
+        self.message_user(
+            request,
+            f"Archived {updated} variation(s).",
+        )
+
+    @admin.action(description="Unarchive selected variations")
+    def unarchive_selected(self, request, queryset):
+        updated = queryset.filter(archived=True).update(archived=False)
+        self.message_user(
+            request,
+            f"Unarchived {updated} variation(s).",
         )
 
 
