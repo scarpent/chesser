@@ -22,13 +22,30 @@ class Item:
     mainline_moves_str: str | None
 
 
+def confirm_or_exit(
+    *,
+    prompt: str,
+    assume_yes: bool = False,
+):
+    """
+    Prompt for confirmation. Default is No.
+    """
+    if assume_yes:
+        return
+
+    answer = input(f"{prompt} [y/N]: ").strip().lower()
+    if answer not in {"y", "yes"}:
+        raise SystemExit("Aborted.")
+
+
 def _fetch_ordered_queue(color: str) -> Deque[Item]:
     """
     Build a per-color queue sorted by chapter title asc, then mainline text length asc.
     Color is stored on Chapter.
     """
     qs = (
-        Variation.objects.select_related("chapter")
+        Variation.objects.active()
+        .select_related("chapter")
         .only("id", "title", "chapter_id", "mainline_moves_str", "chapter__title")
         .filter(chapter__isnull=False, chapter__color=color)
     )
@@ -139,11 +156,29 @@ class Command(BaseCommand):
         dry_run = opts["dry_run"]
         verbose = opts["verbose"]
 
+        total_active = Variation.objects.active().count()
+
+        self.stdout.write(
+            f"This will reschedule {total_active} active variations:\n"
+            f"  • Set level → 0\n"
+            f"  • Rewrite next_review dates\n"
+        )
+
+        confirm_or_exit(
+            prompt="Are you sure you want to continue?",
+            assume_yes=dry_run,  # skip confirmation if dry-run
+        )
+
         start_dt = compute_start_dt(opts["start_date"], opts["hour"])
 
         # Build queues
         whites = _fetch_ordered_queue("white")
         blacks = _fetch_ordered_queue("black")
+
+        assert all(
+            not Variation.objects.filter(id=it.id, archived=True).exists()
+            for it in list(whites) + list(blacks)
+        ), "Archived variation leaked into scheduling queues"
 
         nW, nB = len(whites), len(blacks)
         total = nW + nB
@@ -173,7 +208,7 @@ class Command(BaseCommand):
 
         # 1) Reset levels for all first (so partial writes don’t leave mixed states)
         if not dry_run:
-            Variation.objects.all().update(level=0)
+            Variation.objects.active().update(level=0)
 
         # 2) Walk the calendar and assign next_review
         day = 0
