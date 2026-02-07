@@ -409,7 +409,7 @@ class ImportVariationView(View):
 
 def get_sorted_variations(chapter_id=None):
     queryset = (
-        Variation.objects.active()
+        Variation.objects.all()
         .select_related("chapter")
         .annotate(
             sort_key=Lower("mainline_moves_str"),
@@ -592,7 +592,8 @@ def variations_table(request):
                     v.mainline_moves_str, previous_moves, use_class=False
                 )
                 previous_moves = current_moves
-                intro = "📌" if v.is_intro else ""
+                intro = " 📌" if v.is_intro else ""
+                archived = " 🗄️" if v.archived else ""
 
                 yield (
                     f"<tr{highlight}>"
@@ -600,7 +601,7 @@ def variations_table(request):
                     f"<td>{v.chapter.color.title()[0]}</td>"
                     f'<td style="text-align: right">'
                     f'<a href="{URL_BASE}/{v.id}/">{v.id}</a></td>'
-                    f'<td style="white-space: nowrap;">{v.title} {intro}</td>'
+                    f'<td style="white-space: nowrap;">{v.title}{intro}{archived}</td>'
                     f'<td style="white-space: nowrap;">{moves_html}</td>'
                     "</tr>\n"
                 )
