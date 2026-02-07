@@ -6,7 +6,7 @@
 #
 apscheduler==3.11.2
     # via -r requirements.in
-asgiref==3.11.0
+asgiref==3.11.1
     # via django
 asttokens==3.0.1
     # via stack-data
@@ -14,9 +14,9 @@ attrs==25.4.0
     # via flake8-bugbear
 black==26.1.0
     # via -r requirements.in
-boto3==1.42.34
+boto3==1.42.44
     # via -r requirements.in
-botocore==1.42.34
+botocore==1.42.44
     # via
     #   boto3
     #   s3transfer
@@ -28,7 +28,7 @@ click==8.3.1
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.13.1
+coverage[toml]==7.13.3
     # via pytest-cov
 decorator==5.2.1
     # via
@@ -36,14 +36,14 @@ decorator==5.2.1
     #   ipython
 dj-database-url==3.1.0
     # via -r requirements.in
-django==6.0.1
+django==6.0.2
     # via
     #   -r requirements.in
     #   dj-database-url
     #   django-extensions
 django-extensions==4.1
     # via -r requirements.in
-djangoql==0.18.2
+djangoql==0.19.1
     # via -r requirements.in
 executing==2.2.1
     # via stack-data
@@ -62,13 +62,13 @@ flake8-commas==4.0.0
     # via -r requirements.in
 flake8-comprehensions==3.17.0
     # via -r requirements.in
-gunicorn==24.1.1
+gunicorn==25.0.3
     # via -r requirements.in
 iniconfig==2.3.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.9.0
+ipython==9.10.0
     # via
     #   -r requirements.in
     #   ipdb
@@ -99,7 +99,7 @@ packaging==26.0
     #   wheel
 parso==0.8.5
     # via jedi
-pathspec==1.0.3
+pathspec==1.0.4
     # via black
 pexpect==4.9.0
     # via ipython
@@ -147,7 +147,7 @@ pytest-django==4.11.1
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via botocore
-pytokens==0.4.0
+pytokens==0.4.1
     # via black
 s3transfer==0.16.0
     # via boto3
@@ -167,7 +167,7 @@ urllib3==2.6.3
     # via botocore
 watchdog==6.0.0
     # via -r requirements.in
-wcwidth==0.3.3
+wcwidth==0.6.0
     # via prompt-toolkit
 wheel==0.46.3
     # via pip-tools
