@@ -916,10 +916,16 @@ class HomeView:
                 .annotate(
                     variation_count=Count(
                         "variation", filter=Q(variation__archived=False)
-                    )
+                    ),
+                    punct_first=Case(
+                        # “not starting with [0-9A-Za-z]” => punctuation/other
+                        When(title__regex=r"^[^0-9A-Za-z]", then=Value(0)),
+                        default=Value(1),
+                        output_field=IntegerField(),
+                    ),
                 )
                 .filter(variation_count__gt=0)
-                .order_by("title")
+                .order_by("punct_first", "title")
             )
 
             for chapter in chapters.iterator():
