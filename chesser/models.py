@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models import UniqueConstraint
+from django.db.models import Case, IntegerField, UniqueConstraint, Value, When
 from django.utils import timezone
 
 
@@ -12,6 +12,17 @@ class Chapter(models.Model):
     color = models.CharField(
         max_length=5, choices=COLOR_CHOICES, null=False, blank=False
     )
+
+    class Meta:  # sort white before black and then by title
+        ordering = [
+            Case(
+                When(color="white", then=Value(0)),
+                When(color="black", then=Value(1)),
+                default=Value(99),
+                output_field=IntegerField(),
+            ),
+            "title",
+        ]
 
     def __str__(self):
         return f"{self.color.title()}: {self.title}"
