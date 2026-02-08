@@ -207,7 +207,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
             x-for="variation_level in homeData.levels"
             :key="variation_level.label"
           >
-            <tr>
+            <tr :class="variation_level.kind === 'total' ? 'total-row' : ''">
               <td x-text="variation_level.label"></td>
               <td x-text="variation_level.count"></td>
             </tr>

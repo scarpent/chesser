@@ -996,6 +996,7 @@ class HomeView:
             ("10+", 10),
         ]
 
+        reviewing_count = 0
         variations = self.get_variations()
         for label, level in levels:
             if level == 10:
@@ -1012,12 +1013,24 @@ class HomeView:
                     }
                 )
 
+            if level > 0:
+                reviewing_count += count
+
+        level_counts.append(
+            {
+                "label": "Total Reviewing 📝",
+                "count": reviewing_count,
+                "kind": "total",
+            }
+        )
+
         archived_count = self.get_variations(include_archived=True).archived().count()
         if archived_count:
             level_counts.append(
                 {
                     "label": "Archived 🗄️",
                     "count": archived_count,
+                    "kind": "total",
                 }
             )
 

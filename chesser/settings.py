@@ -327,7 +327,7 @@ REPETITION_INTERVALS = {  # Level value is hours
 # Custom schedule now starts with this:
 #   4 hr, 10 hr, 1 day, 2.5 days, 1 week, 2.5 weeks, 1.5 months, 4 months
 
-STATS_START_DATE = (2025, 9, 26)
+STATS_START_DATE = (2026, 2, 7)  # year, month, day
 
 # Scheduler hours can be fractional, e.g., 0.5 for 30 minutes
 HEARTBEAT_INTERVAL_HOURS = 1

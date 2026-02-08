@@ -793,6 +793,15 @@ pre.grouped-move-text {
   margin-right: auto;
 }
 
+.current-levels tr.total-row td {
+  font-weight: 500;
+  color: var(--color-headers);
+}
+
+.current-levels tbody tr:not(.total-row) + tr.total-row td {
+  padding-top: 10px;
+}
+
 /* Admin, Logout, Source links */
 /* Admin | Logout | Source Code */
 .links-container {
