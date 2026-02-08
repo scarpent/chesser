@@ -407,35 +407,38 @@ class ImportVariationView(View):
         messages.success(self.request, f"🟢 {chapter.color.title()} ➤ {chapter.title}")
 
 
-def get_sorted_variations(chapter_id=None):
+def get_sorted_variations(chapter_id=None, include_archived=False):
     queryset = (
-        Variation.objects.all()
-        .select_related("chapter")
-        .annotate(
-            sort_key=Lower("mainline_moves_str"),
-            intro_priority=Case(
-                When(is_intro=True, then=0),
-                default=1,
-                output_field=IntegerField(),
-            ),
-        )
+        Variation.objects.all() if include_archived else Variation.objects.active()
+    )
+
+    queryset = queryset.select_related("chapter").annotate(
+        sort_key=Lower("mainline_moves_str"),
+        intro_priority=Case(
+            When(is_intro=True, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ),
     )
 
     if chapter_id is not None:
-        queryset = queryset.filter(chapter_id=chapter_id)
-        return queryset.order_by("intro_priority", "sort_key").iterator()
-    else:
-        # When would we get sorted variations without a chapter?
-        return queryset.order_by(
-            Case(
-                When(chapter__color="white", then=Value(0)),
-                When(chapter__color="black", then=Value(1)),
-                output_field=IntegerField(),
-            ),
-            "chapter__title",
-            "intro_priority",
-            "sort_key",
-        ).iterator()
+        return (
+            queryset.filter(chapter_id=chapter_id)
+            .order_by("intro_priority", "sort_key")
+            .iterator()
+        )
+
+    return queryset.order_by(
+        Case(
+            When(chapter__color="white", then=Value(0)),
+            When(chapter__color="black", then=Value(1)),
+            default=Value(2),
+            output_field=IntegerField(),
+        ),
+        "chapter__title",
+        "intro_priority",
+        "sort_key",
+    ).iterator()
 
 
 def handle_clone_errors(request, form_data, error_message):
@@ -545,7 +548,7 @@ def export(request, variation_id=None):
 
 def variations_tsv(request):
     def row_generator():
-        for v in get_sorted_variations():
+        for v in get_sorted_variations(include_archived=True):
             intro = "📌" if v.is_intro else ""
             yield (
                 f"{v.chapter.color.title()}\t"
@@ -562,7 +565,7 @@ def variations_tsv(request):
 
 def variations_table(request):
     def row_generator():
-        qs = get_sorted_variations()
+        qs = get_sorted_variations(include_archived=True)
 
         yield "<html><body><table>\n"
         yield (
