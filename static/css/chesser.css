@@ -970,6 +970,84 @@ pre.grouped-move-text {
   display: none !important;
 }
 
+/* ------------------------------------------------ Home Demo Info */
+
+/* Demo-only: small “tutorial / examples” card on home */
+.home-demo-index {
+  margin: 12px 20px 18px; /* top | left/right | bottom */
+}
+
+.home-demo-card {
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.7));
+  color: var(--text-color, #111);
+  padding: 14px 16px;
+}
+
+.home-demo-col {
+  width: 100%;
+  max-width: 375px;
+}
+
+.home-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+  align-items: start;
+}
+
+.home-demo-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #6b4a2b;
+}
+
+.home-demo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 15px;
+}
+
+.home-demo-li-title {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* Links: standard dark blue */
+/* Scoped link styling inside demo card */
+.home-demo-index a {
+  color: #0645ad; /* classic dark blue */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.home-demo-index a:hover {
+  text-decoration: underline;
+}
+
+.home-demo-index a[href^="/review/"] {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.home-demo-index a[href^="/review/"]:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Stack on smaller screens */
+@media (max-width: 800px) {
+  .home-demo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------------------------------------------------------------- Buttons */
 .button-container {
   display: flex;
