@@ -115,27 +115,40 @@ export function nextDueTimer() {
       this.clearCountdown();
       this.label = label;
 
-      const match = label.match(/Next: (?:(\d+)m)? ?(?:(\d+)s)?/);
+      // Capture minutes/seconds plus any trailing text (e.g. " and then in 4m")
+      const match = label.match(/Next:\s*(?:(\d+)m)?\s*(?:(\d+)s)?(.*)$/);
       if (!match) return;
 
       const minutes = match[1] ? parseInt(match[1], 10) : 0;
       const seconds = match[2] ? parseInt(match[2], 10) : 0;
-      const FUDGE_SECONDS = 2; // avoids review *not quite* being ready when timer hits 0
-      let value = minutes * 60 + seconds + FUDGE_SECONDS;
+      const suffix = (match[3] || "").trim();
 
-      if (value === 0 || value > 5 * 60) return;
+      const base = minutes * 60 + seconds;
+
+      const suffixText = suffix ? " " + suffix : "";
+
+      // If the server says we're due already, do NOT invent a countdown.
+      if (base === 0) {
+        this.label = `⏰ Next: 🚀 ${suffixText}`;
+        this.refreshFromServer();
+        return;
+      }
+
+      // Otherwise, "lie" a bit so we don't hit Now! before the backend catches up.
+      const FUDGE_SECONDS = 2;
+      let value = base + FUDGE_SECONDS;
+
+      if (value > 5 * 60) return;
 
       const tick = () => {
-        // console.log("⏱️ Countdown");
-
         if (value-- > 1) {
           const m = Math.floor(value / 60);
           const s = value % 60;
-          const timeLabel = m > 0 ? `${m}m ${s}s` : `${s}  🧨`;
-          this.label = `⏰ Next: ${timeLabel}`;
+          const timeLabel = m > 0 ? `${m}m ${s}s` : `${s} 🧨`;
+          this.label = `⏰ Next: ${timeLabel}${suffixText}`;
           this.timerId = setTimeout(tick, 1000);
         } else {
-          this.label = "⏰ Next: 🚀 Now!";
+          this.label = `⏰ Next: 🚀 Now!${suffixText}`;
           this.timerId = null;
 
           setTimeout(() => {
