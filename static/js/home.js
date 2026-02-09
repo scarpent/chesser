@@ -120,7 +120,8 @@ export function nextDueTimer() {
 
       const minutes = match[1] ? parseInt(match[1], 10) : 0;
       const seconds = match[2] ? parseInt(match[2], 10) : 0;
-      let value = minutes * 60 + seconds;
+      const FUDGE_SECONDS = 2; // avoids review *not quite* being ready when timer hits 0
+      let value = minutes * 60 + seconds + FUDGE_SECONDS;
 
       if (value === 0 || value > 5 * 60) return;
 
