@@ -973,7 +973,7 @@ pre.grouped-move-text {
 /* ------------------------------------------------ Home Demo Info */
 
 /* Demo-only: small “tutorial / examples” card on home */
-.home-demo-index {
+.home-demo-guide {
   margin: 12px 20px 18px; /* top | left/right | bottom */
 }
 
@@ -1020,23 +1020,23 @@ pre.grouped-move-text {
 
 /* Links: standard dark blue */
 /* Scoped link styling inside demo card */
-.home-demo-index a {
+.home-demo-guide a {
   color: #0645ad; /* classic dark blue */
   text-decoration: none;
   font-weight: 600;
 }
 
-.home-demo-index a:hover {
+.home-demo-guide a:hover {
   text-decoration: underline;
 }
 
-.home-demo-index a[href^="/review/"] {
+.home-demo-guide a[href^="/review/"] {
   font-size: 14px;
   font-weight: 500;
   opacity: 0.7;
 }
 
-.home-demo-index a[href^="/review/"]:hover {
+.home-demo-guide a[href^="/review/"]:hover {
   opacity: 1;
   text-decoration: underline;
 }
