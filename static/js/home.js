@@ -129,7 +129,7 @@ export function nextDueTimer() {
 
       // If the server says we're due already, do NOT invent a countdown.
       if (base === 0) {
-        this.label = `⏰ Next: 🚀 ${suffixText}`;
+        this.label = `⏰ Next: ${suffixText}`;
         this.refreshFromServer();
         return;
       }
@@ -145,10 +145,10 @@ export function nextDueTimer() {
           const m = Math.floor(value / 60);
           const s = value % 60;
           const timeLabel = m > 0 ? `${m}m ${s}s` : `${s} 🧨`;
-          this.label = `⏰ Next: ${timeLabel}${suffixText}`;
+          this.label = `⏰ Next: ${timeLabel}`;
           this.timerId = setTimeout(tick, 1000);
         } else {
-          this.label = `⏰ Next: 🚀 Now!${suffixText}`;
+          this.label = `⏰ Next: 🚀 Now!`;
           this.timerId = null;
 
           setTimeout(() => {
