@@ -10,7 +10,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
-from chesser.models import QuizResult, Variation
+from chesser.demo import resolve_demo_variations
+from chesser.models import QuizResult
 
 # Keep in sync with static/js/demo-login-autofill.js
 DEMO_USERNAME = "demo"
@@ -111,19 +112,18 @@ class Command(BaseCommand):
         demo review queue looks "alive" immediately (one due now, one due soon),
         and seed some QuizResult history.
 
-        We match by exact title first, then fall back to icontains so small title
-        edits don't silently break demo behavior.
+        Uses demo keys + shared resolver in chesser.demo (no title matching here).
 
-        Safe to re-run: we wipe existing quiz_results for matched variations and
+        Safe to re-run: we wipe existing quiz_results for the targeted variations and
         recreate the scripted history.
         """
         now = timezone.now()
 
-        # title, next_review, label, level, quiz_result_specs
+        # key, next_review, label, level, quiz_result_specs
         # quiz_result_specs: list of (dt, level, passed)
         rules = [
             (
-                "Italian 4.Ng5 Knight Attack",
+                "italian_ng5",
                 now - timedelta(minutes=1),
                 "due now",
                 1,
@@ -132,7 +132,7 @@ class Command(BaseCommand):
                 ],
             ),
             (
-                "Alekhine’s - O’Sullivan Gambit",
+                "alekhine_osullivan",
                 now + timedelta(days=1),
                 "due in 1 day",
                 2,
@@ -144,45 +144,42 @@ class Command(BaseCommand):
             ),
         ]
 
-        with transaction.atomic():
-            for title, next_review, label, variation_level, quiz_specs in rules:
-                qs = Variation.objects.filter(title=title)
-                if not qs.exists():
-                    qs = Variation.objects.filter(title__icontains=title)
+        resolved = resolve_demo_variations(strict=False)
 
-                variations = list(qs)
-                if not variations:
+        with transaction.atomic():
+            for key, next_review, label, variation_level, quiz_specs in rules:
+                v = resolved.get(key)
+
+                if not v:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"⚠️ Demo setup: no variation found matching {title!r}"
+                            f"⚠️ Demo setup: no variation resolved for key={key!r}"
                         )
                     )
                     continue
 
-                # Update variations (next_review + level)
-                updated = qs.update(next_review=next_review, level=variation_level)
+                v.next_review = next_review
+                v.level = variation_level
+                v.save(update_fields=["next_review", "level"])
 
-                # Make rerunnable: clear existing quiz results for these variations
-                QuizResult.objects.filter(variation__in=variations).delete()
+                # Make rerunnable: clear existing quiz results for this variation
+                QuizResult.objects.filter(variation_id=v.id).delete()
 
-                # Create scripted quiz results for each matched variation
-                quiz_results: list[QuizResult] = []
-                for v in variations:
-                    for dt, lvl, passed in quiz_specs:
-                        quiz_results.append(
-                            QuizResult(
-                                variation=v,
-                                datetime=dt,
-                                level=lvl,
-                                passed=passed,
-                            )
-                        )
+                # Create scripted quiz results
+                quiz_results: list[QuizResult] = [
+                    QuizResult(
+                        variation_id=v.id,
+                        datetime=dt,
+                        level=lvl,
+                        passed=passed,
+                    )
+                    for dt, lvl, passed in quiz_specs
+                ]
                 QuizResult.objects.bulk_create(quiz_results)
 
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"🕒 Demo review setup: set {updated} variation(s) matching "
-                        f"{title!r} to {label}, level={variation_level}, quiz_results="
-                        f"{len(quiz_specs)}"
+                        f"🕒 Demo review setup: set key={key!r} (id={v.id}) to {label}"
+                        f", level={variation_level}, quiz_results={len(quiz_specs)}"
                     )
                 )

@@ -13,9 +13,11 @@
       ></a>
     </div>
 
-    <div class="home-demo-grid" x-show="isOpen">
+    <div class="home-demo-grid" x-show="isOpen" x-cloak>
+      <!-- Left column: How To -->
       <section class="home-demo-col">
         <h3 class="home-demo-title">How To</h3>
+
         <ol class="home-demo-list">
           <li>
             <span class="home-demo-li-text">
@@ -28,72 +30,37 @@
               >
             </span>
           </li>
-          <li>
-            <span class="home-demo-li-title">
-              <a :href="`/variation/${homeData.demo.howto_html}`">
-                Basic HTML Formatting
-              </a>
-            </span>
-            <span class="home-demo-li-text">Allowed HTML and examples.</span>
-          </li>
-          <li>
-            <span class="home-demo-li-title">
-              <a :href="`/variation/${homeData.demo.howto_subvars}`">
-                Subvariation Syntax
-              </a>
-            </span>
-            <span class="home-demo-li-text">
-              Rules and examples for PGN comment parsing and navigable subvariations.
-            </span>
-          </li>
+          <template
+            x-for="(key, idx) in (homeData.demo?.howto_items || [])"
+            :key="`howto-${idx}`"
+          >
+            <li x-data="{ d: homeData.demo.links[key] }">
+              <span class="home-demo-li-title">
+                <a :href="d?.variation_url" x-text="d?.title"></a>
+              </span>
+              <span class="home-demo-li-text" x-text="d?.description"></span>
+            </li>
+          </template>
         </ol>
       </section>
 
+      <!-- Right column: Example Lines -->
       <section class="home-demo-col home-demo-col-examples">
         <h3 class="home-demo-title">Example Lines</h3>
+
         <ol class="home-demo-list">
-          <li>
-            <a class="home-demo-link" :href="`/variation/${homeData.demo.italian_ng5}`"
-              >Italian 4.Ng5 Knight Attack</a
-            >
-            <a class="home-demo-link" :href="`/review/${homeData.demo.italian_ng5}`"
-              >(quiz)</a
-            >
-            <div class="home-demo-muted">Don’t fear the Ng5 reaper. 💀</div>
-          </li>
-          <li>
-            <a class="home-demo-link" :href="`/variation/${homeData.demo.scotch_nxd4}`"
-              >Scotch 4...Nxd4</a
-            >
-            <a class="home-demo-link" :href="`/review/${homeData.demo.scotch_nxd4}`"
-              >(quiz)</a
-            >
-            <div class="home-demo-muted">A pour move you can savor. 🥃</div>
-          </li>
-          <li>
-            <a
-              class="home-demo-link"
-              :href="`/variation/${homeData.demo.alekhine_osullivan}`"
-              >Alekhine’s – O’Sullivan Gambit</a
-            >
-            <a
-              class="home-demo-link"
-              :href="`/review/${homeData.demo.alekhine_osullivan}`"
-              >(quiz)</a
-            >
-            <div class="home-demo-muted">
-              A provocative gambit from a notorious troublemaker. ☘️
-            </div>
-          </li>
-          <li>
-            <a class="home-demo-link" :href="`/variation/${homeData.demo.scandi_jb}`"
-              >John B’s Favorite Scandi Line</a
-            >
-            <a class="home-demo-link" :href="`/review/${homeData.demo.scandi_jb}`"
-              >(quiz)</a
-            >
-            <div class="home-demo-muted">No nonsense. Raid the center. 🪓</div>
-          </li>
+          <template
+            x-for="(key, idx) in (homeData.demo?.example_items || [])"
+            :key="`example-${idx}`"
+          >
+            <li x-data="{ d: homeData.demo.links[key] }">
+              <a class="home-demo-link" :href="d?.variation_url" x-text="d?.title"></a>
+              <a class="home-demo-link" :href="d?.review_url" x-show="d?.review_url"
+                >(quiz)</a
+              >
+              <div class="home-demo-muted" x-text="d?.description"></div>
+            </li>
+          </template>
         </ol>
       </section>
     </div>

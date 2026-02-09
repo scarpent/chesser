@@ -16,7 +16,7 @@ x-data="importApp()" x-init="init()" x-cloak
 {% block content %}
 <!-- prettier-ignore -->
 {% if IS_DEMO %}
-<div class="demo-banner">🧪 <b>Demo mode</b> — changes are not saved</div>
+<div class="demo-banner" x-cloak>🧪 <b>Demo mode</b> — changes are not saved</div>
 {% endif %}
 
 <div class="button-container" style="margin-top: 20px" x-cloak>

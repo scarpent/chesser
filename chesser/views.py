@@ -34,6 +34,7 @@ from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from chesser import importer, util
+from chesser.demo import get_demo_home_payload
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 from chesser.pgn_import import convert_pgn_to_json
 from chesser.serializers import (
@@ -876,7 +877,7 @@ class HomeView:
             "upcoming": self.get_upcoming_time_planner(),
         }
         if settings.IS_DEMO:
-            self.home_data["demo"] = demo_variations
+            self.home_data["demo"] = get_demo_home_payload()
 
         if not upcoming_only:
             self.home_data.update(
