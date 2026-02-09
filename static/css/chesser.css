@@ -1041,6 +1041,34 @@ pre.grouped-move-text {
   text-decoration: underline;
 }
 
+.home-demo-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.home-demo-card-title {
+  font-weight: 700;
+  color: #6b4a2b;
+}
+
+.home-demo-card-toggle {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.home-demo-card-toggle:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.home-demo-collapsed {
+  padding: 10px 16px 5px; /* tighter vertical padding */
+  text-align: center;
+}
+
 /* Stack on smaller screens */
 @media (max-width: 800px) {
   .home-demo-grid {

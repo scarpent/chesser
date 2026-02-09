@@ -50,6 +50,26 @@ export function homeApp() {
     titleCase(str) {
       return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
     },
+
+    //--------------------------------------------------------------------------------
+    demoCard() {
+      return {
+        storageKey: "chesser_demo_card_open",
+        isOpen: true,
+
+        init() {
+          const raw = localStorage.getItem(this.storageKey);
+          if (raw !== null) {
+            this.isOpen = raw === "true";
+          }
+        },
+
+        toggle() {
+          this.isOpen = !this.isOpen;
+          localStorage.setItem(this.storageKey, String(this.isOpen));
+        },
+      };
+    },
   };
 }
 

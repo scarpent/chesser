@@ -1,38 +1,50 @@
-<div class="home-demo-index">
-  <div class="home-demo-card">
-    <div class="home-demo-grid">
+<div class="home-demo-index" x-data="demoCard()" x-init="init()" x-cloak>
+  <div
+    class="home-demo-card"
+    :class="isOpen ? 'home-demo-open' : 'home-demo-collapsed'"
+  >
+    <div class="home-demo-card-header">
+      <div class="home-demo-card-title">Demo Guide</div>
+      <a
+        href="#"
+        class="home-demo-card-toggle"
+        @click.prevent="toggle()"
+        x-text="isOpen ? 'Hide' : 'Show'"
+      ></a>
+    </div>
+
+    <div class="home-demo-grid" x-show="isOpen">
       <section class="home-demo-col">
         <h3 class="home-demo-title">How To</h3>
         <ol class="home-demo-list">
           <li>
-            <span class="home-demo-li-text"
-              >The app is in good shape, but it wants
+            <span class="home-demo-li-text">
+              The app is in good shape, but it wants
               <a
                 href="https://github.com/scarpent/chesser#chesser"
                 target="_blank"
                 rel="noopener nofollow"
                 >more docs.</a
-              ></span
-            >
+              >
+            </span>
           </li>
           <li>
-            <span class="home-demo-li-title"
-              ><a :href="`/variation/${homeData.demo.howto_html}`"
-                >Basic HTML Formatting</a
-              ></span
-            >
+            <span class="home-demo-li-title">
+              <a :href="`/variation/${homeData.demo.howto_html}`">
+                Basic HTML Formatting
+              </a>
+            </span>
             <span class="home-demo-li-text">Allowed HTML and examples.</span>
           </li>
           <li>
-            <span class="home-demo-li-title"
-              ><a :href="`/variation/${homeData.demo.howto_subvars}`"
-                >Subvariation Syntax</a
-              ></span
-            >
-            <span class="home-demo-li-text"
-              >Rules and examples for PGN comment parsing and navigable
-              subvariations.</span
-            >
+            <span class="home-demo-li-title">
+              <a :href="`/variation/${homeData.demo.howto_subvars}`">
+                Subvariation Syntax
+              </a>
+            </span>
+            <span class="home-demo-li-text">
+              Rules and examples for PGN comment parsing and navigable subvariations.
+            </span>
           </li>
         </ol>
       </section>
@@ -62,7 +74,7 @@
             <a
               class="home-demo-link"
               :href="`/variation/${homeData.demo.alekhine_osullivan}`"
-              >Alekhine’s - O’Sullivan Gambit</a
+              >Alekhine’s – O’Sullivan Gambit</a
             >
             <a
               class="home-demo-link"
