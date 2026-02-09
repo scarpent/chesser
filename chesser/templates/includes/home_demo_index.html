@@ -17,13 +17,17 @@
           </li>
           <li>
             <span class="home-demo-li-title"
-              ><a href="/variation/1">Basic HTML Formatting</a></span
+              ><a :href="`/variation/${homeData.demo.howto_html}`"
+                >Basic HTML Formatting</a
+              ></span
             >
             <span class="home-demo-li-text">Allowed HTML and examples.</span>
           </li>
           <li>
             <span class="home-demo-li-title"
-              ><a href="/variation/2">Subvariation Syntax</a></span
+              ><a :href="`/variation/${homeData.demo.howto_subvars}`"
+                >Subvariation Syntax</a
+              ></span
             >
             <span class="home-demo-li-text"
               >Rules and examples for PGN comment parsing and navigable
@@ -37,31 +41,45 @@
         <h3 class="home-demo-title">Example Lines</h3>
         <ol class="home-demo-list">
           <li>
-            <a class="home-demo-link" href="/variation/4"
+            <a class="home-demo-link" :href="`/variation/${homeData.demo.italian_ng5}`"
               >Italian 4.Ng5 Knight Attack</a
             >
-            <a class="home-demo-link" href="/review/4">(quiz)</a>
+            <a class="home-demo-link" :href="`/review/${homeData.demo.italian_ng5}`"
+              >(quiz)</a
+            >
             <div class="home-demo-muted">Don’t fear the Ng5 reaper. 💀</div>
           </li>
           <li>
-            <a class="home-demo-link" href="/variation/3">Scotch 4...Nxd4</a>
-            <a class="home-demo-link" href="/review/3">(quiz)</a>
+            <a class="home-demo-link" :href="`/variation/${homeData.demo.scotch_nxd4}`"
+              >Scotch 4...Nxd4</a
+            >
+            <a class="home-demo-link" :href="`/review/${homeData.demo.scotch_nxd4}`"
+              >(quiz)</a
+            >
             <div class="home-demo-muted">A pour move you can savor. 🥃</div>
           </li>
           <li>
-            <a class="home-demo-link" href="/variation/5"
+            <a
+              class="home-demo-link"
+              :href="`/variation/${homeData.demo.alekhine_osullivan}`"
               >Alekhine’s - O’Sullivan Gambit</a
             >
-            <a class="home-demo-link" href="/review/5">(quiz)</a>
+            <a
+              class="home-demo-link"
+              :href="`/review/${homeData.demo.alekhine_osullivan}`"
+              >(quiz)</a
+            >
             <div class="home-demo-muted">
               A provocative gambit from a notorious troublemaker. ☘️
             </div>
           </li>
           <li>
-            <a class="home-demo-link" href="/variation/6"
+            <a class="home-demo-link" :href="`/variation/${homeData.demo.scandi_jb}`"
               >John B’s Favorite Scandi Line</a
             >
-            <a class="home-demo-link" href="/review/6">(quiz)</a>
+            <a class="home-demo-link" :href="`/review/${homeData.demo.scandi_jb}`"
+              >(quiz)</a
+            >
             <div class="home-demo-muted">No nonsense. Raid the center. 🪓</div>
           </li>
         </ol>
