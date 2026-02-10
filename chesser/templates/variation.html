@@ -49,7 +49,7 @@ class="variation-page"
           />
         </button>
         <button
-          title="Review"
+          title="Review Next Due"
           @click="window.navigateWithSpinner('/review/')"
           class="icon-review icon-button"
         ></button>
@@ -118,6 +118,7 @@ class="variation-page"
         <div>
           Chapter:
           <a
+            title="Go to chapter, highlighting this variation"
             :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
             ><span x-text="variationData.chapter"></span
           ></a>
