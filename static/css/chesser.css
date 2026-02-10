@@ -478,8 +478,8 @@ pre.grouped-move-text {
   pointer-events: auto;
 }
 
-/* show the handle styling whenever the board is hovered */
-#resizable-board:hover #resize-handle {
+/* show the handle styling whenever the board is hovered on variation page */
+.variation-page #resizable-board:hover #resize-handle {
   border-radius: 50%;
   border: 2px solid rgba(164, 247, 172, 0.35);
   background-color: rgba(164, 247, 172, 0.2);

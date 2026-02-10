@@ -26,6 +26,7 @@
 x-data="variationApp()"
 x-init="initVariation(); setPageTitle('Var #' + variationData.variation_id);"
 @keydown.window="handleKeyNavigation($event)"
+class="variation-page"
 {% endblock %}
 
 {% block content %}
