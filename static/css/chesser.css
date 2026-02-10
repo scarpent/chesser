@@ -478,11 +478,19 @@ pre.grouped-move-text {
   pointer-events: auto;
 }
 
-#resize-handle:hover,
-#resize-handle.drag-active {
-  border: 2px solid rgba(164, 247, 172, 0.7);
+/* show the handle styling whenever the board is hovered */
+#resizable-board:hover #resize-handle {
   border-radius: 50%;
-  background-color: rgba(164, 247, 172, 0.5);
+  border: 2px solid rgba(164, 247, 172, 0.35);
+  background-color: rgba(164, 247, 172, 0.2);
+}
+
+/* subtly increase the visibility when actually over handle */
+#resizable-board #resize-handle:hover,
+#resizable-board #resize-handle.drag-active {
+  border: 2px solid rgba(164, 247, 172, 0.8);
+  background-color: rgba(164, 247, 172, 0.6);
+  border-radius: 50%;
 }
 
 .move-fen a {
