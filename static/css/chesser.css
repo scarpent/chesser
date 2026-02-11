@@ -73,6 +73,10 @@ blockquote {
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+hr {
+  margin: 25px 0;
+}
+
 /* --------------------------------------------------------- Code / Pre */
 
 :root {
@@ -478,8 +482,10 @@ pre.grouped-move-text {
   pointer-events: auto;
 }
 
-/* show the handle styling whenever the board is hovered on variation page */
-.variation-page #resizable-board:hover #resize-handle {
+/* show dim styling when board hovered on variation page, but NOT when actually on the handle */
+.variation-page
+  #resizable-board:hover
+  #resize-handle:not(:hover):not(.drag-active) {
   border-radius: 50%;
   border: 2px solid rgba(164, 247, 172, 0.35);
   background-color: rgba(164, 247, 172, 0.2);

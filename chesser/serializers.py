@@ -787,6 +787,8 @@ def generate_subvariations_html(
 
     # TODO: should really have some tests for these cleanups
 
+    # hr is already a break, and the extra br can cause too much space
+    html = html.replace("<hr><br/>", "<hr>")
     html = re.sub(r"\( +<span", r"(<span", html)
     html = re.sub(r"<\/span> +([),.!?])", r"</span>\1", html)
 
