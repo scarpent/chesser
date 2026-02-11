@@ -181,6 +181,7 @@ class VariationAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
         "start_move",
         "level",
         "next_review",
+        "created_at",
     )
     list_filter = (
         "is_intro",
