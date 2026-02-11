@@ -70,15 +70,6 @@ x-data="importApp()" x-init="init()" x-cloak
           class="variation-title-input"
         />
       </div>
-      <div class="form-clone-mainline">
-        <label for="clone_mainline">New Moves:</label>
-        <input
-          type="text"
-          name="clone_mainline"
-          x-model="formDefaults.clone_mainline"
-          class="variation-title-input"
-        />
-      </div>
       <div>
         <label for="original-variation-moves" class="form-label">Original Moves:</label>
         <textarea
@@ -89,6 +80,15 @@ x-data="importApp()" x-init="init()" x-cloak
           class="wide-textarea"
           x-text="importData.form_defaults.original_variation_moves"
         ></textarea>
+      </div>
+      <div class="form-clone-mainline">
+        <label for="clone_mainline">New Moves:</label>
+        <input
+          type="text"
+          name="clone_mainline"
+          x-model="formDefaults.clone_mainline"
+          class="clone-new-moves-input"
+        />
       </div>
       <input
         id="original-variation-id"
@@ -145,7 +145,7 @@ x-data="importApp()" x-init="init()" x-cloak
           type="submit"
           class="icon-import icon-button icon-button-big-round"
           style="position: absolute; top: 15px; right: 15px; z-index: 10"
-          title="Import"
+          title="Import!"
         ></button>
 
         <textarea
@@ -174,7 +174,7 @@ string will import if unique, e.g. ➤
     {% csrf_token %}
     <input type="file" name="uploaded_file" />
     <button
-      title="Upload"
+      title="Upload!"
       type="submit"
       class="icon-upload icon-button icon-button-big-round"
     ></button>

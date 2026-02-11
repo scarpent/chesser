@@ -1621,6 +1621,10 @@ with system dark mode settings... */
   max-width: 100%;
 }
 
+.clone-new-moves-input {
+  width: 100%;
+}
+
 .logout-button {
   color: red;
   margin-top: 15px;
@@ -1824,7 +1828,8 @@ about 500, but also covers our ultimate mobile 450 view */
   }
 
   #boards-container,
-  .variation-title-input {
+  .variation-title-input,
+  .clone-new-moves-input {
     width: 100%;
   }
 
