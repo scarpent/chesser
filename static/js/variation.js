@@ -323,7 +323,7 @@ export function variationApp() {
         altsElement.innerHTML = `<b>Alts ➤</b> ${combinedAlts}`;
       } else {
         // Clear previous event listener to prevent duplication
-        altsElement.innerHTML = `<a href="#" id="altLink"><b>Alts ➤</b></a> ${combinedAlts}`;
+        altsElement.innerHTML = `<a href="#" id="altLink" title="${window.TOOLTIPS.alts_help}"><b>Alts ➤</b></a> ${combinedAlts}`;
 
         const altLink = document.getElementById("altLink");
         if (altLink) {

@@ -142,6 +142,7 @@ x-init="initQuiz()"
       <div class="review-info-container">
         <div class="chapter-title">
           <a
+            :title="TOOLTIPS.chapter_jump"
             :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
             ><span x-text="variationData.chapter"></span
           ></a>

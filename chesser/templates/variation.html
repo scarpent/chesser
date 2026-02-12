@@ -49,7 +49,7 @@ class="variation-page"
           />
         </button>
         <button
-          title="Review Next Due"
+          title="{{ TOOLTIPS.review_next_due }}"
           @click="window.navigateWithSpinner('/review/')"
           class="icon-review icon-button"
         ></button>
@@ -69,7 +69,7 @@ class="variation-page"
           class="icon-edit icon-button"
         ></button>
         <button
-          title="Lichess Analysis Board"
+          title="Lichess analysis board"
           @click="window.open(variationData.analysis_url + (mainlineMoveIndex + 1), '_blank', 'noopener')"
           class="icon-analysis icon-button"
         ></button>
@@ -79,9 +79,7 @@ class="variation-page"
           x-text="variationData.is_intro ? '📌 ' + variationData.title : variationData.title"
         ></div>
         <div class="variation-state-info">
-          <span x-show="variationData.archived" title="Archived variation"
-            >🗄️ Archived</span
-          >
+          <span x-show="variationData.archived">🗄️ Archived</span>
           <span
             x-show="!variationData.archived && (variationData.level === 0 || variationData.level >= 9)"
             x-text="variationData.level === 0 ? '🌱' : '🌳'"
@@ -95,14 +93,22 @@ class="variation-page"
           <span x-text="'#' + variationData.variation_id"></span>
           <template x-if="variationData.archived || variationData.level > 0">
             <span>
-              <a :href="'/review/' + variationData.variation_id + '/'">extra study</a>
+              <a
+                :href="'/review/' + variationData.variation_id + '/'"
+                title="Practice without recording history or advancing level"
+                >extra study</a
+              >
               ✏️
             </span>
           </template>
 
           <template x-if="!variationData.archived && variationData.level === 0">
             <span>
-              <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
+              <a
+                title="Start regular review with spaced repetition"
+                :href="'/review/' + variationData.variation_id + '/?learn=1'"
+                >learn</a
+              >
               📖
             </span>
           </template>
@@ -118,7 +124,7 @@ class="variation-page"
         <div>
           Chapter:
           <a
-            title="Go to chapter, highlighting this variation"
+            title="Go to chapter and highlight this variation"
             :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
             ><span x-text="variationData.chapter"></span
           ></a>

@@ -1,5 +1,5 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-demo="{% if IS_DEMO %}1{% else %}0{% endif %}">
   <head>
     <meta charset="UTF-8" />
@@ -33,6 +33,11 @@
     {% include "includes/loading_overlay.html" %}
     {% include "includes/landscape_overlay.html" %}
     {% include "includes/service_worker_register.html" %}
+
+    {{ TOOLTIPS|json_script:"tooltips" }}
+    <script>
+      window.TOOLTIPS = window.readJsonScript("tooltips");
+    </script>
 
     {% block content %}{% endblock %}
 

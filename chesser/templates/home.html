@@ -61,7 +61,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
     class="icon-review icon-button icon-button-big-round"
   ></button>
   <button
-    title="Import"
+    title="Import / Export"
     @click="window.navigateWithSpinner('/import/')"
     class="icon-import icon-button icon-button-big-round"
   ></button>
@@ -308,7 +308,9 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
 
 <div class="links-container" x-cloak>
   <!-- Admin link -->
-  <a href="/admin/" target="_blank" rel="noopener">Admin</a>
+  <a href="/admin/" title="Django Admin Interface" target="_blank" rel="noopener"
+    >Admin</a
+  >
 
   <span class="links-sep" aria-hidden="true">|</span>
 

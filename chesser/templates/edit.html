@@ -52,7 +52,7 @@ x-cloak
     class="icon-review icon-button"
   ></button>
   <button
-    title="Import"
+    title="Import / Export"
     @click="window.navigateWithSpinner('/import/')"
     class="icon-import icon-button"
   ></button>
@@ -72,11 +72,13 @@ x-cloak
 <div id="edit-variation-info" class="form-standard">
   <div>
     <a
+      title="Go to chapter and highlight this variation"
       :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
       x-text="variationData.chapter"
     ></a>
     •
     <a
+      title="Edit variation in Django admin (edit chapter, archived state, etc.)"
       :href="'/admin/chesser/variation/' + variationData.variation_id + '/change/'"
       target="_blank"
       rel="noopener"
@@ -104,18 +106,32 @@ x-cloak
 
     <div>
       <a
+        title="Show variation in chesser json format"
         :href="'/export/' + variationData.variation_id + '/'"
         target="_blank"
         rel="noopener"
         >export</a
       >
       •
-      <a :href="'/import/?clone=' + variationData.variation_id">clone</a> •
-      <a :href="'/review/' + variationData.variation_id + '/'">extra&nbsp;study</a>
+      <a
+        title="Clone this variation for editing"
+        :href="'/import/?clone=' + variationData.variation_id"
+        >clone</a
+      >
+      •
+      <a
+        title="Practice without recording history or advancing level"
+        :href="'/review/' + variationData.variation_id + '/'"
+        >extra&nbsp;study</a
+      >
       <template x-if="variationData.level === 0 && !variationData.archived">
         <span>
           •
-          <a :href="'/review/' + variationData.variation_id + '/?learn=1'">learn</a>
+          <a
+            title="Start regular review with spaced repetition"
+            :href="'/review/' + variationData.variation_id + '/?learn=1'"
+            >learn</a
+          >
         </span>
       </template>
     </div>
@@ -138,6 +154,7 @@ x-cloak
         ></textarea>
         <div class="move-fen">
           <a
+            title="View position at this move in Lichess analysis board"
             :href="variationData.analysis_url + (index + 1)"
             target="_blank"
             rel="noopener"
@@ -211,7 +228,9 @@ x-cloak
           ></button>
         </div>
         <div id="edit-move-other-links">
-          <a :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
+          <a
+            title="View variation at this move"
+            :href="'/variation/' + variationData.variation_id + '/?idx=' + index"
             >📖 view</a
           >
           <template x-if="move.matching_move_count > 1 || move.shared">
@@ -223,7 +242,7 @@ x-cloak
           </template>
           <a
             :href="'/admin/chesser/move/' + move.move_id + '/change/'"
-            title="Edit Move in Admin"
+            title="Edit move in Django admin"
             target="_blank"
             rel="noopener"
             x-text="'#' + move.move_id"
