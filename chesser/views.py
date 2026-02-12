@@ -476,6 +476,8 @@ def clone(request):
 
     variation = get_object_or_404(Variation, pk=original_variation_id)
     import_data = serialize_variation_to_import_format(variation)
+    import_data["created_at"] = timezone.now().replace(microsecond=0).isoformat()
+
     original_sans = [m["san"] for m in import_data["moves"]]
     new_sans = util.strip_move_numbers(new_variation).split(" ")
 
