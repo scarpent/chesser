@@ -28,8 +28,8 @@ TOOLTIPS = Tooltips(
         "admin_open": "Open in Django admin",
         "django_admin": "Django Admin",
         # Navigation
-        "mainline_back": "Previous mainline move",
-        "mainline_forward": "Next mainline move",
+        "previous_move": "Previous Move",
+        "next_move": "Next Move",
         "go_to_top": "Go to top",
         # Chapter / misc
         "chapter_jump": "Go to chapter and highlight this line",

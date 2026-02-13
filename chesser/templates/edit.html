@@ -215,12 +215,12 @@ x-cloak
             @click.prevent="saveFromMove(index)"
           ></button>
           <button
-            title="Previous Move"
+            title="{{ TOOLTIPS.previous_move }}"
             class="icon-back icon-button"
             @click.prevent="scrollToMoveBlock(index - 1)"
           ></button>
           <button
-            title="Next Move"
+            title="{{ TOOLTIPS.next_move }}"
             class="icon-forward icon-button"
             @click.prevent="scrollToMoveBlock(index + 1)"
           ></button>
