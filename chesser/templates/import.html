@@ -21,7 +21,7 @@ x-data="importApp()" x-init="init()" x-cloak
 
 <div class="button-container" style="margin-top: 20px" x-cloak>
   <button
-    title="Home"
+    title="{{ TOOLTIPS.home }}"
     @click="window.location.href = '/'"
     class="image-button import-top-button icon-button-big-round"
   >
@@ -30,19 +30,19 @@ x-data="importApp()" x-init="init()" x-cloak
   <button
     @click="window.location.href = '/chapters/white/'"
     class="image-button import-top-button icon-button-big-round course-white"
-    title="White Openings"
+    title="{{ TOOLTIPS.white_openings }}"
   >
     <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
   </button>
   <button
     @click="window.location.href = '/chapters/black/'"
     class="image-button import-top-button icon-button-big-round course-black"
-    title="Black Openings"
+    title="{{ TOOLTIPS.black_openings }}"
   >
     <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
   </button>
   <button
-    title="Review Next Due"
+    title="{{ TOOLTIPS.review_next_due }}"
     @click="window.location.href='/review/'"
     class="icon-review icon-button icon-button-big-round"
   ></button>

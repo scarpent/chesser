@@ -25,14 +25,14 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
   <button
     @click="window.navigateWithSpinner('/chapters/white/')"
     class="image-button course-white"
-    title="White Openings"
+    title="{{ TOOLTIPS.white_openings }}"
   >
     <img src="{% static 'images/castle-white.jpg' %}" alt="Castle White" />
   </button>
   <button
     @click="window.navigateWithSpinner('/')"
     class="image-button home-button button-round"
-    title="Home"
+    title="{{ TOOLTIPS.home }}"
   >
     <img
       src="{% static 'images/chesser-logo-192x192.png' %}"
@@ -43,7 +43,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
   <button
     @click="window.navigateWithSpinner('/chapters/black/')"
     class="image-button course-black"
-    title="Black Openings"
+    title="{{ TOOLTIPS.black_openings }}"
   >
     <img src="{% static 'images/castle-black.jpg' %}" alt="Castle Black" />
   </button>
@@ -51,17 +51,17 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
 
 <div class="button-container button-container-home" x-cloak>
   <button
-    title="Stats"
+    title="{{ TOOLTIPS.stats }}"
     @click="window.open('/stats/', '_blank', 'noopener')"
     class="icon-stats icon-button icon-button-big-round"
   ></button>
   <button
-    title="Review Next Due"
+    title="{{ TOOLTIPS.review_next_due }}"
     @click="window.navigateWithSpinner('/review/')"
     class="icon-review icon-button icon-button-big-round"
   ></button>
   <button
-    title="Import / Export"
+    title="{{ TOOLTIPS.import_export }}"
     @click="window.navigateWithSpinner('/import/')"
     class="icon-import icon-button icon-button-big-round"
   ></button>
@@ -226,7 +226,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
     href="https://github.com/scarpent/chesser#home-page"
     target="_blank"
     rel="noopener"
-    title="Open the Help section in the project README"
+    title="{{ TOOLTIPS.help }}"
   >
     help?
   </a>
@@ -238,12 +238,12 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
   x-cloak
 >
   <button
-    title="Random Extra Study"
+    title="{{ TOOLTIPS.random_extra_study }}"
     @click="goToRandomReview()"
     class="icon-random icon-button icon-button-big-round"
   ></button>
   <button
-    title="Lichess Puzzles"
+    title="{{ TOOLTIPS.lichess_puzzles }}"
     @click="window.open('https://lichess.org/training', '_blank', 'noopener')"
     class="icon-puzzles icon-button icon-button-big-round"
   ></button>
@@ -308,7 +308,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
 
 <div class="links-container" x-cloak>
   <!-- Admin link -->
-  <a href="/admin/" title="Django Admin Interface" target="_blank" rel="noopener"
+  <a href="/admin/" title="{{ TOOLTIPS.django_admin }}" target="_blank" rel="noopener"
     >Admin</a
   >
 

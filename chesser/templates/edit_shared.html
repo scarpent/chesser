@@ -37,38 +37,42 @@ x-cloak
 
 <div class="button-container" style="margin-top: 15px">
   <button
-    title="Home"
+    title="{{ TOOLTIPS.home }}"
     @click="window.navigateWithSpinner('/')"
     class="image-button home-button button-round"
   >
     <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
   </button>
   <button
-    title="Review Next Due"
+    title="{{ TOOLTIPS.review_next_due }}"
     @click="window.navigateWithSpinner('/review/')"
     class="icon-review icon-button"
   ></button>
   <button
-    title="Import / Export"
+    title="{{ TOOLTIPS.import_export }}"
     @click="window.navigateWithSpinner('/import/')"
     class="icon-import icon-button"
   ></button>
   <button
-    title="View"
+    title="{{ TOOLTIPS.view }}"
     @click="window.navigateWithSpinner('/variation/' + moveData.variation_id + '/?idx=' + groupedMoveSequence())"
     class="icon-variation icon-button"
   ></button>
   <button
-    title="Edit"
+    title="{{ TOOLTIPS.edit }}"
     @click="window.navigateWithSpinner('/edit/' + moveData.variation_id + '/?idx=' + groupedMoveSequence())"
     class="icon-edit icon-button"
   ></button>
   <button
-    title="Lichess analysis board"
+    title="{{ TOOLTIPS.lichess_analysis }}"
     @click="window.open(moveData.analysis_url, '_blank', 'noopener')"
     class="icon-analysis icon-button"
   ></button>
-  <button title="Save All" @click="saveAll()" class="icon-save icon-button"></button>
+  <button
+    title="{{ TOOLTIPS.save_all }}"
+    @click="saveAll()"
+    class="icon-save icon-button"
+  ></button>
 </div>
 
 <div id="edit-variation-info" class="form-standard">
@@ -81,7 +85,7 @@ x-cloak
       :href="buildAdminMatchingSharedMovesLink()"
       target="_blank"
       rel="noopener"
-      title="Show all shared moves matching SAN/FEN"
+      title="Open matching shared moves in Django admin"
       >shared</a
     >
     •
@@ -89,7 +93,7 @@ x-cloak
       :href="buildAdminMatchingMovesLink()"
       target="_blank"
       rel="noopener"
-      title="Show all moves matching SAN/FEN"
+      title="Open all matching moves in Django admin"
       >moves</a
     >
   </div>
@@ -137,7 +141,7 @@ x-cloak
           shared move:
           <a
             :href="'/admin/chesser/sharedmove/' + move.id + '/change/'"
-            title="Edit Shared Move in Admin"
+            title="Open Shared Move in Django admin"
             target="_blank"
             rel="noopener"
             x-text="'#' + move.id"
@@ -207,13 +211,16 @@ x-cloak
             :href="buildAdminMatchingVariationsLink(move)"
             target="_blank"
             rel="noopener"
-            title="Show all variations for this group"
+            title="Open variations in Django admin"
           >
             variations</a
           >:
           <template x-for="(var_id, idx) in move.variation_ids">
             <template x-if="idx < 3">
-              <a :href="'/variation/' + var_id + '/?idx=' + groupedMoveSequence()">
+              <a
+                title="Go to this variation/move in book mode"
+                :href="'/variation/' + var_id + '/?idx=' + groupedMoveSequence()"
+              >
                 <span
                   x-text="'#' + var_id + (idx < Math.min(move.variation_ids.length, 3) - 1 ? ', ' : '')"
                 ></span>

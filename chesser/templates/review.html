@@ -35,7 +35,7 @@ x-init="initQuiz()"
     <div id="board"></div>
     <template x-if="!hasVariationData()">
       <button
-        title="Home"
+        title="{{ TOOLTIPS.home }}"
         class="board-cover-button button-round"
         @click="window.navigateWithSpinner('/')"
       >
@@ -55,12 +55,12 @@ x-init="initQuiz()"
     <template x-if="completed">
       <div class="button-container">
         <button
-          title="Mainline Back"
+          title="{{ TOOLTIPS.mainline_back }}"
           @click="previousMove()"
           class="icon-back icon-button"
         ></button>
         <button
-          title="Mainline Forward"
+          title="{{ TOOLTIPS.mainline_forward }}"
           @click="nextMove()"
           class="icon-forward icon-button"
         ></button>
@@ -71,14 +71,14 @@ x-init="initQuiz()"
       <div class="button-container">
         <template x-if="reviewData.total_due_now > 0">
           <button
-            title="Next"
+            title="{{ TOOLTIPS.review_next }}"
             @click="window.navigateWithSpinner('/review/')"
             class="icon-review icon-button"
           ></button>
         </template>
         <template x-if="reviewData.total_due_now == 0">
           <button
-            title="Finish"
+            title="{{ TOOLTIPS.review_finish }}"
             @click="window.navigateWithSpinner('/review/?finish=1')"
             class="icon-complete icon-button"
           ></button>
@@ -89,41 +89,41 @@ x-init="initQuiz()"
   <template x-if="hasVariationData()">
     <div class="button-container">
       <button
-        title="Home"
+        title="{{ TOOLTIPS.home }}"
         @click="window.navigateWithSpinner('/')"
         class="image-button home-button button-round"
       >
         <img src="{% static 'images/chesser-logo-192x192.png' %}" alt="Chesser Logo" />
       </button>
       <button
-        title="Restart"
+        title="{{ TOOLTIPS.restart }}"
         @click="restartQuiz()"
         class="icon-restart icon-button"
         :disabled="quizBusy"
       ></button>
       <button
-        title="Show Move"
+        title="{{ TOOLTIPS.show_move }}"
         @click="showQuizMove()"
         class="icon-showmove icon-button"
         :disabled="quizBusy"
       ></button>
       <button
-        title="Variation Info"
+        title="{{ TOOLTIPS.variation_info }}"
         @click="showInfo = !showInfo"
         class="icon-info icon-button"
       ></button>
       <button
-        title="View"
+        title="{{ TOOLTIPS.view }}"
         @click="gotoVariationView()"
         class="icon-variation icon-button"
       ></button>
       <button
-        title="Edit"
+        title="{{ TOOLTIPS.edit }}"
         @click="gotoEditView()"
         class="icon-edit icon-button"
       ></button>
       <button
-        title="Lichess Analysis Board"
+        title="{{ TOOLTIPS.lichess_analysis }}"
         @click="window.open(variationData.analysis_url + quizMoveIndex, '_blank', 'noopener')"
         class="icon-analysis icon-button"
       ></button>
@@ -181,7 +181,7 @@ x-init="initQuiz()"
       href="https://github.com/scarpent/chesser#review-page"
       target="_blank"
       rel="noopener"
-      title="Open the Help section in the project README"
+      title="{{ TOOLTIPS.help }}"
     >
       help?
     </a>
@@ -190,12 +190,12 @@ x-init="initQuiz()"
   <template x-if="!hasVariationData()">
     <div class="button-container button-container-home">
       <button
-        title="Random Extra Study"
+        title="{{ TOOLTIPS.random_extra_study }}"
         @click="window.navigateWithSpinner('/review/random/')"
         class="icon-random icon-button icon-button-big-round"
       ></button>
       <button
-        title="Lichess Puzzles"
+        title="{{ TOOLTIPS.lichess_puzzles }}"
         @click="window.open('https://lichess.org/training', '_blank', 'noopener')"
         class="icon-puzzles icon-button icon-button-big-round"
       ></button>

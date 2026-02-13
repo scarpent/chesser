@@ -39,7 +39,7 @@ class="variation-page"
     <div id="underboard">
       <div class="button-container variation-button-container">
         <button
-          title="Home"
+          title="{{ TOOLTIPS.home }}"
           @click="window.navigateWithSpinner('/')"
           class="image-button home-button button-round"
         >
@@ -54,22 +54,22 @@ class="variation-page"
           class="icon-review icon-button"
         ></button>
         <button
-          title="Mainline Back"
+          title="{{ TOOLTIPS.mainline_back }}"
           @click="handleArrowButtonClick($event, 'back')"
           class="icon-back icon-button"
         ></button>
         <button
-          title="Mainline Forward"
+          title="{{ TOOLTIPS.mainline_forward }}"
           @click="handleArrowButtonClick($event, 'forward')"
           class="icon-forward icon-button"
         ></button>
         <button
-          title="Edit"
+          title="{{ TOOLTIPS.edit }}"
           @click="gotoEditView()"
           class="icon-edit icon-button"
         ></button>
         <button
-          title="Lichess analysis board"
+          title="{{ TOOLTIPS.lichess_analysis }}"
           @click="window.open(variationData.analysis_url + (mainlineMoveIndex + 1), '_blank', 'noopener')"
           class="icon-analysis icon-button"
         ></button>
@@ -95,7 +95,7 @@ class="variation-page"
             <span>
               <a
                 :href="'/review/' + variationData.variation_id + '/'"
-                title="Practice without recording history or advancing level"
+                title="{{ TOOLTIPS.practice }}"
                 >extra study</a
               >
               ✏️
@@ -105,7 +105,7 @@ class="variation-page"
           <template x-if="!variationData.archived && variationData.level === 0">
             <span>
               <a
-                title="Start regular review with spaced repetition"
+                title="{{ TOOLTIPS.learn }}"
                 :href="'/review/' + variationData.variation_id + '/?learn=1'"
                 >learn</a
               >
@@ -124,7 +124,7 @@ class="variation-page"
         <div>
           Chapter:
           <a
-            title="Go to chapter and highlight this variation"
+            title="{{ TOOLTIPS.chapter_jump }}"
             :href="'/chapters/' + variationData.color + '/' + variationData.chapter_id + '/?id=' + variationData.variation_id"
             ><span x-text="variationData.chapter"></span
           ></a>
@@ -133,7 +133,7 @@ class="variation-page"
           <a
             :href="`#${currentFen}`"
             @click.prevent="copyCurrentFen"
-            title="Copy FEN for currently displayed position"
+            title="{{ TOOLTIPS.copy_fen }}"
             >fen</a
           >
           📋️
