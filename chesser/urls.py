@@ -41,6 +41,7 @@ urlpatterns = [
     path("clone/", views.clone, name="clone"),
     path("upload-json-data/", views.upload_json_data, name="upload_json_data"),
     path("export/<int:variation_id>/", views.export, name="export"),
+    path("variations.json/", views.bulk_export_json, name="bulk_export_json"),
     path("variations.tsv/", views.variations_tsv, name="variations_tsv"),
     path("variations-table/", views.variations_table, name="variations_table"),
     path("stats/", views.stats, name="stats"),
