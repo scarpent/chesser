@@ -1,5 +1,6 @@
 import os
 import socket
+import sys
 import time
 from pathlib import Path
 from urllib.parse import urlparse
@@ -74,8 +75,9 @@ INTERNAL_IPS = ["localhost", "127.0.0.1"]
 if not IS_HOSTED:
     # In local dev/demo, allow LAN IP for phone testing, etc.
     if local_ip := get_local_ip():
-        print(f"Local LAN access enabled: http://{local_ip}:8000")
         ALLOWED_HOSTS.append(local_ip)
+        if "runserver" in sys.argv:  # Don't print for short-lived commands
+            print(f"Local LAN access enabled: http://{local_ip}:8000")
 
 # --------------------------------------------------------------------
 # Database
