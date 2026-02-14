@@ -38,6 +38,7 @@ from chesser.demo import get_demo_home_payload
 from chesser.models import Chapter, Move, QuizResult, SharedMove, Variation
 from chesser.pgn_import import convert_pgn_to_json
 from chesser.serializers import (
+    bulk_export_json_chunks,
     get_final_move_simple_subvariations_html,
     serialize_shared_move,
     serialize_variation,
@@ -545,7 +546,18 @@ def export(request, variation_id=None):
     export_data = serialize_variation_to_import_format(variation)
     return JsonResponse(
         export_data,
-        json_dumps_params={"indent": 4, "ensure_ascii": False},
+        json_dumps_params={"indent": 2, "ensure_ascii": False},
+    )
+
+
+def bulk_export_json(request):
+    qs = (
+        Variation.objects.select_related("chapter")
+        .prefetch_related("moves")
+        .order_by("id")
+    )
+    return StreamingHttpResponse(
+        bulk_export_json_chunks(qs), content_type="application/json; charset=utf-8"
     )
 
 
