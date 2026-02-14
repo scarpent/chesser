@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import tempfile
@@ -7,38 +6,11 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from chesser.models import Variation
-from chesser.serializers import serialize_variation_to_import_format
-
-
-def _write_iterencoded_with_line_indent(out, chunks, prefix="    "):
-    """
-    Write iterencoded JSON chunks, adding `prefix` only at the start of each line.
-    This avoids inserting spaces mid-token (iterencode yields small chunks).
-    """
-    at_line_start = True
-
-    for chunk in chunks:
-        if not chunk:
-            continue
-
-        parts = chunk.split("\n")
-
-        for i, part in enumerate(parts):
-            if i > 0:
-                out.write("\n")
-                at_line_start = True
-
-            if part:
-                if at_line_start:
-                    out.write(prefix)
-                    at_line_start = False
-                out.write(part)
+from chesser.serializers import bulk_export_json_chunks
 
 
 class Command(BaseCommand):
     help = "Bulk export all variations as a JSON list (ordered by ID)."  # noqa: A003
-
-    CHUNK_SIZE = 2000
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -59,8 +31,7 @@ class Command(BaseCommand):
         )
 
         if file_path == "-":
-            count = self._write_json_list(sys.stdout, qs)
-            self._report_count(count)
+            self._write_chunks(sys.stdout, qs)
             return
 
         out_path = Path(file_path)
@@ -74,10 +45,9 @@ class Command(BaseCommand):
 
         try:
             with os.fdopen(tmp_fd, "w", encoding="utf-8") as out:
-                count = self._write_json_list(out, qs)
+                self._write_chunks(out, qs)
 
             os.replace(tmp_name, out_path)
-            self._report_count(count)
 
         except Exception as exc:
             try:
@@ -86,30 +56,6 @@ class Command(BaseCommand):
                 pass
             raise CommandError(str(exc)) from exc
 
-    def _write_json_list(self, out, qs):
-        """
-        Stream a JSON list and return the number of variations written.
-        """
-        encoder = json.JSONEncoder(indent=4, ensure_ascii=False)
-
-        out.write("[\n")
-        first = True
-        count = 0
-
-        for variation in qs.iterator(chunk_size=self.CHUNK_SIZE):
-            data = serialize_variation_to_import_format(variation)
-
-            if not first:
-                out.write(",\n")
-            first = False
-
-            _write_iterencoded_with_line_indent(
-                out, encoder.iterencode(data), prefix="    "
-            )
-            count += 1
-
-        out.write("\n]\n")
-        return count
-
-    def _report_count(self, count):
-        sys.stderr.write(f"➡️  Exported {count} variations\n")
+    def _write_chunks(self, out, qs):
+        for chunk in bulk_export_json_chunks(qs):
+            out.write(chunk)

@@ -341,6 +341,26 @@ def serialize_variation_to_import_format(variation):
     }
 
 
+def bulk_export_json_chunks(qs, indent=2, chunk_size=2000):
+    """
+    Yield JSON string chunks for a streaming bulk export of variations.
+    Used by both the bulk_export management command and the bulk_export_json view.
+    """
+    encoder = json.JSONEncoder(indent=indent, ensure_ascii=False)
+    item_indent = " " * indent
+
+    yield "[\n"
+    first = True
+    for variation in qs.iterator(chunk_size=chunk_size):
+        data = serialize_variation_to_import_format(variation)
+        if not first:
+            yield ",\n"
+        first = False
+        encoded = encoder.encode(data)
+        yield "\n".join(item_indent + line for line in encoded.split("\n"))
+    yield "\n]\n"
+
+
 def get_history(variation):
     """
     Returns a list of dictionaries with quiz history for the variation.

@@ -1218,6 +1218,9 @@ more washed out with all the white paper */
 .icon-import {
   background-image: url("/static/icons/noto-emoji/import.svg");
 }
+.icon-add {
+  background-image: url("/static/icons/noto-emoji/add.svg");
+}
 .icon-analysis {
   background-image: url("/static/icons/noto-emoji/analysis.svg");
 }
