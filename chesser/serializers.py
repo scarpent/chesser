@@ -9,7 +9,13 @@ from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 
 from chesser import util
-from chesser.models import Move, SharedMove, get_matching_moves, get_shared_candidates
+from chesser.models import (
+    Chapter,
+    Move,
+    SharedMove,
+    get_matching_moves,
+    get_shared_candidates,
+)
 from chesser.move_resolver import ParsedBlock, get_parsed_blocks
 
 ANNOTATIONS = {
@@ -77,6 +83,12 @@ def serialize_variation(variation, mode="review"):
         "html": html,
         "analysis_url": util.get_analysis_url(variation),
     }
+
+    if for_edit:
+        variation_data["chapters"] = [
+            {"id": c.id, "title": c.title}
+            for c in Chapter.objects.filter(color=color).order_by("title")
+        ]
 
     temp_annotations = ANNOTATIONS.copy()
     moves = []

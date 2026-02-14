@@ -5,7 +5,7 @@
 {% block title %}Import/Export{% endblock %}
 {% block head_extra %}
 <link rel="preload" href="{% static 'icons/noto-emoji/review.svg' %}" as="image" />
-<link rel="preload" href="{% static 'icons/noto-emoji/import.svg' %}" as="image" />
+<link rel="preload" href="{% static 'icons/noto-emoji/add.svg' %}" as="image" />
 {% endblock %}
 
 <!-- prettier-ignore -->
@@ -67,7 +67,7 @@ x-data="importApp()" x-init="init()" x-cloak
           type="text"
           name="clone_variation_title"
           x-model="formDefaults.clone_variation_title"
-          class="variation-title-input"
+          class="edit-field-width"
         />
       </div>
       <div>
@@ -131,7 +131,7 @@ x-data="importApp()" x-init="init()" x-cloak
         type="text"
         name="variation_title"
         x-model="formDefaults.variation_title"
-        class="variation-title-input"
+        class="edit-field-width"
       />
     </div>
 

@@ -1625,7 +1625,7 @@ with system dark mode settings... */
   flex: 0 0 auto;
 }
 
-.variation-title-input {
+.edit-field-width {
   width: 350px;
   max-width: 100%;
 }
@@ -1837,7 +1837,7 @@ about 500, but also covers our ultimate mobile 450 view */
   }
 
   #boards-container,
-  .variation-title-input,
+  .edit-field-width,
   .clone-new-moves-input {
     width: 100%;
   }

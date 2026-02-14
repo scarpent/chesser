@@ -724,6 +724,11 @@ def save_variation(request):
     # Displayed as x-text, doesn't *need* cleaning, but let's be safe & clean
     variation.title = strip_tags(data["title"])
     variation.start_move = data["start_move"]
+    if chapter_id := data.get("chapter_id"):
+        chapter = get_object_or_404(
+            Chapter, pk=chapter_id, color=variation.chapter.color
+        )
+        variation.chapter = chapter
     variation.save()
 
     opening_color = variation.chapter.color

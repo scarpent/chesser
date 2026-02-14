@@ -98,8 +98,17 @@ x-cloak
       type="text"
       id="variation-title"
       x-model="variationData.title"
-      class="variation-title-input"
+      class="edit-field-width"
     />
+  </div>
+
+  <div>
+    <label for="chapter-select">Chapter:</label>
+    <select id="chapter-select" x-model="variationData.chapter_id" class="edit-field-width">
+      <template x-for="ch in variationData.chapters" :key="ch.id">
+        <option :value="ch.id" x-text="ch.title" :selected="ch.id === variationData.chapter_id"></option>
+      </template>
+    </select>
   </div>
 
   <div class="edit-sundry">
