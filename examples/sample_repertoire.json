@@ -106,36 +106,9 @@
         "alt": "",
         "alt_fail": "",
         "shapes": []
-      },
-      {
-        "move_num": 3,
-        "san": "exd4",
-        "annotation": "",
-        "text": "Essentially the only move. Black contests the center.",
-        "alt": "",
-        "alt_fail": "",
-        "shapes": []
-      },
-      {
-        "move_num": 4,
-        "san": "a4",
-        "annotation": "",
-        "text": "",
-        "alt": "",
-        "alt_fail": "",
-        "shapes": []
-      },
-      {
-        "move_num": 4,
-        "san": "a5",
-        "annotation": "",
-        "text": "",
-        "alt": "",
-        "alt_fail": "",
-        "shapes": []
       }
     ],
-    "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.a4 a5"
+    "mainline": "1.e4 e5 2.Nf3 Nc6 3.d4"
   },
   {
     "variation_id": 3,
@@ -161,7 +134,7 @@
         "san": "e4",
         "annotation": "",
         "text": "<blockquote>Best by test. –Bobby Fischer</blockquote>\n\nThe <i>King’s Pawn Opening</i> is the most popular first move at all levels of the game. 1.e4 opens lines to develop the Queen and the King’s Bishop. It also fights for control of the center.\n\n1.e4 directly controls d5 and f5. If White wants to develop some pieces, the most important square they control by playing 1.e4 is, in fact, the e4 square itself: as long as there’s a White pawn on e4, there can’t be a Black pawn on e4, which means White’s g1-knight can be developed to f3 without fear of getting kicked away by a pawn and losing a tempo.\n\nBlack has several ways to respond. The main idea is to find a way to prevent White from achieving or maintaining a two-pawn center with both e4 and d4. They may try to:\n\n<ul>\n  <li>Control the d4 square.</li>\n  <li>Attack White’s e4 pawn directly.</li>\n  <li>Prepare to establish their own pawn on d5.</li>\n  <li>Let White build a center but prepare to undermine it later.</li>\n</ul>",
-        "alt": "",
+        "alt": "d4, c4, Nf3",
         "alt_fail": "",
         "shapes": [
           {
@@ -240,7 +213,7 @@
         "san": "d4",
         "annotation": "",
         "text": "With this aggressive pawn advance, White looks to open up the center.\n\n(3...exd4) is played almost every time. It releases the central tension and leads to a very open game, with a lot of space for both players.\n\n(3...Nxd4{, the Lolli variation, is playable. White can trade on d4,} (4.Nxd4 exd4 5.Qxd4{, taking advantage of the fact Black has traded their Knight to centralize their Queen, or play}) (4.Nxe5)), threatening Qxd4.\n\nA few tries have been made with (3...d6{, transposing into a Philidor Defense, but this affords White a range of good options:} 4.d5{, kicking the Knight and expanding in the center is the most straightforward, or} 4.Bb5), transposing into an <a href=\"https://en.wikibooks.org/wiki/Chess_Opening_Theory/1._e4/1...e5/2._Nf3/2...Nc6/3._Bb5/3...d6\" target=\"_blank\" rel=\"noopener noreferrer\">Old Steinitz Spanish</a>.",
-        "alt": "",
+        "alt": "Bb5, Bc4, Nc3",
         "alt_fail": "",
         "shapes": []
       },
@@ -335,7 +308,7 @@
         "annotation": "",
         "text": "(6.Nc3) and other moves are fine, too.",
         "alt": "Nc3, Be3",
-        "alt_fail": "",
+        "alt_fail": "f3, Be2",
         "shapes": []
       },
       {
@@ -353,7 +326,7 @@
         "annotation": "",
         "text": "",
         "alt": "",
-        "alt_fail": "",
+        "alt_fail": "f3, Be2, h4, a3",
         "shapes": []
       },
       {
@@ -370,8 +343,8 @@
         "san": "O-O-O",
         "annotation": "",
         "text": "Now c-pawn pushers might find themselves losing their d-pawn:\n\n(8...c5? 9.Qd2 O-O 10.Bxd6!)",
-        "alt": "",
-        "alt_fail": "",
+        "alt": "f3",
+        "alt_fail": "Be2, h4",
         "shapes": []
       },
       {
@@ -388,8 +361,8 @@
         "san": "f3",
         "annotation": "±",
         "text": "",
-        "alt": "",
-        "alt_fail": "",
+        "alt": "Kb1",
+        "alt_fail": "h4, e5, Qd2",
         "shapes": [
           {
             "orig": "g2",
@@ -444,7 +417,7 @@
         "san": "e5",
         "annotation": "",
         "text": "1...e5 serves to challenge White’s plan of having the center squares to themselves. Of course, just like White’s e4 move, e5 opens up the diagonals for Black’s Bishop and Queen. While the position is still symmetrical there are few limits to where White can take the game next.\n\nThe most common move is (2.Nf3), continuing the fight for the center. A more aggressive player might also go for the King’s Gambit with (2.f4). Black can take the pawn, but the gambit might allow White a quick and dangerous tactical attack. The former world chess champion, Bobby Fischer gave several great demonstrations of that opening’s deadly potential.\n\nBlack will want to be familiar with 2.Qh5, where White dreams of checkmating Black with a quick Scholar’s Mate. (2.Qh5 Nc6 3.Bc4 {and White hopes for something like} 3...Bc5? {or} 3...Nf6? 4.Qxf7#)",
-        "alt": "",
+        "alt": "c5, c6, e6, d6, Nc6, Nf6",
         "alt_fail": "",
         "shapes": []
       },
@@ -462,7 +435,7 @@
         "san": "Nc6",
         "annotation": "",
         "text": "Black develops the Knight to c6, defending Black’s e5 pawn while also fighting for control of d4.\n\nWhite can now choose between several well-known openings. The Ruy Lopez (3.Bb5), Italian Game (3.Bc4), and Scotch Game (3.d4) are all solid openings that see regular play at all levels. With the Ruy Lopez, White seeks to chase the initiative and attacks the defender of Black’s e5 pawn. In the Italian Game, the Bishop on c4 targets Black’s f7 pawn, the weakest pawn in the starting position. The Scotch Game with 3.d4 often leads to more concrete variations, with the central pawns being exchanged right away.",
-        "alt": "",
+        "alt": "d6, Nf6",
         "alt_fail": "",
         "shapes": []
       },
@@ -480,7 +453,7 @@
         "san": "Nf6",
         "annotation": "",
         "text": "Black develops a Knight and attacks the e4-pawn, getting one step closer to castling. This move seems like the most obvious one Black can play in the Italian, but it also comes at a disadvantage of blocking the d8-h4 diagonal of the black queen.\n\nWhite has several ways to proceed from this position: defend the e-pawn, usually with (4.d3), attack f7 with the aggressive (4.Ng5), or sacrifice the pawn for an open center and swift attack.",
-        "alt": "",
+        "alt": "Bc5",
         "alt_fail": "",
         "shapes": []
       },
@@ -532,7 +505,7 @@
         "annotation": "",
         "text": "A knight on the rim is Black’s best move. It attacks the Bishop and gets out of the way of the pawn’s attack.",
         "alt": "",
-        "alt_fail": "",
+        "alt_fail": "b5",
         "shapes": []
       },
       {
@@ -550,7 +523,7 @@
         "annotation": "",
         "text": "",
         "alt": "",
-        "alt_fail": "",
+        "alt_fail": "Bd7",
         "shapes": []
       },
       {
@@ -565,7 +538,7 @@
       {
         "move_num": 7,
         "san": "bxc6",
-        "annotation": "",
+        "annotation": "⇄",
         "text": "This is the main line of the Two Knights Defense. Black has sacrificed a pawn but gained a lead in development and improved central control.\n\nNow there are four moves to know. All are played frequently, contributing to the fun of... <i>The Knight Attack!</i>\n\n(8.Be2) is the old main line. White retreats the bishop to a square where it doesn’t block any of white’s pawns, but on the other hand, the white Knight on g5 is vulnerable to being chased all around the board.\n\n(8.Bd3 {is the modern main line. White blocks the d-pawn, but in return, gains the e4 square available for the knight to retreat, therefore this discourages} 8...h6 {because of} 9.Ne4!) in which White would gain an advantage.\n\n(8.Ba4? {looks to be natural, but is in fact a blunder because of} 8...h6 9.Nf3 e4!{, in which white’s Knight either has to go back to}  10.Ng1{, or move to} 10.Ne5{, in which case} 10...Qd4) wins material.\n\nInstead of moving the bishop, White might pin the c-pawn:\n\n(8.Qf3 {pins the c6 pawn to the rook on a8, and also attacks the c6 pawn for the second time. Black can play} 8...cxb5{, sacrificing the exchange for a massive lead in development, but more often continues with} 8...Be7 {or} 8...Rb8).\n\nIf sacrificing one pawn isn’t enough for you, consider this line recommended by Jan Gustafsson in his Chessable 1.e4 e5 course:\n\n(8.Qf3 h6 9.Ne4 cxb5 10.Nxf6 gxf6 11.Qxa8 Qd7 {Now we’re down two pawns and the exchange, but Black is winning 57% to 38% in nearly 8,000 games on lichess, 17 Jan 2026.\n\nWhite’s Queen might find herself in trouble:} (12. Nc3 Nc6 13.d3 Ke7 14.Be3 Bb7)\n\n{And there are other wild rides:}\n\n(12.Qf3 Bb7 13.Qxf6 Rg8 14.Qxe5+ Be7 15.Rg1 Nc6 16.Qxb5 Rg5))\n\nWhere Black is down a lot of material but the engine gives an evaluation of nearly -4. 💪",
         "alt": "",
         "alt_fail": "",
@@ -663,7 +636,7 @@
         "annotation": "",
         "text": "",
         "alt": "",
-        "alt_fail": "",
+        "alt_fail": "Nf3, Nc3, Bd3",
         "shapes": []
       },
       {
@@ -681,7 +654,7 @@
         "annotation": "",
         "text": "Eric covers a possible counter trap for White:\n\n(5.Bc4 cxd4 6.Bxd5 Qa5+ 7.Nc3 dxc3 8.b4! {Allowing White to take on a8. <i>Not:</i>} 8.Bxa8 cxb2+), which is a disaster.",
         "alt": "",
-        "alt_fail": "",
+        "alt_fail": "Bc4, Ne2, Nc3, Nd2, c3",
         "shapes": []
       },
       {
@@ -699,7 +672,7 @@
         "annotation": "",
         "text": "Qxd4 is the most common continuation, and it’s not a bad move. Beware of the following trap, however:\n\n(6.Qxd4 Nb4 7.Na3? {This develops the knight while protecting c2, but it gives up all of White’s considerable advantage. It is nevertheless the most popular move, and allows Black to set a trap with} 7...Qa5{. This swings the evaluation back to White, but tempts a natural response that neglects the weak c2 square:} 8.Bd2 Qxa3! 9.Qe4 Qxb2 10.Rb1 Qxe5 11.Qxe5 Nd3+ 12.Ke2 Nxe5)",
         "alt": "",
-        "alt_fail": "",
+        "alt_fail": "Ne2, Qxd4, e6",
         "shapes": []
       },
       {
@@ -714,10 +687,10 @@
       {
         "move_num": 7,
         "san": "Qxd4",
-        "annotation": "",
+        "annotation": "±",
         "text": "",
-        "alt": "",
-        "alt_fail": "",
+        "alt": "O-O",
+        "alt_fail": "Bg5, Nbd2, Nxd4",
         "shapes": []
       }
     ],
@@ -975,7 +948,7 @@
       {
         "move_num": 10,
         "san": "c5",
-        "annotation": "",
+        "annotation": "∞",
         "text": "Due to the d-file pin, Black will next regain the piece with 10...Rxd4 or 10...cxd4, with an extra pawn to boot. Even after seeing it dozens of times, I’m mesmerized by the sequence beginning with <fenseq data-fen=\"2kr1bnr/ppp1pppp/2n5/5q2/2PP2b1/4BN2/PP2BPPP/RN1QK2R b KQ - 2 7\">7...Bxf3! 8.Bxf3 Nxd4!</fenseq>. It’s incredible that it all checks out for Black.\n\nThanks to my friend/Chesser creator Scott Carpenter for allowing me to present my favorite Scandinavian line! If the Scandinavian Defense appeals to you, please check out my <a href=\"https://chessiverse.com/courses/scandi\" target=\"_blank\" rel=\"noopener noreferrer\">complete coverage on Chessiverse.</a> Also, take advantage of our 600+ human-like bots!",
         "alt": "",
         "alt_fail": "Qe4, Nf6",
