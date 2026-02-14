@@ -36,6 +36,7 @@ emoji_buttons = {
     "variation": "📚️",
     "edit": "🛠️",
     "import": "📦️",
+    "add": "📥️",
     "analysis": "🧮",
     "save": "💾",
     "restart": "♻️",  # "🔄",

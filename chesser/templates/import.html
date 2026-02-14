@@ -116,7 +116,13 @@ x-data="importApp()" x-init="init()" x-cloak
           <option :value="chapter.id" x-text="chapter.label"></option>
         </template>
       </select>
-      <a href="/admin/chesser/chapter/" target="_blank" rel="noopener">admin</a>
+      <a
+        href="/admin/chesser/chapter/"
+        title="Open chapters in Django admin"
+        target="_blank"
+        rel="noopener"
+        >admin</a
+      >
     </div>
 
     <div>
@@ -143,9 +149,9 @@ x-data="importApp()" x-init="init()" x-cloak
       <div style="position: relative">
         <button
           type="submit"
-          class="icon-import icon-button icon-button-big-round"
+          class="icon-add icon-button icon-button-big-round"
           style="position: absolute; top: 15px; right: 15px; z-index: 10"
-          title="Import!"
+          title="Add Variation"
         ></button>
 
         <textarea
@@ -174,7 +180,7 @@ string will import if unique, e.g. ➤
     {% csrf_token %}
     <input type="file" name="uploaded_file" />
     <button
-      title="Upload!"
+      title="Upload"
       type="submit"
       class="icon-upload icon-button icon-button-big-round"
     ></button>
@@ -184,10 +190,11 @@ string will import if unique, e.g. ➤
 <div class="export-list import-page-container">
   <h3>Variations Export</h3>
   <ul>
+    <li><a href="/variations-table/" target="_blank" rel="noopener">Table</a></li>
     <li>
-      <a href="/variations.tsv/" target="_blank" rel="noopener">variations.tsv</a>
+      <a href="/variations.tsv/" target="_blank" rel="noopener">TSV</a> (Tab-separated
+      values format.)
     </li>
-    <li><a href="/variations-table/" target="_blank" rel="noopener">table</a></li>
   </ul>
 </div>
 
