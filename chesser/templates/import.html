@@ -111,7 +111,7 @@ x-data="importApp()" x-init="init()" x-cloak
     {% csrf_token %}
     <div>
       <label for="chapter">Chapter:</label>
-      <select name="chapter_id" id="chapter">
+      <select name="chapter_id" id="chapter" class="edit-field-width">
         <template x-for="chapter in chapters" :key="chapter.id">
           <option :value="chapter.id" x-text="chapter.label"></option>
         </template>
