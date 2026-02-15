@@ -1060,26 +1060,26 @@ class HomeView:
         return level_counts
 
     def get_next_due(self):
-        output = ""
-        emoji = "🔮"
         variations = self.get_variations()
-        if variations.filter(next_review__lte=self.now).count():
-            output = "Now, and then in "
-            emoji = "⏰"
+        has_due_now = variations.filter(next_review__lte=self.now).exists()
 
-        if (
-            next_due := variations.filter(next_review__gt=self.now)
-            .order_by("next_review")
-            .first()
-        ):
-            output += util.format_time_until(self.now, next_due.next_review)
+        next_future = (
+            variations.filter(next_review__gt=self.now).order_by("next_review").first()
+        )
+
+        if next_future:
+            delta = (next_future.next_review - self.now).total_seconds()
+            seconds_until = int(delta)
+            label = util.format_time_until(self.now, next_future.next_review)
         else:
-            output += "…?"
+            seconds_until = None
+            label = "…?"
 
-        # There is a next due js timer that expects this format
-        # when less than one minute: "Next: 59s" (doesn't matter
-        # what comes before or after)
-        return f"{emoji} Next: {output}"
+        return {
+            "has_due_now": has_due_now,
+            "seconds_until": seconds_until,
+            "label": label,
+        }
 
     def get_upcoming_time_planner(self):
         ranges = [

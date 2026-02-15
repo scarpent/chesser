@@ -76,12 +76,13 @@ export function homeApp() {
 // Kind of unruly but it's fun; this whole thing could be removed with little impact
 export function nextDueTimer() {
   return {
-    label: window.homeData.next_due,
+    nextDue: window.homeData.next_due,
+    label: "",
     timerId: null,
     lastRefreshed: Date.now(),
 
     initCountdown() {
-      this.setNextDue(this.label);
+      this.setNextDue(this.nextDue);
 
       // One-time fetch on first load; ensures fresh data after PWA
       // splash screen; cooldown timer ensures it's not excessive
@@ -111,37 +112,28 @@ export function nextDueTimer() {
       }
     },
 
-    setNextDue(label) {
+    setNextDue(data) {
       this.clearCountdown();
-      this.label = label;
+      this.nextDue = data;
 
-      // Capture emoji prefix and minutes/seconds plus any trailing text
-      const match = label.match(/(.*?)Next:\s*(?:(\d+)m)?\s*(?:(\d+)s)?(.*)$/);
-      if (!match) return;
+      const prefix = data.has_due_now ? "Now, and then in " : "";
+      const emoji = data.has_due_now ? "⏰" : "🔮";
 
-      const emoji = (match[1] || "⏰ ").trim();
-      const minutes = match[2] ? parseInt(match[2], 10) : 0;
-      const seconds = match[3] ? parseInt(match[3], 10) : 0;
-      const suffix = (match[4] || "").trim();
-
-      const base = minutes * 60 + seconds;
-
-      const suffixText = suffix ? " " + suffix : "";
-
-      // If the server says we're due already, do NOT invent a countdown.
-      if (base === 0) {
-        this.label = `${emoji} Next: ${suffixText}`;
-        this.refreshFromServer();
+      if (data.seconds_until == null) {
+        this.label = `${emoji} Next: ${prefix}${data.label}`;
         return;
       }
 
-      // Otherwise, "lie" a bit so we don't hit Now! before the backend catches up.
+      // If nothing is due now and time is > 5 min, just show the label
       const FUDGE_SECONDS = 2;
-      let value = base + FUDGE_SECONDS;
+      let value = data.seconds_until + FUDGE_SECONDS;
 
-      if (value > 5 * 60) return;
+      if (value > 5 * 60) {
+        this.label = `${emoji} Next: ${prefix}${data.label}`;
+        return;
+      }
 
-      // Switch to alarm clock when countdown is active
+      // Countdown mode — switch to alarm clock emoji
       const countdownEmoji = "⏰";
 
       const tick = () => {
@@ -149,7 +141,7 @@ export function nextDueTimer() {
           const m = Math.floor(value / 60);
           const s = value % 60;
           const timeLabel = m > 0 ? `${m}m ${s}s` : `${s} 🧨`;
-          this.label = `${countdownEmoji} Next: ${timeLabel}`;
+          this.label = `${countdownEmoji} Next: ${prefix}${timeLabel}`;
           this.timerId = setTimeout(tick, 1000);
         } else {
           this.label = `${countdownEmoji} Next: 🚀 Now!`;
