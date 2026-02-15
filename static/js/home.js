@@ -115,13 +115,14 @@ export function nextDueTimer() {
       this.clearCountdown();
       this.label = label;
 
-      // Capture minutes/seconds plus any trailing text (e.g. " and then in 4m")
-      const match = label.match(/Next:\s*(?:(\d+)m)?\s*(?:(\d+)s)?(.*)$/);
+      // Capture emoji prefix and minutes/seconds plus any trailing text
+      const match = label.match(/(.*?)Next:\s*(?:(\d+)m)?\s*(?:(\d+)s)?(.*)$/);
       if (!match) return;
 
-      const minutes = match[1] ? parseInt(match[1], 10) : 0;
-      const seconds = match[2] ? parseInt(match[2], 10) : 0;
-      const suffix = (match[3] || "").trim();
+      const emoji = (match[1] || "⏰ ").trim();
+      const minutes = match[2] ? parseInt(match[2], 10) : 0;
+      const seconds = match[3] ? parseInt(match[3], 10) : 0;
+      const suffix = (match[4] || "").trim();
 
       const base = minutes * 60 + seconds;
 
@@ -129,7 +130,7 @@ export function nextDueTimer() {
 
       // If the server says we're due already, do NOT invent a countdown.
       if (base === 0) {
-        this.label = `⏰ Next: ${suffixText}`;
+        this.label = `${emoji} Next: ${suffixText}`;
         this.refreshFromServer();
         return;
       }
@@ -140,15 +141,18 @@ export function nextDueTimer() {
 
       if (value > 5 * 60) return;
 
+      // Switch to alarm clock when countdown is active
+      const countdownEmoji = "⏰";
+
       const tick = () => {
         if (value-- > 1) {
           const m = Math.floor(value / 60);
           const s = value % 60;
           const timeLabel = m > 0 ? `${m}m ${s}s` : `${s} 🧨`;
-          this.label = `⏰ Next: ${timeLabel}`;
+          this.label = `${countdownEmoji} Next: ${timeLabel}`;
           this.timerId = setTimeout(tick, 1000);
         } else {
-          this.label = `⏰ Next: 🚀 Now!`;
+          this.label = `${countdownEmoji} Next: 🚀 Now!`;
           this.timerId = null;
 
           setTimeout(() => {
