@@ -42,7 +42,7 @@ def _normalize_variation_dict(v: dict) -> dict:
         md["move_num"] = int(md.get("move_num") or 0)
         md["san"] = (md.get("san") or "").strip()
         md["annotation"] = (md.get("annotation") or "").strip()
-        md["text"] = md.get("text") or ""
+        md["text"] = (md.get("text") or "").replace("\r\n", "\n")
 
         # Might be list or string depending on serializer choices; normalize lightly
         md["alt"] = md.get("alt") or ""

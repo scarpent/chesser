@@ -58,7 +58,7 @@ def decorate_external_links(html: str) -> str:
 
 def clean_html(text):
     cleaned = nh3.clean(
-        text or "",
+        (text or "").replace("\r\n", "\n"),  # Normalize textarea CRLF line endings
         tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
         url_schemes={"http", "https"},

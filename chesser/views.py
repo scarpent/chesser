@@ -873,17 +873,6 @@ simpler, code-wise, and not that much slower.
 """
 
 
-# TODO: dynamic lookup, and share with seed_demo.py
-demo_variations = {
-    "howto_html": 1,
-    "howto_subvars": 2,
-    "scotch_nxd4": 3,
-    "italian_ng5": 4,
-    "alekhine_osullivan": 5,
-    "scandi_jb": 6,
-}
-
-
 class HomeView:
     def __init__(self, color=None, chapter_id=None, upcoming_only=False):
         self.now = timezone.now()

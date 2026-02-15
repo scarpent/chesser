@@ -36,6 +36,12 @@ class DemoEntry:
 DEMO_ENTRIES: list[DemoEntry] = [
     # How-to variations
     DemoEntry(
+        key="howto_tutorial",
+        title="Tutorial",
+        icontains="Tutorial",
+        description="Walk through the basics of navigating and using Chesser.",
+    ),
+    DemoEntry(
         key="howto_html",
         title="Basic HTML Formatting",
         icontains="Basic HTML",
@@ -154,6 +160,7 @@ def get_demo_home_payload() -> dict[str, object]:
     return {
         "links": get_demo_links_payload(),
         "howto_items": [
+            "howto_tutorial",
             "howto_html",
             "howto_subvars",
         ],

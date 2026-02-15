@@ -54,7 +54,7 @@
     "color": "white",
     "chapter_title": "...in the beginning",
     "variation_title": "Subvariation Syntax",
-    "is_intro": true,
+    "is_intro": false,
     "archived": false,
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
@@ -976,5 +976,130 @@
       }
     ],
     "mainline": "1.e4 d5 2.exd5 Qxd5 3.Nf3 Bg4 4.Be2 Nc6 5.d4 O-O-O 6.c4 Qf5 7.Be3 Bxf3 8.Bxf3 Nxd4 9.Bxd4 Qe6+ 10.Be2 c5"
+  },
+  {
+    "variation_id": 7,
+    "source": {},
+    "color": "white",
+    "chapter_title": "...in the beginning",
+    "variation_title": "Tutorial",
+    "is_intro": true,
+    "archived": false,
+    "level": 0,
+    "created_at": "2026-02-14T23:37:32+00:00",
+    "next_review": "9999-12-31T23:59:59+00:00",
+    "last_review": "9999-12-31T23:59:59",
+    "start_move": 1,
+    "moves": [
+      {
+        "move_num": 1,
+        "san": "c4",
+        "annotation": "",
+        "text": "🚧 Work in progress...",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 1,
+        "san": "c5",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 2,
+        "san": "Nc3",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 2,
+        "san": "Nc6",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 3,
+        "san": "g3",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 3,
+        "san": "g6",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 4,
+        "san": "Bg2",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 4,
+        "san": "Bg7",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 5,
+        "san": "Nf3",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 5,
+        "san": "Nf6",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 6,
+        "san": "O-O",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      },
+      {
+        "move_num": 6,
+        "san": "O-O",
+        "annotation": "",
+        "text": "",
+        "alt": "",
+        "alt_fail": "",
+        "shapes": []
+      }
+    ],
+    "mainline": "1.c4 c5 2.Nc3 Nc6 3.g3 g6 4.Bg2 Bg7 5.Nf3 Nf6 6.O-O O-O"
   }
 ]

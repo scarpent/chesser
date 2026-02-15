@@ -19,17 +19,6 @@
         <h3 class="home-demo-title">How To</h3>
 
         <ol class="home-demo-list">
-          <li>
-            <span class="home-demo-li-text">
-              The app is in good shape, but it wants
-              <a
-                href="https://github.com/scarpent/chesser#chesser"
-                target="_blank"
-                rel="noopener nofollow"
-                >more docs.</a
-              >
-            </span>
-          </li>
           <template
             x-for="(key, idx) in (homeData.demo?.howto_items || [])"
             :key="`howto-${idx}`"
@@ -41,6 +30,17 @@
               <span class="home-demo-li-text" x-text="d?.description"></span>
             </li>
           </template>
+          <li>
+            <span class="home-demo-li-text">
+              (The app is in good shape, but it wants
+              <a
+                href="https://github.com/scarpent/chesser#chesser"
+                target="_blank"
+                rel="noopener nofollow"
+                >more docs.</a
+              >)
+            </span>
+          </li>
         </ol>
       </section>
 

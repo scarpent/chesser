@@ -342,7 +342,8 @@ def serialize_variation_to_import_format(variation):
                 # "fen": m.fen  # probably don't need this
                 "san": m.san,
                 "annotation": m.get_resolved_field("annotation"),
-                "text": m.get_resolved_field("text"),
+                # Normalize textarea CRLF line endings
+                "text": m.get_resolved_field("text").replace("\r\n", "\n"),
                 "alt": m.get_resolved_field("alt"),
                 "alt_fail": m.get_resolved_field("alt_fail"),
                 "shapes": json.loads(m.get_resolved_field("shapes")),
