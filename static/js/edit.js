@@ -1,4 +1,12 @@
 import "./chess-deps.js";
+import {
+  postJson,
+  handleSaveButton,
+  parseShapes,
+  serializeShapes,
+  normalizeAnnotation,
+  createBoard,
+} from "./edit-common.js";
 
 export function editApp() {
   return {
@@ -25,14 +33,9 @@ export function editApp() {
             if (boardElement) {
               const moveResult = chess.move(move.san);
               this.boards.push(
-                window.Chessground(boardElement, {
-                  fen: chess.fen(),
-                  orientation: this.variationData.color,
-                  coordinates: false,
-                  movable: { free: false, showDests: false },
-                  highlight: { lastMove: true, check: true },
+                createBoard(boardElement, chess.fen(), this.variationData.color, {
                   lastMove: [moveResult.from, moveResult.to],
-                })
+                }),
               );
               self.updateSharedMoveState(index);
             } else {
@@ -66,10 +69,10 @@ export function editApp() {
 
       // Create working copy of fields into moveState to be used by Alpine
       this.moveState[index] = {
-        text: isShared ? shared?.text ?? "" : move.text,
-        annotation: isShared ? shared?.annotation ?? "" : move.annotation,
-        alt: isShared ? shared?.alt ?? "" : move.alt,
-        alt_fail: isShared ? shared?.alt_fail ?? "" : move.alt_fail,
+        text: isShared ? (shared?.text ?? "") : move.text,
+        annotation: isShared ? (shared?.annotation ?? "") : move.annotation,
+        alt: isShared ? (shared?.alt ?? "") : move.alt,
+        alt_fail: isShared ? (shared?.alt_fail ?? "") : move.alt_fail,
       };
 
       // Shapes are handled differently: they're not bound to Alpine data
@@ -77,8 +80,7 @@ export function editApp() {
       // We restore them here so the board reflects the selected state,
       // and rely on reading board state again at save time.
       const shapes = isShared ? shared?.shapes : move.shapes;
-      const parsedShapes = shapes ? JSON.parse(shapes) : [];
-      this.boards[index].setShapes(parsedShapes);
+      this.boards[index].setShapes(parseShapes(shapes));
     },
 
     //---------------------------------------------------------------------------------
@@ -92,17 +94,16 @@ export function editApp() {
       };
 
       payload.moves = this.variationData.moves.map((move, index) => {
-        const boardShapes = this.boards[index].state.drawable.shapes;
         const state = this.moveState[index] || {};
 
         return {
           san: move.san,
           shared_move_id: move.shared_move_id,
-          annotation: state.annotation === "none" ? "" : state.annotation,
+          annotation: normalizeAnnotation(state.annotation),
           text: state.text.trim(),
           alt: state.alt,
           alt_fail: state.alt_fail,
-          shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
+          shapes: serializeShapes(this.boards[index]),
         };
       });
 
@@ -111,12 +112,7 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     handleSaveResult(status, index = null) {
-      const btn = document.querySelector(".icon-save");
-      if (btn) {
-        btn.classList.remove("save-pending");
-        const className = `save-${status}`;
-        btn.classList.add(className);
-      }
+      handleSaveButton(status);
 
       if (status === "success") {
         const isMobile = window.innerWidth < 700;
@@ -156,17 +152,7 @@ export function editApp() {
       const payload = this.buildPayload();
 
       try {
-        const response = await fetch("/save-variation/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
-          credentials: "same-origin",
-          body: JSON.stringify(payload),
-        });
-
-        const data = await response.json();
+        const data = await postJson("/save-variation/", payload);
         console.log("data:", data);
 
         if (data.status === "error") {
@@ -213,7 +199,7 @@ export function editApp() {
           cleaned
             .split(/[,\s]+/)
             .map((m) => m.trim())
-            .filter(Boolean)
+            .filter(Boolean),
         ),
       ];
 
@@ -251,7 +237,7 @@ export function editApp() {
 
       if (bad.length)
         console.error(
-          `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`
+          `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`,
         );
 
       const normalized = good.join(", ");

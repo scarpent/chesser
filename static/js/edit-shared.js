@@ -1,4 +1,12 @@
 import "./chess-deps.js";
+import {
+  postJson,
+  handleSaveButton,
+  parseShapes,
+  serializeShapes,
+  normalizeAnnotation,
+  createBoard,
+} from "./edit-common.js";
 
 export function editApp() {
   return {
@@ -18,16 +26,9 @@ export function editApp() {
             const boardElement = document.getElementById(`edit-board-${index}`);
             if (boardElement) {
               this.boards.push(
-                window.Chessground(boardElement, {
-                  fen: chess.fen(),
-                  orientation: this.moveData.color,
-                  coordinates: false,
-                  movable: { free: false, showDests: false },
-                  highlight: { lastMove: true, check: true },
-                }),
+                createBoard(boardElement, chess.fen(), this.moveData.color),
               );
-              const parsedShapes = move.shapes ? JSON.parse(move.shapes) : [];
-              this.boards[index].setShapes(parsedShapes);
+              this.boards[index].setShapes(parseShapes(move.shapes));
             } else {
               console.error(`Board element edit-board-${index} not found`);
             }
@@ -50,12 +51,7 @@ export function editApp() {
 
     //--------------------------------------------------------------------------------
     handleSaveResult(status, index) {
-      const btn = document.querySelector(".icon-save");
-      if (btn) {
-        btn.classList.remove("save-pending");
-        const className = `save-${status}`;
-        btn.classList.add(className);
-      }
+      handleSaveButton(status);
 
       setTimeout(() => {
         if (status === "success") {
@@ -77,15 +73,13 @@ export function editApp() {
       };
 
       payload.shared_moves = this.moveData.shared_moves.map((move, index) => {
-        const boardShapes = this.boards[index].state.drawable.shapes;
-
         return {
           id: move.id,
-          annotation: move.annotation === "none" ? "" : move.annotation,
+          annotation: normalizeAnnotation(move.annotation),
           text: move.text.trim(),
           alt: move.alt,
           alt_fail: move.alt_fail,
-          shapes: boardShapes.length > 0 ? JSON.stringify(boardShapes) : "",
+          shapes: serializeShapes(this.boards[index]),
         };
       });
 
@@ -109,17 +103,7 @@ export function editApp() {
       console.log("Payload", payload);
 
       try {
-        const response = await fetch("/save-shared-move/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
-          credentials: "same-origin",
-          body: JSON.stringify(payload),
-        });
-
-        const data = await response.json();
+        const data = await postJson("/save-shared-move/", payload);
         console.log("data:", data);
 
         if (data.status === "error") {
@@ -199,8 +183,7 @@ export function editApp() {
             fen: this.moveData.fen,
           });
         }
-        const parsedShapes = move.shapes ? JSON.parse(move.shapes) : [];
-        this.overlayBoard.setShapes(parsedShapes);
+        this.overlayBoard.setShapes(parseShapes(move.shapes));
       });
     },
 
