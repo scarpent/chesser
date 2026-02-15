@@ -73,7 +73,43 @@ export function homeApp() {
   };
 }
 
-// Kind of unruly but it's fun; this whole thing could be removed with little impact
+// --- Pure functions (testable) -------------------------------------------
+
+export const FUDGE_SECONDS = 2;
+export const COUNTDOWN_THRESHOLD = 5 * 60;
+
+export function resolveNextDue(data) {
+  const prefix = data.has_due_now ? "Now, and then in " : "";
+  const emoji = data.has_due_now ? "\u23F0" : "\uD83D\uDD2E";
+
+  const staticLabel = `${emoji} Next: ${prefix}${data.label}`;
+
+  if (data.seconds_until == null) {
+    return { label: staticLabel, countdown: null };
+  }
+
+  const countdownSeconds = data.seconds_until + FUDGE_SECONDS;
+
+  if (countdownSeconds > COUNTDOWN_THRESHOLD) {
+    return { label: staticLabel, countdown: null };
+  }
+
+  return { label: staticLabel, countdown: { seconds: countdownSeconds, prefix } };
+}
+
+export function formatCountdownTick(value, prefix) {
+  if (value <= 1) {
+    return "\u23F0 Next: \uD83D\uDE80 Now!";
+  }
+  const m = Math.floor(value / 60);
+  const s = value % 60;
+  const timeLabel = m > 0 ? `${m}m ${s}s` : `${s} \uD83E\uDDE8`;
+  return `\u23F0 Next: ${prefix}${timeLabel}`;
+}
+
+// --- Alpine component ----------------------------------------------------
+
+// Not that necessary but it's fun; this whole thing could be removed with little impact
 export function nextDueTimer() {
   return {
     nextDue: window.homeData.next_due,
@@ -116,35 +152,20 @@ export function nextDueTimer() {
       this.clearCountdown();
       this.nextDue = data;
 
-      const prefix = data.has_due_now ? "Now, and then in " : "";
-      const emoji = data.has_due_now ? "⏰" : "🔮";
+      const resolved = resolveNextDue(data);
+      this.label = resolved.label;
 
-      if (data.seconds_until == null) {
-        this.label = `${emoji} Next: ${prefix}${data.label}`;
-        return;
-      }
+      if (!resolved.countdown) return;
 
-      // If nothing is due now and time is > 5 min, just show the label
-      const FUDGE_SECONDS = 2;
-      let value = data.seconds_until + FUDGE_SECONDS;
-
-      if (value > 5 * 60) {
-        this.label = `${emoji} Next: ${prefix}${data.label}`;
-        return;
-      }
-
-      // Countdown mode — switch to alarm clock emoji
-      const countdownEmoji = "⏰";
+      let value = resolved.countdown.seconds;
+      const prefix = resolved.countdown.prefix;
 
       const tick = () => {
         if (value-- > 1) {
-          const m = Math.floor(value / 60);
-          const s = value % 60;
-          const timeLabel = m > 0 ? `${m}m ${s}s` : `${s} 🧨`;
-          this.label = `${countdownEmoji} Next: ${prefix}${timeLabel}`;
+          this.label = formatCountdownTick(value, prefix);
           this.timerId = setTimeout(tick, 1000);
         } else {
-          this.label = `${countdownEmoji} Next: 🚀 Now!`;
+          this.label = formatCountdownTick(0, prefix);
           this.timerId = null;
 
           setTimeout(() => {
@@ -165,8 +186,10 @@ export function nextDueTimer() {
   };
 }
 
-document.addEventListener("alpine:init", () => {
-  Alpine.store("loading", { visible: true });
-  Alpine.data("homeApp", homeApp);
-  Alpine.data("nextDueTimer", nextDueTimer);
-});
+if (typeof document !== "undefined") {
+  document.addEventListener("alpine:init", () => {
+    Alpine.store("loading", { visible: true });
+    Alpine.data("homeApp", homeApp);
+    Alpine.data("nextDueTimer", nextDueTimer);
+  });
+}

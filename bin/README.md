@@ -7,15 +7,24 @@ intended for local use by the developer.
 
 ## Scripts
 
-### flush_dev_db.sh
-
-Wipes and recreates the local development database.
-**Destructive. Dev only.**
-
 ### run.sh
 
 Convenience wrapper for running the local Django server with
 the expected environment.
+
+### js_tests.sh
+
+Runs all JavaScript tests using Node's built-in test runner.
+Test files live in `js_tests/`.
+
+### all_tests.sh
+
+Runs both JS and Python test suites in sequence.
+
+### flush_dev_db.sh
+
+Wipes and recreates the local development database.
+**Destructive. Dev only.**
 
 ### quickprep.sh
 
