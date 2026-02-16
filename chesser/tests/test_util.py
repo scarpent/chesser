@@ -3,6 +3,12 @@ import pytest
 from chesser import util
 
 
+def test_end_of_time_constants():
+    assert util.END_OF_TIME_STR == "9999-12-31T23:59:59+00:00"
+    assert str(util.END_OF_TIME_DT) == "9999-12-31T23:59:59+00:00"
+    assert util.END_OF_TIME_DT.timestamp() == util.END_OF_TIME
+
+
 def test_clean_html_removes_disallowed_tags_and_attributes():
     raw = """
         <p>hello <script>alert("bad")</script></p>
