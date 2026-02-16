@@ -115,7 +115,7 @@ export function nextDueTimer() {
     nextDue: window.homeData.next_due,
     label: "",
     timerId: null,
-    lastRefreshed: Date.now(),
+    lastRefreshed: 0,
 
     initCountdown() {
       this.setNextDue(this.nextDue);
