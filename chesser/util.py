@@ -9,7 +9,8 @@ from django.utils.timezone import localtime
 
 BEGINNING_OF_TIME = 0  # 1970-01-01T00:00:00
 END_OF_TIME = 253402300799
-END_OF_TIME_STR = "9999-12-31T23:59:59"
+END_OF_TIME_DT = datetime.fromtimestamp(END_OF_TIME, timezone.utc)
+END_OF_TIME_STR = "9999-12-31T23:59:59+00:00"
 
 # fmt: off
 ALLOWED_TAGS = {
@@ -127,7 +128,7 @@ def get_time_ago(now, result_datetime):
 def format_time_until(now, next_review):
     if now > next_review:
         return "right now"
-    elif next_review == datetime.fromtimestamp(END_OF_TIME, timezone.utc):
+    elif next_review == END_OF_TIME_DT:
         return "end of time"
 
     time_until = next_review - now

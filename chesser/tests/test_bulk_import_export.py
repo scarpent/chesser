@@ -25,9 +25,10 @@ def _normalize_variation_dict(v: dict) -> dict:
     out["start_move"] = int(out.get("start_move") or 0)
     out["level"] = int(out.get("level") or 0)
 
-    # Preserve created_at exactly (string compare), but strip whitespace if any
-    if "created_at" in out and out["created_at"] is not None:
-        out["created_at"] = str(out["created_at"]).strip()
+    # Normalize datetime fields: strip trailing +00:00 and whitespace
+    for dt_field in ("created_at", "next_review", "last_review"):
+        if dt_field in out and out[dt_field] is not None:
+            out[dt_field] = str(out[dt_field]).strip().replace("+00:00", "")
 
     # Normalize a few strings (safe if import/export are already clean)
     out["variation_title"] = (out.get("variation_title") or "").strip()

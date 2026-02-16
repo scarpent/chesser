@@ -15,7 +15,7 @@
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 1,
     "moves": [
       {
@@ -59,7 +59,7 @@
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 1,
     "moves": [
       {
@@ -126,7 +126,7 @@
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 3,
     "moves": [
       {
@@ -400,7 +400,7 @@
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 3,
     "moves": [
       {
@@ -573,7 +573,7 @@
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 2,
     "moves": [
       {
@@ -712,7 +712,7 @@
     "level": 0,
     "created_at": "2026-02-01T01:20:33+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 1,
     "moves": [
       {
@@ -988,14 +988,14 @@
     "level": 0,
     "created_at": "2026-02-14T23:37:32+00:00",
     "next_review": "9999-12-31T23:59:59+00:00",
-    "last_review": "9999-12-31T23:59:59",
+    "last_review": "9999-12-31T23:59:59+00:00",
     "start_move": 1,
     "moves": [
       {
         "move_num": 1,
         "san": "c4",
         "annotation": "",
-        "text": "<i>Variation View / Book Mode</i>\n\nThis page is usually reached by clicking on a variation link or pressing the <code>View</code> button. This is where you can fully explore an opening line.\n\nEach variation has three modes:\n<ul>\n<li><code>View</code>: Stacked books emoji</li>\n<li><code>Edit</code>: Hammer &amp; wrench emoji</li>\n<li><code>Review</code>: Memo emoji {(paper with pencil)}</li>\n</ul>\n\nYou can switch between modes at any time. {(Leaving a quiz in progress will cancel it, but you can resume your review session by returning to Review mode.)}\n\nReviews are sometimes called “quizzes,” since you’re testing yourself on an opening. Wherever the <code>Review</code> button appears, it always takes you to the current “Next Review Due”. {(Most likely not the variation you're looking at.)} It's meant to let you quickly start or resume a review session at any time.\n\n<i>View UI Elements</i>\n\nThe interface is intentionally somewhat dense. Once you know the pieces, you can scan a lot of information at once — just like a chessboard! What looks busy at first becomes readable with familiarity. {(We can hope.)}\n\n<ul>\n<li><code>📌 Tutorial</code> — The variation title. The pushpin means it's marked as an “intro” line and will appear at the top of the chapter list.</li>\n<li><code>🌱</code> — The sprout means this variation is new / unstarted.</li>\n<li><code>L0</code> — The current spaced-repetition level. Higher levels mean longer review intervals {(up to 6 months)}.</li>\n<li><code>S1</code> — The starting move for quizzes / extra study.</li>\n<li><code>N➤end of time</code> — Time to next review. “End of time” means no review is scheduled. Other examples: <code>N➤15d</code> {(15 days)}, <code>N➤4h 26m</code> {(4 hours, 26 minutes)}. If you schedule a review for a level 0 variation, spaced repetition begins at that time.</li>\n<li><code>#7</code> — The variation ID.</li>\n<li><code>learn 📖</code> — Take the quiz and start spaced repetition. Pass or fail, you move to level 1 and the variation enters the review cycle.</li> \n<li><code>extra study ✏️</code> — Once a variation is learned / in progress, you can quiz yourself without affecting progress. Pass or fail, nothing is recorded. Level and next review stay unchanged.</li>\n</ul>",
+        "text": "<i>Variation View / Book Mode</i>\n\nThis page is usually reached by clicking on a variation link or pressing the <code>View</code> button. This is where you can fully explore an opening line.\n\nEach variation has three modes:\n<ul>\n<li><code>View</code> {(Stacked books emoji)}</li>\n<li><code>Edit</code> {(Hammer &amp; wrench emoji)}</li>\n<li><code>Review</code>: {(Memo emoji: paper with pencil)}</li>\n</ul>\n\nYou can switch between modes at any time. {(Leaving a quiz in progress will cancel it, but you can resume your review session by returning to Review mode.)}\n\nReviews are sometimes called “quizzes,” since you’re testing yourself on an opening. Wherever the <code>Review</code> button appears, it always takes you to the current “Next Review Due”. {(Most likely not the variation you're looking at.)} It's meant to let you quickly start or resume a review session at any time.\n\n<i>View UI Elements</i>\n\nThe interface is intentionally somewhat dense. Once you know the pieces, you can scan a lot of information at once — just like a chessboard! What looks busy at first becomes readable with familiarity. {(We can hope.)}\n\nOn mobile devices, some interface elements may require scrolling to view. {(We're leaving more room for move text like this.)}\n\n<ul>\n<li><code>📌 Tutorial</code> — The variation title. The pushpin means it's marked as an “intro” line and will appear at the top of the chapter list.</li>\n<li><code>🌱</code> — The sprout means this variation is new / unstarted. {(Things are compressed in mobile. You'll probably need to scroll the small middle section of the screen to see this and following items...)}</li>\n<li><code>L0</code> — The current spaced-repetition level. Higher levels mean longer review intervals {(up to 6 months)}.</li>\n<li><code>S1</code> — The starting move for quizzes / extra study.</li>\n<li><code>N➤end of time</code> — Time to next review. “End of time” means no review is scheduled. Other examples: <code>N➤15d</code> {(15 days)}, <code>N➤4h 26m</code> {(4 hours, 26 minutes)}. If you schedule a review for a level 0 variation, spaced repetition begins at that time.</li>\n<li><code>#7</code> — The variation ID.</li>\n<li><code>learn 📖</code> — Take the quiz and start spaced repetition. Pass or fail, you move to level 1 and the variation enters the review cycle.</li> \n<li><code>extra study ✏️</code> — Once a variation is learned / in progress, you can quiz yourself without affecting progress. Pass or fail, nothing is recorded. Level and next review stay unchanged.</li>\n</ul>",
         "alt": "",
         "alt_fail": "",
         "shapes": []

@@ -1,15 +1,10 @@
-from datetime import datetime
-from datetime import timezone as dt_timezone
-
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 
 from chesser.models import Variation
-from chesser.util import END_OF_TIME
-
-END_OF_TIME_DT = datetime.fromtimestamp(END_OF_TIME, tz=dt_timezone.utc)
+from chesser.util import END_OF_TIME_DT
 
 
 class Command(BaseCommand):

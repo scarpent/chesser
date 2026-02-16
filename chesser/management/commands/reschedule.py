@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta
-from datetime import timezone as dt_timezone
 from typing import List
 
 from django.core.management.base import BaseCommand
@@ -17,10 +16,6 @@ from chesser.models import Variation
 PER_DAY = 10
 START_HOUR = 7  # 07:00 local
 TARGET_LEVEL = 8
-
-# If you already have this defined elsewhere, import it instead
-END_OF_TIME = 253402300799  # 9999-12-31T23:59:59
-END_OF_TIME_DT = datetime.fromtimestamp(END_OF_TIME, tz=dt_timezone.utc)
 
 # ---------------------------------------------------------------------
 
