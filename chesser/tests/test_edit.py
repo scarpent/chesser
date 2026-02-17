@@ -175,6 +175,82 @@ def test_save_variation(auth_client, variation_with_moves):
 
 
 @pytest.mark.django_db
+def test_save_variation_invalid_chapter_id(auth_client, variation_with_moves):
+    """Non-numeric chapter_id should return 400, not crash with 500."""
+    moves = list(variation_with_moves.moves.order_by("sequence"))
+    payload = {
+        "variation_id": variation_with_moves.id,
+        "title": "Test",
+        "chapter_id": "Bishop's Opening",
+        "start_move": 2,
+        "moves": [
+            {
+                "san": m.san,
+                "shared_move_id": "",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": "",
+            }
+            for m in moves
+        ],
+    }
+
+    response = auth_client.post(
+        reverse("save_variation"),
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == 400
+    assert response.json()["status"] == "error"
+
+
+@pytest.mark.django_db
+def test_save_variation_duplicate_mainline_in_chapter(
+    auth_client, variation_with_moves
+):
+    """Moving to a chapter that already has this mainline returns 409."""
+    other_chapter = Chapter.objects.create(title="Other Chapter", color="white")
+    Variation.objects.create(
+        title="Existing",
+        chapter=other_chapter,
+        start_move=2,
+        mainline_moves_str=variation_with_moves.mainline_moves_str,
+    )
+
+    moves = list(variation_with_moves.moves.order_by("sequence"))
+    payload = {
+        "variation_id": variation_with_moves.id,
+        "title": "Test",
+        "chapter_id": str(other_chapter.id),
+        "start_move": 2,
+        "moves": [
+            {
+                "san": m.san,
+                "shared_move_id": "",
+                "annotation": "",
+                "text": "",
+                "alt": "",
+                "alt_fail": "",
+                "shapes": "",
+            }
+            for m in moves
+        ],
+    }
+
+    response = auth_client.post(
+        reverse("save_variation"),
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == 409
+    data = response.json()
+    assert data["status"] == "error"
+    assert "already exists" in data["message"]
+
+
+@pytest.mark.django_db
 def test_save_variation_creates_shared_move(auth_client, variation_with_moves):
     moves = list(variation_with_moves.moves.order_by("sequence"))
     payload = {

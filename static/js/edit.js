@@ -157,6 +157,7 @@ export function editApp() {
 
         if (data.status === "error") {
           console.error("Save error:", data.message);
+          alert(data.message || "Save failed."); // TODO: better error handling/UI
           this.handleSaveResult("error");
           return false;
         } else {

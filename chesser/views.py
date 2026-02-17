@@ -6,7 +6,7 @@ from itertools import groupby
 
 from django.conf import settings
 from django.contrib import messages
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import (
     Case,
     Count,
@@ -725,11 +725,30 @@ def save_variation(request):
     variation.title = strip_tags(data["title"])
     variation.start_move = data["start_move"]
     if chapter_id := data.get("chapter_id"):
+        try:
+            chapter_id = int(chapter_id)
+        except (ValueError, TypeError):
+            return JsonResponse(
+                {"status": "error", "message": "Invalid chapter_id"}, status=400
+            )
         chapter = get_object_or_404(
             Chapter, pk=chapter_id, color=variation.chapter.color
         )
         variation.chapter = chapter
-    variation.save()
+    try:
+        with transaction.atomic():
+            variation.save()
+    except IntegrityError:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": (
+                    f"A variation with this mainline already exists "
+                    f"in chapter '{variation.chapter.title}'."
+                ),
+            },
+            status=409,
+        )
 
     opening_color = variation.chapter.color
     for idx, move in enumerate(variation.moves.all()):
