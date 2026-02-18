@@ -125,16 +125,6 @@ def test_extract_ordered_chunks_comments(text, expected_chunks):
                 Chunk("comment", "{ more text...}"),
             ],
         ),
-        # (  # known fixable paren imbalance
-        #     "(1.e4 {test}<fenseq>1.e4</fenseq>",
-        #     [
-        #         Chunk("subvar", "START 1"),
-        #         Chunk("move", "1.e4"),
-        #         Chunk("comment", "{test}"),
-        #         Chunk("subvar", "END 1"),
-        #         Chunk("fenseq", "<fenseq>1.e4</fenseq>"),
-        #     ],
-        # ),
     ],
 )
 def test_extract_ordered_chunks_fenseq(text, expected):
