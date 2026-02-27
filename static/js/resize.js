@@ -4,19 +4,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const boardId = boardContainer?.dataset.boardId || "default";
   const STORAGE_KEY = `resizableBoardWidth-${boardId}`;
 
-  const savedWidth = localStorage.getItem(STORAGE_KEY);
-  let boardSizeToUse;
-  if (savedWidth) {
-    const savedWidthPx = parseInt(savedWidth.replace("px", ""), 10);
-    const maxBoardSize = Math.min(window.innerWidth, window.innerHeight) - 50;
-    // Round to nearest lower multiple of 8 to match square grid
-    boardSizeToUse = Math.floor(Math.min(savedWidthPx, maxBoardSize) / 8) * 8;
-  } else {
-    boardSizeToUse = 400; // fallback
-  }
+  // On mobile, let CSS handle board sizing (inline styles override media queries)
+  const isMobile = window.innerWidth <= 450;
 
-  boardContainer.style.width = `${boardSizeToUse}px`;
-  boardContainer.style.height = `${boardSizeToUse}px`;
+  if (!isMobile) {
+    const savedWidth = localStorage.getItem(STORAGE_KEY);
+    let boardSizeToUse;
+    if (savedWidth) {
+      const savedWidthPx = parseInt(savedWidth.replace("px", ""), 10);
+      const maxBoardSize = Math.min(window.innerWidth, window.innerHeight) - 50;
+      // Round to nearest lower multiple of 8 to match square grid
+      boardSizeToUse = Math.floor(Math.min(savedWidthPx, maxBoardSize) / 8) * 8;
+    } else {
+      boardSizeToUse = 400; // fallback
+    }
+
+    boardContainer.style.width = `${boardSizeToUse}px`;
+    boardContainer.style.height = `${boardSizeToUse}px`;
+  }
 
   resizeHandle.addEventListener("mousedown", (e) => {
     e.preventDefault();
