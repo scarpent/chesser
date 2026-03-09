@@ -6,19 +6,24 @@ from unittest import mock
 
 import pytest
 
+_AWS_TEST_ENV = {
+    "AWS_ACCESS_KEY_ID": "AKID_TEST",
+    "AWS_SECRET_ACCESS_KEY": "SECRET_TEST",
+    "AWS_STORAGE_BUCKET_NAME": "bucket-test",
+    "AWS_S3_REGION_NAME": "us-east-1",
+}
 
-def _set_s3_settings(settings, *, configured: bool):
-    """Helper: toggle AWS settings to make can_upload_to_s3 deterministic."""
+_AWS_KEYS = list(_AWS_TEST_ENV.keys())
+
+
+def _set_s3_env(monkeypatch, *, configured: bool):
+    """Helper: toggle AWS env vars to make can_upload_to_s3 deterministic."""
     if configured:
-        settings.AWS_ACCESS_KEY_ID = "AKID_TEST"
-        settings.AWS_SECRET_ACCESS_KEY = "SECRET_TEST"
-        settings.AWS_STORAGE_BUCKET_NAME = "bucket-test"
-        settings.AWS_S3_REGION_NAME = "us-east-1"
+        for key, value in _AWS_TEST_ENV.items():
+            monkeypatch.setenv(key, value)
     else:
-        settings.AWS_ACCESS_KEY_ID = None
-        settings.AWS_SECRET_ACCESS_KEY = None
-        settings.AWS_STORAGE_BUCKET_NAME = None
-        settings.AWS_S3_REGION_NAME = None
+        for key in _AWS_KEYS:
+            monkeypatch.delenv(key, raising=False)
 
 
 @pytest.fixture()
@@ -29,13 +34,13 @@ def tasks_module():
     return tasks
 
 
-def test_can_upload_to_s3_false_when_missing_env_vars(tasks_module, settings):
-    _set_s3_settings(settings, configured=False)
+def test_can_upload_to_s3_false_when_missing_env_vars(tasks_module, monkeypatch):
+    _set_s3_env(monkeypatch, configured=False)
     assert tasks_module.can_upload_to_s3() is False
 
 
-def test_can_upload_to_s3_true_when_all_present(tasks_module, settings):
-    _set_s3_settings(settings, configured=True)
+def test_can_upload_to_s3_true_when_all_present(tasks_module, monkeypatch):
+    _set_s3_env(monkeypatch, configured=True)
     assert tasks_module.can_upload_to_s3() is True
 
 
@@ -66,9 +71,9 @@ def test_backup_calls_export_db_and_writes_gzipped_json(
 
 
 def test_upload_to_amazon_s3_returns_false_if_not_configured(
-    tasks_module, settings, tmp_path
+    tasks_module, monkeypatch, tmp_path
 ):
-    _set_s3_settings(settings, configured=False)
+    _set_s3_env(monkeypatch, configured=False)
 
     # Even if a file exists, missing env vars should short-circuit before boto3.
     p = tmp_path / "x.gz"
@@ -82,9 +87,9 @@ def test_upload_to_amazon_s3_returns_false_if_not_configured(
 
 @mock.patch("chesser.tasks.boto3.client")
 def test_upload_to_amazon_s3_puts_object(
-    mock_boto_client, tasks_module, settings, tmp_path
+    mock_boto_client, tasks_module, monkeypatch, tmp_path
 ):
-    _set_s3_settings(settings, configured=True)
+    _set_s3_env(monkeypatch, configured=True)
 
     p = tmp_path / "backup.json.gz"
     p.write_bytes(b"abc")
@@ -113,15 +118,15 @@ def test_upload_to_amazon_s3_puts_object(
 
     mock_boto_client.assert_called_once_with(
         "s3",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name=settings.AWS_S3_REGION_NAME,
+        aws_access_key_id="AKID_TEST",
+        aws_secret_access_key="SECRET_TEST",
+        region_name="us-east-1",
     )
 
     fake_client.put_object.assert_called_once()
 
     kwargs = captured["kwargs"]
-    assert kwargs["Bucket"] == settings.AWS_STORAGE_BUCKET_NAME
+    assert kwargs["Bucket"] == "bucket-test"
     assert kwargs["Key"] == "db_backup_20260117_010203.json.gz"
     assert kwargs["ContentType"] == "application/gzip"
     assert captured["bytes"] == b"abc"
@@ -129,9 +134,9 @@ def test_upload_to_amazon_s3_puts_object(
 
 @mock.patch("chesser.tasks.boto3.client")
 def test_upload_to_amazon_s3_returns_false_on_exception(
-    mock_boto_client, tasks_module, settings, tmp_path, capfd
+    mock_boto_client, tasks_module, monkeypatch, tmp_path, capfd
 ):
-    _set_s3_settings(settings, configured=True)
+    _set_s3_env(monkeypatch, configured=True)
 
     p = tmp_path / "backup.json.gz"
     p.write_bytes(b"abc")

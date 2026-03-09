@@ -301,10 +301,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024  # 25 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+# AWS credentials are intentionally NOT loaded into Django settings.
+# tasks.py reads them directly via os.getenv() to avoid them appearing
+# in debug pages, error reports, or settings introspection.
+# Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME,
+# and AWS_S3_REGION_NAME as environment variables to enable S3 backups.
 
 BUILD_STARTED_AT = timezone.now()
 BUILD_TIMESTAMP = str(int(time.time()))

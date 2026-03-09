@@ -1,4 +1,5 @@
 import gzip
+import os
 from datetime import timedelta
 from io import StringIO
 
@@ -11,10 +12,10 @@ from django.utils import timezone
 
 def can_upload_to_s3():
     required = [
-        settings.AWS_ACCESS_KEY_ID,
-        settings.AWS_SECRET_ACCESS_KEY,
-        settings.AWS_STORAGE_BUCKET_NAME,
-        settings.AWS_S3_REGION_NAME,
+        os.getenv("AWS_ACCESS_KEY_ID"),
+        os.getenv("AWS_SECRET_ACCESS_KEY"),
+        os.getenv("AWS_STORAGE_BUCKET_NAME"),
+        os.getenv("AWS_S3_REGION_NAME"),
     ]
     return all(required)
 
@@ -51,14 +52,14 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
     try:
         s3_client = boto3.client(
             "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name=os.getenv("AWS_S3_REGION_NAME"),
         )
 
         with open(local_filepath, "rb") as upload_file:
             s3_client.put_object(
-                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Bucket=os.getenv("AWS_STORAGE_BUCKET_NAME"),
                 Key=s3_object_key,
                 Body=upload_file,
                 ContentType=content_type,
@@ -67,7 +68,9 @@ def upload_to_amazon_s3(local_filepath, s3_object_key, content_type):
         print(f"❌ Error uploading object key {s3_object_key} to S3: {e}", flush=True)
         return False
 
-    print(f"✌️  Uploaded to s3://{settings.AWS_STORAGE_BUCKET_NAME}/{s3_object_key}")
+    print(
+        f"✌️  Uploaded to s3://{os.getenv('AWS_STORAGE_BUCKET_NAME')}/{s3_object_key}"
+    )
     return True
 
 

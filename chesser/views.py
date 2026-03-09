@@ -3,6 +3,7 @@ import random
 from collections import defaultdict
 from datetime import datetime, timedelta
 from itertools import groupby
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib import messages
@@ -54,9 +55,11 @@ def home(request, color=None, chapter_id=None):
 
 
 def service_worker(request):
-    return FileResponse(
-        open("chesser/service-worker.js", "rb"), content_type="application/javascript"
-    )
+    # Must be served as a view (not via WhiteNoise) so the URL is /service-worker.js.
+    # A service worker's scope is limited to the directory it's served from, so it
+    # must live at the site root to control all pages.
+    sw_path = Path(__file__).resolve().parent / "service-worker.js"
+    return FileResponse(sw_path.open("rb"), content_type="application/javascript")
 
 
 def custom_404_view(request, exception):
