@@ -12,11 +12,11 @@ asttokens==3.0.1
     # via stack-data
 attrs==25.4.0
     # via flake8-bugbear
-black==26.1.0
+black==26.3.0
     # via -r requirements.in
-boto3==1.42.44
+boto3==1.42.65
     # via -r requirements.in
-botocore==1.42.44
+botocore==1.42.65
     # via
     #   boto3
     #   s3transfer
@@ -28,15 +28,15 @@ click==8.3.1
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.13.3
+coverage[toml]==7.13.4
     # via pytest-cov
 decorator==5.2.1
     # via
     #   ipdb
     #   ipython
-dj-database-url==3.1.0
+dj-database-url==3.1.2
     # via -r requirements.in
-django==6.0.2
+django==6.0.3
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -62,19 +62,19 @@ flake8-commas==4.0.0
     # via -r requirements.in
 flake8-comprehensions==3.17.0
     # via -r requirements.in
-gunicorn==25.0.3
+gunicorn==25.1.0
     # via -r requirements.in
 iniconfig==2.3.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.10.0
+ipython==9.11.0
     # via
     #   -r requirements.in
     #   ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
-isort==7.0.0
+isort==8.0.1
     # via -r requirements.in
 jedi==0.19.2
     # via ipython
@@ -88,7 +88,7 @@ mccabe==0.7.0
     # via flake8
 mypy-extensions==1.1.0
     # via black
-nh3==0.3.2
+nh3==0.3.3
     # via -r requirements.in
 packaging==26.0
     # via
@@ -97,15 +97,15 @@ packaging==26.0
     #   gunicorn
     #   pytest
     #   wheel
-parso==0.8.5
+parso==0.8.6
     # via jedi
 pathspec==1.0.4
     # via black
 pexpect==4.9.0
     # via ipython
-pip-tools==7.5.2
+pip-tools==7.5.3
     # via -r requirements.in
-platformdirs==4.5.1
+platformdirs==4.9.4
     # via black
 pluggy==1.6.0
     # via
@@ -115,9 +115,9 @@ ply==3.11
     # via djangoql
 prompt-toolkit==3.0.52
     # via ipython
-psycopg[binary]==3.3.2
+psycopg[binary]==3.3.3
     # via -r requirements.in
-psycopg-binary==3.3.2
+psycopg-binary==3.3.3
     # via psycopg
 ptyprocess==0.7.0
     # via pexpect
@@ -143,7 +143,7 @@ pytest==9.0.2
     #   pytest-django
 pytest-cov==7.0.0
     # via -r requirements.in
-pytest-django==4.11.1
+pytest-django==4.12.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via botocore
@@ -171,7 +171,7 @@ wcwidth==0.6.0
     # via prompt-toolkit
 wheel==0.46.3
     # via pip-tools
-whitenoise==6.11.0
+whitenoise==6.12.0
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
