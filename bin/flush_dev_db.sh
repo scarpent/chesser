@@ -25,6 +25,12 @@ echo "💥 Flushing dev database..."
 
 echo "✅ Database reset!"
 
+# Refresh backup from external source if available
+if [ -f "$REPO_ROOT/temp/cp_latest_db_backup.sh" ]; then
+  echo "🔄 Refreshing backup..."
+  bash "$REPO_ROOT/temp/cp_latest_db_backup.sh"
+fi
+
 # Look for the most recent backup
 DB_BACKUP=$(ls -t $REPO_ROOT/temp/db_backup_*.json 2>/dev/null | head -n 1 || true)
 
