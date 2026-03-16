@@ -134,6 +134,9 @@ export function nextDueTimer() {
         const url = "/home-upcoming/" + buildNavQueryString(this.homeData.nav);
         console.log(`🔄 Refreshing next due from server ${url}`);
         const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
         const data = await response.json();
 
         if (data?.next_due) {
@@ -145,6 +148,7 @@ export function nextDueTimer() {
         }
       } catch (err) {
         console.error("❌ Failed to refresh next due from server:", err);
+        showFlashMessage("Failed to refresh review data: " + err);
       }
     },
 

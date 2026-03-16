@@ -14,6 +14,9 @@ export async function postJson(endpoint, payload) {
     credentials: "same-origin",
     body: JSON.stringify(payload),
   });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
   return await response.json();
 }
 

@@ -157,7 +157,7 @@ export function editApp() {
 
         if (data.status === "error") {
           console.error("Save error:", data.message);
-          alert(data.message || "Save failed."); // TODO: better error handling/UI
+          showFlashMessage(data.message || "Save failed.");
           this.handleSaveResult("error");
           return false;
         } else {
@@ -167,6 +167,7 @@ export function editApp() {
         }
       } catch (error) {
         console.error("Error saving variation:", error);
+        showFlashMessage("Error saving variation: " + error);
         this.handleSaveResult("error");
         return false;
       }
@@ -236,10 +237,14 @@ export function editApp() {
         }
       }
 
-      if (bad.length)
+      if (bad.length) {
         console.error(
           `❌ Invalid alt moves for ${actualMoveVerbose} ➤ ${bad.join(", ")}`,
         );
+        showFlashMessage(
+          `Invalid alt moves for ${actualMoveVerbose}: ${bad.join(", ")}`,
+        );
+      }
 
       const normalized = good.join(", ");
 

@@ -36,7 +36,18 @@ window.readJsonScript = function (id) {
   return JSON.parse(el.textContent);
 };
 
+function showFlashMessage(text, level = "error", durationMs = 5000) {
+  const container = document.getElementById("flash-messages");
+  if (!container) return;
+  const el = document.createElement("div");
+  el.className = `message ${level}`;
+  el.textContent = text;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), durationMs);
+}
+
 // Expose globally for Alpine expressions.
 window.isDemoMode = isDemoMode;
 window.setPageTitle = setPageTitle;
 window.navigateWithSpinner = navigateWithSpinner;
+window.showFlashMessage = showFlashMessage;

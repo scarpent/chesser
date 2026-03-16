@@ -40,6 +40,7 @@ export function variationApp() {
         }, 100);
       } else {
         console.error("chessground or chess.js failed to load");
+        showFlashMessage("Failed to load chessboard. Please refresh the page.");
       }
     }, // initVariation()
 
@@ -409,7 +410,10 @@ export function variationApp() {
       }
       navigator.clipboard.writeText(this.currentFen).then(
         () => console.log("📋️ FEN copied:", this.currentFen),
-        (err) => console.error("❌ Failed to copy FEN:", err),
+        (err) => {
+          console.error("❌ Failed to copy FEN:", err);
+          showFlashMessage("Failed to copy FEN: " + err);
+        },
       );
     },
 

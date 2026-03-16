@@ -101,6 +101,7 @@ export function quizApp() {
         this.displayReviewSessionStats();
       } else {
         console.error("chessground or chess.js failed to load");
+        showFlashMessage("Failed to load chessboard. Please refresh the page.");
       }
     }, // initQuiz()
 
@@ -639,6 +640,12 @@ export function quizApp() {
           body: JSON.stringify({ variation_id: variationId, passed }),
         });
 
+        if (!response.ok) {
+          console.error("Report result failed with status:", response.status);
+          showFlashMessage(`Error reporting result (${response.status}).`);
+          return;
+        }
+
         const data = await response.json();
 
         if (data.status === "success") {
@@ -652,12 +659,12 @@ export function quizApp() {
         } else if (data.status === "ignored") {
           // stale submission (e.g. duplicate tab), do nothing
         } else {
-          // TODO: use Django messages instead of alert
-          alert("Failed to report result: " + data.message);
+          console.error("Failed to report result:", data.message);
+          showFlashMessage("Failed to report result: " + data.message);
         }
       } catch (error) {
-        // TODO: use Django messages instead of alert
-        alert("Error reporting result: " + error);
+        console.error("Error reporting result:", error);
+        showFlashMessage("Error reporting result: " + error);
       }
     },
     //--------------------------------------------------------------------------------

@@ -116,6 +116,7 @@ export function editApp() {
         }
       } catch (error) {
         console.error("Error saving shared move:", error);
+        showFlashMessage("Error saving shared move: " + error);
         this.handleSaveResult("error", index);
         return false;
       }
@@ -213,7 +214,10 @@ export function editApp() {
     copyFen() {
       navigator.clipboard.writeText(this.moveData.fen).then(
         () => console.log("📋️ FEN copied:", this.moveData.fen),
-        (err) => console.error("❌ Failed to copy FEN:", err),
+        (err) => {
+          console.error("❌ Failed to copy FEN:", err);
+          showFlashMessage("Failed to copy FEN: " + err);
+        },
       );
     },
   }; // return { ... }

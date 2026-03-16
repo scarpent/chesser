@@ -1265,6 +1265,27 @@ more washed out with all the white paper */
 }
 /* add to preload_icons.html if it's still around, and to pages used... */
 
+/* --------------------------------------------------- Flash Messages (JS) */
+#flash-messages {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 600px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  pointer-events: none;
+}
+
+#flash-messages .message {
+  text-align: center;
+  pointer-events: auto;
+}
+
 /* ---------------------------------------------- Django Messages Framework */
 .message {
   padding: 10px 20px;
