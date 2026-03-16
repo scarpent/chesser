@@ -46,8 +46,6 @@ from chesser.serializers import (
     serialize_variation_to_import_format,
 )
 
-QUIZ_RESULT_DEBOUNCE_HOURS = timedelta(hours=3)
-
 
 def home(request, color=None, chapter_id=None):
     home_view = HomeView(color=color, chapter_id=chapter_id)
@@ -192,16 +190,13 @@ def report_result(request):
 
     variation = get_object_or_404(Variation, pk=variation_id)
 
-    if last_result := (
-        QuizResult.objects.filter(variation=variation).order_by("-datetime").first()
-    ):
-        if now() - last_result.datetime < QUIZ_RESULT_DEBOUNCE_HOURS:
-            return JsonResponse(
-                {
-                    "status": "ignored",
-                    "message": "Already reported within debounce window",
-                },
-            )
+    if variation.level > 0 and variation.next_review > now():
+        return JsonResponse(
+            {
+                "status": "ignored",
+                "message": "Not yet due",
+            },
+        )
 
     variation.handle_quiz_result(passed)
 
