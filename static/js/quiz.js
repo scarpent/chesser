@@ -649,11 +649,15 @@ export function quizApp() {
           if (data.total_due_now === 0 && data.total_due_soon === 0) {
             this.completeReviewSession();
           }
+        } else if (data.status === "ignored") {
+          // stale submission (e.g. duplicate tab), do nothing
         } else {
-          console.error("Failed to report result:", data.message);
+          // TODO: use Django messages instead of alert
+          alert("Failed to report result: " + data.message);
         }
       } catch (error) {
-        console.error("Error reporting result:", error);
+        // TODO: use Django messages instead of alert
+        alert("Error reporting result: " + error);
       }
     },
     //--------------------------------------------------------------------------------
