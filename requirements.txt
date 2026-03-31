@@ -14,13 +14,13 @@ attrs==26.1.0
     # via flake8-bugbear
 black==26.3.1
     # via -r requirements.in
-boto3==1.42.75
+boto3==1.42.79
     # via -r requirements.in
-botocore==1.42.75
+botocore==1.42.79
     # via
     #   boto3
     #   s3transfer
-build==1.4.1
+build==1.4.2
     # via pip-tools
 chess==1.11.2
     # via -r requirements.in
@@ -62,13 +62,13 @@ flake8-commas==4.0.0
     # via -r requirements.in
 flake8-comprehensions==3.17.0
     # via -r requirements.in
-gunicorn==25.2.0
+gunicorn==25.3.0
     # via -r requirements.in
 iniconfig==2.3.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.11.0
+ipython==9.12.0
     # via
     #   -r requirements.in
     #   ipdb
@@ -88,7 +88,7 @@ mccabe==0.7.0
     # via flake8
 mypy-extensions==1.1.0
     # via black
-nh3==0.3.3
+nh3==0.3.4
     # via -r requirements.in
 packaging==26.0
     # via
@@ -127,7 +127,7 @@ pycodestyle==2.14.0
     # via flake8
 pyflakes==3.4.0
     # via flake8
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   ipython
     #   ipython-pygments-lexers
