@@ -119,7 +119,6 @@ EOF
 
   exit "$outdated"
 fi
-fi
 
 # ---- Alpine.js ----
 
