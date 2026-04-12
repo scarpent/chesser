@@ -1104,6 +1104,16 @@ pre.grouped-move-text {
 .button-container-home {
   gap: 35px;
   margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.next-review-label {
+  width: 100%;
+  text-align: center;
+  color: lightgreen;
+  font-size: 24px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 12px rgba(144, 238, 144, 0.4);
 }
 
 button {

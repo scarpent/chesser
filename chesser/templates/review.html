@@ -189,6 +189,9 @@ x-init="initQuiz()"
 
   <template x-if="!hasVariationData()">
     <div class="button-container button-container-home">
+      <template x-if="reviewData.next_review_label">
+        <div class="next-review-label" x-text="'⏳ ' + reviewData.next_review_label"></div>
+      </template>
       <button
         title="{{ TOOLTIPS.random_extra_study }}"
         @click="window.navigateWithSpinner('/review/random/')"

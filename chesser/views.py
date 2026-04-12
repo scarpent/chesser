@@ -122,9 +122,22 @@ def review(request, variation_id=None):
             return redirect("home")
         variation_data = {}
         final_move_html = ""
+        now = timezone.now()
+        next_future = (
+            Variation.objects.active()
+            .filter(next_review__gt=now)
+            .order_by("next_review")
+            .first()
+        )
+        next_review_label = (
+            util.format_time_until(now, next_future.next_review)
+            if next_future
+            else None
+        )
     else:
         variation_data = serialize_variation(variation, mode="review")
         final_move_html = get_final_move_simple_subvariations_html(variation)
+        next_review_label = None
 
     total_due_now, total_due_soon = Variation.due_counts()
     review_data = {
@@ -132,6 +145,7 @@ def review(request, variation_id=None):
         "total_due_now": total_due_now,
         "total_due_soon": total_due_soon,
         "final_move_html": final_move_html,
+        "next_review_label": next_review_label,
     }
 
     context = {
