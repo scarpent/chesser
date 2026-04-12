@@ -88,6 +88,26 @@ def custom_500_view(request):
     )
 
 
+def get_next_due(variations=None):
+    now = timezone.now()
+    if variations is None:
+        variations = Variation.objects.active()
+    has_due_now = variations.filter(next_review__lte=now).exists()
+    next_future = variations.filter(next_review__gt=now).order_by("next_review").first()
+    if next_future:
+        delta = (next_future.next_review - now).total_seconds()
+        seconds_until = int(delta)
+        label = util.format_time_until(now, next_future.next_review)
+    else:
+        seconds_until = None
+        label = "…?"
+    return {
+        "has_due_now": has_due_now,
+        "seconds_until": seconds_until,
+        "label": label,
+    }
+
+
 def trigger_error(request):
     raise Exception("💣️ test error 🧨")
 
@@ -122,18 +142,8 @@ def review(request, variation_id=None):
             return redirect("home")
         variation_data = {}
         final_move_html = ""
-        now = timezone.now()
-        next_future = (
-            Variation.objects.active()
-            .filter(next_review__gt=now)
-            .order_by("next_review")
-            .first()
-        )
-        next_review_label = (
-            util.format_time_until(now, next_future.next_review)
-            if next_future
-            else None
-        )
+        next_due = get_next_due()
+        next_review_label = next_due["label"] if next_due["seconds_until"] else None
     else:
         variation_data = serialize_variation(variation, mode="review")
         final_move_html = get_final_move_simple_subvariations_html(variation)
@@ -1091,26 +1101,7 @@ class HomeView:
         return level_counts
 
     def get_next_due(self):
-        variations = self.get_variations()
-        has_due_now = variations.filter(next_review__lte=self.now).exists()
-
-        next_future = (
-            variations.filter(next_review__gt=self.now).order_by("next_review").first()
-        )
-
-        if next_future:
-            delta = (next_future.next_review - self.now).total_seconds()
-            seconds_until = int(delta)
-            label = util.format_time_until(self.now, next_future.next_review)
-        else:
-            seconds_until = None
-            label = "…?"
-
-        return {
-            "has_due_now": has_due_now,
-            "seconds_until": seconds_until,
-            "label": label,
-        }
+        return get_next_due(self.get_variations())
 
     def get_upcoming_time_planner(self):
         ranges = [
