@@ -131,11 +131,6 @@ x-init="initQuiz()"
   </template>
 
   <div id="review-stats" x-html="reviewStats"></div>
-  <template x-if="showCounterReset">
-    <a href="#" @click.prevent="resetReviewSession()" style="margin-bottom: 5px">
-      reset counter
-    </a>
-  </template>
 
   <div class="review-section-wrapper">
     <template x-if="showInfo && variationData.title">
@@ -175,6 +170,17 @@ x-init="initQuiz()"
     </template>
   </div>
 
+  <template x-if="!hasVariationData()">
+    <div style="margin-top: 20px">
+      <template x-if="reviewData.next_review_label">
+        <div
+          class="next-review-label"
+          x-text="'⏳ ' + reviewData.next_review_label"
+        ></div>
+      </template>
+    </div>
+  </template>
+
   <div class="help-link-container" x-cloak>
     <a
       class="help-link"
@@ -186,14 +192,6 @@ x-init="initQuiz()"
       help?
     </a>
   </div>
-
-  <template x-if="!hasVariationData()">
-    <div style="margin-top: 20px">
-      <template x-if="reviewData.next_review_label">
-        <div class="next-review-label" x-text="'⏳ ' + reviewData.next_review_label"></div>
-      </template>
-    </div>
-  </template>
 
   <template x-if="completed"> {% include "includes/history.html" %} </template>
 </div>

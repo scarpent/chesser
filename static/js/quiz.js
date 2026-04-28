@@ -9,7 +9,6 @@ export function quizApp() {
     variationData: variationData,
     reviewData: reviewData,
     showInfo: false,
-    showCounterReset: false,
     quizMoveIndex: 0,
     failed: false,
     completed: false,
@@ -464,8 +463,6 @@ export function quizApp() {
 
       const passed = parseInt(localStorage.getItem("review_pass") || "0", 10);
       const failed = parseInt(localStorage.getItem("review_fail") || "0", 10);
-      this.showCounterReset = passed + failed !== 0;
-
       const totalCompleted = passed + failed;
       // if we have enough reviews due, we're not much concerned about the "soon" count
       const dueSoon =

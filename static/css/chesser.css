@@ -245,6 +245,12 @@ ol {
 
 #quiz-container #history h3 {
   text-align: center;
+  margin-top: 0;
+}
+
+#quiz-container .help-link-container {
+  margin-top: 35px;
+  margin-bottom: 35px;
 }
 
 .variation-state-info {
