@@ -23,7 +23,6 @@ TOOLTIPS = Tooltips(
         "review_next": "Next",
         "review_finish": "Finish",
         "random_extra_study": "Random Extra Study",
-        "lichess_puzzles": "Lichess Puzzles",
         # Admin
         "admin_open": "Open in Django admin",
         "django_admin": "Django Admin",

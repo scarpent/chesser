@@ -1270,9 +1270,6 @@ more washed out with all the white paper */
 .icon-complete {
   background-image: url("/static/icons/noto-emoji/complete.svg");
 }
-.icon-puzzles {
-  background-image: url("/static/icons/noto-emoji/puzzles.svg");
-}
 /* add to preload_icons.html if it's still around, and to pages used... */
 
 /* --------------------------------------------------- Flash Messages (JS) */
@@ -1373,6 +1370,14 @@ more washed out with all the white paper */
   outline: 2px solid currentColor;
   outline-offset: 2px;
   padding: 2px 4px;
+}
+
+/* -------------------------------------------------- Home Random Container */
+
+.home-random-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
 }
 
 /* ------------------------------------------------------ Scrollbar Styling */
@@ -1879,6 +1884,10 @@ about 500, but also covers our ultimate mobile 450 view */
     margin-bottom: 0;
   }
 
+  .help-link-container {
+    margin-top: 30px;
+  }
+
   .home-recently h3 {
     margin-top: 5px;
   }
@@ -1886,6 +1895,7 @@ about 500, but also covers our ultimate mobile 450 view */
   .home-recently-wrapper {
     gap: 15px;
     justify-content: flex-start;
+    margin-top: 20px;
   }
 
   .export-list {

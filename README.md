@@ -102,7 +102,6 @@ Some of the great free software libraries and resources that made chesser possib
 | ![Review](docs/images/noto-32/review.png)        | _Review:_ Start/continue quiz session for currently due reviews. |
 | ![Import](docs/images/noto-32/import.png)        | _Import (and Export)_ via miscellaneous formats.                 |
 | ![Random](docs/images/noto-32/random.png)        | _Random Review:_ “Extra study” review chosen at random.          |
-| ![Puzzles](docs/images/noto-32/puzzles.png)      | _Puzzles:_ Open lichess puzzle training page.                    |
 | (text link)                                      | _Admin:_ Open Django admin. (Unavailable in demo mode.)          |
 
 <a id="review-page"></a>

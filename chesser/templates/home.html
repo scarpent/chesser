@@ -7,7 +7,6 @@
 <link rel="preload" href="{% static 'icons/noto-emoji/stats.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/import.svg' %}" as="image" />
 <link rel="preload" href="{% static 'icons/noto-emoji/random.svg' %}" as="image" />
-<link rel="preload" href="{% static 'icons/noto-emoji/puzzles.svg' %}" as="image" />
 {% endblock %}
 
 <!-- prettier-ignore -->
@@ -232,23 +231,6 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
   </a>
 </div>
 
-<div
-  class="button-container button-container-home"
-  style="margin-top: 15px; margin-bottom: 30px"
-  x-cloak
->
-  <button
-    title="{{ TOOLTIPS.random_extra_study }}"
-    @click="goToRandomReview()"
-    class="icon-random icon-button icon-button-big-round"
-  ></button>
-  <button
-    title="{{ TOOLTIPS.lichess_puzzles }}"
-    @click="window.open('https://lichess.org/training', '_blank', 'noopener')"
-    class="icon-puzzles icon-button icon-button-big-round"
-  ></button>
-</div>
-
 <div class="home-recently-wrapper">
   <div class="home-recently" x-cloak>
     <h3>Recently Reviewed</h3>
@@ -330,6 +312,14 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
     Server started: {{ BUILD_STARTED_AT|date:"Y-m-d H:i:s T" }}
     ({{BUILD_STARTED_AT|timesince }} ago)
   </span>
+</div>
+
+<div class="home-random-container" x-cloak>
+  <button
+    title="{{ TOOLTIPS.random_extra_study }}"
+    @click="goToRandomReview()"
+    class="icon-random icon-button icon-button-big-round"
+  ></button>
 </div>
 
 <!-- Safe JSON embed using Django json_script (avoids escapejs pitfalls) -->
