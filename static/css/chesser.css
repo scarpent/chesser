@@ -583,6 +583,7 @@ pre.grouped-move-text {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
+  margin-top: 25px;
 }
 
 .variation-mainline {
@@ -1907,7 +1908,7 @@ about 500, but also covers our ultimate mobile 450 view */
   .home-recently-wrapper {
     gap: 15px;
     justify-content: flex-start;
-    margin-top: 20px;
+    margin-top: 35px;
   }
 
   .export-list {
