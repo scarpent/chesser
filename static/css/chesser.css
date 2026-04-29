@@ -248,9 +248,15 @@ ol {
   margin-top: 0;
 }
 
-#quiz-container .help-link-container {
+.review-help-gap {
   margin-top: 35px;
   margin-bottom: 35px;
+  text-align: center;
+}
+
+.review-help-gap--slim {
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .variation-state-info {

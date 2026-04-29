@@ -181,8 +181,9 @@ x-init="initQuiz()"
     </div>
   </template>
 
-  <div class="help-link-container" x-cloak>
-    <a
+  <div class="review-help-gap{% if not IS_DEMO %} review-help-gap--slim{% endif %}">
+    {% if IS_DEMO %}
+    <
       class="help-link"
       href="https://github.com/scarpent/chesser#review-page"
       target="_blank"
@@ -191,6 +192,7 @@ x-init="initQuiz()"
     >
       help?
     </a>
+    {% endif %}
   </div>
 
   <template x-if="completed"> {% include "includes/history.html" %} </template>

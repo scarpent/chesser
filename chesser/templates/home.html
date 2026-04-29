@@ -219,6 +219,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
   </div>
 </div>
 
+{% if IS_DEMO %}
 <div class="help-link-container" x-cloak>
   <a
     class="help-link"
@@ -230,6 +231,7 @@ x-data="homeApp()" x-init="initHome(); $store.loading.visible = false;"
     help?
   </a>
 </div>
+{% endif %}
 
 <div class="home-recently-wrapper">
   <div class="home-recently" x-cloak>
