@@ -46,7 +46,7 @@ def test_review_page_authenticated(test_user):
 
     response = client.get(reverse("review_default"))
     assert response.status_code == 200
-    assert "reset counter" in response.content.decode()
+    assert "review-stats" in response.content.decode()
 
 
 @pytest.mark.django_db
