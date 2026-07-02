@@ -153,6 +153,7 @@ describe("postJson", () => {
       assert.equal(opts.credentials, "same-origin");
       assert.deepEqual(JSON.parse(opts.body), expectedPayload);
       return {
+        ok: true,
         json: async () => expectedResponse,
       };
     });
@@ -175,6 +176,7 @@ describe("postJson", () => {
     const errorResponse = { status: "error", message: "Bad data" };
 
     globalThis.fetch = mock.fn(async () => ({
+      ok: true,
       json: async () => errorResponse,
     }));
 
