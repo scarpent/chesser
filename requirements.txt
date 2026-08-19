@@ -14,9 +14,9 @@ attrs==26.1.0
     # via flake8-bugbear
 black==26.5.1
     # via -r requirements.in
-boto3==1.43.49
+boto3==1.43.74
     # via -r requirements.in
-botocore==1.43.49
+botocore==1.43.74
     # via
     #   boto3
     #   s3transfer
@@ -28,15 +28,13 @@ click==8.4.2
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.15.2
+coverage[toml]==7.15.4
     # via pytest-cov
 decorator==5.3.1
-    # via
-    #   ipdb
-    #   ipython
+    # via ipdb
 dj-database-url==3.1.2
     # via -r requirements.in
-django==6.0.7
+django==6.1
     # via
     #   -r requirements.in
     #   dj-database-url
@@ -62,13 +60,13 @@ flake8-commas==4.0.0
     # via -r requirements.in
 flake8-comprehensions==3.17.0
     # via -r requirements.in
-gunicorn==26.0.0
+gunicorn==26.1.0
     # via -r requirements.in
 iniconfig==2.3.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.15.0
+ipython==9.16.1
     # via
     #   -r requirements.in
     #   ipdb
@@ -90,11 +88,10 @@ mypy-extensions==1.1.0
     # via black
 nh3==0.3.6
     # via -r requirements.in
-packaging==26.2
+packaging==26.3
     # via
     #   black
     #   build
-    #   gunicorn
     #   pytest
     #   wheel
 parso==0.8.7
@@ -103,9 +100,9 @@ pathspec==1.1.1
     # via black
 pexpect==4.9.0
     # via ipython
-pip-tools==7.5.3
+pip-tools==7.6.1
     # via -r requirements.in
-platformdirs==4.10.0
+platformdirs==4.11.3
     # via black
 pluggy==1.6.0
     # via
@@ -113,7 +110,7 @@ pluggy==1.6.0
     #   pytest-cov
 ply==3.11
     # via djangoql
-prompt-toolkit==3.0.52
+prompt-toolkit==3.0.53
     # via ipython
 psutil==7.2.2
     # via ipython
@@ -129,7 +126,7 @@ pycodestyle==2.14.0
     # via flake8
 pyflakes==3.4.0
     # via flake8
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   ipython
     #   ipython-pygments-lexers
@@ -145,21 +142,21 @@ pytest==9.1.1
     #   pytest-django
 pytest-cov==7.1.0
     # via -r requirements.in
-pytest-django==4.12.0
+pytest-django==4.14.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via botocore
 pytokens==0.4.1
     # via black
-s3transfer==0.19.1
+s3transfer==0.19.2
     # via boto3
 six==1.17.0
     # via python-dateutil
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via django
 stack-data==0.6.3
     # via ipython
-traitlets==5.15.1
+traitlets==5.16.1
     # via
     #   ipython
     #   matplotlib-inline
@@ -171,7 +168,7 @@ watchdog==6.0.0
     # via -r requirements.in
 wcwidth==0.8.2
     # via prompt-toolkit
-wheel==0.47.0
+wheel==0.48.0
     # via pip-tools
 whitenoise==6.12.0
     # via -r requirements.in
